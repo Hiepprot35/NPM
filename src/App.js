@@ -51,74 +51,67 @@ function App() {
     return <IsLoading></IsLoading>
   }
   if (!isLoading) {
-    return (
-      <Routes>
-          <Route path="/" element={<ProPage />} />
+  
+  
+    if (AccessToken) {
+      if (auth.role === 1) {
 
-         
+        return (
+          <Routes>
+            <Route element={<RequireAuth allowedRoles={ROLES} />}>
+              <Route path="/dashboard" element={<Dashboard />} />
 
-      </Routes>
-    );
-  }
-    // if (AccessToken) {
-    //   if (auth.role === 1) {
+              <Route path="/chat" element={<ChatApp />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/message" element={<ChatApp />} />
+              <Route path="/message/:id" element={<MessageRoute />} />
 
-    //     return (
-    //       <Routes>
-    //         <Route element={<RequireAuth allowedRoles={ROLES} />}>
-    //           <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/" element={<Navigate to="/home"></Navigate>} />
+              <Route path="/create" element={<CreateStudent />} />
+              <Route path="/*" element={<Navigate to="/"></Navigate>} />
 
-    //           <Route path="/chat" element={<ChatApp />} />
-    //           <Route path="/home" element={<Home />} />
-    //           <Route path="/message" element={<ChatApp />} />
-    //           <Route path="/message/:id" element={<MessageRoute />} />
+            </Route>
+          </Routes>
+        );
+      }
+      else if (auth.role === 2) {
+        return (
+          <Routes>
+            <Route path="/dangkilop" element={<DangKiLopHoc />} />
+            <Route path="/profile/:MSSV" element={<ProfileRoutes />} />
+            <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
+            <Route element={<RequireAuth allowedRoles={ROLES} />}>
+              {/* <Route path="/" element={<Dashboard />} /> */}
+              <Route path="/" element={<Home />} />
+              <Route path="/message" element={<ChatApp />} />
+              <Route path="*" element={<Home />} />
+              <Route path="/message/:id" element={<MessageRoute />} />
+              <Route path="/lichhoc" element={<ViewTimetable />} />
+              <Route path="/setting" element={<SettingAccount />} />
 
-    //           <Route path="/" element={<Navigate to="/home"></Navigate>} />
-    //           <Route path="/create" element={<CreateStudent />} />
-    //           <Route path="/*" element={<Navigate to="/"></Navigate>} />
-
-    //         </Route>
-    //       </Routes>
-    //     );
-    //   }
-    //   else if (auth.role === 2) {
-    //     return (
-    //       <Routes>
-    //         <Route path="/dangkilop" element={<DangKiLopHoc />} />
-    //         <Route path="/profile/:MSSV" element={<ProfileRoutes />} />
-    //         <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
-    //         <Route element={<RequireAuth allowedRoles={ROLES} />}>
-    //           {/* <Route path="/" element={<Dashboard />} /> */}
-    //           <Route path="/" element={<Home />} />
-    //           <Route path="/message" element={<ChatApp />} />
-    //           <Route path="*" element={<Home />} />
-    //           <Route path="/message/:id" element={<MessageRoute />} />
-    //           <Route path="/lichhoc" element={<ViewTimetable />} />
-    //           <Route path="/setting" element={<SettingAccount />} />
-
-    //         </Route>
-    //       </Routes>
-    //     )
-    //   }
+            </Route>
+          </Routes>
+        )
+      }
       
-    // }
-    // else {
-    //     return (
-    //       <Routes>
-    //         {/* <Route path="*" element={<Navigate to="/"></Navigate>} /> */}
-    //         {/* <Route path="*" element={<IsLoading />} /> */}
-    //         <Route path="*" element={<Errorpage/>} />
-    //         <Route path="/create" element={<CreateStudent />} />
+    }
+    else {
+        return (
+          <Routes>
+            {/* <Route path="*" element={<Navigate to="/"></Navigate>} /> */}
+            {/* <Route path="*" element={<IsLoading />} /> */}
+            <Route path="*" element={<Errorpage/>} />
+            <Route path="/create" element={<CreateStudent />} />
 
-    //         <Route path="/login" element={<Login setAccessToken={setAccessToken} setIsLogin={setIsLogin} />} />
-    //         <Route path="/" element={<Login setAccessToken={setAccessToken} setIsLogin={setIsLogin} />} />
-    //       </Routes>
-    //     )
+            <Route path="/login" element={<Login setAccessToken={setAccessToken} setIsLogin={setIsLogin} />} />
+            <Route path="/" element={<Login setAccessToken={setAccessToken} setIsLogin={setIsLogin} />} />
+          </Routes>
+        )
 
-    // }
+    }
 
   }
-
+}
 
 function ProfileRoutes() {
   const { MSSV } = useParams();
