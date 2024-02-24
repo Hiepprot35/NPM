@@ -50,7 +50,10 @@
   animation-iteration-count: infinite;
 
 }
-
+button
+{
+  cursor: pointer;
+}
 .divXucXac
 {
     height: 70px;

@@ -286,9 +286,11 @@ export default function CreateStudent() {
                                             <option value={"Nam"}>Nam</option>
                                         </select>
                                     </div>
-                                    <button className="btn btn-primary">
+                                    <button type="submit"
+                                    className="sumbit">
                                         Submit
                                     </button>
+
                                 </div>
                             </div>
 

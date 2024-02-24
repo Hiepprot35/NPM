@@ -8,6 +8,8 @@ import './header.css'
 import { motion } from "framer-motion";
 import { IsLoading } from '../../Loading';
 import { header_Student } from '../../../lib/data';
+import { Player, Controls } from '@lottiefiles/react-lottie-player';
+
 function Header(props) {
     const [weather, setWeather] = useState({
         city: "",
@@ -68,6 +70,8 @@ function Header(props) {
 
             } catch (error) {
                 console.error(error);
+                setIsLoading(false)
+
             }
         };
         studentInfo();
@@ -84,7 +88,30 @@ function Header(props) {
                 <div className='header_container'>
                     <div>
                         <ul className='list'>
+                        <li>
+                            <a href='/'>
 
+                            <Player
+  autoplay
+  speed={1}	
+  src="https://lottie.host/c775397d-d0b4-434c-b084-489acbe2d17b/CpkFsQb8HX.json"
+  style={{ height: '60px', width: '60px' }}
+>
+  <Controls visible={false} buttons={['play', 'repeat', 'frame', 'debug']} />
+</Player>
+</a>
+
+                            </li>
+                            <li>
+                 
+                                <div style={{ display: "flex" }}>
+
+                                    <p className='City cityname'> {weather.city}     </p>
+                                    <p className='City citytemp'> {weather.temp}*C</p>
+                                    <img src={`/images/${weather.weather}.png`} alt={weather.weather} />
+                                </div>
+
+                            </li>
 
                             {/* {
                             auth.role == 1 ?
@@ -107,15 +134,7 @@ function Header(props) {
                                     </li>
                                 ))
                             }
-                            <li>
-                                <div style={{ display: "flex" }}>
-
-                                    <p className='City cityname'> {weather.city}     </p>
-                                    <p className='City citytemp'> {weather.temp}*C</p>
-                                    <img src={`/images/${weather.weather}.png`} alt={weather.weather} />
-                                </div>
-
-                            </li>
+                     
                         </ul>
                     </div>
 
@@ -135,7 +154,7 @@ function Header(props) {
                             </IsLoading>
                         ) : (
                             <>
-                                {user ?
+                                {user &&
                                     <>
                                         <div >
                                             {/* <li>
@@ -178,8 +197,7 @@ function Header(props) {
                                             <LogOut />
 
                                         </div>
-                                    </> : <><p>Admin</p>
-                                        <LogOut /></>
+                                    </> 
                                 }
 
                             </>

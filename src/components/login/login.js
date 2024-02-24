@@ -6,6 +6,7 @@ import useAuth from '../../hook/useAuth'
 import UseRfLocal from '../../hook/useRFLocal';
 import io from 'socket.io-client';
 import './login.css'
+import VerifyCodeEmail from '../sendEmail/verifyCodeEmail';
 const host = process.env.REACT_APP_DB_HOST;
 const URL = `${host}/api/login`;
 const imgLinkBasic =
@@ -23,7 +24,7 @@ export default function Login({ setAccessToken, setIsLogin }) {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState();
   const [loginImgBackground, setLoginImgBackground] = useState(imgLinkBasic);
-  const [verifyCode, setverifyCode] = useState();
+  const [verifyCode, setverifyCode] = useState({code:"",SentTime:""});
   const [infoToSendGmail, setinfoToSendGmail] = useState();
   const verifyCodeInput = useRef()
   const [ResApi, setResApi] = useState()
@@ -41,11 +42,10 @@ export default function Login({ setAccessToken, setIsLogin }) {
         },
         body: JSON.stringify(data)
       })
-      const resApi = await res.json()
-      setverifyCode(resApi)
+      const verifyCodeRes = await res.json()
+      setverifyCode({code:verifyCodeRes.verifycode,time:verifyCodeRes.SentTime})
     };
     ResApi?.isVerify && sendEmail();
-    console.log(infoToSendGmail?.to);
   }, [infoToSendGmail])
   async function handleSubmit(e) {
     e.preventDefault();
@@ -99,20 +99,59 @@ export default function Login({ setAccessToken, setIsLogin }) {
 
   //-------------------------------------------------------------------------------//
   const submitVerifycode = () => {
-
-    if (verifyCodeInput.current.value === verifyCode.toString()) {
+    const currenttime=new Date().getTime();
+    if(verifyCodeInput.current)
+    {
+      console.log(verifyCode.code.toString() )
+      console.log(verifyCodeInput.current.value)
+    console.log(verifyCode.code.toString()===verifyCodeInput.current.value)
+    if (verifyCodeInput.current.value === verifyCode.code.toString() && currenttime- verifyCode.SentTime<60*1000) {
       setAccessToken(ResApi.AccessToken);
       setRefreshToken(ResApi.RefreshToken)
     }
-    else {
-      setMessage("Sai mã xác thực")
+    if (verifyCodeInput.current.value === verifyCode.code.toString() && currenttime- verifyCode.SentTime>60*1000) {
+      setMessage("Code đã hết hạn");
+    }
+    if(verifyCodeInput.current.value !== verifyCode.code.toString() )
+    {
+      setMessage("Code sai");
     }
   }
-  const handleBackground = (newImg) => {
-    setLoginImgBackground(newImg)
   }
+
   // useEffect(console.log(infoToSendGmail?.to),[infoToSendGmail])
   //-------------------------------------------------------------------------------//
+  const dangnhap_layer=useRef(null)
+  const login_text=useRef(null)
+  const back_login_layout=useRef(null);
+  const forget_pass_text=useRef(null);
+  const register_text=useRef(null);
+  const save_pass_text=useRef(null);
+  const applyStyles = (element, value,prop) => {
+
+    if(dangnhap_layer.current)
+    {
+    if (element.current) {
+      element.current.style[prop] = `${value}`;
+     element.current.style.transition="500ms linear";
+    }
+  }
+  };
+  const elementsToStyle = [login_text, save_pass_text, forget_pass_text, register_text];
+
+  const applyStylesToElements = (elements, value, prop) => {
+  elements.forEach(element => {
+    applyStyles(element, value, prop);
+  });
+};
+
+const hover_dangnhap = () => {
+  applyStylesToElements(elementsToStyle, 'white', 'color');
+};
+
+const leave_dangnhap = () => {
+  applyStylesToElements(elementsToStyle, 'black', 'color');
+};
 
 
   return (
@@ -127,39 +166,22 @@ export default function Login({ setAccessToken, setIsLogin }) {
       <link rel="stylesheet" href="/css/login.css" />
 
 
-      <div className="container" style={{ zIndex: -1, backgroundImage: `url(${loginImgBackground.link})` }}>
-        <div className="dangnhap_layer">
+      <div className="container login_layout" style={{ zIndex: -1, backgroundImage: `url(${loginImgBackground.link})` }}>
+      <div className='back_login_layout' ref={back_login_layout}>
+
+        <div className="dangnhap_layer" ref={dangnhap_layer}  onMouseEnter={hover_dangnhap} onMouseLeave={leave_dangnhap}>
           <div className="dangnhap_text">
-            <h1 id="gsap_id">ĐĂNG NHẬP</h1>
+            <h1 ref={login_text} id="gsap_id">LOGIN</h1>
           </div>
           {infoToSendGmail ? (
-            <div className="dangnhap_input_div">
-              {/* <p>Verify code sent to {infoToSendGmail?.to}</p> */}
-              <div className='verifycode_div'>
-              <p className="" id="labelPassword">
-                  Đã gửi mã xác thực đến email: {infoToSendGmail?.to}
-                </p>
-              <input
-                  type="password"
-                  name="password"
-                  className=""
-                  defaultValue=""
-                  id="input_code"
-                  ref={verifyCodeInput}
-                />
-                <button
-                  type="submit"
-                  className="sumbit"
-                  id="sumbit_btn"
-                  defaultValue="Đăng nhập"
-                  onClick={submitVerifycode}
-                  style={{ marginLeft: "1rem" }}
-                > Submit </button>
-              </div>
-            </div>
+          <VerifyCodeEmail infoToSendGmail={infoToSendGmail} verifyCodeInput={verifyCodeInput} submitVerifycode={submitVerifycode}></VerifyCodeEmail>
           )
             :
             <form className="form_dn" onSubmit={handleSubmit}>
+                
+              <div className='input_login'>
+            <div style={{"width": "70%"}}>
+
               <div className="dangnhap_input_div taikhoan_input">
                 <input
                   type="text"
@@ -174,12 +196,11 @@ export default function Login({ setAccessToken, setIsLogin }) {
                   id="labelUsername"
                   htmlFor='username'
                 >
-                  TÊN NGƯỜI DÙNG
+                  Username
                 </label>
               </div>
               <div className="dangnhap_input_div">
-
-                <input
+              <input
                   type="password"
                   name="password"
                   className="dangnhapinput 1"
@@ -187,39 +208,48 @@ export default function Login({ setAccessToken, setIsLogin }) {
                   id="input_mk"
                   ref={input_password}
                 />
-                <label
+                     <label
                   className="username"
                   id="labelPassword"
                   htmlFor='password'
                 >
-                  mật khẩu
+                  Password
                 </label>
+              </div>
+
+              </div>
+
+           
               </div>
               <div className="forget_save_div">
                 <div className="forget_pass">
-                  <a href='/dangki' className="forget_pass_text">
-                    Quên mật khẩu
+                  <a href='/dangki'ref={forget_pass_text} className="forget_pass_text">
+                    Forgot Password?
                   </a>
                 </div>
                 <div className="checkbox_div">
                   <input type="checkbox" />
-                  <span className="checkbox_mk">Lưu mật khẩu</span>
+                  <span className="checkbox_mk" ref={save_pass_text}>Lưu mật khẩu</span>
                 </div>
               </div>
-
+              <div className='forget_save_div'>
+            
               <div className="sumbit_button">
                 <button
                   type="submit"
                   className="sumbit"
                   id="sumbit_btn"
                   defaultValue="Đăng nhập"
-                > Submit </button>
+                > Login </button>
               </div>
               <div className="forget_pass dangky_href">
-                <a href="/create" className="forget_pass_text">
-                  Đăng ký
-                </a>
+
+<a href="/create" className="forget_pass_text" ref={register_text}>
+  Register
+</a>
+</div>
               </div>
+            
             </form>
 
           }
@@ -232,6 +262,7 @@ export default function Login({ setAccessToken, setIsLogin }) {
           </div>
 
 
+        </div>
         </div>
 
       </div>

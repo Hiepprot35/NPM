@@ -47,30 +47,7 @@ export default function Home() {
         );
     };
    
-    useEffect(() => {
-        const senApi = async () => {
-
-
-            try {
-                const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/conversations/mess`,{
-                    method:'POST',
-                    headers:{
-                        'Content-Type': 'application/json',
-                    },
-                    body:JSON.stringify({
-                        "user1":auth.userID,
-                        
-                    })
-                });
-                const data = await res.json()
-                setlistMess(data)
-            }
-            catch (err) {
-            }
-        }
-        senApi()
-
-    }, [])
+    
     useEffect(()=>{console.log(listMSSV)},[listMSSV])
     useEffect(() => {
         const senApi = async () => {
@@ -97,7 +74,6 @@ export default function Home() {
         senApi()
 
     }, [])
-    useEffect(() => { listMess && console.log(listMess.some(item => item.user1 === 63)) }, [listMess])
     const LinkToMess = async (MSSV) => {
         const userID = await getUserID(MSSV)
 
@@ -144,8 +120,11 @@ export default function Home() {
                 const data = await response.json()
 
 
-                setIsLoading(false)
-                setPosts(data)
+                setTimeout(()=>{
+                    setIsLoading(false)
+                    setPosts(data)
+                },2000)
+               
             }
 
         } catch (error) {
@@ -170,6 +149,7 @@ export default function Home() {
                 const refreshedData = await refreshAccessToken();
                 refreshedData.AccessToken ? setAccessToken(refreshedData.AccessToken) : console.log("OKE")
             } catch (error) {
+                console.log(error)
             }
         }
 
