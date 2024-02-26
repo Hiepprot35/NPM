@@ -11,7 +11,7 @@ export default function Home() {
     const navigate = useNavigate();
    
     const { AccessToken, setAccessToken } = UseToken();
-    const { auth, setAuth } = useAuth();
+    const { auth } = useAuth();
     const [listMess, setlistMess] = useState()
     const [listMSSV, setlistMSSV] = useState()
 

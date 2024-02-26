@@ -24,6 +24,7 @@ function blobToBuffer(blob) {
     });
 }
 export default function CreateStudent() {
+
     const fileInputRef = useRef(null)
 
     const khoaRef = useRef(1)
@@ -41,6 +42,22 @@ export default function CreateStudent() {
     const [avatarURL, setAvatarURL] = useState();
     const [dataimg, setDataimg] = useState();
     const host = process.env.REACT_APP_DB_HOST;
+    useEffect(()=>{console.log(auth)},[])
+    const getUser = async () => {
+		try {
+			const url = `${process.env.REACT_APP_DB_HOST}/api/auth/login/success`;
+            const res = await fetch(url, {
+                credentials: 'include', // Đảm bảo gửi cookie
+              });
+      const resApi=await res.json();
+			console.log(resApi.user);
+
+
+		} catch (err) {
+			console.log(err);
+		}
+	};
+  useEffect(()=>{getUser()},[])
     const [values, setValues] = useState({
         Name: "",
         email: "",

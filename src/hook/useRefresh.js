@@ -33,8 +33,8 @@ export const useRefresh = () => {
       }
 
       const data = await response.json();
-      const { Role, UserID, Username } = data;
-      setAuth({ role: Role, userID: UserID, username: Username });
+      const { Role, UserID, Username,avtUrl } = data;
+      setAuth({ role: Role, userID: UserID, username: Username ,avtUrl:avtUrl});
       return data;
     } catch (error) {
       localStorage.removeItem("AccessToken")

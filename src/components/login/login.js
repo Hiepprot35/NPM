@@ -24,16 +24,45 @@ export default function Login({ setAccessToken, setIsLogin }) {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState();
   const [loginImgBackground, setLoginImgBackground] = useState(imgLinkBasic);
-  const [verifyCode, setverifyCode] = useState({code:"",SentTime:""});
+  const [verifyCode, setverifyCode] = useState({code:"",SentTime:0});
   const [infoToSendGmail, setinfoToSendGmail] = useState();
-  const verifyCodeInput = useRef()
+  const [verifyCodeInput,setVerifyCodeInput]=useState();
   const [ResApi, setResApi] = useState()
+  const [user, setUser] = useState('');
+  const GoogleAuth= ()=>{
+    window.location.href = `${process.env.REACT_APP_DB_HOST}/api/auth/google/callback`;
+
+
+  }
+  const getUser = async () => {
+    try {
+      const url = `${process.env.REACT_APP_DB_HOST}/api/auth/login/success`;
+      const res = await fetch(url, {
+        credentials: 'include', // Đảm bảo gửi cookie
+      });
+      const dataRes=await res.json()
+      if(dataRes.AccessToken)
+      {
+      setAccessToken(dataRes.AccessToken);
+      setRefreshToken(dataRes.RefreshToken)
+      const role = dataRes.Role
+      const username = dataRes.Username
+      const userID = dataRes.UserID
+      const avtUrl=dataRes.avtUrl
+    setAuth({ role, username, userID,avtUrl })
+    }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(()=>{getUser()},[])
   useEffect(() => {
     const data = {
       "to": infoToSendGmail?.to,
       "subject": 'Verify Tuanhiepprot3'
 
     }
+  
     const sendEmail = async () => {
       const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/send-email`, {
         method: 'POST',
@@ -43,7 +72,7 @@ export default function Login({ setAccessToken, setIsLogin }) {
         body: JSON.stringify(data)
       })
       const verifyCodeRes = await res.json()
-      setverifyCode({code:verifyCodeRes.verifycode,time:verifyCodeRes.SentTime})
+      setverifyCode({code:verifyCodeRes.verifycode,SentTime:verifyCodeRes.SentTime})
     };
     ResApi?.isVerify && sendEmail();
   }, [infoToSendGmail])
@@ -84,6 +113,7 @@ export default function Login({ setAccessToken, setIsLogin }) {
 
         setinfoToSendGmail({ to: dataRes.Email })
       }
+      
       setAuth({ role, username, userID })
       setMessage("")
       // navigate('/home', { state: { user } });
@@ -100,19 +130,18 @@ export default function Login({ setAccessToken, setIsLogin }) {
   //-------------------------------------------------------------------------------//
   const submitVerifycode = () => {
     const currenttime=new Date().getTime();
-    if(verifyCodeInput.current)
+    if(verifyCodeInput)
     {
-      console.log(verifyCode.code.toString() )
-      console.log(verifyCodeInput.current.value)
-    console.log(verifyCode.code.toString()===verifyCodeInput.current.value)
-    if (verifyCodeInput.current.value === verifyCode.code.toString() && currenttime- verifyCode.SentTime<60*1000) {
+    
+    console.log(typeof(verifyCode.SentTime))
+    if (verifyCodeInput === verifyCode.code.toString() && currenttime- verifyCode.SentTime<60*1000) {
       setAccessToken(ResApi.AccessToken);
       setRefreshToken(ResApi.RefreshToken)
     }
-    if (verifyCodeInput.current.value === verifyCode.code.toString() && currenttime- verifyCode.SentTime>60*1000) {
+    if (verifyCodeInput=== verifyCode.code.toString() && currenttime- parseInt(verifyCode.SentTime)>60*1000) {
       setMessage("Code đã hết hạn");
     }
-    if(verifyCodeInput.current.value !== verifyCode.code.toString() )
+    if(verifyCodeInput !== verifyCode.code.toString() )
     {
       setMessage("Code sai");
     }
@@ -131,6 +160,9 @@ export default function Login({ setAccessToken, setIsLogin }) {
 
     if(dangnhap_layer.current)
     {
+      dangnhap_layer.current.style.width="100%"
+      dangnhap_layer.current.style.height="100%"
+      dangnhap_layer.current.style.backgroundColor="black"
     if (element.current) {
       element.current.style[prop] = `${value}`;
      element.current.style.transition="500ms linear";
@@ -169,12 +201,12 @@ const leave_dangnhap = () => {
       <div className="container login_layout" style={{ zIndex: -1, backgroundImage: `url(${loginImgBackground.link})` }}>
       <div className='back_login_layout' ref={back_login_layout}>
 
-        <div className="dangnhap_layer" ref={dangnhap_layer}  onMouseEnter={hover_dangnhap} onMouseLeave={leave_dangnhap}>
+        <div className="dangnhap_layer" ref={dangnhap_layer}  onMouseEnter={hover_dangnhap} >
           <div className="dangnhap_text">
             <h1 ref={login_text} id="gsap_id">LOGIN</h1>
           </div>
           {infoToSendGmail ? (
-          <VerifyCodeEmail infoToSendGmail={infoToSendGmail} verifyCodeInput={verifyCodeInput} submitVerifycode={submitVerifycode}></VerifyCodeEmail>
+          <VerifyCodeEmail infoToSendGmail={infoToSendGmail} setVerifyCodeInput={setVerifyCodeInput} submitVerifycode={submitVerifycode}></VerifyCodeEmail>
           )
             :
             <form className="form_dn" onSubmit={handleSubmit}>
@@ -223,7 +255,7 @@ const leave_dangnhap = () => {
               </div>
               <div className="forget_save_div">
                 <div className="forget_pass">
-                  <a href='/dangki'ref={forget_pass_text} className="forget_pass_text">
+                  <a onClick={GoogleAuth} ref={forget_pass_text} className="forget_pass_text">
                     Forgot Password?
                   </a>
                 </div>
@@ -243,15 +275,27 @@ const leave_dangnhap = () => {
                 > Login </button>
               </div>
               <div className="forget_pass dangky_href">
-
-<a href="/create" className="forget_pass_text" ref={register_text}>
-  Register
-</a>
-</div>
+              <a href="/create" className="forget_pass_text" ref={register_text}>
+                Register
+              </a>
               </div>
-            
-            </form>
+              </div>   
 
+              <div className='login_google'onClick={GoogleAuth}>
+                <div ><span style={{color:"white"}}>
+                  OR
+                  </span>
+                  </div>
+                <div className='login_google_button'>
+                <div >
+                <img style={{width:"2rem",height:"2rem"}} src='https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png'></img>
+                </div>
+                <div className='button_google'>
+                <span style={{color:"black"}}> Login with Google</span>
+                </div>
+                </div>
+                 </div>   
+            </form>
           }
           <div className='warning'>
             {message ? (
@@ -260,22 +304,13 @@ const leave_dangnhap = () => {
               </div>
             ) : null}
           </div>
-
-
         </div>
         </div>
-
       </div>
       {
-
         isLoading && <IsLoading></IsLoading>
       }
     </>
-
   )
-
 }
-// Login.propTypes = {
-//   setToken: PropTypes.func.isRequired
-// };
 

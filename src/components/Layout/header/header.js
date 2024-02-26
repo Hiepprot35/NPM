@@ -31,6 +31,7 @@ function Header(props) {
     const handleSumbit = () => {
         setCity(cityInputRef.current.value);
     };
+    const [avt,setAvt]=useState()
     useEffect(() => {
         let isMounted = true;
         const tempApi = async (city) => {
@@ -80,7 +81,7 @@ function Header(props) {
         }
     }, []);
     useEffect(() => {
-        console.log(header_Student)
+        setAvt(auth.avtUrl)
     }, [])
     return (
         <>
@@ -92,114 +93,95 @@ function Header(props) {
                             <a href='/'>
 
                             <Player
-  autoplay
-  speed={1}	
-  src="https://lottie.host/c775397d-d0b4-434c-b084-489acbe2d17b/CpkFsQb8HX.json"
-  style={{ height: '60px', width: '60px' }}
->
-  <Controls visible={false} buttons={['play', 'repeat', 'frame', 'debug']} />
-</Player>
-</a>
-
+                            autoplay
+                            speed={1}	
+                            src="https://lottie.host/c775397d-d0b4-434c-b084-489acbe2d17b/CpkFsQb8HX.json"
+                            style={{ height: '60px', width: '60px' }}
+                            >
+                            <Controls visible={false} buttons={['play', 'repeat', 'frame', 'debug']} />
+                            </Player>
+                            </a>
                             </li>
                             <li>
-                 
                                 <div style={{ display: "flex" }}>
-
                                     <p className='City cityname'> {weather.city}     </p>
                                     <p className='City citytemp'> {weather.temp}*C</p>
                                     <img src={`/images/${weather.weather}.png`} alt={weather.weather} />
                                 </div>
-
                             </li>
-
-                            {/* {
-                            auth.role == 1 ?
-                                <li>
-                                    <a href="/create" className='Link'>Create</a>
-                                </li> : <><a href={`/profile/${auth.username}`} className='Link'>Thay đổi thông tin cá nhân</a>
-                                </>
-                        } */}
                             {
                                 header_Student.map((element, index) => (
-
-
                                     <li key={index}>
                                         {
                                             element.role.includes(auth.role) &&
                                             <Link to={element.hash} className={`Link ${element.hash == props.hash ? "ActiveLink" : "notActive"}`} onClick={() => setChooseHeader(element.name)}>{element.name}</Link>
-
                                         }
-
                                     </li>
                                 ))
-                            }
-                     
+                            } 
                         </ul>
                     </div>
-
-                    {/* <div className="">
-
-                    <button onClick={handleSumbit}>
-                        <img src='/images/search.png' alt='Weather'></img>
-                    </button>
-                    <input ref={cityInputRef} type="text" placeholder="Enter city" />
-                </div> */}
                     <div className="header_home_user">
-
                         {isLoading ? (
-                            <IsLoading>
-
-
-                            </IsLoading>
+                            <IsLoading/>
                         ) : (
                             <>
-                                {user &&
+                                { user ?
                                     <>
                                         <div >
-                                            {/* <li>
-                                                <p className='username_header'> Hello {auth.username}</p>
-                                                
-                                            </li> */}
+                                    
                                             {user.img && <img onClick={(e) => {
                                                 Menu_profile_header.current.classList.toggle("show_menu_profile");
                                                 e.target.classList.toggle('click_avatar');
 
-
-
                                             }} src={`${BlobtoBase64(user.img)}`} alt='User Avatar' />}
-
                                         </div>
                                         <div className='Menu_profile_header' ref={Menu_profile_header}>
-
                                             <div className='avatar_link'>
                                                 <div >
-
                                                     <a className='Menu_a_link_profile' href={`/profile/${user.MSSV}`}>
                                                         <div className='avatar_name'>
-
-
                                                             <img src={`${BlobtoBase64(user.img)}`} alt='User Avatar' />
-                                                            <span>{user.Name}</span>
+                                                            <span>{user.Name }</span>
                                                         </div>
                                                     </a>
                                                 </div>
                                                 <hr style={{ borderColor: "black" }}></hr>
                                                 <div className='ShowAll_User'>
-
-                                                    <a href='/setting'>
-
+                                                  <a href='/setting'>
                                                         <span>Cài đặt thông tin cá nhân</span>
                                                     </a>
                                                 </div>
                                             </div>
-
                                             <LogOut />
-
                                         </div>
-                                    </> 
-                                }
+                                    </> :<> <div>
+                                          <img onClick={(e) => {
+                                              Menu_profile_header.current.classList.toggle("show_menu_profile");
+                                              e.target.classList.toggle('click_avatar');
+                                          }} src={ avt} alt='User Avatar' />
+                                      </div>
+                                      <div className='Menu_profile_header' ref={Menu_profile_header}>
+                                          <div className='avatar_link'>
+                                              <div >
+                                                  <a className='Menu_a_link_profile'>
+                                                      <div className='avatar_name'>
+                                                          <img src={`${auth.avtUrl}`} alt='User Avatar' />
+                                                          <span>{auth.username }</span>
+                                                      </div>
+                                                  </a>
+                                              </div>
+                                              <hr style={{ borderColor: "black" }}></hr>
+                                              <div className='ShowAll_User'>
+                                                <a href='/setting'>
+                                                      <span>Cài đặt thông tin cá nhân</span>
+                                                  </a>
+                                              </div>
+                                          </div>
+                                          <LogOut />
 
+                                      </div></>
+                                }
                             </>
                         )}
 

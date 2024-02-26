@@ -14,6 +14,7 @@ const ChatApp = ({ messageId }) => {
   const inputMess = useRef()
   const [guestImg, setGuestImg] = useState();
   const { auth } = useAuth()
+  useEffect(()=>{console.log(auth)},[])
   const chatboxRef = useRef(null)
   const [MSSVReceived, setMSSVReceived] = useState()
   const [isLoading, setIsLoading] = useState(true)

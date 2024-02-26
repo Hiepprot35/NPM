@@ -33,7 +33,7 @@ function App() {
   useEffect(() => {
     setIsLoading(false);
   }, [AccessToken]);
-
+  
   const refreshAccessToken = useRefresh()
   useEffect(() => {
     async function fetchData() {
@@ -53,7 +53,7 @@ function App() {
   if (!isLoading) {
   
   
-    if (AccessToken) {
+    if (AccessToken ) {
       if (auth.role === 1) {
 
         return (

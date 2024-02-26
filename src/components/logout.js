@@ -5,11 +5,15 @@ export  const LogOut=() =>{
     const navigate=useNavigate()
     const LogoutClick=()=>
     {
-     localStorage.removeItem("AccessToken")
-     localStorage.removeItem("RefreshToken")
+        localStorage.removeItem("AccessToken")
+        localStorage.removeItem("RefreshToken")
+      
+          window.location.href = `${process.env.REACT_APP_DB_HOST}/api/auth/logout`;
 
-     window.location.reload();
-     navigate("/login", { replace: true });
+   
+
+    //  window.location.reload();
+    //  navigate("/login", { replace: true });
         
     }
     return(
