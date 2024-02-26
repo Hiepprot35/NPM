@@ -282,7 +282,7 @@ const leave_dangnhap = () => {
               </div>   
 
               <div className='login_google'onClick={GoogleAuth}>
-                <div ><span style={{color:"white"}}>
+                <div ><span style={{color:"white",margin:"1rem"}}>
                   OR
                   </span>
                   </div>
