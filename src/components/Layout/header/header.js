@@ -71,7 +71,7 @@ function Header(props) {
 
             } catch (error) {
                 console.error(error);
-                setIsLoading(false)
+                setIsLoading(true)
 
             }
         };
@@ -141,7 +141,7 @@ function Header(props) {
                                                 <div >
                                                     <a className='Menu_a_link_profile' href={`/profile/${user.MSSV}`}>
                                                         <div className='avatar_name'>
-                                                            <img src={`${BlobtoBase64(user.img)}`} alt='User Avatar' />
+                                                            <img src={user.img && `${BlobtoBase64(user.img)}`} alt='User Avatar' />
                                                             <span>{user.Name }</span>
                                                         </div>
                                                     </a>
