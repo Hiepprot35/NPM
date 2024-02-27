@@ -1,7 +1,7 @@
 import { Player, Controls } from '@lottiefiles/react-lottie-player';
 import { useEffect, useState } from 'react';
 
-const IsLoading = () => {
+export const IsLoading = () => {
   const [internetError, setInternetError] = useState(false);
 
   useEffect(() => {
@@ -33,4 +33,3 @@ const IsLoading = () => {
   );
 };
 
-export default IsLoading;
