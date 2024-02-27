@@ -146,10 +146,9 @@ export default function Home() {
         async function fetchData() {
             try {
                 const refreshedData = await refreshAccessToken();
-                refreshedData.AccessToken ? setAccessToken(refreshedData.AccessToken) : console.log("OKE")
+                refreshedData.AccessToken ? setAccessToken(refreshedData.AccessToken) : setIsLoading(true)
             } catch (error) {
                 setIsLoading(true)
-
                 console.log(error)
             }
         }
