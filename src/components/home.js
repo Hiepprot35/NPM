@@ -116,20 +116,17 @@ export default function Home() {
                 }
             });
             if (response.ok) {
-
                 const data = await response.json()
-
-
                 setTimeout(()=>{
                     setIsLoading(false)
                     setPosts(data)
                 },2000)
                
             }
-
         } catch (error) {
-
             console.error(error)
+            setIsLoading(true)
+
         }
     }
     const getUserID = async (MSSV) => {
@@ -139,6 +136,8 @@ export default function Home() {
             return userID
 
         } catch (error) {
+            setIsLoading(true)
+
             console.log(error)
         }
     }
@@ -149,6 +148,8 @@ export default function Home() {
                 const refreshedData = await refreshAccessToken();
                 refreshedData.AccessToken ? setAccessToken(refreshedData.AccessToken) : console.log("OKE")
             } catch (error) {
+                setIsLoading(true)
+
                 console.log(error)
             }
         }
