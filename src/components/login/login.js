@@ -50,6 +50,7 @@ export default function Login({ setAccessToken, setIsLogin }) {
       const userID = dataRes.UserID
       const avtUrl=dataRes.avtUrl
     setAuth({ role, username, userID,avtUrl })
+    setIsLoading(false)
     }
     } catch (err) {
       console.log(err);

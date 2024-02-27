@@ -71,7 +71,7 @@ function Header(props) {
 
             } catch (error) {
                 console.error(error);
-                setIsLoading(true)
+                setIsLoading(false)
 
             }
         };

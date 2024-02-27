@@ -6,6 +6,7 @@ import Header from "./Layout/header/header";
 import { IsLoading } from "./Loading";
 import useAuth from "../hook/useAuth";
 import io from 'socket.io-client';
+import MessageMainLayout from "./messagerMainLayout/messageMainLayout";
 import BlobtoBase64 from "../function/BlobtoBase64";
 export default function Home() {
     const navigate = useNavigate();
@@ -125,7 +126,7 @@ export default function Home() {
             }
         } catch (error) {
             console.error(error)
-            setIsLoading(true)
+            // setIsLoading(true)
 
         }
     }
@@ -136,7 +137,7 @@ export default function Home() {
             return userID
 
         } catch (error) {
-            setIsLoading(true)
+            // setIsLoading(true)
 
             console.log(error)
         }
@@ -148,7 +149,7 @@ export default function Home() {
                 const refreshedData = await refreshAccessToken();
                 refreshedData.AccessToken ? setAccessToken(refreshedData.AccessToken) : setIsLoading(true)
             } catch (error) {
-                setIsLoading(true)
+                // setIsLoading(true)
                 console.log(error)
             }
         }
@@ -176,6 +177,7 @@ export default function Home() {
             <div className="container_main" >
                 {
                     isLoading ? <IsLoading /> :
+                    <div>
                         <section className="articles"  ref={myRef}>
                             {
 
@@ -218,6 +220,10 @@ export default function Home() {
                                 })
                             }
                         </section>
+                        <div>
+                            <MessageMainLayout/>
+                        </div>
+                        </div>
 
                 }
                 <div style={{display:"flex",justifyContent:"center"}}>

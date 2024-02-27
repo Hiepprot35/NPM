@@ -8,6 +8,7 @@ import './chatApp.css'
 import Conversation from '../conversation/conversations';
 import Message from '../message/Message';
 import getTime from '../../function/getTime';
+import { getConversation } from '../conversation/getConversation';
 const ChatApp = ({ messageId }) => {
   document.title = "Message"
   const messageScroll = useRef(null)
@@ -18,7 +19,7 @@ const ChatApp = ({ messageId }) => {
   const chatboxRef = useRef(null)
   const [MSSVReceived, setMSSVReceived] = useState()
   const [isLoading, setIsLoading] = useState(true)
-  const [visibleMessages, setVisibleMessages] = useState([]);
+  const [data, setData] = useState([]);
   const [conversations, setConversation] = useState([])
   const [currentChat, setCurrentChat] = useState(null);
   const [arrivalMessage, setArrivalMessage] = useState(null);
@@ -30,62 +31,6 @@ const ChatApp = ({ messageId }) => {
   const [scrollPercentage, setScrollPercentage] = useState(0);
   const [getMessScroll, setGetMessScroll] = useState(1)
   const [isSeen, setisSeen] = useState(false)
-
-  // const handleScroll = () => {
-  //   if (messageScroll.current) {
-  //     const element = messageScroll.current;
-  //     const scrollTop = element.scrollTop;
-  //     const scrollHeight = element.scrollHeight;
-  //     const clientHeight = element.clientHeight;
-  //     const percentage = (scrollTop / (scrollHeight - clientHeight)) * 100;
-  //     setScrollPercentage(percentage);
-  //   }
-  // };
-  // useEffect(() => {
-  //   // Hiển thị 10 tin nhắn mới nhất ban đầu
-  //   setVisibleMessages(messages.slice(messages.length-15, messages.length));
-  // }, [messages]);
-  // useEffect(() => {
-  //   const element = messageScroll.current;
-  //   if (element) {
-  //     element.addEventListener('scroll', handleScroll);
-
-  //     return () => {
-  //       element.removeEventListener('scroll', handleScroll);
-  //     };
-  //   }
-  // }, [currentChat, messages]);
-  // useEffect(() => {
-
-  // }, [])
-
-  // useEffect(() => {
-  //   if ( messageScroll.current) {
-  //     const element = messageScroll.current;
-  //     const scrollHeight = element.scrollHeight;
-  //     const clientHeight = element.clientHeight;
-  //     console.log(clientHeight)
-  //     element.scrollTop = scrollHeight;
-  //   }
-  // }, [messages]);
-  // const loadMoreMessages = () => {
-  //   const currentlyVisibleCount = visibleMessages.length;
-  //   const messagesToLoad = 1;
-  //   const startIndex = messages.length - currentlyVisibleCount;
-  //   const endIndex = startIndex - messagesToLoad;
-  //   console.log(endIndex,"-",startIndex)
-  //   if (endIndex >= 0) {
-      
-  //     const newVisibleMessages = messages.slice(endIndex, startIndex);
-  //     setVisibleMessages([...newVisibleMessages, ...visibleMessages]);
-  //   }
-  // };
-  // useEffect(() => {
-  //   if (scrollPercentage < 10) {
-  //     console.log("oke")
-  //     loadMoreMessages();
-  //   }
-  // }, [scrollPercentage])
   useEffect(() => {
     if (messageId) {
       const senApi = async () => {
@@ -210,42 +155,23 @@ const ChatApp = ({ messageId }) => {
         setMessages((prev) => [...prev, arrivalMessage]);
     }
   }, [arrivalMessage, currentChat]);
-  const data = []
   useEffect(() => {
-    const getConversation = async () => {
-      const URL = `${process.env.REACT_APP_DB_HOST}/api/conversations/${auth.userID}`
-      try {
-
-        const res = await fetch(URL,
-          {
-            method: "get",
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-
-        const respon = await res.json();
-        setConversation(respon)
-        data = [respon]
-      } catch (error) {
-
-      }
+    async function AsyncGetCon()
+    {
+      const convers= await getConversation(auth);
+      setConversation(convers)
+      setData([convers])
     }
-    getConversation()
+    AsyncGetCon()
   }, [messages, arrivalMessage, isSeen])
-
   useEffect(() => {
-
-
     const getNewstMess = async () => {
       try {
-
         const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/newest/seen/${currentChat?.id}/${auth?.userID}`)
         const getMess = await res.json();
         setuserSeenAt(getMess)
-      } catch (error) {
+      } catch (error) { console.log(error)
       }
-
     }
     getNewstMess()
 
@@ -276,8 +202,6 @@ const ChatApp = ({ messageId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (inputMess.current.value) {
-
-
       const message = {
         sender_id: auth.userID,
         content: inputMess.current.value,
@@ -309,36 +233,6 @@ const ChatApp = ({ messageId }) => {
       }
     }
   };
-  useEffect(() => {
-    console.log(getMessScroll)
-
-  }, [getMessScroll])
-  useEffect(() => {
-    const getMessages = async () => {
-      if (currentChat) {
-
-
-        try {
-          const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/${currentChat?.id}`,
-            {
-              method: "POST",
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ "count": getMessScroll })
-            }
-          );
-          const data = await res.json()
-          console.log(data)
-          setMessages(data);
-
-        } catch (err) {
-          console.log(err);
-        }
-      };
-    }
-    getMessages();
-  }, [currentChat, getMessScroll]);
   useEffect(() => {
     let receiverId;
     const user12 = [currentChat?.user1, currentChat?.user2];
