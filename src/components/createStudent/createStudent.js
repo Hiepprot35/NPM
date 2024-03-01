@@ -92,9 +92,7 @@ export default function CreateStudent() {
             const res = await fetch(`${host}/api/createStudent`, {
                 method: 'POST',
                 body: data,
-                headers:{
-
-                }
+               
             });
             const resJson = await res.json();
             if (resJson && resJson.status === 200) {
