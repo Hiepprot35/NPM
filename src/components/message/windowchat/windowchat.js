@@ -169,12 +169,12 @@ export default function WindowChat(props)
                                   <div className='header_online'>
                                     <div className='avatar_dot'>
                                       <img className='avatarImage' alt='Avatar' src={userInfor.img ? `${(userInfor.img)}`:""}></img>
-                                      {/* <span className={`dot ${props.ListusersOnline.some((e)=>e.userId===userConver) ? "activeOnline" : {}}`}>  </span> */}
+                                      <span className={`dot ${props.ListusersOnline.some((e)=>e.userId===userConver) ? "activeOnline" : {}}`}>  </span>
                                     </div>
                                     <div className='header_text'>
                                       <div style={{ fontSize: "1.5rem", color: "black", fontWeight: "bold" }}> {userInfor.Name}</div>
                                       {
-                                        // <span>{props.ListusersOnline.some((e)=>e.userId===userConver) ? <>Đang hoạt động</> : <>Không hoạt động</>}</span>
+                                        <span>{props.ListusersOnline.some((e)=>e.userId===userConver) ? <>Đang hoạt động</> : <>Không hoạt động</>}</span>
                                       }
                                     </div>
                                   </div>
