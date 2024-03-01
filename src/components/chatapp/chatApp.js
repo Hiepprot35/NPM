@@ -177,7 +177,6 @@ const ChatApp = ({ messageId }) => {
   useEffect(() => {
     if (arrivalMessage) {
       const data = [currentChat?.user1, currentChat?.user2];
-      data.includes(arrivalMessage.sender_id) &&
         setMessages((prev) => [...prev, arrivalMessage]);
     }
   }, [arrivalMessage]);
