@@ -12,10 +12,10 @@ export default function WindowChat(props)
     const [inputMess,setInputmess]=useState();
     const [userName,setUsername]=useState();
     const userConver=props.count.user1===auth.userID?props.count.user2:props.count.user1;
-    useEffect(()=>{
-        console.log("Ds online :",props.ListusersOnline.some((e)=>e.userId===userConver))
-        console.log("Con",userConver)
-    },[])
+    // useEffect(()=>{
+    //     console.log("Ds online :",props.ListusersOnline.some((e)=>e.userId===userConver))
+    //     console.log("Con",userConver)
+    // },[])
     const [userInfor,setUserInfo]=useState();
     const [messages,setMessages]=useState();
         useEffect(() => {
