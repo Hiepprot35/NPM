@@ -26,21 +26,7 @@ export default function CreateStudent() {
     const [dataimg, setDataimg] = useState();
     const host = process.env.REACT_APP_DB_HOST;
     useEffect(()=>{console.log(auth)},[])
-    const getUser = async () => {
-		try {
-			const url = `${process.env.REACT_APP_DB_HOST}/api/auth/login/success`;
-            const res = await fetch(url, {
-                credentials: 'include', 
-              });
-      const resApi=await res.json();
-			console.log(resApi.user);
 
-
-		} catch (err) {
-			console.log(err);
-		}
-	};
-  useEffect(()=>{getUser()},[])
     const [values, setValues] = useState({
         Name: "",
         email: "",
@@ -106,6 +92,9 @@ export default function CreateStudent() {
             const res = await fetch(`${host}/api/createStudent`, {
                 method: 'POST',
                 body: data,
+                headers:{
+
+                }
             });
             const resJson = await res.json();
             if (resJson && resJson.status === 200) {
@@ -113,7 +102,8 @@ export default function CreateStudent() {
                 setMessRes(resJson.message);
             } else {
                 setIsMounted(false);
-                setMessRes(resJson.message || 'Unknown error occurred');
+                setMessRes(resJson.message || resJson);
+                console.log(resJson)
             }
         } catch (error) {
             console.error('Error occurred:', error);
@@ -141,21 +131,6 @@ export default function CreateStudent() {
             console.error(error);
         }
     }
-    const readFileAsync = (file) => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-    
-          reader.onload = () => {
-            resolve(reader.result);
-          };
-    
-          reader.onerror = (error) => {
-            reject(error);
-          };
-    
-          reader.readAsArrayBuffer(file);
-        });
-    };
     const confirmSubmit = () => {
         const formData = new FormData();
         if (values) {
