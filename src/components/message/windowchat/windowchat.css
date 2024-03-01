@@ -1,0 +1,98 @@
+.windowchat
+{
+    border-radius: 1em;
+    width: 25vw;
+    height: 60vh;
+    background-color: rgb(255, 255, 255);
+   margin:0 1rem  1rem;
+   z-index: 2;
+   
+        
+}
+.top_windowchat
+{
+
+    border-top-left-radius: 1rem;
+    height: 12%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0 4px 2px -2px rgb(162, 159, 159);
+    align-items: center;
+    z-index: 3;
+    position: relative;
+}
+.header_windowchat
+{
+    margin:0.3rem;
+    padding: 0 0.4rem 0 0.4rem;
+    transition: 250ms linear;
+}
+.header_windowchat:hover
+{    
+
+    border-radius: 0.7rem;
+    background-color: rgb(201, 188, 188);
+}
+.button_windowchat{
+    width: 40%;
+    display: flex;
+    flex-direction: row-reverse;
+}
+.windowchat_feature
+{
+    width: 100%;
+}
+.feature_left
+{
+    width: 30%;
+}
+.feature_left ul
+{
+    flex-direction:row !important;
+}
+.feature_left li
+{
+    color: #f1f1f1;
+    display: flex;
+    width: 30%;
+    height: 40px;
+    line-height: 40px;
+    align-items: center;
+    justify-content: center;
+}
+#send_window_input:focus{
+    outline: none; /* Loại bỏ đường viền mặc định trình duyệt */
+}
+.windowchat_input #send_window_input
+{
+    background-color: transparent ;
+    border: none !important;
+    margin-left: 0.3rem;
+}
+.windowchat_container
+{
+    display: flex;
+    max-width: 60vw;
+    height: 60vh;
+    position: fixed;
+    bottom: 2rem;
+    right: 0;
+    justify-content: space-evenly;
+}
+.feature_left{
+    display: flex;
+}
+.windowchat_input
+{
+    border-radius: 0.5rem;
+    background-color: rgb(209, 199, 199);
+    width: 55% !important;
+}
+.main_windowchat
+{
+    overflow: hidden;
+    scroll-behavior: smooth;
+    overflow-y: scroll;
+    height: 50vh;
+}

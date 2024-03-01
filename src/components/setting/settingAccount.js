@@ -58,7 +58,7 @@ export default function SettingAccount() {
             setInputs(map)
         }
     }, [userInfo])
-    useEffect(() => { console.log(choosenProperty) }, [choosenProperty])
+    useEffect(() => { console.log(userInfo) }, [userInfo])
     const clickProperty = (data) => {
         setClicked(true)
         setChoosenProperty({ "key": data.key, "value": data.value });
@@ -119,7 +119,7 @@ export default function SettingAccount() {
                       
                     </div>
                     {clicked && choosenProperty &&
-                        <PropertyUser propertyUser={choosenProperty} setUserInfo={setUserInfo} setSaved={setSaved} setClicked={setClicked}></PropertyUser>
+                        <PropertyUser propertyUser={choosenProperty} setUserInfo={setUserInfo} setSaved={setSaved} setClicked={setClicked} userInfo={userInfo}></PropertyUser>
                     }
                 </div>
 

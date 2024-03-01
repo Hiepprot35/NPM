@@ -49,13 +49,16 @@ code {
 .dot {
   border: 1px solid white;
   position: relative;
-  z-index: 10;
   margin-left:-10px;
   height: 0.8rem;
   width: 0.8rem;
   background-color: #bbb;
   border-radius: 50%;
   display: inline-block;
+}
+.height_vh100
+{
+  height: 100vh;
 }
 .activeOnline
 {
@@ -99,7 +102,7 @@ div
 }
 
 .container_main {
-  margin-top: 80px;
+  margin-top: 7vh;
 
 }
 

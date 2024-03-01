@@ -1,41 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 import { Buffer } from "buffer";
-import { useRefresh } from "../../hook/useRefresh";
-import UseToken from "../../hook/useToken";
 import { ConfirmDialog } from "../confirmComponent/confirm";
-import Header from "../Layout/header/header";
 import useAuth from '../../hook/useAuth'
 import FormInput from "../Layout/FormInput/FormInput";
-import { ResizeImg } from "../../function/ResizeImg";
 import SuccessNotification from "../Notification/successNotifi";
 import './createStudent.css'
-function blobToBuffer(blob) {
-
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const buffer = Buffer.from(reader.result);
-            resolve(buffer);
-        };
-        reader.onerror = (error) => {
-            reject(error);
-        };
-        reader.readAsArrayBuffer(blob);
-    });
-}
+import { data } from "jquery";
+import { huyen } from "../../lib/huyen";
+import { cityname } from "../../lib/city";
 export default function CreateStudent() {
+    // const fs = require('fs');
 
     const fileInputRef = useRef(null)
-
     const khoaRef = useRef(1)
-    const password = useRef()
     const currentChooseClass = useRef(null)
     const currentChooseSex = useRef(null)
     const [currentChooseKhoa, setCurrentChooseKhoa] = useState(1);
     const { auth } = useAuth()
     const [messRes, setMessRes] = useState();
     const [khoa, setKhoa] = useState();
-    const { AccessToken, setAccessToken } = UseToken();
     const [isMounted, setIsMounted] = useState(false)
     const [classInfo, setClass] = useState([]);
     const [classFlowKhoa, setClassFlowKhoa] = useState();
@@ -47,7 +30,7 @@ export default function CreateStudent() {
 		try {
 			const url = `${process.env.REACT_APP_DB_HOST}/api/auth/login/success`;
             const res = await fetch(url, {
-                credentials: 'include', // Đảm bảo gửi cookie
+                credentials: 'include', 
               });
       const resApi=await res.json();
 			console.log(resApi.user);
@@ -67,7 +50,7 @@ export default function CreateStudent() {
         SDT: "",
         backgroundimg: "",
         create_by: "",
-        img: "",
+        image: "",
         Khoa: "",
         Sex: "",
         Class: ""
@@ -94,57 +77,95 @@ export default function CreateStudent() {
             })
 
     }, []);
-
+    const [CityName,setCityName]=useState();
+    const getCity=async ()=>{
+        const response = await fetch(
+            'https://parseapi.back4app.com/classes/City?limit=63',
+            {
+              headers: {
+                'X-Parse-Application-Id': 'kysTM8sxjGAzL9kRFu5SbI3zRSZgRvzj6Feb9CaI', // This is the fake app's application id
+                'X-Parse-Master-Key': 'saeclF3NoaHo0ETX9uN88H85xT2KAY4QCHNp4n1F', // This is the fake app's readonly master key
+              }
+            }
+          );
+          const data = await response.json(); // Here you have the data that you
+    setCityName(data)
+    }
+    useEffect(()=>{
+       getCity() 
+    },[])
+    useEffect(()=>{
+        console.log(CityName)
+    },[CityName])
     const sendData = async (data) => {
         try {
-            console.log("join")
+            const formDataInfo = {};
+            data.forEach((value, key) => {
+                formDataInfo[key] = value;
+            });
             const res = await fetch(`${host}/api/createStudent`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${AccessToken}`,
-                },
-                body: JSON.stringify(data)
+                body: data,
             });
-
             const resJson = await res.json();
-            if (resJson.status == 200) {
+            if (resJson && resJson.status === 200) {
                 setIsMounted(false);
                 setMessRes(resJson.message);
+            } else {
+                setIsMounted(false);
+                setMessRes(resJson.message || 'Unknown error occurred');
             }
-            setIsMounted(false);
-            setMessRes(resJson.message);
-
-
         } catch (error) {
-
             console.error('Error occurred:', error);
         }
     }
-    useEffect(() => { console.log(values) }, [values])
     async function handleSubmit(event) {
         try {
             event.preventDefault();
-            const imgBigger = await blobToBuffer(dataimg)
-            ResizeImg(dataimg, async (newBlob) => {
-                const imgBufer = await blobToBuffer(newBlob)
-                setValues({
-                    ...values, Khoa: currentChooseKhoa,
-                    Class: currentChooseClass.current.value,
-                    Sex: currentChooseSex.current.value,
-                    img: imgBufer,
-                    backgroundimg: imgBigger
-                })
+            if(dataimg)
+            {
+          setValues({
+                ...values,
+                Address:addresInfo,
+                Khoa: currentChooseKhoa,
+                Class: currentChooseClass.current.value,
+                Sex: currentChooseSex.current.value,
+                image: dataimg,
+                backgroundimg: "dataimg"
             })
+            
             setIsMounted(true)
+        }
         }
         catch (error) {
             console.error(error);
         }
     }
-
+    const readFileAsync = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+    
+          reader.onload = () => {
+            resolve(reader.result);
+          };
+    
+          reader.onerror = (error) => {
+            reject(error);
+          };
+    
+          reader.readAsArrayBuffer(file);
+        });
+    };
     const confirmSubmit = () => {
-        values && sendData(values);
+        const formData = new FormData();
+        if (values) {
+            Object.entries(values).forEach(([key, value]) => {
+                // console.log(`${key}: ${value}`);
+                formData.append(key, value);
+            });
+       
+        }
+        sendData(formData);
     }
     const onCancel = () => {
         setIsMounted(false);
@@ -183,46 +204,44 @@ export default function CreateStudent() {
             placeholder: "Birthday",
             label: "Birthday",
         },
-        {
-            id: 4,
-            name: "password",
-            type: "password",
-            placeholder: "Password",
-            errorMessage:
-                "Password should be 8-20 characters and include at least 1 letter, 1 number and 1 special character!",
-            label: "Password",
-            // pattern: `^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,20}$`,
-            required: true,
-            title: "Eight or more characters"
-        },
-
-        {
-            id: 6,
-            name: "Address",
-            type: "text",
-            placeholder: "Address",
-            errorMessage: "SDT don't match!",
-            label: "Address",
-            // pattern: "^[A-Za-z0-9]{3,16}$",
-            required: true,
-        },
+    
+        // {
+        //     id: 6,
+        //     name: "Address",
+        //     type: "text",
+        //     placeholder: "Address",
+        //     label: "Address",
+        //     // pattern: "^[A-Za-z0-9]{3,16}$",
+        //     required: true,
+        // },
         {
             id: 7,
             name: "SDT",
             type: "text",
             placeholder: "SDT",
-            errorMessage: "PasswSords don't match!",
             label: "SDT",
             // pattern: "^[0-9]{3,16}$",
             required: true,
         },
     ];
+    const [addresInfo,setAddresInfo]=useState();
+
+    const [HuyenFollowCity,setHuyenFollowCity]=useState();
+    const setHuyen=(e)=>{
+        console.log(e)
+       const data= huyen.filter((v,m)=>v.CityCode===e);
+       setHuyenFollowCity(data)
+    }
+    const onChangeHuyen=(e)=>
+    {
+      const data=  HuyenFollowCity.find((v)=>e===v.HuyenID)
+      setAddresInfo(`${data.name},${data.TP}`)
+    }    
     const onChange = (e) => {
         setValues({ ...values, [e.target.name]: e.target.value });
     }
     return (
         <>
-            <Header></Header>
             <div className="CreateStudentForm">
                 <div className="column_form">
                     <h2>Thêm sinh viên</h2>
@@ -296,6 +315,39 @@ export default function CreateStudent() {
                                             }
                                         </select>
                                     </div>
+                                    <div className="mb-3">
+                                        <span>Tên TP: </span>
+
+                                        <select name="Class"onChange={(e)=>{setHuyen(e.target.value)}} >
+                                        <option> Chọn giá trị</option>
+                                            {
+                                                 cityname.map((tab) => {
+                                                    return (
+                                                        <option key={tab.name} value={tab.CityCode}  >
+                                                            {tab.name}
+                                                        </option>
+                                                    )
+                                                })
+                                            }
+                                        </select>
+                                    </div>
+                                      <div className="mb-3">
+                                        <span>Tên huyện,quận: </span>
+                                        <select name="Class" onChange={(e)=>{onChangeHuyen(e.target.value)}}>
+                                        <option> Chọn giá trị</option>
+
+                                            {
+                                                HuyenFollowCity&& HuyenFollowCity.map((tab) => {
+                                                    return (
+                                                        <option key={tab.name} value={tab.HuyenID} >
+                                                            {tab.name}
+                                                        </option>
+                                                    )
+                                                })
+                                            }
+                                        </select>
+                                    </div>
+                                    
                                     <div className="mb-3">
                                         <span>Giới tính: </span>
                                         <select id="sex" name="Sex" ref={currentChooseSex} >

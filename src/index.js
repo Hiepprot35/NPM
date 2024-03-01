@@ -7,15 +7,20 @@ import App from './App';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { ActiveSectionContextProvider } from './context/ActiveSectionContextProvider';
+import { SocketProvider } from './context/socketContext';
+
 document.title = "Login"
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <ActiveSectionContextProvider>
         <AuthProvider>
+            <SocketProvider>
+
             <BrowserRouter>
                 <App></App>
             </BrowserRouter>
+            </SocketProvider>
         </AuthProvider>
     </ActiveSectionContextProvider>
 

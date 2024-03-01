@@ -6,6 +6,7 @@ import Header from "./Layout/header/header";
 import { IsLoading } from "./Loading";
 import useAuth from "../hook/useAuth";
 import io from 'socket.io-client';
+import WindowChat from "./message/windowchat/windowchat";
 import MessageMainLayout from "./messagerMainLayout/messageMainLayout";
 import BlobtoBase64 from "../function/BlobtoBase64";
 export default function Home() {
@@ -22,7 +23,7 @@ export default function Home() {
     const [currentPage, setCurrentPage] = useState(1)
     const [classInfo, setClass] = useState([]);
     const[click,setClick]=useState()
-    const DataPerPage = 4;
+    const DataPerPage = 2;
     const startIndex = (currentPage - 1) * DataPerPage;
     const endIndex = startIndex + DataPerPage
     useEffect(() => {
@@ -130,6 +131,7 @@ export default function Home() {
 
         }
     }
+    
     const getUserID = async (MSSV) => {
         try {
             const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/userID/${MSSV}`)
@@ -174,14 +176,15 @@ export default function Home() {
 
         <>
             <Header hash={'/home'} />
-            <div className="container_main" >
+            <div className="container_main height_vh100" >
                 {
                     isLoading ? <IsLoading /> :
-                    <div>
+                    <div style={{display:"flex"}}  >
                         <section className="articles"  ref={myRef}>
                             {
 
                                 currentData.map((element, index) => {
+                                    console.log(element)
                                     return (
 
                                         <article key={index}>
@@ -190,7 +193,7 @@ export default function Home() {
 
                                                 <figure>
                                                     
-                                                    <img src={`${BlobtoBase64(element.backgroundimg)}`} alt="" />
+                                                    <img src={element.img} alt="" />
                                                 </figure>
                                                 </a>
                                                 <div className="article-body">
@@ -220,7 +223,7 @@ export default function Home() {
                                 })
                             }
                         </section>
-                        <div>
+                        <div style={{width:"20%",}} >
                             <MessageMainLayout/>
                         </div>
                         </div>

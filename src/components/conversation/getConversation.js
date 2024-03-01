@@ -1,5 +1,4 @@
 export const getConversation = async (auth) => {
-  console.log(auth.userID)
     const URL = `${process.env.REACT_APP_DB_HOST}/api/conversations/${auth.userID}`;
     try {
       const res = await fetch(URL, {
@@ -14,7 +13,6 @@ export const getConversation = async (auth) => {
       }
   
     const respon = await res.json();
-      console.log(respon)
     return respon;
     } catch (error) {
       console.error("Error in getConversation:", error.message);

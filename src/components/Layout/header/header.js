@@ -134,14 +134,14 @@ function Header(props) {
                                                 Menu_profile_header.current.classList.toggle("show_menu_profile");
                                                 e.target.classList.toggle('click_avatar');
 
-                                            }} src={`${BlobtoBase64(user.img)}`} alt='User Avatar' />}
+                                            }} src={`${user.img}`} alt='User Avatar' />}
                                         </div>
                                         <div className='Menu_profile_header' ref={Menu_profile_header}>
                                             <div className='avatar_link'>
                                                 <div >
                                                     <a className='Menu_a_link_profile' href={`/profile/${user.MSSV}`}>
                                                         <div className='avatar_name'>
-                                                            <img src={user.img && `${BlobtoBase64(user.img)}`} alt='User Avatar' />
+                                                            <img src={user.img && `${(user.img)}`} alt='User Avatar' />
                                                             <span>{user.Name }</span>
                                                         </div>
                                                     </a>

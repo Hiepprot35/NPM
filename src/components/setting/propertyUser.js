@@ -22,12 +22,7 @@ export default function PropertyUser(props) {
     }
     function saveUserProperty()
     {
-        props.setUserInfo((value) => {
-            return {
-              ...value,
-              [props.propertyUser.key]: property
-            };
-          });
+        props.setUserInfo(({...props.userInfo,[props.propertyUser.key]: property}));
           props.setClicked(false);
           props.setSaved(true);
         }

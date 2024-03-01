@@ -8,7 +8,6 @@ import io from 'socket.io-client';
 import './login.css'
 import VerifyCodeEmail from '../sendEmail/verifyCodeEmail';
 const host = process.env.REACT_APP_DB_HOST;
-const URL = `${host}/api/login`;
 const imgLinkBasic =
 {
   link: "https://pbs.twimg.com/media/EnOnhlSWEAEeYB3?format=jpg&name=large"
@@ -60,8 +59,8 @@ export default function Login({ setAccessToken, setIsLogin }) {
   useEffect(() => {
     const data = {
       "to": infoToSendGmail?.to,
-      "subject": 'Verify Tuanhiepprot3'
-
+      "subject": 'Verify Tuanhiepprot3',
+      "register":false
     }
   
     const sendEmail = async () => {
@@ -86,6 +85,8 @@ export default function Login({ setAccessToken, setIsLogin }) {
     const data = Array.from(e.target.elements)
       .filter((input) => input.name)
       .reduce((obj, input) => Object.assign(obj, { [input.name]: input.value }), {})
+      const URL = `${host}/api/login`;
+
     const resoponse = await fetch(URL,
       {
         method: "POST",
@@ -98,6 +99,7 @@ export default function Login({ setAccessToken, setIsLogin }) {
       })
 
     const dataRes = await resoponse.json();
+  
     if (dataRes.AccessToken) {
       const user = dataRes;
       // setAuth({user.RoleID})
