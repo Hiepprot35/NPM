@@ -45,16 +45,19 @@ export default function WindowChat(props)
         }
       }, [arrivalMessage]);
     useEffect(() => {
-        socket.on("getMessage", (data) => {
-          setArrivalMessage({
-            sender_id: data.sender_id,
-            content: data.content,
-            created_at: Date.now(),
-          });
-        });
-        // socket.on("getUser")
-        return () => {
-            socket.disconnect();
+        if(socket)
+        {
+
+            socket.on("getMessage", (data) => {
+                setArrivalMessage({
+                    sender_id: data.sender_id,
+                    content: data.content,
+                    created_at: Date.now(),
+                });
+            });
+            return () => {
+                socket.disconnect();
+            }
         }
       }, [socket])
       useEffect(()=>{console.log(arrivalMessage)},[arrivalMessage])

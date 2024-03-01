@@ -125,6 +125,8 @@ const ChatApp = ({ messageId }) => {
   }
 }
   useEffect(() => {
+    if(socket)
+    {
     socket.on("getMessage", (data) => {
       setArrivalMessage({
         sender_id: data.sender_id,
@@ -135,6 +137,7 @@ const ChatApp = ({ messageId }) => {
     return () => {
       socket.disconnect();
     }
+  }
   }, [socket]
   )
   useEffect(() => {
@@ -177,7 +180,7 @@ const ChatApp = ({ messageId }) => {
       data.includes(arrivalMessage.sender_id) &&
         setMessages((prev) => [...prev, arrivalMessage]);
     }
-  }, [arrivalMessage, currentChat]);
+  }, [arrivalMessage]);
   useEffect(() => {
     async function AsyncGetCon()
     {
