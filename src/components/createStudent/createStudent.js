@@ -100,7 +100,7 @@ export default function CreateStudent() {
                 setMessRes(resJson.message);
             } else {
                 setIsMounted(false);
-                setMessRes(resJson.message || resJson);
+                setMessRes(resJson.message||"Lỗi");
                 console.log(resJson)
             }
         } catch (error) {
