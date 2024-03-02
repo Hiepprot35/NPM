@@ -25,7 +25,7 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   const { isLogin, setIsLogin } = useLogin(); // Sử dụng hook và nhận trạng thái và hàm cập nhật trạng thái
-  const socket=useSocket();
+  // const socket=useSocket();
   const [user, setUser] = useState('');
   const { auth } = useAuth()
   const { RefreshToken } = UseRfLocal()

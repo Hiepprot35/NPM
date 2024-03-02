@@ -4,6 +4,8 @@ import useAuth from '../../../hook/useAuth'
 import {useSocket} from '../../../context/socketContext';
 import VideoCall from './videoCall'
 import Message from '../Message'
+import EmojiPicker from 'emoji-picker-react';
+
 export default function WindowChat(props)
 {
     const {auth}=useAuth()
@@ -12,24 +14,126 @@ export default function WindowChat(props)
     const [inputMess,setInputmess]=useState();
     const [userName,setUsername]=useState();
     const userConver=props.count.user1===auth.userID?props.count.user2:props.count.user1;
-
-    
+    const multiFile=useRef(null)
+    const windowchat_input=useRef(null)
+    const main_windowchat=useRef(null)
+    const inputValue=useRef(null)
+    const [emoji,setEmoji]=useState([])
+    const [openEmojiPicker,setOpenEmojiPicker]=useState(false)
+    const [call,setCall]=useState(false)
+    const [imgView,setImgView]=useState([]);
+    const [fileImg,setFileImg]=useState([])
+     const image_message=useRef(null);
+     const windowchat=useRef(null)
     const [userInfor,setUserInfo]=useState();
     const [messages,setMessages]=useState();
-        useEffect(() => {
-        const studentInfo = async (data) => {
-            if (data) {
-                const URL2 = `${process.env.REACT_APP_DB_HOST}/api/getStudentbyID/${data}`;
-                try {
-                    const studentApi = await fetch(URL2);
-                    const student = await studentApi.json();
-                    setUserInfo(student);
-                    // setGuestImg(student)
-                } catch (error) {
-                    console.error(error);
-                }
-            }
+    async function studentInfo(data) {
+      if (data) {
+          const URL2 = `${process.env.REACT_APP_DB_HOST}/api/getStudentbyID/${data}`;
+          try {
+              const studentApi = await fetch(URL2);
+              const student = await studentApi.json();
+              setUserInfo(student);
+          } catch (error) {
+              console.error(error);
+          }
+      }
+  }
+  async function getMessages () {
+    if (props.count?.id) {
+      try {
+        const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/${props.count?.id}`,
+          {
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        const data = await res.json()
+        setMessages(data);
+
+      } catch (err) {
+        console.log(err);
+      }
+    };
+  }
+  function closeWindow(c){
+    props.setCoutClicked((pre)=>{
+        const data=[...pre]
+        const existingIndex = data.findIndex((obj) => obj.id === c);
+        data.splice(existingIndex,1)
+        return data;
+    })
+}
+
+function pick_imageMess (e) {
+  const imgMessFile = e.target.files;
+  for (let i = 0; i < imgMessFile.length; i++) {
+    setFileImg((pre) => (Array.isArray(pre) ? [...pre, imgMessFile[i]] : [imgMessFile[i]]));
+    setImgView((pre) => (Array.isArray(pre) ? [...pre, URL.createObjectURL(imgMessFile[i])] : [URL.createObjectURL(imgMessFile[i])]));
+  }
+};
+function onClickEmoji(e){
+  setEmoji((pre)=>pre+e.emoji)
+  if(inputValue.current)
+  {
+    inputValue.current.value=emoji
+    setFileImg((pre)=>[...pre,e.imageUrl+"TuanHiep"])
+  }
+}
+async function handleSubmit(){
+    try {
+        const imgData=new FormData()
+        imgData.append("sender_id",auth.userID);
+        imgData.append("conversation_id",props.count.id);
+        if(fileImg.length>0) 
+        {
+          for(const file of fileImg)
+          {
+            imgData.append("content",file) ;     
+          }
+          imgData.append("isFile",1);
         }
+        else{
+          imgData.append("isFile",0);
+          imgData.append("content",inputMess);
+        }
+        const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
+          method: 'POST',
+          body: imgData,
+        });
+        const MessageDataRes = await res.json()
+        console.log(MessageDataRes)
+        if(socket)
+        {
+      socket.emit("sendMessage", {
+          sender_id: MessageDataRes.sender_id,
+          receiverId:userConver,
+          content:MessageDataRes.content,
+          isFile:MessageDataRes.isFile
+        });
+      } else{
+        console.log("không có socket")
+      }
+        setMessages([...messages, MessageDataRes]);
+        setEmtyImg()
+        inputValue.current.value = "";
+        inputValue.current.focus()
+      } catch (err) {
+        console.log(err);
+      }
+    }
+function setEmtyImg(){
+  setFileImg([]);
+  setImgView([]);
+}
+
+function inputChange(e){
+setInputmess(e.target.value)}
+
+    useEffect(() => {
+       
     
         if (userName) {
             studentInfo(userName.username);
@@ -69,8 +173,6 @@ export default function WindowChat(props)
          document.title ="Đa gửi tin"
       }
   }, [arrivalMessage]);
-      
-
     useEffect(() => {
                 const getUser = async () => {
                     try {
@@ -84,7 +186,6 @@ export default function WindowChat(props)
                  getUser()
         
     }, [props.count])
-    const windowchat=useRef(null)
     useEffect(()=>{
         if(windowchat.current )
         {
@@ -92,119 +193,28 @@ export default function WindowChat(props)
                 windowchat.current.style.display = "none";}
         }
     },[props.count.id])
-    //   const ListusersOnline = onlineUser && onlineUser.map(item => item.userId) || [];
-    const getMessages = async () => {
-      if (props.count?.id) {
-
-
-        try {
-          const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/${props.count?.id}`,
-            {
-              method: "POST",
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-          const data = await res.json()
-          setMessages(data);
-
-        } catch (err) {
-          console.log(err);
-        }
-      };
-    }
-  
     useEffect(() => {
-       
         getMessages();
       }, [props.count?.id]);
-    const closeWindow=(c)=>{
-        props.setCoutClicked((pre)=>{
-            const data=[...pre]
-            const existingIndex = data.findIndex((obj) => obj.id === c);
-            data.splice(existingIndex,1)
-            return data;
-        })
-    }
-   const [call,setCall]=useState(false)
-   const [imgView,setImgView]=useState();
-   const [fileImg,setFileImg]=useState()
-    const image_message=useRef(null);
-    const pick_imageMess=(e)=>{
-        const imgMessFile=e.target.files[0];
-        console.log(imgMessFile)
-        setFileImg(imgMessFile)
-        const imgObject=URL.createObjectURL(imgMessFile);
-        setImgView(imgObject)
-    }
-    const handleSubmit= async ()=>{
-        try {
-            const imgData=new FormData()
-            imgData.append("sender_id",auth.userID);
-            imgData.append("conversation_id",props.count.id);
-            if(fileImg) 
-            {
-              imgData.append("content",fileImg) ;
-              imgData.append("isFile",1);
 
-            }
-            else{
-              imgData.append("isFile",0);
-              imgData.append("content",inputMess);
-            }
-            
-            const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
-              method: 'POST',
-           
-              body: imgData,
-            });
-            const MessageDataRes = await res.json()
-            console.log(MessageDataRes)
-            if(socket)
-            {
-              console.log(socket)
-          socket.emit("sendMessage", {
-              sender_id: MessageDataRes.sender_id,
-              receiverId:userConver,
-              content:MessageDataRes.content,
-              isFile:MessageDataRes.isFile
-            });
-          } else{
-            console.log("không có socket")
-          }
-            setMessages([...messages, MessageDataRes]);
-            setImgView(null)
-            inputValue.current.value = "";
-            inputValue.current.focus()
-          } catch (err) {
-            console.log(err);
-          }
-        }
     
-    const inputChange=(e)=>{
-    setInputmess(e.target.value)
-    }
     useEffect(() => {
       if (main_windowchat.current) {
         const container = main_windowchat.current;
         container.scrollTop = container.scrollHeight;
       }
     }, [messages]);
-    const multiFile=useRef(null)
-    const windowchat_input=useRef(null)
-    const main_windowchat=useRef(null)
-    const inputValue=useRef(null)
+   
+   
     useEffect(()=>{
-      if(windowchat_input.current && main_windowchat.current && imgView)
+      if(windowchat_input.current && main_windowchat.current && imgView.length>0)
       {
         main_windowchat.current.style.height="40vh";
         windowchat_input.current.style.width="80% !important";
       }
-      if(!imgView)
+      if(imgView.length===0)
       {
         main_windowchat.current.style.height="50vh";
-
       }
     },[imgView])
     return(
@@ -232,15 +242,21 @@ export default function WindowChat(props)
                               }
                           </div>
                           <div className='button_windowchat'>
-                                        <div className='close_windowchat'>
-                                            <button onClick={(e)=>{closeWindow(props.count.id)}}>X</button>
-                                        </div>
-                                        <div className='hide_windowchat'>
-                                            <button>-</button>
-                                        </div>
-                                        <div className='camera_window'>
-                                            <button onClick={()=>{setCall(!call)}}>C</button>
-                                        </div>
+                                            <div onClick={(e)=>{closeWindow(props.count.id)}}>
+                                              <img src='./images/close.svg'></img>
+                                            </div>
+                                            <div>
+                                            <img src='./images/hidden.svg'></img>
+
+                                            </div>
+                                            <div onClick={()=>{setCall(!call)}}>
+                                            <img src='./images/camera.svg'></img>
+
+                                              </div>
+                                            <div onClick={()=>{setCall(!call)}}>
+                                            <img src='./images/phone.svg'></img>
+
+                                              </div>
                                 </div>
             </div>
             <div className='Body_Chatpp'>
@@ -254,47 +270,70 @@ export default function WindowChat(props)
                               </div>
                               <div className='inputValue windowchat_feature'>
                                 <div className='feature_left'>
-                                    { imgView ?<div onClick={(e)=>{setImgView(null)}}>
+                                    { imgView.length>0 ?
+                                    <>
+                                    <div onClick={setEmtyImg}>
                                       <img src='./images/arrow-left.svg' style={{width:"1.5rem",height:"1.5rem"}}>
-                                    </img></div>:
+                                    </img></div>
+                                    </>
+                                    :
                                     <ul>
                                         <li>
-                                            <input onChange={(e)=>{pick_imageMess(e)}}  type='file' ref={image_message} hidden></input>
+                                            <input onChange={(e)=>{pick_imageMess(e)}}  type='file' ref={image_message} multiple hidden></input>
                                         <img onClick={()=>{image_message.current.click()}} src='./images/image.svg' style={{width:"1.5rem",height:"1.5rem"}}></img>
                                         </li>
 
                                         <li >                                            
                                             <img src='./images/sticker.svg' style={{width:"1.5rem",height:"1.5rem"}}></img></li>
                                         <li>
-                                            <img src='./images/gif.png' style={{width:"1.5rem",height:"1.5rem"}}></img>
+                                            <img src='./images/emoji.svg' onClick={(e)=>{setOpenEmojiPicker(!openEmojiPicker)}} style={{width:"1.5rem",height:"1.5rem"}}></img>
+                                          
                                         </li>
                                     </ul>}
                                 </div>
+                               
                                 <div className=' windowchat_input' ref={windowchat_input} >
                                 {
-                                         imgView &&
+                                         imgView.length>0 &&
                                          <div className='multiFile_layout'>
                                       <input type='file' hidden ref={multiFile} multiFile></input>
                                        <img onClick={()=>{multiFile.current.click()}} src='./images/image.svg' style={{width:"1.5rem",height:"1.5rem"}}></img>
-                                        <img src={imgView} style={{width:"50px",height:"50px",margin:"1rem",borderRadius:"0.6rem"}}></img>
+                                           {
+                                          imgView.map((e)=>
+                                            (
+
+                                              <>
+                                           <img src={e } style={{width:"50px",height:"50px",margin:"1rem",borderRadius:"0.6rem"}}></img>
+                                           
+                                           </>
+                                              ))
+                                           }
                                       </div>
 
                                     
                                     }
                                     <input type='
-                                    text' id='send_window_input' onChange={inputChange} placeholder='Aa' ref={inputValue}>
+                                    text' id='send_window_input' onChange={inputChange} placeholder='Aa' ref={inputValue} >
                                     </input>
                                   
                                 </div>
                                 <div>
                                 <div>
-                                    <div onClick={handleSubmit}>
+                                    <div onClick={handleSubmit} style={{cursor:"pointer"}} onInvalid={inputValue ? true : false}>
                                     <img src='./images/send-2.svg' style={{width:"1.5rem",height:"1.5rem"}}></img>
                                     </div>
                                 </div>
                                 </div>
                               </div>
                               </div>
+                              <div className='emojipick'>
+                                <EmojiPicker width={350}
+                                height={450}
+                                open={openEmojiPicker}
+                                onEmojiClick={(e,i)=>{onClickEmoji(e)}}
+                                emojiStyle="facebook"
+                                />
+                                </div>
 
         </div>
       {/* <VideoCall></VideoCall> */}

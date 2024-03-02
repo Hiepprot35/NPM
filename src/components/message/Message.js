@@ -7,7 +7,14 @@ export default function Message({ message, own, student, Online, listSeen }) {
     const time = useRef(null)
     const seen_text = useRef(null)
     const messageRef = useRef(null)
-   
+    const [listAnh,setListAnh]=useState()
+   useEffect(()=>{
+    if(message.isFile)
+    {
+        const data=message.content.split("TuanHiep");
+        setListAnh(data)
+    }
+   },[])
     return (
         <>
             <div className="containerMessage" ref={messageRef}>
@@ -38,7 +45,16 @@ export default function Message({ message, own, student, Online, listSeen }) {
                                             <div className="Mess_seen_text">
                                                 {
                                                     message.isFile?
-                                                    <img src={message.content} style={{width:"40%",height:"40%",borderRadius:"1rem"}}></img>
+                                                    <>
+                                                    {
+
+                                                     listAnh&& listAnh.map((e)=>(
+
+                                                         <img src={e} style={{width:"10%",height:"10%",borderRadius:"1rem",margin:"0.3rem"}}></img>
+                                                     ))
+                                                    }   
+                                                        </>
+                                                    
                                                     :
                                                 <p className="messageText">{message.content}</p>
                                                 }

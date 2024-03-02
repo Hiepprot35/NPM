@@ -13,19 +13,14 @@ export default function MessageMainLayout(){
     const [counter,setCoutClicked]=useState([]);
     const socket = useSocket(); 
     const {auth}=useAuth();
-    const [conversations,setConversation]=useState();
-    
-  
-      
+    const [conversations,setConversation]=useState();     
       const onClickConser = (c) => {
         setCoutClicked((prev) => {
           const newClicked = [...prev];
-          const existingIndex = newClicked.findIndex((obj) => obj.id === c.id);
-      
+          const existingIndex = newClicked.findIndex((obj) => obj.id === c.id);    
           if (existingIndex !== -1) {
             newClicked.splice(existingIndex, 1);
           }
-      
           newClicked.unshift(c);
           return newClicked;
         });
@@ -34,7 +29,6 @@ export default function MessageMainLayout(){
     useEffect(() => {
       if(socket)
       {
-
         socket.emit("addUser", auth.userID);
         socket.on("getUsers", (data) => { setOnlineUser(data) })
         // socket.current.on("getUserSeen", (data) => {setisSeen( data) })
@@ -44,7 +38,7 @@ export default function MessageMainLayout(){
           socket.off("disconnect");
         }
       }
-                      }, [socket]);
+        }, [socket]);
     useEffect(() => {
         async function AsyncGetCon()
         {
