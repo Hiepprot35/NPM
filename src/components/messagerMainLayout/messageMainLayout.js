@@ -30,8 +30,7 @@ export default function MessageMainLayout(){
           return newClicked;
         });
       };
-      
-      useEffect(()=>{console.log(counter)},[counter])
+    useEffect(()=>{"Mount MessageMainLayout"},[])
     useEffect(() => {
       if(socket)
       {
@@ -40,7 +39,12 @@ export default function MessageMainLayout(){
         socket.on("getUsers", (data) => { setOnlineUser(data) })
         // socket.current.on("getUserSeen", (data) => {setisSeen( data) })
       }
-                      }, [auth]);
+      return()=>{
+        if (socket) {
+          socket.off("disconnect");
+        }
+      }
+                      }, [socket]);
     useEffect(() => {
         async function AsyncGetCon()
         {

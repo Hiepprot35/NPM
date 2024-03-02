@@ -13,7 +13,7 @@
 {
 
     border-top-left-radius: 1rem;
-    height: 12%;
+    height: 1/6;
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -45,7 +45,7 @@
 }
 .feature_left
 {
-    width: 30%;
+    max-width: 30%;
 }
 .feature_left ul
 {
@@ -57,6 +57,7 @@
     display: flex;
     width: 30%;
     height: 40px;
+    margin: 0 0.3rem 0 0.3rem;
     line-height: 40px;
     align-items: center;
     justify-content: center;
@@ -69,16 +70,20 @@
     background-color: transparent ;
     border: none !important;
     margin-left: 0.3rem;
+    margin-bottom: .2rem;
 }
 .windowchat_container
 {
     display: flex;
     max-width: 60vw;
-    height: 60vh;
+    max-height: 60vh;
     position: fixed;
-    bottom: 2rem;
+    bottom: 1.5rem;
     right: 0;
     justify-content: space-evenly;
+}
+.Body_Chatpp{
+    height: 5/6;
 }
 .feature_left{
     display: flex;
@@ -87,7 +92,9 @@
 {
     border-radius: 0.5rem;
     background-color: rgb(209, 199, 199);
-    width: 55% !important;
+    width: 55%;
+    height: 10%;
+    transition: 250ms linear;
 }
 .main_windowchat
 {
@@ -95,4 +102,9 @@
     scroll-behavior: smooth;
     overflow-y: scroll;
     height: 50vh;
+}
+.multiFile_layout
+{
+    display: flex;
+    align-items: center;
 }

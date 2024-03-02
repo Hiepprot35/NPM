@@ -12,10 +12,8 @@ export default function WindowChat(props)
     const [inputMess,setInputmess]=useState();
     const [userName,setUsername]=useState();
     const userConver=props.count.user1===auth.userID?props.count.user2:props.count.user1;
-    // useEffect(()=>{
-    //     console.log("Ds online :",props.ListusersOnline.some((e)=>e.userId===userConver))
-    //     console.log("Con",userConver)
-    // },[])
+
+    
     const [userInfor,setUserInfo]=useState();
     const [messages,setMessages]=useState();
         useEffect(() => {
@@ -44,23 +42,35 @@ export default function WindowChat(props)
             setMessages((prev) => [...prev, arrivalMessage]);
         }
       }, [arrivalMessage]);
-    useEffect(() => {
-        if(socket)
-        {
-
+      useEffect(() => {
+        let isMounted = true;
+    
+        if (socket && isMounted) {
             socket.on("getMessage", (data) => {
                 setArrivalMessage({
                     sender_id: data.sender_id,
                     content: data.content,
+                    isFile:parseInt(data.isFile),
                     created_at: Date.now(),
                 });
             });
-            return () => {
+        }
+    
+        return () => {
+            isMounted = false;
+            if (socket && isMounted) {
                 socket.disconnect();
             }
-        }
-      }, [socket])
-      useEffect(()=>{console.log(arrivalMessage)},[arrivalMessage])
+        };
+    }, [socket]);
+  
+    useEffect(() => {
+      if (arrivalMessage) {
+         document.title ="Đa gửi tin"
+      }
+  }, [arrivalMessage]);
+      
+
     useEffect(() => {
                 const getUser = async () => {
                     try {
@@ -78,48 +88,41 @@ export default function WindowChat(props)
     useEffect(()=>{
         if(windowchat.current )
         {
-            if(props.index<3)
-            {
-
-                // windowchat.current.style.width = `${20 * (props.index)}%`;
-            }
-            else{
-                windowchat.current.style.display = "none";
-
-            }
-            
+            if(props.index>3){
+                windowchat.current.style.display = "none";}
         }
     },[props.count.id])
     //   const ListusersOnline = onlineUser && onlineUser.map(item => item.userId) || [];
-    useEffect(() => {
-        const getMessages = async () => {
-          if (props.count?.id) {
-    
-    
-            try {
-              const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/${props.count?.id}`,
-                {
-                  method: "POST",
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                }
-              );
-              const data = await res.json()
-              setMessages(data);
-    
-            } catch (err) {
-              console.log(err);
+    const getMessages = async () => {
+      if (props.count?.id) {
+
+
+        try {
+          const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/${props.count?.id}`,
+            {
+              method: "POST",
+              headers: {
+                'Content-Type': 'application/json',
+              },
             }
-          };
+          );
+          const data = await res.json()
+          setMessages(data);
+
+        } catch (err) {
+          console.log(err);
         }
+      };
+    }
+  
+    useEffect(() => {
+       
         getMessages();
       }, [props.count?.id]);
     const closeWindow=(c)=>{
         props.setCoutClicked((pre)=>{
             const data=[...pre]
             const existingIndex = data.findIndex((obj) => obj.id === c);
-
             data.splice(existingIndex,1)
             return data;
         })
@@ -138,31 +141,74 @@ export default function WindowChat(props)
     const handleSubmit= async ()=>{
         try {
             const imgData=new FormData()
-            imgData.append("sender_id",auth.userID)
-            imgData.append("conversation_id",props.count.id)
-            fileImg ? imgData.append("content",fileImg) : imgData.append("content",inputMess)
-            imgData.forEach((value, key) => {
-                console.log(`${key}: ${value}`);
-              });
+            imgData.append("sender_id",auth.userID);
+            imgData.append("conversation_id",props.count.id);
+            if(fileImg) 
+            {
+              imgData.append("content",fileImg) ;
+              imgData.append("isFile",1);
+
+            }
+            else{
+              imgData.append("isFile",0);
+              imgData.append("content",inputMess);
+            }
+            
             const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
               method: 'POST',
            
               body: imgData,
             });
             const MessageDataRes = await res.json()
-            // setMessages([...messages, MessageDataRes]);
-            // inputMess.current.value = "";
-            // inputMess.current.focus()
+            console.log(MessageDataRes)
+            if(socket)
+            {
+              console.log(socket)
+          socket.emit("sendMessage", {
+              sender_id: MessageDataRes.sender_id,
+              receiverId:userConver,
+              content:MessageDataRes.content,
+              isFile:MessageDataRes.isFile
+            });
+          } else{
+            console.log("không có socket")
+          }
+            setMessages([...messages, MessageDataRes]);
+            setImgView(null)
+            inputValue.current.value = "";
+            inputValue.current.focus()
           } catch (err) {
             console.log(err);
           }
         }
+    
     const inputChange=(e)=>{
     setInputmess(e.target.value)
     }
+    useEffect(() => {
+      if (main_windowchat.current) {
+        const container = main_windowchat.current;
+        container.scrollTop = container.scrollHeight;
+      }
+    }, [messages]);
+    const multiFile=useRef(null)
+    const windowchat_input=useRef(null)
+    const main_windowchat=useRef(null)
+    const inputValue=useRef(null)
+    useEffect(()=>{
+      if(windowchat_input.current && main_windowchat.current && imgView)
+      {
+        main_windowchat.current.style.height="40vh";
+        windowchat_input.current.style.width="80% !important";
+      }
+      if(!imgView)
+      {
+        main_windowchat.current.style.height="50vh";
+
+      }
+    },[imgView])
     return(
         <>
-        
         <div className='windowchat' ref={windowchat}>
             <div className='top_windowchat'>
                 <div className='header_windowchat'>
@@ -172,12 +218,12 @@ export default function WindowChat(props)
                                   <div className='header_online'>
                                     <div className='avatar_dot'>
                                       <img className='avatarImage' alt='Avatar' src={userInfor.img ? `${(userInfor.img)}`:""}></img>
-                                      <span className={`dot ${props.ListusersOnline.some((e)=>e.userId===userConver) ? "activeOnline" : {}}`}>  </span>
+                                      <span className={`dot ${props.ListusersOnline && props.ListusersOnline.some((e)=>e.userId===userConver) ? "activeOnline" : {}}`}>  </span>
                                     </div>
                                     <div className='header_text'>
                                       <div style={{ fontSize: "1.5rem", color: "black", fontWeight: "bold" }}> {userInfor.Name}</div>
                                       {
-                                        <span>{props.ListusersOnline.some((e)=>e.userId===userConver) ? <>Đang hoạt động</> : <>Không hoạt động</>}</span>
+                                        <span>{props.ListusersOnline &&  props.ListusersOnline.some((e)=>e.userId===userConver) ? <>Đang hoạt động</> : <>Không hoạt động</>}</span>
                                       }
                                     </div>
                                   </div>
@@ -198,20 +244,22 @@ export default function WindowChat(props)
                                 </div>
             </div>
             <div className='Body_Chatpp'>
-
-                              <div className='main_windowchat'>
+                              <div className='main_windowchat' ref={main_windowchat}>
                               {messages && messages.map((message, index) => (
                                   <div className='message_content' key={index}>
                                     <Message key={index} message={message}
-                                      my={auth.userID} own={message.sender_id === auth.userID} student={userInfor}  ></Message>
+                                      my={auth.userID} own={message.sender_id === auth.userID} student={userInfor} Online={props.ListusersOnline ? props.ListusersOnline:auth.userId}  ></Message>
                                   </div>
                                 ))}
                               </div>
                               <div className='inputValue windowchat_feature'>
                                 <div className='feature_left'>
+                                    { imgView ?<div onClick={(e)=>{setImgView(null)}}>
+                                      <img src='./images/arrow-left.svg' style={{width:"1.5rem",height:"1.5rem"}}>
+                                    </img></div>:
                                     <ul>
                                         <li>
-                                            <input onChange={(e)=>{pick_imageMess(e)}} type='file' ref={image_message} hidden></input>
+                                            <input onChange={(e)=>{pick_imageMess(e)}}  type='file' ref={image_message} hidden></input>
                                         <img onClick={()=>{image_message.current.click()}} src='./images/image.svg' style={{width:"1.5rem",height:"1.5rem"}}></img>
                                         </li>
 
@@ -220,14 +268,21 @@ export default function WindowChat(props)
                                         <li>
                                             <img src='./images/gif.png' style={{width:"1.5rem",height:"1.5rem"}}></img>
                                         </li>
-                                    </ul>
+                                    </ul>}
                                 </div>
-                                <div className=' windowchat_input' >
+                                <div className=' windowchat_input' ref={windowchat_input} >
                                 {
-                                         imgView && <img src={imgView} style={{width:"50px",height:"50px"}}></img>
+                                         imgView &&
+                                         <div className='multiFile_layout'>
+                                      <input type='file' hidden ref={multiFile} multiFile></input>
+                                       <img onClick={()=>{multiFile.current.click()}} src='./images/image.svg' style={{width:"1.5rem",height:"1.5rem"}}></img>
+                                        <img src={imgView} style={{width:"50px",height:"50px",margin:"1rem",borderRadius:"0.6rem"}}></img>
+                                      </div>
+
+                                    
                                     }
                                     <input type='
-                                    text' id='send_window_input' onChange={inputChange}>
+                                    text' id='send_window_input' onChange={inputChange} placeholder='Aa' ref={inputValue}>
                                     </input>
                                   
                                 </div>

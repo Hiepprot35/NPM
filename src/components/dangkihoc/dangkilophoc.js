@@ -5,7 +5,15 @@ import { useRefresh } from "../../hook/useRefresh";
 import useAuth from '../../hook/useAuth'
 import Header from "../Layout/header/header";
 import { IsLoading } from "../Loading";
-export default function DangKiLopHoc() {
+export default function DangKiLopHoc(props) {
+    useEffect(()=>{
+        if(props.arrivalMessage)
+        {
+
+            document.title=`${props.arrivalMessage.sender_id} đã gửi tin nhắn`
+        }
+
+    },[props.arrivalMessage])
     const { auth } = useAuth()
     const [isChecked, setIsChecked] = useState()
     const [loading, setLoading] = useState(true)

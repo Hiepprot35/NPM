@@ -19,20 +19,32 @@ import UserProfile from './components/UserProfile/userProfile';
 import UseRfLocal from './hook/useRFLocal';
 import Errorpage from './components/Layout/Errorpage';
 import ProPage from './components/Homepage/proPage';
+import { useSocket } from './context/socketContext';
 import ViewTimetable from './components/xemlichhoc/viewTimetable';
 function App() {
 
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   const { isLogin, setIsLogin } = useLogin(); // Sử dụng hook và nhận trạng thái và hàm cập nhật trạng thái
+  const socket=useSocket();
   const [user, setUser] = useState('');
   const { auth } = useAuth()
   const { RefreshToken } = UseRfLocal()
+  const [arrivalMessage,setArrivalMessage]=useState()
   const { AccessToken, setAccessToken } = UseToken();
   const ROLES = [1, 2]
   const [login, setLogin] = useState(false)
   useEffect(() => {
     setIsLoading(false);
   }, [AccessToken]);
+  // useEffect(() => {
+  //   if (socket && auth && auth.userID) {
+  //     console.log(auth.userID);
+  //     socket.emit("addUser", auth.userID);
+  //     socket.on("getUsers", (data) => { console.log(data) })
+
+      
+  //   }
+  // }, [socket, auth]);
   
   const refreshAccessToken = useRefresh()
   useEffect(() => {
@@ -77,17 +89,17 @@ function App() {
       else if (auth.role === 2) {
         return (
           <Routes>
-            <Route path="/dangkilop" element={<DangKiLopHoc />} />
-            <Route path="/profile/:MSSV" element={<ProfileRoutes />} />
+            <Route path="/dangkilop" element={<DangKiLopHoc arrivalMessage={arrivalMessage} />} />
+            <Route path="/profile/:MSSV" element={<ProfileRoutes  />} />
             <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
             <Route element={<RequireAuth allowedRoles={ROLES} />}>
               {/* <Route path="/" element={<Dashboard />} /> */}
               <Route path="/" element={<Home />} />
-              <Route path="/message" element={<ChatApp />} />
+              <Route path="/message" element={<ChatApp />} arrivalMessage={arrivalMessage} />
               <Route path="*" element={<Home />} />
               <Route path="/message/:id" element={<MessageRoute />} />
               <Route path="/lichhoc" element={<ViewTimetable />} />
-              <Route path="/setting" element={<SettingAccount />} />
+              <Route path="/setting" element={<SettingAccount arrivalMessage={arrivalMessage} />} />
 
             </Route>
           </Routes>

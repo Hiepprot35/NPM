@@ -9,7 +9,7 @@ import io from 'socket.io-client';
 import WindowChat from "./message/windowchat/windowchat";
 import MessageMainLayout from "./messagerMainLayout/messageMainLayout";
 import BlobtoBase64 from "../function/BlobtoBase64";
-export default function Home() {
+export default function Home(props) {
     const navigate = useNavigate();
    
     const { AccessToken, setAccessToken } = UseToken();
@@ -224,7 +224,7 @@ export default function Home() {
                             }
                         </section>
                         <div style={{width:"20%",}} >
-                            <MessageMainLayout/>
+                            <MessageMainLayout />
                         </div>
                         </div>
 

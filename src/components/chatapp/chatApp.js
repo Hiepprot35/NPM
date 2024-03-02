@@ -52,7 +52,7 @@ const ChatApp = ({ messageId }) => {
 
   const socket = useSocket();
   let isCancel = false
-  const ListusersOnline = onlineUser && onlineUser.map(item => item.userId) || [];
+  // const ListusersOnline = onlineUser && onlineUser.map(item => item.userId) || [];
   const ClickChat = (data) => {
     setCurrentChat(data);
   }
@@ -131,11 +131,12 @@ const ChatApp = ({ messageId }) => {
       setArrivalMessage({
         sender_id: data.sender_id,
         content: data.content,
+        isFile:data.isFile,
         created_at: Date.now(),
       });
     });
     return () => {
-      socket.disconnect();
+      socket.off("disconnect");
     }
   }
   }, [socket]
@@ -168,15 +169,18 @@ const ChatApp = ({ messageId }) => {
     if(socket)
     {
 
-      
       socket.emit("addUser", auth.userID);
       socket.on("getUsers", (data) => { setOnlineUser(data) })
-      socket.on("getUserSeen", (data) => {setisSeen( data) })
+      // socket.current.on("getUserSeen", (data) => {setisSeen( data) })
     }
-    }, [auth]);
+    return()=>{
+      if (socket) {
+        socket.off("disconnect");
+      }
+    }
+                    }, [socket]);
   useEffect(() => {
     if (arrivalMessage) {
-      const data = [currentChat?.user1, currentChat?.user2];
         setMessages((prev) => [...prev, arrivalMessage]);
     }
   }, [arrivalMessage]);
@@ -201,6 +205,11 @@ const ChatApp = ({ messageId }) => {
     getNewstMess()
 
   }, [currentChat, messages, isSeen])
+  useEffect(()=>{console.log("Mount Chatap")
+  return()=>{
+    console.log("unMountChataap")
+  }
+},[])
 
   useEffect(() => {
     const studentInfo = async (data, userID) => {
@@ -223,7 +232,6 @@ const ChatApp = ({ messageId }) => {
       studentInfo(data, userid);
     }
   }, [MSSVReceived, currentChat]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (inputMess.current.value && socket) {
@@ -391,12 +399,12 @@ const ChatApp = ({ messageId }) => {
                                   <div className='header_online'>
                                     <div className='avatar_dot'>
                                       <img className='avatarImage' alt='Avatar' src={guestImg.img ? `${(guestImg.img)}`:""}></img>
-                                      <span className={`dot ${ListusersOnline.includes(guestImg.userID) ? "activeOnline" : {}}`}>  </span>
+                                      <span className={`dot ${onlineUser && onlineUser.some((e)=>e.userId===guestImg.userID) ? "activeOnline" : {}}`}>  </span>
                                     </div>
                                     <div className='header_text'>
                                       <div style={{ fontSize: "1.5rem", color: "black", fontWeight: "bold" }}> {guestImg.Name}</div>
                                       {
-                                        <>{ListusersOnline.includes(guestImg.userID) ? <>Đang hoạt động</> : <>Không hoạt động</>}</>
+                                        <>{onlineUser && onlineUser.some((e)=>e.userId===guestImg.userID) ? <>Đang hoạt động</> : <>Không hoạt động</>}</>
                                       }
                                     </div>
                                   </div>

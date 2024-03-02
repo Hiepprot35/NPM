@@ -13,7 +13,6 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     const newSocket = io(process.env.REACT_APP_DB_HOST);
-    console.log('Connected to server');
     setSocket(newSocket);
 
 

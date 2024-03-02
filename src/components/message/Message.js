@@ -6,9 +6,8 @@ import { IsLoading } from "../Loading";
 export default function Message({ message, own, student, Online, listSeen }) {
     const time = useRef(null)
     const seen_text = useRef(null)
-    const ListusersOnline = Online && Online.map(item => item.userId) || [];
     const messageRef = useRef(null)
- 
+   
     return (
         <>
             <div className="containerMessage" ref={messageRef}>
@@ -29,7 +28,7 @@ export default function Message({ message, own, student, Online, listSeen }) {
                                                     className="avatarImage"
 
                                                     src={student.img ?`${(student?.img)}`:""} alt="sender" />
-                                                <span className={`dot ${ListusersOnline.includes(student?.userID) ? "activeOnline" : {}}`}> </span>
+                                      <span className={`dot ${Online&& Online.some((e)=>e.userId===student.userID) ? "activeOnline" : {}}`}>  </span>
 
                                             </div>
                                         </>
@@ -38,7 +37,7 @@ export default function Message({ message, own, student, Online, listSeen }) {
                                         message.content != null ?
                                             <div className="Mess_seen_text">
                                                 {
-                                                    message.content.startsWith("https://res.cloudinary.com")?
+                                                    message.isFile?
                                                     <img src={message.content} style={{width:"40%",height:"40%",borderRadius:"1rem"}}></img>
                                                     :
                                                 <p className="messageText">{message.content}</p>
