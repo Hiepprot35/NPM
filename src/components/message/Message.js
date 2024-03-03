@@ -9,9 +9,9 @@ export default function Message({ message, own, student, Online, listSeen }) {
     const messageRef = useRef(null)
     const [listAnh,setListAnh]=useState()
    useEffect(()=>{
-    if(message.isFile)
+    if(message.isFile===1)
     {
-        const data=message.content.split("TuanHiep");
+        const data=message.content.split(",");
         setListAnh(data)
     }
    },[])
@@ -50,7 +50,7 @@ export default function Message({ message, own, student, Online, listSeen }) {
 
                                                      listAnh&& listAnh.map((e)=>(
 
-                                                         <img src={e} style={{width:"10%",height:"10%",borderRadius:"1rem",margin:"0.3rem"}}></img>
+                                                         <img className={listAnh.length>1?"listImg":""} src={e} ></img>
                                                      ))
                                                     }   
                                                         </>

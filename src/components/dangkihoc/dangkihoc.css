@@ -1,7 +1,6 @@
 .container_main {
     border: 1px solid;
     display: flex;
-    width: 100vw;
     justify-content: space-around;
     flex-direction: column;
 }

@@ -63,6 +63,9 @@ export default function SettingAccount() {
         setClicked(true)
         setChoosenProperty({ "key": data.key, "value": data.value });
     }
+    const checkIsVerify=()=>{
+        setUserInfo({...userInfo,isVerify:false})
+    }
     return (
 
         <>
@@ -112,7 +115,7 @@ export default function SettingAccount() {
                                     }}>
                                         <div className="property_user" >
                                         <div style={{ display: "flex" }}>
-                                        <input type="checkbox" id="myCheck" ></input><p>Xác thực email</p>
+                                        <input type="checkbox" id="myCheck" onClick={checkIsVerify} ></input><p>Xác thực email</p>
                                         </div>
                                         </div>
                                     </div>

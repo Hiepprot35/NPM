@@ -1,14 +1,13 @@
 import { useRef,useEffect, useState } from "react";
-import UseToken from '../hook/useToken';
-import { useRefresh } from "../hook/useRefresh";
+import UseToken from "../../hook/useToken";
+import { useRefresh } from "../../hook/useRefresh";
 import { useLocation, useNavigate } from 'react-router-dom';
-import Header from "./Layout/header/header";
-import { IsLoading } from "./Loading";
-import useAuth from "../hook/useAuth";
+import Header from "../Layout/header/header";
+import { IsLoading } from "../Loading";
+import useAuth from "../../hook/useAuth";
 import io from 'socket.io-client';
-import WindowChat from "./message/windowchat/windowchat";
-import MessageMainLayout from "./messagerMainLayout/messageMainLayout";
-import BlobtoBase64 from "../function/BlobtoBase64";
+import WindowChat from "../message/windowchat";
+import MessageMainLayout from "../message/messageMainLayout";
 export default function Home(props) {
     const navigate = useNavigate();
    
@@ -16,6 +15,7 @@ export default function Home(props) {
     const { auth } = useAuth();
     const [listMess, setlistMess] = useState()
     const [listMSSV, setlistMSSV] = useState()
+    const [isMounted, setIsMounted] = useState(true);
 
     const [isLoading, setIsLoading] = useState(true)
     const refreshAccessToken = useRefresh()
@@ -48,13 +48,8 @@ export default function Home(props) {
             <p>Class Not Found</p>
         );
     };
-   
-    
-    useEffect(()=>{console.log(listMSSV)},[listMSSV])
     useEffect(() => {
         const senApi = async () => {
-
-
             try {
                 const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/findusersend`,{
                     method:'POST',
@@ -62,8 +57,7 @@ export default function Home(props) {
                         'Content-Type': 'application/json',
                     },
                     body:JSON.stringify({
-                        "id":auth.userID,
-                        
+                        "id":auth.userID,         
                     })
                 });
                 const data = await res.json()
@@ -126,12 +120,11 @@ export default function Home(props) {
                
             }
         } catch (error) {
-            console.error(error)
+            console.log(error)
             // setIsLoading(true)
 
         }
     }
-    
     const getUserID = async (MSSV) => {
         try {
             const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/userID/${MSSV}`)
@@ -144,20 +137,26 @@ export default function Home(props) {
             console.log(error)
         }
     }
+    async function fetchData() {
+        try {
+            if(isMounted)
+            {
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
                 const refreshedData = await refreshAccessToken();
                 refreshedData.AccessToken ? setAccessToken(refreshedData.AccessToken) : setIsLoading(true)
-            } catch (error) {
-                // setIsLoading(true)
-                console.log(error)
             }
+        } catch (error) {
+            // setIsLoading(true)
+            console.log(error)
         }
+    }
+    useEffect(() => {
+       
 
         fetchData();
-        console.log("ok")
+        return()=>{
+            setIsMounted(false)
+        }
     }, []);
     useEffect(() => {
         getData()
@@ -183,8 +182,7 @@ export default function Home(props) {
                         <section className="articles"  ref={myRef}>
                             {
 
-                                currentData.map((element, index) => {
-                                    console.log(element)
+                                    posts && posts.map((element, index) => {
                                     return (
 
                                         <article key={index}>

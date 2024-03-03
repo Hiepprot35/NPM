@@ -1,5 +1,5 @@
 import Login from './components/login/login';
-import Home from './components/home';
+import Home from './components/home/home';
 import CreateStudent from './components/createStudent/createStudent';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useParams } from 'react-router-dom';
 import UseToken from './hook/useToken';
@@ -73,10 +73,9 @@ function App() {
             <Route element={<RequireAuth allowedRoles={ROLES} />}>
               <Route path="/dashboard" element={<Dashboard />} />
 
-              <Route path="/chat" element={<ChatApp />} />
               <Route path="/home" element={<Home />} />
               <Route path="/message" element={<ChatApp />} />
-              <Route path="/message/:id" element={<MessageRoute />} />
+              <Route path="/message/:id" element={<ChatApp />} />
 
               <Route path="/" element={<Navigate to="/home"></Navigate>} />
               <Route path="/create" element={<CreateStudent />} />
@@ -90,7 +89,7 @@ function App() {
         return (
           <Routes>
             <Route path="/dangkilop" element={<DangKiLopHoc arrivalMessage={arrivalMessage} />} />
-            <Route path="/profile/:MSSV" element={<ProfileRoutes  />} />
+            {/* <Route path="/profile/:MSSV" element={<ProfileRoutes  />} /> */}
             <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
             <Route element={<RequireAuth allowedRoles={ROLES} />}>
               {/* <Route path="/" element={<Dashboard />} /> */}
@@ -125,11 +124,11 @@ function App() {
   }
 }
 
-function ProfileRoutes() {
-  const { MSSV } = useParams();
+// function ProfileRoutes() {
+//   const { MSSV } = useParams();
 
-  return <UserProfile MSSVParams={MSSV} />;
-}
+//   return <UserProfile MSSVParams={MSSV} />;
+// }
 function MessageRoute() {
   const { id } = useParams();
 

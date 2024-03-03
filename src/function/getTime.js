@@ -10,6 +10,8 @@ export  function getTime(data)
         const currentHours = timeSent.getHours();
         const currentMinutes = timeSent.getMinutes();
         const currentSeconds = timeSent.getSeconds();
+        const formatMinute=currentMinutes<10? `0${currentMinutes}` :minute
+
         const year = date.getUTCFullYear();
         const month = date.getUTCMonth() + 1; // Tháng trong JavaScript bắt đầu từ 0 (0 - 11)
         const day = date.getUTCDate();
@@ -18,7 +20,7 @@ export  function getTime(data)
                 return(`${currentDay}/${timeSent.getMonth()} ${currentHours}:${currentMinutes}`)
 
         }
-        return(`${currentHours}:${currentMinutes}`)
+        return(`${currentHours}:${formatMinute}`)
 }
 export function getDate(data)
 {
@@ -40,9 +42,10 @@ export  function countTime(data)
         const hour = Math.floor(result/(1000*60*60))
         const minute=Math.floor(result/(1000*60))-60*hour
         const second=Math.floor(result/(1000))-60*minute
+        const formatMinute=minute<10? `0${minute}` :minute
         if(hour<1)
         {
-                return(minute>=1?`${minute} phút`:`vừa xong`)
+                return(minute>=1?`${formatMinute} phút`:`vừa xong`)
         }
         else if (hour<24)
         {

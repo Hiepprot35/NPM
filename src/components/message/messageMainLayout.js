@@ -4,7 +4,7 @@ import { getConversation } from "../conversation/getConversation";
 import { useEffect,useState ,useRef} from "react";
 import { IsLoading } from "../Loading";
 import io from 'socket.io-client';
-import WindowChat from "../message/windowchat/windowchat";
+import WindowChat from "./windowchat";
 import useAuth from "../../hook/useAuth";
 import { useSocket } from "../../context/socketContext";
 export default function MessageMainLayout(){
@@ -61,7 +61,7 @@ export default function MessageMainLayout(){
             <div className="windowchat_container">
 
            {counter && counter.map((e, i) => (
-             <WindowChat socket={socket} key={i} count={e} index={i} setCoutClicked={setCoutClicked}  ListusersOnline={onlineUser}/>
+             <WindowChat  key={i} count={e} index={i} setCoutClicked={setCoutClicked}  ListusersOnline={onlineUser}/>
              ))}
              </div>
             </>

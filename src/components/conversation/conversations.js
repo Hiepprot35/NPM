@@ -4,7 +4,7 @@ import "./conversation.css";
 import useAuth from "../../hook/useAuth";
 import BlobtoBase64 from "../../function/BlobtoBase64";
 import * as timeUse from "../../function/getTime";
-import WindowChat from "../message/windowchat/windowchat";
+import WindowChat from "../message/windowchat";
 export default function Conversation({ conversation, Arrivalmess, mess, Online,notSeen_field,count }) {
     const [user, setUser] = useState();
     const { auth } = useAuth()

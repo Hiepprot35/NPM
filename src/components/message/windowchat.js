@@ -1,10 +1,11 @@
 import './windowchat.css'
 import { useEffect, useRef, useState } from 'react'
-import useAuth from '../../../hook/useAuth'
-import {useSocket} from '../../../context/socketContext';
-import VideoCall from './videoCall'
-import Message from '../Message'
+import useAuth from '../../hook/useAuth'
+import {useSocket} from '../../context/socketContext';
+import VideoCall from './windowchat/videoCall'
+import Message from './Message'
 import EmojiPicker from 'emoji-picker-react';
+const ClientURL = process.env.REACT_APP_CLIENT_URL;
 
 export default function WindowChat(props)
 {
@@ -27,6 +28,7 @@ export default function WindowChat(props)
      const windowchat=useRef(null)
     const [userInfor,setUserInfo]=useState();
     const [messages,setMessages]=useState();
+    useEffect(()=>{console.log(userConver)},[userConver])
     async function studentInfo(data) {
       if (data) {
           const URL2 = `${process.env.REACT_APP_DB_HOST}/api/getStudentbyID/${data}`;
@@ -79,7 +81,7 @@ function onClickEmoji(e){
   if(inputValue.current)
   {
     inputValue.current.value=emoji
-    setFileImg((pre)=>[...pre,e.imageUrl+"TuanHiep"])
+    setFileImg((pre)=>[...pre,e.imageUrl])
   }
 }
 async function handleSubmit(){
@@ -130,11 +132,8 @@ function setEmtyImg(){
 }
 
 function inputChange(e){
-setInputmess(e.target.value)}
-
-    useEffect(() => {
-       
-    
+    setInputmess(e.target.value)}
+    useEffect(() => { 
         if (userName) {
             studentInfo(userName.username);
         }
@@ -148,7 +147,6 @@ setInputmess(e.target.value)}
       }, [arrivalMessage]);
       useEffect(() => {
         let isMounted = true;
-    
         if (socket && isMounted) {
             socket.on("getMessage", (data) => {
                 setArrivalMessage({
@@ -243,19 +241,18 @@ setInputmess(e.target.value)}
                           </div>
                           <div className='button_windowchat'>
                                             <div onClick={(e)=>{closeWindow(props.count.id)}}>
-                                              <img src='./images/close.svg'></img>
+                                              <img src={`${ClientURL}/images/close.svg`}></img>
                                             </div>
                                             <div>
-                                            <img src='./images/hidden.svg'></img>
+                                            <img src={`${ClientURL}/images/hidden.svg`}></img>
 
                                             </div>
                                             <div onClick={()=>{setCall(!call)}}>
-                                            <img src='./images/camera.svg'></img>
+                                            <img src={`${ClientURL}/images/camera.svg`}></img>
 
                                               </div>
                                             <div onClick={()=>{setCall(!call)}}>
-                                            <img src='./images/phone.svg'></img>
-
+                                            <img src={`${ClientURL}/images/phone.svg`}></img>
                                               </div>
                                 </div>
             </div>
@@ -273,20 +270,20 @@ setInputmess(e.target.value)}
                                     { imgView.length>0 ?
                                     <>
                                     <div onClick={setEmtyImg}>
-                                      <img src='./images/arrow-left.svg' style={{width:"1.5rem",height:"1.5rem"}}>
+                                      <img  src={`${ClientURL}/images/arrow-left.svg`} style={{width:"1.5rem",height:"1.5rem"}}>
                                     </img></div>
                                     </>
                                     :
                                     <ul>
                                         <li>
                                             <input onChange={(e)=>{pick_imageMess(e)}}  type='file' ref={image_message} multiple hidden></input>
-                                        <img onClick={()=>{image_message.current.click()}} src='./images/image.svg' style={{width:"1.5rem",height:"1.5rem"}}></img>
+                                        <img onClick={()=>{image_message.current.click()}} src={`${ClientURL}/images/image.svg`}style={{width:"1.5rem",height:"1.5rem"}}></img>
                                         </li>
 
                                         <li >                                            
-                                            <img src='./images/sticker.svg' style={{width:"1.5rem",height:"1.5rem"}}></img></li>
+                                            <img src={`${ClientURL}/images/sticker.svg`} style={{width:"1.5rem",height:"1.5rem"}}></img></li>
                                         <li>
-                                            <img src='./images/emoji.svg' onClick={(e)=>{setOpenEmojiPicker(!openEmojiPicker)}} style={{width:"1.5rem",height:"1.5rem"}}></img>
+                                            <img src={`${ClientURL}/images/emoji.svg`} onClick={(e)=>{setOpenEmojiPicker(!openEmojiPicker)}} style={{width:"1.5rem",height:"1.5rem"}}></img>
                                           
                                         </li>
                                     </ul>}
@@ -297,7 +294,7 @@ setInputmess(e.target.value)}
                                          imgView.length>0 &&
                                          <div className='multiFile_layout'>
                                       <input type='file' hidden ref={multiFile} multiFile></input>
-                                       <img onClick={()=>{multiFile.current.click()}} src='./images/image.svg' style={{width:"1.5rem",height:"1.5rem"}}></img>
+                                       <img onClick={()=>{multiFile.current.click()}} src={`${process.env.REACT_APP_CLIENT_URL}/images/image.svg`} style={{width:"1.5rem",height:"1.5rem"}}></img>
                                            {
                                           imgView.map((e)=>
                                             (
@@ -320,7 +317,7 @@ setInputmess(e.target.value)}
                                 <div>
                                 <div>
                                     <div onClick={handleSubmit} style={{cursor:"pointer"}} onInvalid={inputValue ? true : false}>
-                                    <img src='./images/send-2.svg' style={{width:"1.5rem",height:"1.5rem"}}></img>
+                                    <img src={`${ClientURL}/images/send-2.svg`}style={{width:"1.5rem",height:"1.5rem"}}></img>
                                     </div>
                                 </div>
                                 </div>

@@ -12,6 +12,7 @@ import getTime from '../../function/getTime';
 import { useSocket } from '../../context/socketContext';
 
 import { getConversation } from '../conversation/getConversation';
+import WindowChat from '../message/windowchat';
 const ChatApp = ({ messageId }) => {
   document.title = "Message"
   const messageScroll = useRef(null)
@@ -385,34 +386,20 @@ const ChatApp = ({ messageId }) => {
 
             </div>
             <div className='Main_ChatApp'>
+
               {
                 conversations.length === 0 ? <div className='chatbox_res'>Kết bạn đi anh bạn <a href='/home' className='play_in_cheo'>kết bạn</a></div> :
                   <>
                     {
                       !currentChat ? <div className='chatbox_res'>Hãy chọn một đoạn chat hoặc bắt đầu cuộc trò chuyện mới</div> :
                         <>
-                          <div className='Header_ChatApp'>
-                            <a href='cac'>
-                              {
-                                guestImg &&
-                                <>
-                                  <div className='header_online'>
-                                    <div className='avatar_dot'>
-                                      <img className='avatarImage' alt='Avatar' src={guestImg.img ? `${(guestImg.img)}`:""}></img>
-                                      <span className={`dot ${onlineUser && onlineUser.some((e)=>e.userId===guestImg.userID) ? "activeOnline" : {}}`}>  </span>
-                                    </div>
-                                    <div className='header_text'>
-                                      <div style={{ fontSize: "1.5rem", color: "black", fontWeight: "bold" }}> {guestImg.Name}</div>
-                                      {
-                                        <>{onlineUser && onlineUser.some((e)=>e.userId===guestImg.userID) ? <>Đang hoạt động</> : <>Không hoạt động</>}</>
-                                      }
-                                    </div>
-                                  </div>
-                                </>
-                              }
-                            </a>
+                      <div className='Body_mainChatApp'>
+                          <div className='ChatApp'>
+
+                          <WindowChat count={currentChat} ListusersOnline={onlineUser}></WindowChat>
                           </div>
-                          <div className='Body_Chatpp' >
+                      </div>
+                          {/* <div className='Body_Chatpp' >
                             <div className='ChatApp' >
                               <div className='ChatApp_text'>
                                 {messages.map((message, index) => (
@@ -455,7 +442,7 @@ const ChatApp = ({ messageId }) => {
                               </div>
                             </div>
 
-                          </div>
+                          </div> */}
                         </>
                     }
                   </>

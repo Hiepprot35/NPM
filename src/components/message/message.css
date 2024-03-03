@@ -65,6 +65,7 @@
     overflow-wrap: break-word;
     margin: 0px;
 }
+
 .Mess_seen_text,.forget_pass
 {
     display: flex;

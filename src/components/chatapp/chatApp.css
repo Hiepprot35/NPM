@@ -56,7 +56,10 @@ input[type=text]:focus {
 
 
 .Container_ChatApp {
-    margin-top: 80px;
+    top: 7vh;
+    position: fixed;
+    width: 100vw;
+    height: 93vh;
     display: flex;
     justify-content: flex-start;
 }
@@ -87,12 +90,25 @@ input[type=text]:focus {
 
 .Main_ChatApp {
     width: 100%;
-    margin: 0px 2rem 0px 2rem;
     border-radius: 1rem;
     background-color: white;
 
 }
-
+.Main_ChatApp .Mess_seen_text img
+{
+    width: 20%;
+    height: 20%;
+    border-radius: 1rem;
+}
+.Main_ChatApp .Mess_seen_text .listImg
+{
+    width: 7rem;
+    height: 9rem !important;
+}
+.Body_mainChatApp .Body_Chatpp .main_windowchat
+{
+    height: 70vh !important;
+}
 .Header_ChatApp .header_online h3 {
     font-size: 20px;
 }
