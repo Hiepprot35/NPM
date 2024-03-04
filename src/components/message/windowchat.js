@@ -5,6 +5,7 @@ import {useSocket} from '../../context/socketContext';
 import VideoCall from './windowchat/videoCall'
 import Message from './Message'
 import EmojiPicker from 'emoji-picker-react';
+import { getUserinfobyID,getStudentInfoByMSSV } from '../../function/getApi';
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 
 export default function WindowChat(props)
@@ -28,19 +29,8 @@ export default function WindowChat(props)
      const windowchat=useRef(null)
     const [userInfor,setUserInfo]=useState();
     const [messages,setMessages]=useState();
-    useEffect(()=>{console.log(userConver)},[userConver])
-    async function studentInfo(data) {
-      if (data) {
-          const URL2 = `${process.env.REACT_APP_DB_HOST}/api/getStudentbyID/${data}`;
-          try {
-              const studentApi = await fetch(URL2);
-              const student = await studentApi.json();
-              setUserInfo(student);
-          } catch (error) {
-              console.error(error);
-          }
-      }
-  }
+    useEffect(()=>{console.log(props.ListusersOnline)},[props.ListusersOnline])
+  
   async function getMessages () {
     if (props.count?.id) {
       try {
@@ -77,13 +67,14 @@ function pick_imageMess (e) {
   }
 };
 function onClickEmoji(e){
-  setEmoji((pre)=>pre+e.emoji)
-  if(inputValue.current)
-  {
-    inputValue.current.value=emoji
+  
+    setEmoji((pre)=>pre+e.emoji)
     setFileImg((pre)=>[...pre,e.imageUrl])
-  }
+  
 }
+useEffect(()=>{
+  setInputmess(emoji)
+},[emoji])
 async function handleSubmit(){
     try {
         const imgData=new FormData()
@@ -101,12 +92,12 @@ async function handleSubmit(){
           imgData.append("isFile",0);
           imgData.append("content",inputMess);
         }
+       
         const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
           method: 'POST',
           body: imgData,
         });
         const MessageDataRes = await res.json()
-        console.log(MessageDataRes)
         if(socket)
         {
       socket.emit("sendMessage", {
@@ -120,9 +111,10 @@ async function handleSubmit(){
       }
         setMessages([...messages, MessageDataRes]);
         setEmtyImg()
-        inputValue.current.value = "";
+        setInputmess("") ;
         inputValue.current.focus()
-      } catch (err) {
+        props.cc(MessageDataRes)
+       }catch (err) {
         console.log(err);
       }
     }
@@ -133,10 +125,17 @@ function setEmtyImg(){
 
 function inputChange(e){
     setInputmess(e.target.value)}
+
+
     useEffect(() => { 
+      async function fetchData(){
+
         if (userName) {
-            studentInfo(userName.username);
+          const data=await getStudentInfoByMSSV(userName.username);
+          setUserInfo(data);
         }
+      }
+      fetchData()
     }, [props.count,userName]);
     useEffect(() => {
         if (arrivalMessage) {
@@ -167,21 +166,24 @@ function inputChange(e){
     }, [socket]);
   
     useEffect(() => {
-      if (arrivalMessage) {
-         document.title ="Đa gửi tin"
-      }
-  }, [arrivalMessage]);
-    useEffect(() => {
-                const getUser = async () => {
-                    try {
-                        const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/username?id=${userConver}`);
-                        const data2 = await res.json();
-                        setUsername(data2[0])
-                    } catch (err) {
-                        console.log("Không có giá trí");
-                    }
-                };
-                 getUser()
+      const updateTitle = async () => {
+        if (arrivalMessage) {
+          const username = await getUserinfobyID(parseInt(arrivalMessage.sender_id));
+          const nameSV=await getStudentInfoByMSSV(username.username)
+          document.title = `${nameSV.Name} gửi tin nhắn`;
+        }
+      };
+    
+      updateTitle();
+    }, [arrivalMessage]);
+    
+  
+useEffect(() => {
+  const getUsername=async()=>{
+    const data=await getUserinfobyID(userConver)
+    setUsername(data)
+  }
+   getUsername()             
         
     }, [props.count])
     useEffect(()=>{
@@ -203,18 +205,52 @@ function inputChange(e){
       }
     }, [messages]);
    
-   
+    const checkMess = (i, array, authID, user, sender) => {
+      let value;
+    
+      if (sender === authID) {
+        value = user;
+      }
+    
+      if (sender === user) {
+        value = authID;
+      }
+    
+      const l = array.length;
+    
+      if (i === 0 || i === l - 1) {
+        return 0;
+      }
+    
+      if (i > 0 && i < l - 1) {
+        if (array[i - 1].sender_id === authID && array[i + 1].sender_id === authID) {
+          return 0;
+        }
+    
+        if (array[i - 1].sender_id !== value && array[i + 1].sender_id === value) {
+          return 3;
+        }
+    
+        if (array[i - 1].sender_id === value && array[i + 1].sender_id !== value) {
+          return 1;
+        }
+    
+        if (array[i - 1].sender_id !== value && array[i + 1].sender_id !== value) {
+          return 2;
+        }
+      }
+    
+      return undefined;
+    };
+    
+
+    
+    const [rowCount,setRowcount]=useState(1)
     useEffect(()=>{
-      if(windowchat_input.current && main_windowchat.current && imgView.length>0)
-      {
-        main_windowchat.current.style.height="40vh";
-        windowchat_input.current.style.width="80% !important";
-      }
-      if(imgView.length===0)
-      {
-        main_windowchat.current.style.height="50vh";
-      }
-    },[imgView])
+      inputMess && setRowcount(Math.ceil(inputMess.length / 20));
+      !inputMess && setRowcount(1)
+    },[inputMess])
+    
     return(
         <>
         <div className='windowchat' ref={windowchat}>
@@ -229,9 +265,9 @@ function inputChange(e){
                                       <span className={`dot ${props.ListusersOnline && props.ListusersOnline.some((e)=>e.userId===userConver) ? "activeOnline" : {}}`}>  </span>
                                     </div>
                                     <div className='header_text'>
-                                      <div style={{ fontSize: "1.5rem", color: "black", fontWeight: "bold" }}> {userInfor.Name}</div>
+                                      <div style={{ fontSize: "1rem", color: "black", fontWeight: "bold" }}> {userInfor.Name}</div>
                                       {
-                                        <span>{props.ListusersOnline &&  props.ListusersOnline.some((e)=>e.userId===userConver) ? <>Đang hoạt động</> : <>Không hoạt động</>}</span>
+                                        <span>{props.ListusersOnline &&  props.ListusersOnline.some((e)=>e.userId===userConver) ? <>Online</> : <></>}</span>
                                       }
                                     </div>
                                   </div>
@@ -240,18 +276,18 @@ function inputChange(e){
                               }
                           </div>
                           <div className='button_windowchat'>
-                                            <div onClick={(e)=>{closeWindow(props.count.id)}}>
+                                            <div className='features_hover' onClick={(e)=>{closeWindow(props.count.id)}}>
                                               <img src={`${ClientURL}/images/close.svg`}></img>
                                             </div>
-                                            <div>
+                                            <div  className='features_hover'>
                                             <img src={`${ClientURL}/images/hidden.svg`}></img>
 
-                                            </div>
-                                            <div onClick={()=>{setCall(!call)}}>
+                                            </div >
+                                            <div  className='features_hover' onClick={()=>{setCall(!call)}}>
                                             <img src={`${ClientURL}/images/camera.svg`}></img>
 
                                               </div>
-                                            <div onClick={()=>{setCall(!call)}}>
+                                            <div  className='features_hover' onClick={()=>{setCall(!call)}}>
                                             <img src={`${ClientURL}/images/phone.svg`}></img>
                                               </div>
                                 </div>
@@ -261,7 +297,12 @@ function inputChange(e){
                               {messages && messages.map((message, index) => (
                                   <div className='message_content' key={index}>
                                     <Message key={index} message={message}
-                                      my={auth.userID} own={message.sender_id === auth.userID} student={userInfor} Online={props.ListusersOnline ? props.ListusersOnline:auth.userId}  ></Message>
+                                      my={auth.userID} 
+                                      mid={checkMess(index,messages,auth.userID,userConver,message.sender_id)===2}
+                                      alone={checkMess(index,messages,auth.userID,userConver,message.sender_id)===0}
+                                      first={checkMess(index,messages,auth.userID,userConver,message.sender_id)===1} 
+                                      end={checkMess(index,messages,auth.userID,userConver,message.sender_id)===3}
+                                      own={message.sender_id === auth.userID} student={userInfor} userID={userConver} Online={props.ListusersOnline}  ></Message>
                                   </div>
                                 ))}
                               </div>
@@ -269,32 +310,35 @@ function inputChange(e){
                                 <div className='feature_left'>
                                     { imgView.length>0 ?
                                     <>
-                                    <div onClick={setEmtyImg}>
+                                    <div onClick={setEmtyImg} className='features_hover'>
                                       <img  src={`${ClientURL}/images/arrow-left.svg`} style={{width:"1.5rem",height:"1.5rem"}}>
                                     </img></div>
                                     </>
                                     :
                                     <ul>
-                                        <li>
+                                        <li  className='features_hover'>
                                             <input onChange={(e)=>{pick_imageMess(e)}}  type='file' ref={image_message} multiple hidden></input>
-                                        <img onClick={()=>{image_message.current.click()}} src={`${ClientURL}/images/image.svg`}style={{width:"1.5rem",height:"1.5rem"}}></img>
+                                        <img onClick={()=>{image_message.current.click()}} src={`${ClientURL}/images/image.svg`}></img>
                                         </li>
 
-                                        <li >                                            
-                                            <img src={`${ClientURL}/images/sticker.svg`} style={{width:"1.5rem",height:"1.5rem"}}></img></li>
-                                        <li>
-                                            <img src={`${ClientURL}/images/emoji.svg`} onClick={(e)=>{setOpenEmojiPicker(!openEmojiPicker)}} style={{width:"1.5rem",height:"1.5rem"}}></img>
+                                        <li  className='features_hover' >                                            
+                                            <img src={`${ClientURL}/images/sticker.svg`}></img></li>
+                                        <li  className='features_hover'>
+                                            <img src={`${ClientURL}/images/emoji.svg`} onClick={(e)=>{setOpenEmojiPicker(!openEmojiPicker)}}></img>
                                           
                                         </li>
                                     </ul>}
                                 </div>
                                
-                                <div className=' windowchat_input' ref={windowchat_input} >
+                                <div className=' windowchat_input ' ref={windowchat_input} >
                                 {
                                          imgView.length>0 &&
-                                         <div className='multiFile_layout'>
+                                         <div className='multiFile_layout '>
                                       <input type='file' hidden ref={multiFile} multiFile></input>
-                                       <img onClick={()=>{multiFile.current.click()}} src={`${process.env.REACT_APP_CLIENT_URL}/images/image.svg`} style={{width:"1.5rem",height:"1.5rem"}}></img>
+                                      <div className='features_hover'>
+
+                                       <img  onClick={()=>{multiFile.current.click()}} src={`${process.env.REACT_APP_CLIENT_URL}/images/image.svg`} ></img>
+                                      </div>
                                            {
                                           imgView.map((e)=>
                                             (
@@ -309,14 +353,21 @@ function inputChange(e){
 
                                     
                                     }
-                                    <input type='
-                                    text' id='send_window_input' onChange={inputChange} placeholder='Aa' ref={inputValue} >
-                                    </input>
+                                  <textarea
+                                  cols="20"
+                                  rows={rowCount||1}
+                                  style={{ resize: 'none' }}
+                                  id='send_window_input'
+                                  onChange={inputChange}
+                                  placeholder='Aa'
+                                  value={inputMess}
+                                  ref={inputValue}
+                                />
                                   
                                 </div>
                                 <div>
                                 <div>
-                                    <div onClick={handleSubmit} style={{cursor:"pointer"}} onInvalid={inputValue ? true : false}>
+                                <div className='features_hover' onClick={() => inputMess.length > 0 && handleSubmit()} style={{ cursor: "pointer" }}>
                                     <img src={`${ClientURL}/images/send-2.svg`}style={{width:"1.5rem",height:"1.5rem"}}></img>
                                     </div>
                                 </div>

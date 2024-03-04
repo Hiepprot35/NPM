@@ -3,7 +3,7 @@ import BlobtoBase64 from "../../function/BlobtoBase64";
 import './message.css';
 import * as timeUse from "../../function/getTime";
 import { IsLoading } from "../Loading";
-export default function Message({ message, own, student, Online, listSeen }) {
+export default function Message({ message, own, student, Online, listSeen,userID,first,end,mid,alone }) {
     const time = useRef(null)
     const seen_text = useRef(null)
     const messageRef = useRef(null)
@@ -15,13 +15,29 @@ export default function Message({ message, own, student, Online, listSeen }) {
         setListAnh(data)
     }
    },[])
+    function checkMess(){
+        if(first)
+        {
+            return "firstMessage"
+        }
+        if(mid)
+        {
+            return "midMessage"
+        }
+        if(end)
+        {
+            return "endMessage"
+        }
+        else{return ""}
+    }    
+   useEffect(()=>{console.log(end)},[end])
     return (
         <>
             <div className="containerMessage" ref={messageRef}>
 
                 {
                     message ?
-                        <div className={own ? "message own" : "message"}>
+                            <div className={own ? `message own ${checkMess()}` : `message ${checkMess()}`}>
                             { }
                             <div className="Mess_seen_container">
                                 <div className="messageTop">
@@ -29,20 +45,22 @@ export default function Message({ message, own, student, Online, listSeen }) {
                                         !own &&
                                         student?.img && message.content !== null &&
                                         <>
-                                            <div className='avatar_dot'>
+                                        { (alone||end) && (
+                                        <div className={`avatar_dot`}>
+                                            <img
+                                            className="avatarImage"
+                                            src={student.img ? `${student?.img}` : ""}
+                                            alt="sender"
+                                            />
+                                            <span className={`dot ${Online && Online.some((e) => e.userId === userID) ? "activeOnline" : ""}`}></span>
+                                        </div>
+                                        )}
 
-                                                <img
-                                                    className="avatarImage"
-
-                                                    src={student.img ?`${(student?.img)}`:""} alt="sender" />
-                                      <span className={`dot ${Online&& Online.some((e)=>e.userId===student.userID) ? "activeOnline" : {}}`}>  </span>
-
-                                            </div>
                                         </>
                                     }
                                     {
                                         message.content != null ?
-                                            <div className="Mess_seen_text">
+                                                <div className={`Mess_seen_text  ` }>
                                                 {
                                                     message.isFile?
                                                     <>
@@ -56,9 +74,12 @@ export default function Message({ message, own, student, Online, listSeen }) {
                                                         </>
                                                     
                                                     :
-                                                <p className="messageText">{message.content}</p>
+                                                <p className={`messageText `}>{message.content}</p>
                                                 }
-                                                <p className="messageBottom" ref={time}>{timeUse.getTime(message.created_at)}</p>
+                                                <div className="messageBottom">
+
+                                                <p  ref={time}>{timeUse.getTime(message.created_at)}</p>
+                                                </div>
 
                                             </div>
                                             : <></>

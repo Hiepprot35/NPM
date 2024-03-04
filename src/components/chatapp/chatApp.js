@@ -8,6 +8,7 @@ import './chatApp.css'
 import Conversation from '../conversation/conversations';
 import Message from '../message/Message';
 import getTime from '../../function/getTime';
+import { getUserinfobyID } from '../../function/getApi';
 // import SocketManager from '../../hook/useSocket';
 import { useSocket } from '../../context/socketContext';
 
@@ -17,7 +18,6 @@ const ChatApp = ({ messageId }) => {
   document.title = "Message"
   const messageScroll = useRef(null)
   const inputMess = useRef()
-  const [guestImg, setGuestImg] = useState();
   const { auth } = useAuth()
   useEffect(()=>{console.log(auth)},[])
   const [MSSVReceived, setMSSVReceived] = useState()
@@ -60,71 +60,6 @@ const ChatApp = ({ messageId }) => {
   useEffect(() => {
     inputMess.current && inputMess.current.focus()
   }, [currentChat])
-  // const handleKeyPress = async (event) => {
-  //   if (event.key === 'Enter') {
-  //     const message = {
-  //       sender_id: auth.userID,
-  //       content: inputMess.current.value,
-  //       conversation_id: currentChat.id,
-  //     };
-  //     const user12 = [currentChat?.user1, currentChat?.user2]
-  //     const receiverId = user12.find(
-  //       (member) => member !== auth.userID
-  //     );
-  //     socket.current.emit("sendMessage", {
-  //       sender_id: auth.userID,
-  //       receiverId,
-  //       content: inputMess.current.value,
-  //     });
-  //     try {
-  //       const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify(message)
-  //       });
-  //       const data = await res.json()
-  //       setMessages([...messages, data]);
-  //       inputMess.current.value = "";
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   }
-  // }
-  const clickConversation = async (data) => {
-    const user12 = [data?.user1, data?.user2]
-    const receiverId = user12.find(
-      (member) => member !== auth.userID
-    );
-    const sentToApi = {
-      conversation_id: data?.id,
-      sender_id: receiverId
-    }
-    const resFunctiongetNewestMessSeen = async () => {
-      try {
-        const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/seen`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(sentToApi)
-        });
-      } catch (err) {
-        console.log(err);
-      }
-    }
-    resFunctiongetNewestMessSeen()
-    if(socket)
-    {
-    const sendSocket = {
-      sender_id: auth.userID,
-      receiverId,
-      isSeen: true,
-    }
-    socket.emit("UserSeen", sendSocket)
-  }
-}
   useEffect(() => {
     if(socket)
     {
@@ -141,31 +76,9 @@ const ChatApp = ({ messageId }) => {
     }
   }
   }, [socket]
+  
   )
-  useEffect(() => {
-    const getMessages = async () => {
-      if (currentChat) {
-
-
-        try {
-          const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/${currentChat?.id}`,
-            {
-              method: "POST",
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-          const data = await res.json()
-          setMessages(data);
-
-        } catch (err) {
-          console.log(err);
-        }
-      };
-    }
-    getMessages();
-  }, [currentChat]);
+ 
   useEffect(() => {
     if(socket)
     {
@@ -180,11 +93,7 @@ const ChatApp = ({ messageId }) => {
       }
     }
                     }, [socket]);
-  useEffect(() => {
-    if (arrivalMessage) {
-        setMessages((prev) => [...prev, arrivalMessage]);
-    }
-  }, [arrivalMessage]);
+
   useEffect(() => {
     async function AsyncGetCon()
     {
@@ -193,7 +102,8 @@ const ChatApp = ({ messageId }) => {
       setData([convers])
     }
     AsyncGetCon()
-  }, [messages, arrivalMessage, isSeen])
+  }, [ arrivalMessage])
+  
   useEffect(() => {
     const getNewstMess = async () => {
       try {
@@ -205,89 +115,18 @@ const ChatApp = ({ messageId }) => {
     }
     getNewstMess()
 
-  }, [currentChat, messages, isSeen])
-  useEffect(()=>{console.log("Mount Chatap")
-  return()=>{
-    console.log("unMountChataap")
-  }
-},[])
-
-  useEffect(() => {
-    const studentInfo = async (data, userID) => {
-      if (data) {
-
-        const URL2 = `${process.env.REACT_APP_DB_HOST}/api/getStudentbyID/${data} `;
-        try {
-          const studentApi = await fetch(URL2);
-          const student = await studentApi.json();
-          student.userID = userID
-          setGuestImg(student)
-        } catch (error) {
-          console.error(error);
-        }
-      };
-    }
-    if (MSSVReceived) {
-      const data = MSSVReceived[0]?.username;
-      const userid = MSSVReceived[0]?.UserID;
-      studentInfo(data, userid);
-    }
-  }, [MSSVReceived, currentChat]);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (inputMess.current.value && socket) {
-      const message = {
-        sender_id: auth.userID,
-        content: inputMess.current.value,
-        conversation_id: currentChat.id,
-      };
-      const user12 = [currentChat?.user1, currentChat?.user2]
-      const receiverId = user12.find(
-        (member) => member !== auth.userID
-      );
-        if(socket)
-        {
-          console.log(socket)
-      socket.emit("sendMessage", {
-          sender_id: auth.userID,
-          receiverId,
-          content: inputMess.current.value,
-        });
-      } else{
-        console.log("không có socket")
-      }
-     
-      try {
-        const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(message)
-        });
-        const MessageDataRes = await res.json()
-        setMessages([...messages, MessageDataRes]);
-        inputMess.current.value = "";
-        inputMess.current.focus()
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  };
+  }, [currentChat, messages])
   useEffect(() => {
     const receiverId = currentChat ? (currentChat.user1 !== auth.userID ? currentChat.user1 : currentChat.user2) : null;
 
     const getUser = async () => {
-      try {
-        const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/username?id=${receiverId}`);
-        const data2 = await res.json();
-        setMSSVReceived(data2);
-      } catch (err) {
-        console.log(err);
-      }
+      const data=await getUserinfobyID(receiverId)
+      setMSSVReceived(data);
+  
     };
     getUser();
   }, [currentChat]);
+  
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -331,6 +170,7 @@ const ChatApp = ({ messageId }) => {
         <>
           <div className='Container_ChatApp'>
             <div className='Narbar_ChatApp'>
+              <h1>Đoạn chat</h1>
               <input
                 placeholder="Search for friends"
                 className="chatMenuInput"
@@ -352,7 +192,6 @@ const ChatApp = ({ messageId }) => {
                       conversation={c}
                       currentUser={auth.userID}
                       Arrivalmess={arrivalMessage}
-                      mess={messages.length}
                       Online={onlineUser}
                       listSeen={isSeen}
                     />
@@ -374,7 +213,6 @@ const ChatApp = ({ messageId }) => {
                         conversation={c}
                         currentUser={auth.userID}
                         Arrivalmess={arrivalMessage}
-                        mess={messages.length}
                         Online={onlineUser}
                         listSeen={isSeen}
                       />
@@ -396,53 +234,13 @@ const ChatApp = ({ messageId }) => {
                       <div className='Body_mainChatApp'>
                           <div className='ChatApp'>
 
-                          <WindowChat count={currentChat} ListusersOnline={onlineUser}></WindowChat>
+                          <WindowChat
+                                                  cc={setArrivalMessage}
+
+                          count={currentChat} setMessages={setMessages} ListusersOnline={onlineUser}></WindowChat>
                           </div>
                       </div>
-                          {/* <div className='Body_Chatpp' >
-                            <div className='ChatApp' >
-                              <div className='ChatApp_text'>
-                                {messages.map((message, index) => (
-                                  <div className='message_content' key={index}>
-                                    <Message key={index} message={message}
-                                      my={auth.userID} own={message.sender_id === auth.userID} student={guestImg} Online={onlineUser} listSeen={userSeenAt} ></Message>
-                                  </div>
-                                ))}
-                              </div>
-                              <div className='inputValue'>
-                                  <div className='feature_left'>
-                                    <ul>
-                                        <li>
-                                        <img src='/images/image.svg' style={{width:"1.5rem",height:"1.5rem"}}></img>
-                                        </li>
-
-                                        <li>                                            
-                                            <img src='/images/sticker.svg' style={{width:"1.5rem",height:"1.5rem"}}></img></li>
-                                        <li>
-                                            <img src='/images/gif.png' style={{width:"1.5rem",height:"1.5rem"}}></img>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div className='text_field'>
-                                  <input
-                                    // onKeyPress={handleKeyPress}
-                                    onClick={() => clickConversation(currentChat)}
-                                    onFocus={() => clickConversation(currentChat)}
-                                    ref={inputMess}
-                                    placeholder='Send a messsage'
-                                    type="text"
-                                    required
-                                  />
-                                </div>
-                                <div className='button_field'>
-                                  {
-                                    <button className='play_in_cheo' onInvalid={inputMess?true:false} onClick={handleSubmit} >Send</button>
-                                  }
-                                </div>
-                              </div>
-                            </div>
-
-                          </div> */}
+                    
                         </>
                     }
                   </>

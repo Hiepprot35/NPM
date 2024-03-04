@@ -1,6 +1,7 @@
 .message {
     display: flex;
-    margin-top: 10px;
+    margin-bottom: 0.3rem;
+    flex-direction: column;    
     
 }
 .Mess_seen_text {
@@ -9,8 +10,46 @@
 .messageTop ,.messageBottom
 {
     display: flex;
-    margin: 0px 0.5rem 0px 0.5rem;
+    margin: 0px 1rem 0px 1rem;
     align-items: center;
+} .firstMessage,.midMessage
+{
+
+    margin-left: 3.7rem;
+    margin-bottom: 0.2rem;
+}
+.firstMessage .messageText{
+    border-radius: 2rem 2rem 2rem .3rem ;
+
+}
+.endMessage .messageText{
+    border-radius: 0.3rem 2rem 2rem 2.5rem ;
+
+}
+.own .firstMessage, .own .midMessage
+{
+
+    margin-right: 3.7rem;
+    margin-bottom: 0.2rem;
+}
+.firstMessage .messageText{
+    border-radius: 2rem 2rem 2rem .3rem ;
+
+}
+.endMessage .messageText{
+    border-radius: 0.3rem 2rem 2rem 2.5rem ;
+
+}
+.avatar_dot
+{
+    display: flex;
+    margin: 0 0.9rem 0 0;
+    margin-top: 0px;
+    margin-right: 0.9rem;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    align-items: flex-end;
+    justify-content: flex-end;
 }
 .own .messageTop, .own .Seen_field,.own .Mess_seen_text
 
@@ -44,7 +83,7 @@
 .message.own
 {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: column;
 }
 .messageImg {
     width: 32px;
@@ -55,13 +94,13 @@
 }
 
 .messageText {
-    padding: 10px;
+    padding: .5rem 1rem .5rem 1rem;
     font-size: medium;
-    border-radius: 20px;
-    background-color: #1877f2;
-    color: white;
-    max-width: 30rem;
+    border-radius:.5rem 1rem 1rem .5rem;
+    background-color: #a8aaad9b;
+    color: rgb(0, 0, 0);
     display: inline-block;
+    max-width: 100%;
     overflow-wrap: break-word;
     margin: 0px;
 }
@@ -69,20 +108,23 @@
 .Mess_seen_text,.forget_pass
 {
     display: flex;
+    position: relative;
     align-items: center;
+    width: 50%;
 }
 .messageBottom {
+   
+    position: relative;
+}
+.messageBottom p{
     border-radius: 10px;
     color: white !important;
     font-size: 0.7rem;
+    padding: 0.4rem;
     transition: 0.1s linear;
-    padding: 0.5rem;
-    height: 80%;
     visibility: var(--opacityhover);
     background-color: rgba(141, 141, 141, 0.712);
-    
 }
-
 
 .Mess_seen_text:hover{
     --opacityhover:visible;
@@ -91,5 +133,6 @@
 }
 .message.own .messageText {
     background-color: rgb(2, 0, 0);
+    border-radius: 1rem .5rem .5rem 1rem;
     color: rgb(255, 255, 255);
 }

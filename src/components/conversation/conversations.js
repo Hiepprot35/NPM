@@ -5,12 +5,11 @@ import useAuth from "../../hook/useAuth";
 import BlobtoBase64 from "../../function/BlobtoBase64";
 import * as timeUse from "../../function/getTime";
 import WindowChat from "../message/windowchat";
-export default function Conversation({ conversation, Arrivalmess, mess, Online,notSeen_field,count }) {
+export default function Conversation({ conversation, Online,notSeen_field }) {
     const [user, setUser] = useState();
     const { auth } = useAuth()
     const [isLoading, setIsLoading] = useState(true);
     const [username, setUsername] = useState()
-    const [NewestMess, setNewestMesst] = useState()
     // useEffect(()=>{console.log(conversation)},[])
     const data = [conversation.user1, conversation.user2];
     const setOnlineUser = data.find((m) => m !== auth.userID)
@@ -29,26 +28,8 @@ export default function Conversation({ conversation, Arrivalmess, mess, Online,n
                 getUser()
         }
         getUsername()
-    }, [conversation, auth.userID])
-    useEffect(() => {
-        const getMess = () => {
-            let friendId = conversation.user1;
-            if (conversation.user1 != conversation.user2) {
-                friendId = data.find((m) => m !== auth.userID);
-            }
-            const resApi = async () => {
-                try {
-                    const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/newest/${conversation.id}`);
-                    const data2 = await res.json();
-                    setNewestMesst(data2)
-                } catch (err) {
-                    console.log("Không có giá trí");
-                }
-            };
-            resApi()
-        }
-        getMess()
-    }, [conversation, auth.userID, Arrivalmess, mess])
+    }, [conversation])
+    
     useEffect(() => {
         const studentInfo = async () => {
             if (username) {
@@ -90,31 +71,31 @@ export default function Conversation({ conversation, Arrivalmess, mess, Online,n
                             <span className="conversationName">{user.Name}</span>
                            {notSeen_field ?<></>: <div className="messConversation">
                                 {
-                                    NewestMess &&
+                                    conversation &&
                                     <>
                                         {
                                             <> {
-                                                NewestMess.content &&
+                                                conversation.content &&
                                                 <div>
-                                                    {NewestMess?.sender_id === auth.userID ?
+                                                    {conversation?.sender_id === auth.userID ?
                                                          <span>
                                                          {
 
-                                                             NewestMess?.content.startsWith("https://res.cloudinary.com")?
-                                                             "Bạn đã gửi một ảnh":NewestMess?.content
+                                                             conversation?.content.startsWith("https://res.cloudinary.com")?
+                                                             "Bạn đã gửi một ảnh":conversation?.content
                                                          }
                                                      </span>
                                                         :
                                                         <span>
                                                             {
 
-                                                                NewestMess?.content.startsWith("https://res.cloudinary.com")?
-                                                                "Đã gửi một ảnh":NewestMess?.content
+                                                                conversation?.content.startsWith("https://res.cloudinary.com")?
+                                                                "Đã gửi một ảnh":conversation?.content
                                                             }
                                                         </span>
                                                     }
                                                     
-                                                    <span>{timeUse.countTime(NewestMess.created_at)}</span>
+                                                    <span>{timeUse.countTime(conversation.created_at)}</span>
                                                 </div>
                                             }
                                             </>

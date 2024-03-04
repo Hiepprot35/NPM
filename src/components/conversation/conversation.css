@@ -17,7 +17,8 @@
   }
   .text_conversation
   {
-    max-width: 14rem;
+
+    width: 70%;
   }
   .conversationName {
     font-weight: bold;
@@ -31,17 +32,21 @@
   }
   .messConversation
   {
-    max-width: 100%;
+    width: 100%;
     display: flex;
     align-items: center;
   }
-  
+  .messConversation div
+  {
+    width: 100%;
+    display: flex;
+  }
   .messConversation span
   {
     
     color: gray;
-    margin: 0.5rem;
-    max-width: 50%;
+    margin-left: 0.5rem;
+    width: 80%;
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
