@@ -35,26 +35,19 @@ export default function Login({ setAccessToken }) {
     try {
       const url = `${process.env.REACT_APP_DB_HOST}/api/auth/login/success`;
       const res = await fetch(url, {
+        method:"GET",
         credentials: 'include', // Đảm bảo gửi cookie
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'cors',
-        secure: true, // Đảm bảo cookie chỉ được gửi qua HTTPS
+     
       });
       const dataRes = await res.json();
       if (dataRes.AccessToken) {
-
         setAccessToken(dataRes.AccessToken);
         setRefreshToken(dataRes.RefreshToken);
-        const role = dataRes.Role;
-        const username = dataRes.Username;
-        const userID = dataRes.UserID;
-        const avtUrl = dataRes.avtUrl;
+        const { Role, Username, UserID, avtUrl } = dataRes;
         setAuth({
-          role: role,
-          username: username,
-          userID: userID,
+          role: Role,
+          username: Username,
+          userID: UserID,
           avtUrl: avtUrl,
         });
         setIsLoading(false);
@@ -63,6 +56,7 @@ export default function Login({ setAccessToken }) {
       console.log(err);
     }
   };
+  
   useEffect(() => {
     getUser();
   }, []);
