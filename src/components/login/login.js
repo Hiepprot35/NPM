@@ -35,9 +35,12 @@ export default function Login({ setAccessToken }) {
     try {
       const url = `${process.env.REACT_APP_DB_HOST}/api/auth/login/success`;
       const res = await fetch(url, {
-        method:"GET",
+        method:"POST",
         credentials: 'include', // Đảm bảo gửi cookie
-     
+        headers: {
+          "Content-Type":"application/json",
+          "Accept":"application/json"
+        }
       });
       const dataRes = await res.json();
       if (dataRes.AccessToken) {
