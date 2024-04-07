@@ -12,7 +12,7 @@ import { header_Student } from "../../../lib/data";
 import { Player, Controls } from "@lottiefiles/react-lottie-player";
 
 function Header(props) {
-    const socket=useSocket()
+  const socket = useSocket();
   const [weather, setWeather] = useState({
     city: "",
     weather: "clear",
@@ -33,7 +33,6 @@ function Header(props) {
   useEffect(() => {
     if (socket) {
       socket.emit("addUser", auth.userID);
-    
     }
     return () => {
       if (socket) {
@@ -87,9 +86,7 @@ function Header(props) {
       studentInfo();
     }
   }, []);
-  useEffect(() => {
-    console.log(auth);
-  }, [auth]);
+
   useEffect(() => {
     setAvt(auth.avtUrl);
   }, []);

@@ -13,7 +13,6 @@ import UseToken from "./hook/useToken";
 import SettingAccount from "./components/setting/settingAccount";
 import { useState } from "react";
 import { useEffect } from "react";
-import RequireAuth from "./components/requireAuth";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { IsLoading } from "./components/Loading";
 import DangKiLopHoc from "./components/dangkihoc/dangkilophoc";
@@ -71,7 +70,6 @@ function App() {
       if (auth.role === 1) {
         return (
           <Routes>
-            <Route element={<RequireAuth allowedRoles={ROLES} />}>
               <Route path="/dashboard" element={<Dashboard />} />
 
               <Route path="/home" element={<Home />} />
@@ -81,7 +79,6 @@ function App() {
               <Route path="/" element={<Navigate to="/home"></Navigate>} />
               <Route path="/create" element={<CreateStudent />} />
               <Route path="/*" element={<Navigate to="/"></Navigate>} />
-            </Route>
           </Routes>
         );
       } else if (auth.role === 2) {
@@ -93,7 +90,6 @@ function App() {
             />
             {/* <Route path="/profile/:MSSV" element={<ProfileRoutes  />} /> */}
             <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
-            <Route element={<RequireAuth allowedRoles={ROLES} />}>
               {/* <Route path="/" element={<Dashboard />} /> */}
               <Route path="/" element={<Home />} />
               <Route
@@ -108,7 +104,6 @@ function App() {
                 path="/setting"
                 element={<SettingAccount arrivalMessage={arrivalMessage} />}
               />
-            </Route>
           </Routes>
         );
       }
