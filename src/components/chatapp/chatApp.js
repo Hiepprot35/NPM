@@ -1,213 +1,194 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import io from 'socket.io-client';
-import useAuth from '../../hook/useAuth';
-import BlobtoBase64 from '../../function/BlobtoBase64';
-import Header from '../Layout/header/header';
-import './chatApp.css'
-import Conversation from '../conversation/conversations';
-import Message from '../message/Message';
-import getTime from '../../function/getTime';
-import { getUserinfobyID } from '../../function/getApi';
+import React, { useEffect, useState, useRef } from "react";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import io from "socket.io-client";
+import useAuth from "../../hook/useAuth";
+import BlobtoBase64 from "../../function/BlobtoBase64";
+import Header from "../Layout/header/header";
+import "./chatApp.css";
+import Conversation from "../conversation/conversations";
+import Message from "../message/Message";
+import getTime from "../../function/getTime";
+import { getUserinfobyID } from "../../function/getApi";
 // import SocketManager from '../../hook/useSocket';
-import { useSocket } from '../../context/socketContext';
+import { useSocket } from "../../context/socketContext";
 
-import { getConversation } from '../conversation/getConversation';
-import WindowChat from '../message/windowchat';
+import { getConversation } from "../conversation/getConversation";
+import WindowChat from "../message/windowchat";
 const ChatApp = ({ messageId }) => {
-  document.title = "Message"
-  const messageScroll = useRef(null)
-  const inputMess = useRef()
-  const { auth } = useAuth()
-  useEffect(()=>{console.log(auth)},[])
-  const [MSSVReceived, setMSSVReceived] = useState()
+  document.title = "Message";
+  const messageScroll = useRef(null);
+  const inputMess = useRef();
+  const { auth } = useAuth();
+  useEffect(() => {
+    console.log(auth);
+  }, []);
+  const [MSSVReceived, setMSSVReceived] = useState();
   const [data, setData] = useState([]);
-  const [conversations, setConversation] = useState([])
+  const [conversations, setConversation] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
   const [arrivalMessage, setArrivalMessage] = useState(null);
-  const [userSeenAt, setuserSeenAt] = useState()
-  const [clicked, setClicket] = useState(false)
-  const [onlineUser, setOnlineUser] = useState()
+  const [userSeenAt, setuserSeenAt] = useState();
+  const [clicked, setClicket] = useState(false);
+  const [onlineUser, setOnlineUser] = useState();
   const [messages, setMessages] = useState([]);
-  const [isSeen, setisSeen] = useState(false)
+  const [isSeen, setisSeen] = useState(false);
   useEffect(() => {
     if (messageId) {
       const senApi = async () => {
         try {
-          const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/conversations/mess/${messageId}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ "id": auth.userID })
-          });
-          const data = await res.json()
-          setCurrentChat(data)
+          const res = await fetch(
+            `${process.env.REACT_APP_DB_HOST}/api/conversations/mess/${messageId}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ id: auth.userID }),
+            }
+          );
+          const data = await res.json();
+          setCurrentChat(data);
         } catch (err) {
           console.log(err);
         }
-      }
-      senApi()
+      };
+      senApi();
     }
-  }, [])
+  }, []);
 
   const socket = useSocket();
-  let isCancel = false
+  let isCancel = false;
   // const ListusersOnline = onlineUser && onlineUser.map(item => item.userId) || [];
   const ClickChat = (data) => {
     setCurrentChat(data);
-  }
+  };
   useEffect(() => {
-    inputMess.current && inputMess.current.focus()
-  }, [currentChat])
+    inputMess.current && inputMess.current.focus();
+  }, [currentChat]);
   useEffect(() => {
-    if(socket)
-    {
-    socket.on("getMessage", (data) => {
-      setArrivalMessage({
-        sender_id: data.sender_id,
-        content: data.content,
-        isFile:data.isFile,
-        created_at: Date.now(),
+    if (socket) {
+      socket.on("getMessage", (data) => {
+        setArrivalMessage({
+          sender_id: data.sender_id,
+          content: data.content,
+          isFile: data.isFile,
+          created_at: Date.now(),
+        });
       });
-    });
-    return () => {
-      socket.off("disconnect");
+      return () => {
+        socket.off("disconnect");
+      };
     }
-  }
-  }, [socket]
-  
-  )
- 
-  useEffect(() => {
-    if(socket)
-    {
+  }, [socket]);
 
-      socket.emit("addUser", auth.userID);
-      socket.on("getUsers", (data) => { setOnlineUser(data) })
-      // socket.current.on("getUserSeen", (data) => {setisSeen( data) })
+  useEffect(() => {
+    if (socket) {
+      socket.on("getUsers", (data) => {
+        setOnlineUser(data);
+      });
     }
-    return()=>{
+    return () => {
       if (socket) {
         socket.off("disconnect");
       }
-    }
-                    }, [socket]);
+    };
+  }, [socket]);
 
   useEffect(() => {
-    async function AsyncGetCon()
-    {
-      const convers= await getConversation(auth);
-      setConversation(convers)
-      setData([convers])
+    async function AsyncGetCon() {
+      const convers = await getConversation(auth);
+      setConversation(convers);
+      setData([convers]);
     }
-    AsyncGetCon()
-  }, [ arrivalMessage])
-  
-  useEffect(() => {
-    const getNewstMess = async () => {
-      try {
-        const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/newest/seen/${currentChat?.id}/${auth?.userID}`)
-        const getMess = await res.json();
-        setuserSeenAt(getMess)
-      } catch (error) { console.log(error)
-      }
-    }
-    getNewstMess()
+    AsyncGetCon();
+  }, [arrivalMessage]);
 
-  }, [currentChat, messages])
   useEffect(() => {
-    const receiverId = currentChat ? (currentChat.user1 !== auth.userID ? currentChat.user1 : currentChat.user2) : null;
+    console.log("Chat mount");
+    return () => {
+      console.log("chat unmount");
+    };
+  }, []);
+  useEffect(() => {
+    const receiverId = currentChat
+      ? currentChat.user1 !== auth.userID
+        ? currentChat.user1
+        : currentChat.user2
+      : null;
 
     const getUser = async () => {
-      const data=await getUserinfobyID(receiverId)
+      const data = await getUserinfobyID(receiverId);
       setMSSVReceived(data);
-  
     };
     getUser();
   }, [currentChat]);
-  
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
   const handleSearch = async (e) => {
     if (e.target.value != "") {
-      setClicket(true)
+      setClicket(true);
       try {
-        const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/studentSearchBar`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ "data": e.target.value })
-        });
-        const data = await res.json()
+        const res = await fetch(
+          `${process.env.REACT_APP_DB_HOST}/api/studentSearchBar`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data: e.target.value }),
+          }
+        );
+        const data = await res.json();
         setSearchTerm(data);
-
       } catch (err) {
         console.log(err);
       }
     }
     if (e.target.value == "") {
-      setClicket(false)
+      setClicket(false);
     }
   };
   useEffect(() => {
     if (searchTerm) {
-
-      const result = conversations.filter(conversation => {
-        return searchTerm?.some(searchItem => searchItem.UserID === conversation.user1 || searchItem.UserID === conversation.user2);
+      const result = conversations.filter((conversation) => {
+        return searchTerm?.some(
+          (searchItem) =>
+            searchItem.UserID === conversation.user1 ||
+            searchItem.UserID === conversation.user2
+        );
       });
-      setSearchResults(result)
+      setSearchResults(result);
     }
-  }, [searchTerm])
+  }, [searchTerm]);
 
   return (
     <>
       <Header hash={"/message"}></Header>
       {
         <>
-          <div className='Container_ChatApp'>
-            <div className='Narbar_ChatApp'>
+          <div className="Container_ChatApp">
+            <div className="Narbar_ChatApp">
               <h1>Đoạn chat</h1>
               <input
                 placeholder="Search for friends"
                 className="chatMenuInput"
                 onChange={(e) => handleSearch(e)}
               />
-              {clicked ? 
-                (
-                searchResults.map((c, index) => (
-                  <div
-                    onClick={() => {
-                      ClickChat(c);
-                    }}
-                    key={index}
-                    className='converrsation_chat'
-                    style={currentChat === c ? { backgroundColor: "rgb(245, 243, 243)" } : {}}
-                  >
-                    
-                    <Conversation
-                      conversation={c}
-                      currentUser={auth.userID}
-                      Arrivalmess={arrivalMessage}
-                      Online={onlineUser}
-                      listSeen={isSeen}
-                    />
-                  </div>
-                ))
-              ) : (
-                conversations &&
-                conversations.map((c, index) => (
-                  <Link key={index} to={`/message/${c.user1 === auth.userID ? c.user2 : c.user1}`}>
+              {clicked
+                ? searchResults.map((c, index) => (
                     <div
                       onClick={() => {
                         ClickChat(c);
                       }}
                       key={index}
-                      className='converrsation_chat'
-                      style={currentChat && currentChat?.id === c.id ? { backgroundColor: "rgb(245, 243, 243)" } : {}}
+                      className="converrsation_chat"
+                      style={
+                        currentChat === c
+                          ? { backgroundColor: "rgb(245, 243, 243)" }
+                          : {}
+                      }
                     >
                       <Conversation
                         conversation={c}
@@ -217,34 +198,68 @@ const ChatApp = ({ messageId }) => {
                         listSeen={isSeen}
                       />
                     </div>
-                  </Link>
-
-                ))
-              )}
-
-            </div>
-            <div className='Main_ChatApp'>
-
-              {
-                conversations.length === 0 ? <div className='chatbox_res'>Kết bạn đi anh bạn <a href='/home' className='play_in_cheo'>kết bạn</a></div> :
-                  <>
-                    {
-                      !currentChat ? <div className='chatbox_res'>Hãy chọn một đoạn chat hoặc bắt đầu cuộc trò chuyện mới</div> :
-                        <>
-                      <div className='Body_mainChatApp'>
-                          <div className='ChatApp'>
-
-                          <WindowChat
-                                                  cc={setArrivalMessage}
-
-                          count={currentChat} setMessages={setMessages} ListusersOnline={onlineUser}></WindowChat>
-                          </div>
+                  ))
+                : conversations &&
+                  conversations.map((c, index) => (
+                    <Link
+                      key={index}
+                      to={`/message/${
+                        c.user1 === auth.userID ? c.user2 : c.user1
+                      }`}
+                    >
+                      <div
+                        onClick={() => {
+                          ClickChat(c);
+                        }}
+                        key={index}
+                        className="converrsation_chat"
+                        style={
+                          currentChat && currentChat?.id === c.id
+                            ? { backgroundColor: "rgb(245, 243, 243)" }
+                            : {}
+                        }
+                      >
+                        <Conversation
+                          conversation={c}
+                          currentUser={auth.userID}
+                          Arrivalmess={arrivalMessage}
+                          Online={onlineUser}
+                          listSeen={isSeen}
+                        />
                       </div>
-                    
-                        </>
-                    }
-                  </>
-              }
+                    </Link>
+                  ))}
+            </div>
+            <div className="Main_ChatApp">
+              {conversations.length === 0 ? (
+                <div className="chatbox_res">
+                  Kết bạn đi anh bạn{" "}
+                  <a href="/home" className="play_in_cheo">
+                    kết bạn
+                  </a>
+                </div>
+              ) : (
+                <>
+                  {!currentChat ? (
+                    <div className="chatbox_res">
+                      Hãy chọn một đoạn chat hoặc bắt đầu cuộc trò chuyện mới
+                    </div>
+                  ) : (
+                    <>
+                      <div className="Body_mainChatApp">
+                        <div className="ChatApp">
+                          <WindowChat
+                            cc={setArrivalMessage}
+                            count={currentChat}
+                            // setMessages={setMessages}
+                            ListusersOnline={onlineUser}
+                          ></WindowChat>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </>

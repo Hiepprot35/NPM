@@ -12,7 +12,7 @@ const imgLinkBasic =
 {
   link: "https://pbs.twimg.com/media/EnOnhlSWEAEeYB3?format=jpg&name=large"
 }
-export default function Login({ setAccessToken, setIsLogin }) {
+export default function Login({ setAccessToken }) {
   const input_username = useRef(null)
   const input_password = useRef(null)
   const navigate = useNavigate();
@@ -102,8 +102,6 @@ export default function Login({ setAccessToken, setIsLogin }) {
   
     if (dataRes.AccessToken) {
       const user = dataRes;
-      // setAuth({user.RoleID})
-
       setResApi(dataRes)
       const role = dataRes.Role
       const username = dataRes.Username
@@ -113,10 +111,8 @@ export default function Login({ setAccessToken, setIsLogin }) {
         setRefreshToken(dataRes.RefreshToken)
       }
       else if (dataRes?.isVerify === 1) {
-
         setinfoToSendGmail({ to: dataRes.Email })
       }
-      
       setAuth({ role, username, userID })
       setMessage("")
       // navigate('/home', { state: { user } });
@@ -135,7 +131,6 @@ export default function Login({ setAccessToken, setIsLogin }) {
     const currenttime=new Date().getTime();
     if(verifyCodeInput)
     {
-    
     console.log(typeof(verifyCode.SentTime))
     if (verifyCodeInput === verifyCode.code.toString() && currenttime- verifyCode.SentTime<60*1000) {
       setAccessToken(ResApi.AccessToken);

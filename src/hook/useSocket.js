@@ -16,7 +16,6 @@ class SocketManager {
     }
   }
 
-  // Các phương thức khác để gửi/nhận dữ liệu
 }
 
 export default new SocketManager();

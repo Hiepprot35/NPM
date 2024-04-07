@@ -26,16 +26,27 @@ export const useRefresh = () => {
         })
       });
 
-      if (!response.ok) {
+      if(response.status!==200)
+      {
+
         localStorage.removeItem("AccessToken")
         localStorage.removeItem("RefreshToken")
         navigate("/")
+        return
       }
-
-      const data = await response.json();
-      const { Role, UserID, Username,avtUrl } = data;
-      setAuth({ role: Role, userID: UserID, username: Username ,avtUrl:avtUrl});
-      return data;
+      
+      
+      else{
+        if(response.status===200)
+        {
+          
+          const data = await response.json();
+          const { Role, UserID, Username,avtUrl } = data;
+          setAccessToken(data.AccessToken)
+          setAuth({ role: Role, userID: UserID, username: Username ,avtUrl:avtUrl});
+          return
+        }
+      }
     } catch (error) {
       localStorage.removeItem("AccessToken")
 

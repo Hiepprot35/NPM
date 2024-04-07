@@ -1,6 +1,6 @@
 // SocketContext.js
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { io } from "socket.io-client";
 
 const SocketContext = createContext();
 
@@ -15,16 +15,12 @@ export const SocketProvider = ({ children }) => {
     const newSocket = io(process.env.REACT_APP_DB_HOST);
     setSocket(newSocket);
 
-
     return () => {
       newSocket.disconnect();
-
     };
   }, []);
 
   return (
-    <SocketContext.Provider value={socket}>
-      {children}
-    </SocketContext.Provider>
+    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
   );
 };

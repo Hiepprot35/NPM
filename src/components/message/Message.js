@@ -1,14 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef,memo } from "react";
 import BlobtoBase64 from "../../function/BlobtoBase64";
 import './message.css';
 import * as timeUse from "../../function/getTime";
 import { IsLoading } from "../Loading";
-export default function Message({ message, own, student, Online, listSeen,userID,first,end,mid,alone }) {
+export default memo(function Message({ message, own, student, Online, listSeen,userID,first,end,mid,alone }) {
     const time = useRef(null)
     const seen_text = useRef(null)
     const messageRef = useRef(null)
     const [listAnh,setListAnh]=useState()
-   useEffect(()=>{
+   
+    useEffect(()=>{
     if(message.isFile===1)
     {
         const data=message.content.split(",");
@@ -30,7 +31,7 @@ export default function Message({ message, own, student, Online, listSeen,userID
         }
         else{return ""}
     }    
-   useEffect(()=>{console.log(end)},[end])
+//    useEffect(()=>{console.log(end)},[end])
     return (
         <>
             <div className="containerMessage" ref={messageRef}>
@@ -109,4 +110,4 @@ export default function Message({ message, own, student, Online, listSeen,userID
             </div >
         </>
     );
-}
+})
