@@ -1,0 +1,57 @@
+.notification{
+    position: relative;
+}
+.countNoti{
+    position: absolute;
+    top: -20%;
+    background-color: red;
+    width:  20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    right: 0;
+}
+.countNoti p{
+    color: white;
+}
+.divCenterdiv{
+    display: flex;
+    width: 100%;
+    margin: 1rem;
+    justify-content: space-around;
+}
+.AcceptButton
+{
+    color: white;
+    background-color:rgb(8,102,255) !important;
+}
+.button{
+    border-radius: 0.4rem;
+    margin: .2;
+    font-weight: 600;
+    background-color: #D8DADF;
+    padding: 0.4rem 0.9rem 0.4rem 0.9rem;
+    
+}
+.tableNotification{
+    width: 300px;
+    position: absolute;
+    top: 105%;
+    border-radius: .5rem;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    right: -50%;
+    min-height: 50px;
+    background-color: white;
+}
+.infoNofi {
+    transition: 250ms linear;
+    border-radius: .3rem;
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+}
+.infoNofi:hover
+{
+    background-color: rgb(202, 193, 193);
+}

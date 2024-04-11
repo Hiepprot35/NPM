@@ -8,6 +8,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-size: 15px;
 }
+html{
+  --themeColor:white;
+  --textColor:black
+}
 /* #root{
   width: 100%;
   height: 100vh;  

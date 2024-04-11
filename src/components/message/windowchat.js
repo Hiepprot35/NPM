@@ -3,6 +3,8 @@ import { useEffect, useRef, useState, memo, useCallback } from "react";
 import useAuth from "../../hook/useAuth";
 import { useSocket } from "../../context/socketContext";
 import VideoCall from "./windowchat/videoCall";
+import { FiImage, FiSmile } from "react-icons/fi";
+
 import Message from "./Message";
 import EmojiPicker from "emoji-picker-react";
 import { getUserinfobyID, getStudentInfoByMSSV } from "../../function/getApi";
@@ -38,7 +40,7 @@ export default memo(function WindowChat(props) {
     if (props.count?.id) {
       try {
         const res = await fetch(
-          `${process.env.REACT_APP_DB_HOST}/api/message/${props.count?.id}`,
+          `${process.env.REACT_APP_DB_HOST}/api/message/conversation/${props.count?.id}`,
           {
             method: "POST",
             headers: {
@@ -415,24 +417,23 @@ export default memo(function WindowChat(props) {
                       multiple
                       hidden
                     ></input>
-                    <img
+                    <FiImage
                       onClick={() => {
                         image_message.current.click();
                       }}
-                      src={`${ClientURL}/images/image.svg`}
-                    ></img>
+                    />
                   </li>
 
                   <li className="features_hover">
                     <img src={`${ClientURL}/images/sticker.svg`}></img>
                   </li>
                   <li className="features_hover">
-                    <img
-                      src={`${ClientURL}/images/emoji.svg`}
-                      onClick={(e) => {
+                    <FiSmile onClick={(e) => {
                         setOpenEmojiPicker(!openEmojiPicker);
-                      }}
-                    ></img>
+                      }}>
+
+                    </FiSmile>
+             
                   </li>
                 </ul>
               )}

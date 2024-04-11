@@ -35,12 +35,11 @@ export default function Login({ setAccessToken }) {
     try {
       const url = `${process.env.REACT_APP_DB_HOST}/api/auth/login/success`;
       const res = await fetch(url, {
-        method:"POST",
-        credentials: 'include', // Đảm bảo gửi cookie
+        method: "POST",
+        credentials: "include", // Đảm bảo gửi cookie
         headers: {
-          "Content-Type":"application/json",
-          "Accept":"application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
       const dataRes = await res.json();
       if (dataRes.AccessToken) {
@@ -59,7 +58,7 @@ export default function Login({ setAccessToken }) {
       console.log(err);
     }
   };
-  
+
   useEffect(() => {
     getUser();
   }, []);
@@ -112,17 +111,17 @@ export default function Login({ setAccessToken }) {
     });
 
     const dataRes = await resoponse.json();
-
+    console.log("Login",dataRes)
     if (dataRes.AccessToken) {
       const user = dataRes;
       setResApi(dataRes);
       const role = dataRes.Role;
       const username = dataRes.Username;
       const userID = dataRes.UserID;
-      if (dataRes?.isVerify === 0) {
+      if (dataRes?.isVerify === 1) {
         setAccessToken(dataRes.AccessToken);
         setRefreshToken(dataRes.RefreshToken);
-      } else if (dataRes?.isVerify === 1) {
+      } else if (dataRes?.isVerify === 0) {
         setinfoToSendGmail({ to: dataRes.Email });
       }
       setAuth({ role, username, userID });
@@ -240,7 +239,7 @@ export default function Login({ setAccessToken }) {
                     <div className="dangnhap_input_div taikhoan_input">
                       <input
                         type="text"
-                        name="username"
+                        name="Email"
                         className="dangnhapinput 2"
                         id="input_tk"
                         required

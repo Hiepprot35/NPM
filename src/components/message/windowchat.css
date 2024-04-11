@@ -102,6 +102,9 @@
 {
     width: 10%;
 }
+.windowchat svg{
+    stroke: black;
+}
 .windowchat_container
 {
     position: fixed;

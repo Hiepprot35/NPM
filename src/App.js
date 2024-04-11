@@ -28,7 +28,7 @@ import useAuth from "./hook/useAuth";
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   // const socket=useSocket();
-  const { auth,setAuth } = useAuth();
+  const { auth, setAuth } = useAuth();
   const { RefreshToken } = UseRfLocal();
   const [arrivalMessage, setArrivalMessage] = useState();
   const { AccessToken, setAccessToken, checkAccessToken } = UseToken();
@@ -49,36 +49,38 @@ function App() {
   const refreshAccessToken = useRefresh();
   useEffect(() => {
     if (RefreshToken) {
-      setIsLoading(true)
+      setIsLoading(true);
       async function fetchData() {
         try {
           const refreshedData = await refreshAccessToken();
-         setIsLoading(false)
+          setIsLoading(false);
         } catch (error) {
-          setIsLoading(false)
+          setIsLoading(false);
 
-          console.log(error)
+          console.log(error);
         }
       }
       fetchData();
     }
   }, []);
-  useEffect(()=>{console.log("auth",auth)},[auth])
- 
+  useEffect(() => {
+    console.log("auth", auth);
+  }, [auth]);
+
   if (!isLoading) {
     if (auth.userID) {
       if (auth.role === 1) {
         return (
           <Routes>
-              <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
 
-              <Route path="/home" element={<Home />} />
-              <Route path="/message" element={<ChatApp />} />
-              <Route path="/message/:id" element={<ChatApp />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/message" element={<ChatApp />} />
+            <Route path="/message/:id" element={<ChatApp />} />
 
-              <Route path="/" element={<Navigate to="/home"></Navigate>} />
-              <Route path="/create" element={<CreateStudent />} />
-              <Route path="/*" element={<Navigate to="/"></Navigate>} />
+            <Route path="/" element={<Navigate to="/home"></Navigate>} />
+            <Route path="/create" element={<CreateStudent />} />
+            <Route path="/*" element={<Navigate to="/"></Navigate>} />
           </Routes>
         );
       } else if (auth.role === 2) {
@@ -90,20 +92,20 @@ function App() {
             />
             {/* <Route path="/profile/:MSSV" element={<ProfileRoutes  />} /> */}
             <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
-              {/* <Route path="/" element={<Dashboard />} /> */}
-              <Route path="/" element={<Home />} />
-              <Route
-                path="/message"
-                element={<ChatApp />}
-                arrivalMessage={arrivalMessage}
-              />
-              <Route path="*" element={<Home />} />
-              <Route path="/message/:id" element={<MessageRoute />} />
-              <Route path="/lichhoc" element={<ViewTimetable />} />
-              <Route
-                path="/setting"
-                element={<SettingAccount arrivalMessage={arrivalMessage} />}
-              />
+            {/* <Route path="/" element={<Dashboard />} /> */}
+            <Route path="/" element={<Home />} />
+            <Route
+              path="/message"
+              element={<ChatApp />}
+              arrivalMessage={arrivalMessage}
+            />
+            <Route path="*" element={<Home />} />
+            <Route path="/message/:id" element={<MessageRoute />} />
+            <Route path="/lichhoc" element={<ViewTimetable />} />
+            <Route
+              path="/setting"
+              element={<SettingAccount arrivalMessage={arrivalMessage} />}
+            />
           </Routes>
         );
       }
@@ -123,15 +125,12 @@ function App() {
         </Routes>
       );
     }
-  }
-  else{
-    return(
+  } else {
+    return (
       <Routes>
-
-      <Route path="*" element={<IsLoading />} />
+        <Route path="*" element={<IsLoading />} />
       </Routes>
-
-    )
+    );
   }
 }
 

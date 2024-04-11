@@ -57,8 +57,6 @@ export default function UserProfile(props) {
     reader.readAsDataURL(imgBlob);
   };
 
-
-
   useEffect(() => {
     const getData = async (data) => {
       try {
@@ -85,16 +83,12 @@ export default function UserProfile(props) {
         );
       dataInput.create_by = auth.userID || 1;
       if (dataimg) {
-    
         setIsMounted(!isMounted);
-
       }
     } catch (error) {
       console.error(error);
     }
   }
-
-
 
   return (
     <>

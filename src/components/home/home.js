@@ -5,10 +5,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../Layout/header/header";
 import { IsLoading } from "../Loading";
 import useAuth from "../../hook/useAuth";
+import { useSocket } from "../../context/socketContext";
 import MessageMainLayout from "../message/messageMainLayout";
+import { FiMail, FiMessageCircle, FiUserPlus } from "react-icons/fi";
+import { fetchApiRes } from "../../function/getApi";
 export default function Home(props) {
   const navigate = useNavigate();
-
+  const socket = useSocket();
   const { AccessToken, setAccessToken } = UseToken();
   const { auth } = useAuth();
   const [listMSSV, setlistMSSV] = useState();
@@ -63,32 +66,59 @@ export default function Home(props) {
   const LinkToMess = async (MSSV) => {
     const userID = await getUserID(MSSV);
 
-    navigate(`/message/${userID[0].UserID}`);
+    // navigate(`/message/${userID[0].UserID}`);
   };
   const handleAddChat = async (MSSV) => {
-    console.log(MSSV);
-    const userID = await getUserID(MSSV);
-    console.log(userID);
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_DB_HOST}/api/conversations`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user1: auth.userID,
-            user2: userID[0].UserID,
-          }),
-        }
-      );
-      const data = await res.json();
-      console.log(data);
+      const res = await fetchApiRes("conversations", "POST", {
+        user1: auth.userID,
+        user2: MSSV,
+      });
+
+      const data = res?.result;
     } catch (error) {
       console.log(error);
     }
   };
+  const sendRequestFriend = async (id) => {
+    const data = await fetchApiRes("message/getConversation", "POST", {
+      user2: auth.userID,
+      user1: id,
+    });
+    console.log(data);
+    const data2 = await fetchApiRes("message/getConversation", "POST", {
+      user1: auth.userID,
+      user2: id,
+    });
+    if (data.result.length === 0 && data2.result.length === 0) {
+      try {
+        await fetchApiRes("conversations", "POST", {
+          user1: auth.userID,
+          user2: id,
+          Requesting: 1,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      try {
+        let idCon =
+          data.result.length > 0 ? data.result[0].id : data2.result[0].id;
+        console.log("IDCON", idCon);
+        await fetchApiRes("message/updateConversation", "POST", {
+          Requesting: true,
+          id: idCon,
+        });
+      } catch (error) {}
+    }
+    if (socket) {
+      socket.emit("SendRequestFriend", {
+        sender: auth.userID,
+        receiver: id,
+      });
+    }
+  };
+
   // Function để fetch danh sách sinh viên
   const location = useLocation();
   const URL = `${process.env.REACT_APP_DB_HOST}/api/getallstudent`;
@@ -105,7 +135,7 @@ export default function Home(props) {
         const data = await response.json();
         setTimeout(() => {
           setIsLoading(false);
-          setPosts(data);
+          setPosts(data.result);
         }, 2000);
       }
     } catch (error) {
@@ -113,6 +143,9 @@ export default function Home(props) {
       // setIsLoading(true)
     }
   };
+  useEffect(() => {
+    console.log(auth);
+  }, [auth]);
   const getUserID = async (MSSV) => {
     try {
       const res = await fetch(
@@ -151,67 +184,66 @@ export default function Home(props) {
             <section className="articles" ref={myRef}>
               {posts &&
                 posts.map((element, index) => {
-                  return (
-                    <article key={index}>
-                      <div className="article-wrapper">
-                        <a href={`/profile/${element.MSSV}`}>
+                  if (element.UserID !== auth.userID) {
+                    return (
+                      <article key={index}>
+                        <div className="article-wrapper">
                           <figure>
+                            {/* <a href={`/profile/${element.MSSV}`}> */}
                             <img src={element.img} alt="" />
+                            {/* </a> */}
                           </figure>
-                        </a>
-                        <div className="article-body">
-                          <h2>{element.Name}</h2>
+                          <div className="article-body">
+                            <h2>{element.Name}</h2>
 
-                          {getClassName(element.Class)}
+                            {getClassName(element.Class)}
 
-                          <p>
-                            <i>"{element.introduce}"</i>
-                          </p>
+                            <p>
+                              <i>"{element.introduce}"</i>
+                            </p>
 
-                          {listMSSV &&
-                          listMSSV.some(
-                            (item) => item.username === element.MSSV
-                          ) ? (
-                            <span
-                              onClick={() => LinkToMess(element.MSSV)}
-                              className="read-more"
-                            >
-                              Message{" "}
-                              <span className="sr-only">
-                                about this is some title
-                              </span>
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="icon"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
+                            {listMSSV &&
+                            listMSSV.some(
+                              (item) => item.username === element.MSSV
+                            ) ? (
+                              <span
+                                onClick={() => LinkToMess(element.MSSV)}
+                                className="read-more"
                               >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </span>
-                          ) : (
-                            <button
-                              className="play_in_cheo"
-                              onClick={() => {
-                                handleAddChat(element.MSSV);
-                              }}
-                            >
-                              {" "}
-                              add to message
-                            </button>
-                          )}
+                                <span className="button">
+                                  {" "}
+                                  {<FiMessageCircle></FiMessageCircle>}{" "}
+                                </span>{" "}
+                              </span>
+                            ) : (
+                              <div>
+                                <span
+                                  className="button"
+                                  onClick={() => {
+                                    handleAddChat(element.UserID);
+                                  }}
+                                >
+                                  {" "}
+                                  {<FiMessageCircle></FiMessageCircle>}{" "}
+                                </span>
+                                <span
+                                  className="button"
+                                  onClick={() =>
+                                    sendRequestFriend(element.UserID)
+                                  }
+                                >
+                                  <FiUserPlus></FiUserPlus>
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </article>
-                  );
+                      </article>
+                    );
+                  }
                 })}
             </section>
-            <div style={{ width: "20%" }}>
-            </div>
+            <div style={{ width: "20%" }}></div>
           </div>
         )}
         <MessageMainLayout />

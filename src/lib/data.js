@@ -1,5 +1,6 @@
 import React from "react";
-
+import { FiMessageCircle,FiHome } from "react-icons/fi";
+import { IconsManifest } from "react-icons/lib";
 export const   links = [
     {
         name: "Home",
@@ -40,20 +41,22 @@ export const header_Student=[
         {
             name: "Home",
             hash: "/home",
-            role:[1,2]
+            role:[1,2],
+            return:<FiHome></FiHome>
 
         },
         
         {
             name: "Đăng kí học",
             hash: "/dangkilop",
-            role:[2]
-
+            role:[2],
+            
         },
         {
             name: "Nhắn tin",
             hash: "/message",
-            role:[1,2]
+            role:[1,2],
+            return:<FiMessageCircle></FiMessageCircle>
         },
         {
             name:"Xem lịch học",

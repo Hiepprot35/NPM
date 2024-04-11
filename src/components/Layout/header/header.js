@@ -1,15 +1,23 @@
 import React, { useEffect, useRef, useState, memo } from "react";
 import { Buffer } from "buffer";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+  NavLink,
+} from "react-router-dom";
 import useAuth from "../../../hook/useAuth";
 import { LogOut } from "../../logout";
 import BlobtoBase64 from "../../../function/BlobtoBase64";
 import "./header.css";
 import { motion } from "framer-motion";
+import { IconsManifest } from "react-icons/lib";
 import { IsLoading } from "../../Loading";
 import { useSocket } from "../../../context/socketContext";
 import { header_Student } from "../../../lib/data";
 import { Player, Controls } from "@lottiefiles/react-lottie-player";
+import { FiBell } from "react-icons/fi";
+import BellTable from "../../Notification/bellTable";
 
 function Header(props) {
   const socket = useSocket();
@@ -121,24 +129,33 @@ function Header(props) {
                   />
                 </div>
               </li>
-              {header_Student.map((element, index) => (
-                <li key={index}>
-                  {element.role.includes(auth.role) && (
-                    <Link
+              {header_Student
+                .filter(
+                  (element) =>
+                    element.role.includes(auth.role) && element.return
+                )
+                .map((element, index) => (
+                  <li
+                    key={index}
+                    className={`hrefLink ${
+                      element.hash === props.hash ? "ActiveLink" : "notActive"
+                    }`}
+                  >
+                    <NavLink
                       to={element.hash}
-                      className={`Link ${
-                        element.hash == props.hash ? "ActiveLink" : "notActive"
-                      }`}
+                      className="Link"
                       onClick={() => setChooseHeader(element.name)}
                     >
-                      {element.name}
-                    </Link>
-                  )}
-                </li>
-              ))}
+                      {element.return}
+                    </NavLink>
+                  </li>
+                ))}
             </ul>
           </div>
+          
           <div className="header_home_user">
+                <BellTable></BellTable>
+
             {isLoading ? (
               <IsLoading />
             ) : (
