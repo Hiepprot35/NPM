@@ -84,7 +84,4 @@ button
 table, th, td {
   border:1px solid black;
 }
-.button:hover{
-  background-color: rgba(200, 129, 23, 0.685)
-}
 

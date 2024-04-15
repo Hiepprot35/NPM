@@ -126,8 +126,8 @@ hr {
     margin-top: .3rem;
 }
 .header_user svg {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: var(--icon_size);
+  height:var(--icon_size);
 }
 
 ul {
@@ -141,15 +141,11 @@ ul {
   justify-content: center;
 }
 
-.center {
-  left: 600px;
-  position: absolute;
-}
+
 
 .Menu_profile_header {
-  visibility: hidden;
-  background-color: white;
-  display: flex;
+  background-color: var(--themeColor);
+  display: none;
   position: fixed;
   top: 70px;
   right: 60px;
@@ -157,15 +153,17 @@ ul {
   border-radius: 1rem;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
-
+.setting{
+  margin:1rem;
+}
 .ActiveLink svg{
-  stroke: black;
+  stroke: var(--textColor);
 }
 .ActiveLink {
     background-color: rgba(158, 154, 154, 0.682);
 }
 .show_menu_profile {
-  visibility: visible;
+  display: block;
 }
 
 .avatar_name {

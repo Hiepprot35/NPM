@@ -1,0 +1,53 @@
+.friendListDiv {
+  display: flex;
+  max-height: 100vh;
+  width: 400px;
+  position: relative;
+  overflow: scroll;
+  background-color: var(--themeColor);
+  flex-direction: column;
+}
+.sendButton:hover svg{
+    stroke: white !important;
+}
+.ListItem
+{
+    transition: 250ms linear;
+    cursor: pointer;
+}
+.ListItem:hover
+{
+    background-color: rgba(227, 222, 214, 0.729);
+}
+.article-wrapper {
+  background-color: white;
+  margin: 1rem;
+  height: 100px;
+  width: 100%;
+}
+.statusPost {
+  min-height: 100px;
+ 
+}
+.centerHome {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 60vw;
+}
+.bodyPost,.statusPost{
+    width: 80%;
+    background-color: var(--themeColor);
+    margin: 1rem;
+    border-radius: 1rem;
+
+}
+.bodyPost {
+  margin: 1rem;
+  aspect-ratio: 16/9;
+}
+.hoverProfile
+{
+  margin-left:1rem;
+    width: 100%;
+}

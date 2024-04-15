@@ -174,3 +174,23 @@ form .form-row .textarea {
     position: relative;
     z-index: 2;
 }
+.UserProfile{
+    width: 80%;
+}
+.userProfile  .usersInfomation {
+    width: 80%;
+}
+.userProfile .avatarImage{
+    width: 80px;
+    aspect-ratio: 1;
+
+}
+.userProfile .article-body{
+    font-size: 2rem;
+}
+.userProfile
+{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}

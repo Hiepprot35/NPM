@@ -1,37 +1,51 @@
-import { useEffect, useState, useRef, memo } from "react";
-import { IsLoading } from "../Loading";
-import "./conversation.css";
-import useAuth from "../../hook/useAuth";
-import BlobtoBase64 from "../../function/BlobtoBase64";
+import { memo, useEffect, useState } from "react";
 import * as timeUse from "../../function/getTime";
-import WindowChat from "../message/windowchat";
+import useAuth from "../../hook/useAuth";
+import "./conversation.css";
+import { useSocket } from "../../context/socketContext";
+import { fetchApiRes } from "../../function/getApi";
 export default memo(function Conversation({
   conversation,
   Online,
   notSeen_field,
+  Arrivalmess,
+  currentUser,
+  sendMess,
+  listSeen,
 }) {
   const [user, setUser] = useState();
   const { auth } = useAuth();
+  const socket = useSocket();
   const [isLoading, setIsLoading] = useState(true);
   const [username, setUsername] = useState();
-
+  const [NewestMess, setNewestMesst] = useState();
+  useEffect(() => {
+    console.log("c", NewestMess);
+  }, [NewestMess]);
   const data = [conversation.user1, conversation.user2];
   const setOnlineUser = data.find((m) => m !== auth.userID);
   const ListusersOnline = (Online && Online.map((item) => item.userId)) || [];
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("getUserSeen", (data) => {
+        if (data) {
+          getMess();
+        }
+      });
+    }
+  }, [socket]);
   useEffect(() => {
     const getUsername = () => {
+      const userID =
+        conversation.user1 === auth.userID
+          ? conversation.user2
+          : conversation.user1;
       const getUser = async () => {
         try {
-          const res = await fetch(
-            `${process.env.REACT_APP_DB_HOST}/api/username?id=${
-              conversation.user1 === auth.userID
-                ? conversation.user2
-                : conversation.user1
-            }`
-          );
-          const data2 = await res.json();
-          setUsername(data2);
-        } catch (err) {
+          const res = await fetchApiRes("username", "POST", { UserID: userID });
+          setUsername(res);
+        } catch (error) {
           console.log("Không có giá trí");
         }
       };
@@ -48,7 +62,6 @@ export default memo(function Conversation({
           const studentApi = await fetch(URL2);
           const student = await studentApi.json();
           setUser(student);
-          setIsLoading(false);
         } catch (error) {
           console.error(error);
         }
@@ -57,23 +70,31 @@ export default memo(function Conversation({
 
     studentInfo();
   }, [username]);
-  const [ShowWindow, setShowWindow] = useState(false);
-  const clickShowWindow = () => {
-    // setShowWindow((pre)=>[...pre,{
-    //     name:setOnlineUser
-    // }])
-    setShowWindow(true);
+
+  const getMess = async () => {
+    try {
+      let friendId = conversation.user1;
+      if (conversation.user1 != conversation.user2) {
+        friendId = data.find((m) => m !== currentUser);
+      }
+      const res = await fetch(
+        `${process.env.REACT_APP_DB_HOST}/api/message/newest/${conversation.id}`
+      );
+      const data2 = await res.json();
+      setNewestMesst(data2);
+    } catch (err) {
+      console.log("Không có giá trí");
+    }
   };
+
   useEffect(() => {
-    console.log(ShowWindow);
-  }, [ShowWindow]);
+    getMess();
+  }, [sendMess]);
   return (
     <>
-      {isLoading ? (
-        <IsLoading />
-      ) : (
+      {user && (
         <>
-          <div className="conversation" onClick={clickShowWindow}>
+          <div className="conversation">
             <div className="Avatar_status">
               <img
                 src={user.img ? `${user?.img}` : ""}
@@ -94,33 +115,35 @@ export default memo(function Conversation({
                 <></>
               ) : (
                 <div className="messConversation">
-                  {conversation && (
+                  {NewestMess && (
                     <>
                       {
                         <>
                           {" "}
-                          {conversation.content && (
+                          {NewestMess.content && (
                             <div>
-                              {conversation?.sender_id === auth.userID ? (
-                                <span>
-                                  {conversation?.content.startsWith(
-                                    "https://res.cloudinary.com"
-                                  )
-                                    ? "Bạn đã gửi một ảnh"
-                                    : conversation?.content}
-                                </span>
+                              {NewestMess.sender_id === auth.userID ? (
+                                <>
+                                  <span>
+                                    {NewestMess?.content.startsWith(
+                                      "https://res.cloudinary.com"
+                                    )
+                                      ? "Bạn đã gửi một ảnh"
+                                      : `Bạn: ${NewestMess?.content}`}
+                                  </span>
+                                </>
                               ) : (
                                 <span>
-                                  {conversation?.content.startsWith(
+                                  {NewestMess?.content.startsWith(
                                     "https://res.cloudinary.com"
                                   )
                                     ? "Đã gửi một ảnh"
-                                    : conversation?.content}
+                                    : `  ${NewestMess?.content}`}
                                 </span>
                               )}
 
                               <span>
-                                {timeUse.countTime(conversation.created_at)}
+                                {timeUse.countTime(NewestMess.created_at)}
                               </span>
                             </div>
                           )}
@@ -128,8 +151,9 @@ export default memo(function Conversation({
                       }
                     </>
                   )}
-                  {conversation.sender_id === auth.userID &&
-                    conversation.isSeen === 1 && (
+                  {NewestMess?.sender_id === auth.userID &&
+                    NewestMess.isSeen === 1 &&
+                    NewestMess && (
                       <div className="Seen_field">
                         <img
                           style={{ width: "1rem", height: "1rem" }}

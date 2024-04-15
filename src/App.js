@@ -1,30 +1,24 @@
-import Login from "./components/login/login";
-import Home from "./components/home/home";
-import CreateStudent from "./components/createStudent/createStudent";
+import { useEffect, useState } from "react";
 import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
   Navigate,
-  Link,
-  useParams,
+  Route,
+  Routes,
+  useParams
 } from "react-router-dom";
-import UseToken from "./hook/useToken";
-import SettingAccount from "./components/setting/settingAccount";
-import { useState } from "react";
-import { useEffect } from "react";
-import Dashboard from "./components/Dashboard/Dashboard";
-import { IsLoading } from "./components/Loading";
-import DangKiLopHoc from "./components/dangkihoc/dangkilophoc";
 import Chuongtrinhdaotao from "./chuongtrinhdaotao";
-import { useRefresh } from "./hook/useRefresh";
+import Dashboard from "./components/Dashboard/Dashboard";
 import ChatApp from "./components/chatapp/chatApp";
+import CreateStudent from "./components/createStudent/createStudent";
+import DangKiLopHoc from "./components/dangkihoc/dangkilophoc";
+import Home from "./components/home/home";
+import Login from "./components/login/login";
 import UserProfile from "./components/UserProfile/userProfile";
-import UseRfLocal from "./hook/useRFLocal";
-import Errorpage from "./components/Layout/Errorpage";
-import ProPage from "./components/Homepage/proPage";
+import SettingAccount from "./components/setting/settingAccount";
 import ViewTimetable from "./components/xemlichhoc/viewTimetable";
 import useAuth from "./hook/useAuth";
+import UseRfLocal from "./hook/useRFLocal";
+import { useRefresh } from "./hook/useRefresh";
+import UseToken from "./hook/useToken";
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   // const socket=useSocket();
@@ -90,7 +84,7 @@ function App() {
               path="/dangkilop"
               element={<DangKiLopHoc arrivalMessage={arrivalMessage} />}
             />
-            {/* <Route path="/profile/:MSSV" element={<ProfileRoutes  />} /> */}
+            <Route path="/profile/:MSSV" element={<ProfileRoutes  />} />
             <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
             {/* <Route path="/" element={<Dashboard />} /> */}
             <Route path="/" element={<Home />} />
@@ -125,20 +119,15 @@ function App() {
         </Routes>
       );
     }
-  } else {
-    return (
-      <Routes>
-        <Route path="*" element={<IsLoading />} />
-      </Routes>
-    );
-  }
+  } 
+  
 }
 
-// function ProfileRoutes() {
-//   const { MSSV } = useParams();
+function ProfileRoutes() {
+  const { MSSV } = useParams();
 
-//   return <UserProfile MSSVParams={MSSV} />;
-// }
+  return <UserProfile MSSVParams={MSSV} />;
+}
 function MessageRoute() {
   const { id } = useParams();
 

@@ -1,6 +1,5 @@
 
-import { Player, Controls } from '@lottiefiles/react-lottie-player';
-import { useEffect, useState } from 'react';
+import { Controls, Player } from '@lottiefiles/react-lottie-player';
 
 export const IsLoading = () => {
     return (

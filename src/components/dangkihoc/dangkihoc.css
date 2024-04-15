@@ -1,21 +1,4 @@
-.container_main {
-    border: 1px solid;
-    display: flex;
-    justify-content: space-around;
-    flex-direction: column;
-}
-table ,th,td{
-    font-family: arial, sans-serif;
-    border: 1px solid black;
-  }
 
- 
-.container_main ul {
-    display: flex;
-    flex-direction: column;
-    margin-left: 0;
-    align-items: flex-start;
-}
 
 .MonHocCombobox_layout {
     display: flex;

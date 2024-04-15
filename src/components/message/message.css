@@ -136,3 +136,35 @@
     border-radius: 1rem .5rem .5rem 1rem;
     color: rgb(255, 255, 255);
 }
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.newMessage svg{
+    width: 20px;
+    height: 20px;
+}
+.newMessage{
+    width: 50px;
+    position: fixed;
+    bottom: 20px;
+    right: 9px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.175);
+    transition: 250ms linear;
+}
+.newMessage:hover::before {
+    content: "Tin nhắn mới";
+    position: absolute;
+    right: 110%;
+    font-size: .8rem;
+    background-color: white;
+    display: flex;
+    border-radius: .5rem;
+    align-items: center;
+    justify-content: center;
+    width: 90px;
+    height: 30px;
+}

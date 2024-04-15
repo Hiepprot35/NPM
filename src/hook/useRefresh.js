@@ -34,6 +34,7 @@ export const useRefresh = () => {
         if (response.status === 200) {
           const data = await response.json();
           const { Role, UserID, Username, avtUrl } = data;
+          console.log("data ac ",data)
           setAccessToken(data.AccessToken);
           setAuth({
             role: Role,

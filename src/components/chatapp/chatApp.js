@@ -1,19 +1,13 @@
-import React, { useEffect, useState, useRef } from "react";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import io from "socket.io-client";
-import useAuth from "../../hook/useAuth";
-import BlobtoBase64 from "../../function/BlobtoBase64";
-import Header from "../Layout/header/header";
-import "./chatApp.css";
-import Conversation from "../conversation/conversations";
-import Message from "../message/Message";
-import getTime from "../../function/getTime";
-import { getUserinfobyID } from "../../function/getApi";
-// import SocketManager from '../../hook/useSocket';
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useSocket } from "../../context/socketContext";
-
+import { getUserinfobyID } from "../../function/getApi";
+import useAuth from "../../hook/useAuth";
+import Header from "../Layout/header/header";
+import Conversation from "../conversation/conversations";
 import { getConversation } from "../conversation/getConversation";
 import WindowChat from "../message/windowchat";
+import "./chatApp.css";
 const ChatApp = ({ messageId }) => {
   document.title = "Message";
   const messageScroll = useRef(null);
@@ -30,7 +24,6 @@ const ChatApp = ({ messageId }) => {
   const [userSeenAt, setuserSeenAt] = useState();
   const [clicked, setClicket] = useState(false);
   const [onlineUser, setOnlineUser] = useState();
-  const [messages, setMessages] = useState([]);
   const [isSeen, setisSeen] = useState(false);
   useEffect(() => {
     if (messageId) {
@@ -75,6 +68,9 @@ const ChatApp = ({ messageId }) => {
           created_at: Date.now(),
         });
       });
+      socket.on("getUserSeen", (data) => {
+        setisSeen(data);
+      });
       return () => {
         socket.off("disconnect");
       };
@@ -102,13 +98,7 @@ const ChatApp = ({ messageId }) => {
     }
     AsyncGetCon();
   }, [arrivalMessage]);
-
-  useEffect(() => {
-    console.log("Chat mount");
-    return () => {
-      console.log("chat unmount");
-    };
-  }, []);
+  const [sendMess, setsendMess] = useState(false);
   useEffect(() => {
     const receiverId = currentChat
       ? currentChat.user1 !== auth.userID
@@ -194,6 +184,7 @@ const ChatApp = ({ messageId }) => {
                         conversation={c}
                         currentUser={auth.userID}
                         Arrivalmess={arrivalMessage}
+                        sendMess={sendMess}
                         Online={onlineUser}
                         listSeen={isSeen}
                       />
@@ -223,6 +214,7 @@ const ChatApp = ({ messageId }) => {
                           conversation={c}
                           currentUser={auth.userID}
                           Arrivalmess={arrivalMessage}
+                          sendMess={sendMess}
                           Online={onlineUser}
                           listSeen={isSeen}
                         />
@@ -251,7 +243,8 @@ const ChatApp = ({ messageId }) => {
                           <WindowChat
                             cc={setArrivalMessage}
                             count={currentChat}
-                            // setMessages={setMessages}
+                            Seen={userSeenAt}
+                            setsendMess={setsendMess}
                             ListusersOnline={onlineUser}
                           ></WindowChat>
                         </div>

@@ -2,9 +2,11 @@ import { bool } from "prop-types";
 
 export const getUserinfobyID = async (data) => {
   try {
-    const res = await fetch(
-      `${process.env.REACT_APP_DB_HOST}/api/username?id=${data}`
-    );
+    const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/username`, {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ UserID: data }),
+    });
     const data2 = await res.json();
     return data2[0];
   } catch (err) {
@@ -26,16 +28,19 @@ export async function getStudentInfoByMSSV(data) {
 export async function fetchApiRes(url, method, body) {
   try {
     const urlApi = `${process.env.REACT_APP_DB_HOST}/api/${url}`;
+    console.log(urlApi);
+    let requestOptions = {
+      method: method,
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify(body),
+    };
 
-    const res = await fetch(
-        urlApi,
-      method === "POST" && {
-        method: method,
+    // Kiểm tra nếu method là "GET" thì không cần truyền body
+    if (method === "GET") {
+      delete requestOptions.body;
+    }
+    const res = await fetch(urlApi, requestOptions);
 
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify(body),
-      }
-    );
     const data = await res.json();
     return data;
   } catch (error) {

@@ -1,5 +1,5 @@
 .ChatApp {
-    background-color: white;
+    background-color: var(--themeColor);
     display: flex;
     position: fixed;
     bottom: 0;
@@ -21,7 +21,7 @@
     flex-direction: row;
    
    
-    background-color: white;
+    background-color: var(--themeColor);
     justify-content: space-evenly;
     border-top: 1px solid rgba(252, 252, 252, 0.678);
 }

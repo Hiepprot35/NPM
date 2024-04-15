@@ -1,24 +1,17 @@
-import React, { useEffect, useRef, useState, memo } from "react";
-import { Buffer } from "buffer";
-import {
-  BrowserRouter as Router,
-  Route,
-  Link,
-  NavLink,
-} from "react-router-dom";
-import useAuth from "../../../hook/useAuth";
-import { LogOut } from "../../logout";
-import BlobtoBase64 from "../../../function/BlobtoBase64";
-import "./header.css";
-import { motion } from "framer-motion";
-import { IconsManifest } from "react-icons/lib";
-import { IsLoading } from "../../Loading";
+import { Controls, Player } from "@lottiefiles/react-lottie-player";
+import React, { memo, useEffect, useRef, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { useSocket } from "../../../context/socketContext";
+import { getStudentInfoByMSSV } from "../../../function/getApi";
+import { getUserinfobyID } from "../../../function/getApi";
+import useAuth from "../../../hook/useAuth";
 import { header_Student } from "../../../lib/data";
-import { Player, Controls } from "@lottiefiles/react-lottie-player";
-import { FiBell } from "react-icons/fi";
+import { IsLoading } from "../../Loading";
 import BellTable from "../../Notification/bellTable";
-
+import { LogOut } from "../../logout";
+import "./header.css";
+import { FiMoon, FiSettings } from "react-icons/fi";
+import SettingComponent from "../../setting/SettingComponent";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -29,7 +22,7 @@ function Header(props) {
   });
   const Menu_profile_header = useRef();
   const [city, setCity] = useState("hanoi");
-  const { auth } = useAuth();
+  const { auth, setAuth } = useAuth();
   const [chooseHeader, setChooseHeader] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState();
@@ -45,6 +38,28 @@ function Header(props) {
     return () => {
       if (socket) {
         socket.off("disconnect");
+      }
+    };
+  }, [socket]);
+  const updateTitle = async (id) => {
+    const username = await getUserinfobyID(parseInt(id));
+    const nameSV = await getStudentInfoByMSSV(username.username);
+    document.title = `${nameSV.Name} gửi tin nhắn`;
+  };
+  useEffect(() => {
+    let isMounted = true;
+    if (socket && isMounted) {
+      socket.on("getMessage", (data) => {
+        if (data.sender_id !== auth.userID) {
+          updateTitle(data.sender_id);
+        }
+      });
+    }
+
+    return () => {
+      isMounted = false;
+      if (socket && isMounted) {
+        socket.disconnect();
       }
     };
   }, [socket]);
@@ -74,7 +89,7 @@ function Header(props) {
     };
   }, [city]);
   useEffect(() => {
-    if (!auth.avtUrl) {
+    if (auth) {
       const studentInfo = async () => {
         const URL = `${host}/api/getStudentbyID/${auth.username}`;
         try {
@@ -83,6 +98,7 @@ function Header(props) {
           const student = await studentApi.json();
           if (student) {
             setUser(student);
+            setAuth({ ...auth, avtUrl: student.img });
           }
 
           setIsLoading(false);
@@ -94,6 +110,25 @@ function Header(props) {
       studentInfo();
     }
   }, []);
+  const [primaryColor, setPrimaryColor] = useState(
+    localStorage.getItem("colorTheme") === "true"
+  );
+
+  const ChangeColorTheme = (event) => {
+    setPrimaryColor(!primaryColor);
+  };
+
+  useEffect(() => {
+    localStorage.setItem("colorTheme", primaryColor);
+    document.documentElement.style.setProperty(
+      "--themeColor",
+      `${primaryColor ? "rgb(24,25,26)" : "white"}`
+    );
+    document.documentElement.style.setProperty(
+      "--textColor",
+      `${!primaryColor ? "rgb(24,25,26)" : "white"}`
+    );
+  }, [primaryColor]);
 
   useEffect(() => {
     setAvt(auth.avtUrl);
@@ -105,7 +140,7 @@ function Header(props) {
           <div>
             <ul className="list">
               <li>
-                <a href="/">
+                <NavLink to="/">
                   <Player
                     autoplay
                     speed={1}
@@ -117,7 +152,7 @@ function Header(props) {
                       buttons={["play", "repeat", "frame", "debug"]}
                     />
                   </Player>
-                </a>
+                </NavLink>
               </li>
               <li>
                 <div style={{ display: "flex" }}>
@@ -152,17 +187,17 @@ function Header(props) {
                 ))}
             </ul>
           </div>
-          
+
           <div className="header_home_user">
-                <BellTable></BellTable>
+            <BellTable></BellTable>
 
             {isLoading ? (
               <IsLoading />
             ) : (
               <>
-                {
+                {user && (
                   <>
-                    <div>
+                    <div className="">
                       {
                         <img
                           onClick={(e) => {
@@ -177,14 +212,14 @@ function Header(props) {
                       }
                     </div>
                     <div
-                      className="Menu_profile_header"
+                      className="Menu_profile_header "
                       ref={Menu_profile_header}
                     >
                       <div className="avatar_link">
-                        <div>
+                        <div className="hover" style={{ borderRadius: "1rem" }}>
                           <a
-                            className="Menu_a_link_profile"
-                            href={`/profile/${user?.MSSV}`}
+                            className="Menu_a_link_profile "
+                            href={`/profile/${user.MSSV}`}
                           >
                             <div className="avatar_name">
                               <img
@@ -193,21 +228,30 @@ function Header(props) {
                                 }
                                 alt="User Avatar"
                               />
-                              <span>{user?.Name || auth.username}</span>
+                              <span>
+                                <p>{user?.Name || auth.username}</p>
+                              </span>
                             </div>
                           </a>
                         </div>
-                        <hr style={{ borderColor: "black" }}></hr>
-                        <div className="ShowAll_User">
-                          <a href="/setting">
-                            <span>Cài đặt thông tin cá nhân</span>
-                          </a>
-                        </div>
+
+                        <div className="ShowAll_User"></div>
                       </div>
+                      <NavLink to={`/setting`}>
+                        <SettingComponent
+                          icon={<FiSettings></FiSettings>}
+                          text={"Cài đặt thông tin"}
+                        />
+                      </NavLink>
+                      <SettingComponent
+                        icon={<FiMoon></FiMoon>}
+                        text={"Màn hình và trợ sáng"}
+                        onClick={ChangeColorTheme}
+                      ></SettingComponent>
                       <LogOut />
                     </div>
                   </>
-                }
+                )}
               </>
             )}
           </div>

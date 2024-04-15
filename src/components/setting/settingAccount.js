@@ -7,6 +7,9 @@ import { motion } from "framer-motion";
 import PropertyUser from "./propertyUser";
 import { getDate } from "../../function/getTime";
 import SuccessNotification from "../Notification/successNotifi";
+import Home from "../home/home";
+import Windowchat from "../message/windowchat";
+import MessageMainLayout from "../message/messageMainLayout";
 export default function SettingAccount() {
     const [userInfo, setUserInfo] = useState();
     const [inputs, setInputs] = useState();
@@ -70,6 +73,7 @@ export default function SettingAccount() {
 
         <>
             <Header></Header>
+            <Home isHidden={true}></Home>
             <div className="column_form" style={{ width: "100%" }}>
                 <div className="main_layout">
                     <h2>

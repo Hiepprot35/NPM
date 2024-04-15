@@ -1,13 +1,21 @@
-import "./windowchat.css";
-import { useEffect, useRef, useState, memo, useCallback } from "react";
-import useAuth from "../../hook/useAuth";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import {
+  FiImage,
+  FiMinus,
+  FiPhone,
+  FiSmile,
+  FiVideo,
+  FiX,
+  FiXCircle,
+} from "react-icons/fi";
 import { useSocket } from "../../context/socketContext";
-import VideoCall from "./windowchat/videoCall";
-import { FiImage, FiSmile } from "react-icons/fi";
-
-import Message from "./Message";
+import useAuth from "../../hook/useAuth";
+import "./windowchat.css";
+import { useData } from "../../context/dataContext";
 import EmojiPicker from "emoji-picker-react";
-import { getUserinfobyID, getStudentInfoByMSSV } from "../../function/getApi";
+import { getStudentInfoByMSSV, getUserinfobyID } from "../../function/getApi";
+import Message from "./Message";
+import { data } from "jquery";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 
 export default memo(function WindowChat(props) {
@@ -17,7 +25,9 @@ export default memo(function WindowChat(props) {
   const [inputMess, setInputmess] = useState();
   const [userName, setUsername] = useState();
   const userConver =
-    props.count.user1 === auth.userID ? props.count.user2 : props.count.user1;
+    props.count?.user1 === auth.userID
+      ? props.count?.user2
+      : props.count?.user1;
   const multiFile = useRef(null);
   const windowchat_input = useRef(null);
   const main_windowchat = useRef(null);
@@ -30,11 +40,9 @@ export default memo(function WindowChat(props) {
   const image_message = useRef(null);
   const windowchat = useRef(null);
   const [userInfor, setUserInfo] = useState();
-  const [messages, setMessages] = useState();
-  useEffect(() => {
-    console.log(props.ListusersOnline);
-  }, [props.ListusersOnline]);
-  console.log("Mess render");
+  const [messages, setMessages] = useState(props.messages);
+  const { listWindow, setListWindow, listHiddenBubble, setListHiddenBubble } =
+    useData();
 
   async function getMessages() {
     if (props.count?.id) {
@@ -49,6 +57,7 @@ export default memo(function WindowChat(props) {
           }
         );
         const data = await res.json();
+
         setMessages(data);
       } catch (err) {
         console.log(err);
@@ -56,14 +65,34 @@ export default memo(function WindowChat(props) {
     }
   }
   function closeWindow(c) {
-    props.setCoutClicked((pre) => {
-      const data = [...pre];
-      const existingIndex = data.findIndex((obj) => obj.id === c);
-      data.splice(existingIndex, 1);
-      return data;
+    setListWindow((pre) => {
+      const newData = pre.filter((obj) => obj.id !== c);
+      return newData;
+    });
+  }
+  function closeHiddenWindow(e) {
+    setListHiddenBubble((pre) => {
+      const newData = pre.filter((obj) => obj.id !== e.id);
+      return newData;
     });
   }
 
+  const showHiddenConver = (e) => {
+    setListWindow((pre) => {
+      const data = [...pre];
+      data.push(e);
+      return data;
+    });
+    closeHiddenWindow(e);
+  };
+  function hiddenWindowHandle(c) {
+    setListHiddenBubble((pre) => {
+      const data = [...pre];
+      data.push(c);
+      return data;
+    });
+    closeWindow(c.id);
+  }
   function pick_imageMess(e) {
     const imgMessFile = e.target.files;
     for (let i = 0; i < imgMessFile.length; i++) {
@@ -106,6 +135,7 @@ export default memo(function WindowChat(props) {
       const MessageDataRes = await res.json();
       if (socket) {
         socket.emit("sendMessage", {
+          conversation_id: MessageDataRes.conversation_id,
           sender_id: MessageDataRes.sender_id,
           receiverId: userConver,
           content: MessageDataRes.content,
@@ -114,11 +144,13 @@ export default memo(function WindowChat(props) {
       } else {
         console.log("không có socket");
       }
+
       setMessages([...messages, MessageDataRes]);
       setEmtyImg();
+      props.setsendMess((pre) => !pre);
       setInputmess("");
       inputValue.current.focus();
-      props.cc(MessageDataRes);
+      // props.cc(MessageDataRes);
     } catch (err) {
       console.log(err);
     }
@@ -152,12 +184,15 @@ export default memo(function WindowChat(props) {
     let isMounted = true;
     if (socket && isMounted) {
       socket.on("getMessage", (data) => {
-        setArrivalMessage({
-          sender_id: data.sender_id,
-          content: data.content,
-          isFile: parseInt(data.isFile),
-          created_at: Date.now(),
-        });
+        if (data.sender_id !== auth.userID) {
+          setArrivalMessage({
+            sender_id: data.sender_id,
+            content: data.content,
+            isFile: parseInt(data.isFile),
+            created_at: Date.now(),
+            conversation_id: data.conversation_id,
+          });
+        }
       });
     }
 
@@ -179,7 +214,6 @@ export default memo(function WindowChat(props) {
         document.title = `${nameSV.Name} gửi tin nhắn`;
       }
     };
-
     updateTitle();
   }, [arrivalMessage]);
 
@@ -196,7 +230,7 @@ export default memo(function WindowChat(props) {
         windowchat.current.style.display = "none";
       }
     }
-  }, [props.count.id]);
+  }, [props.count?.id]);
   useEffect(() => {
     getMessages();
   }, [props.count?.id]);
@@ -249,263 +283,359 @@ export default memo(function WindowChat(props) {
 
     return undefined;
   }, []);
-
+  const clickConversation = async (data) => {
+    const user12 = [data?.user1, data?.user2];
+    const receiverId = user12.find((member) => member !== auth.userID);
+    const sentToApi = {
+      conversation_id: data?.id,
+      sender_id: receiverId,
+    };
+    const resFunctiongetNewestMessSeen = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_DB_HOST}/api/message/seen`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(sentToApi),
+          }
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    resFunctiongetNewestMessSeen();
+    if (socket) {
+      const sendSocket = {
+        converid: data?.id,
+        sender_id: auth.userID,
+        receiverId,
+        isSeen: true,
+      };
+      socket.emit("UserSeen", sendSocket);
+    }
+  };
   const [rowCount, setRowcount] = useState(1);
   useEffect(() => {
     inputMess && setRowcount(Math.ceil(inputMess.length / 20));
     !inputMess && setRowcount(1);
   }, [inputMess]);
-
+  const [userSeenAt, setuserSeenAt] = useState();
+  const getNewstMess = async (data) => {
+    try {
+      if (data) {
+        const res = await fetch(
+          `${process.env.REACT_APP_DB_HOST}/api/message/newest/seen/${data}/${auth?.userID}`
+        );
+        const getMess = await res.json();
+        console.log(getMess, "okkkkkk");
+        setuserSeenAt(getMess);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getNewstMess(props?.count.id);
+  }, []);
+  useEffect(() => {
+    getMessages(props?.count);
+  }, []);
+  useEffect(() => {
+    if (socket) {
+      socket.on("getUserSeen", (data) => {
+        if (data) {
+          getNewstMess(data.converid);
+        }
+      });
+    }
+  }, [socket]);
   return (
     <>
-      <div className="windowchat" ref={windowchat}>
-        <div className="top_windowchat">
-          <div className="header_windowchat">
-            {props.count && userInfor && (
-              <>
-                <div className="header_online">
-                  <div className="avatar_dot">
-                    <img
-                      className="avatarImage"
-                      alt="Avatar"
-                      src={userInfor.img ? `${userInfor.img}` : ""}
-                    ></img>
-                    <span
-                      className={`dot ${
-                        props.ListusersOnline &&
-                        props.ListusersOnline.some(
-                          (e) => e.userId === userConver
-                        )
-                          ? "activeOnline"
-                          : {}
-                      }`}
-                    >
-                      {" "}
-                    </span>
-                  </div>
-                  <div className="header_text">
-                    <div
-                      style={{
-                        fontSize: "1rem",
-                        color: "black",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {" "}
-                      {userInfor.Name}
-                    </div>
-                    {
-                      <span>
-                        {props.ListusersOnline &&
-                        props.ListusersOnline.some(
-                          (e) => e.userId === userConver
-                        ) ? (
-                          <>Online</>
-                        ) : (
-                          <></>
-                        )}
-                      </span>
-                    }
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          <div className="button_windowchat">
-            <div
-              className="features_hover"
-              onClick={(e) => {
-                closeWindow(props.count.id);
-              }}
-            >
-              <img src={`${ClientURL}/images/close.svg`}></img>
-            </div>
-            <div className="features_hover">
-              <img src={`${ClientURL}/images/hidden.svg`}></img>
-            </div>
-            <div
-              className="features_hover"
-              onClick={() => {
-                setCall(!call);
-              }}
-            >
-              <img src={`${ClientURL}/images/camera.svg`}></img>
-            </div>
-            <div
-              className="features_hover"
-              onClick={() => {
-                setCall(!call);
-              }}
-            >
-              <img src={`${ClientURL}/images/phone.svg`}></img>
-            </div>
-          </div>
-        </div>
-        <div className="Body_Chatpp">
-          <div className="main_windowchat" ref={main_windowchat}>
-            {messages &&
-              messages.map((message, index) => (
-                <div className="message_content" key={index}>
-                  <Message
-                    key={index}
-                    message={message}
-                    my={auth.userID}
-                    mid={
-                      checkMess(
-                        index,
-                        messages,
-                        auth.userID,
-                        userConver,
-                        message.sender_id
-                      ) === 2
-                    }
-                    alone={
-                      checkMess(
-                        index,
-                        messages,
-                        auth.userID,
-                        userConver,
-                        message.sender_id
-                      ) === 0
-                    }
-                    first={
-                      checkMess(
-                        index,
-                        messages,
-                        auth.userID,
-                        userConver,
-                        message.sender_id
-                      ) === 1
-                    }
-                    end={
-                      checkMess(
-                        index,
-                        messages,
-                        auth.userID,
-                        userConver,
-                        message.sender_id
-                      ) === 3
-                    }
-                    own={message.sender_id === auth.userID}
-                    student={userInfor}
-                    userID={userConver}
-                    Online={props.ListusersOnline}
-                  ></Message>
-                </div>
-              ))}
-          </div>
-          <div className="inputValue windowchat_feature">
-            <div className="feature_left">
-              {imgView.length > 0 ? (
+      {!props.isHidden ? (
+        <div className="windowchat" ref={windowchat}>
+          <div
+            className="top_windowchat"
+           
+          >
+            <div className="header_windowchat">
+              {props.count && userInfor && (
                 <>
-                  <div onClick={setEmtyImg} className="features_hover">
+                  <div className="header_online">
+                    <div className="avatar_dot">
+                      <img
+                        className="avatarImage"
+                        alt="Avatar"
+                        src={userInfor.img ? `${userInfor.img}` : ""}
+                      ></img>
+                      <span
+                        className={`dot ${
+                          props.ListusersOnline &&
+                          props.ListusersOnline.some(
+                            (e) => e.userId === userConver
+                          )
+                            ? "activeOnline"
+                            : {}
+                        }`}
+                      >
+                        {" "}
+                      </span>
+                    </div>
+                    <div className="header_text">
+                      <div
+                        style={{
+                          fontSize: "1rem",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {" "}
+                        <p>{userInfor.Name}</p>
+                      </div>
+                      {
+                        <span>
+                          {props.ListusersOnline &&
+                          props.ListusersOnline.some(
+                            (e) => e.userId === userConver
+                          ) ? (
+                            <>Online</>
+                          ) : (
+                            <></>
+                          )}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="button_windowchat">
+              <div
+                className="features_hover"
+                onClick={(e) => {
+                  closeWindow(props.count.id);
+                }}
+              >
+                <FiX></FiX>
+              </div>
+              <div
+                className="features_hover"
+                onClick={() => {
+                  hiddenWindowHandle(props.count);
+                }}
+              >
+                <FiMinus></FiMinus>
+              </div>
+              <div
+                className="features_hover"
+                onClick={() => {
+                  setCall(!call);
+                }}
+              >
+                <FiVideo></FiVideo>
+              </div>
+              <div
+                className="features_hover"
+                onClick={() => {
+                  setCall(!call);
+                }}
+              >
+                <FiPhone></FiPhone>
+              </div>
+            </div>
+          </div>
+          <div className="Body_Chatpp">
+            <div className="main_windowchat" ref={main_windowchat}>
+              {messages &&
+                messages.map((message, index) => (
+                  <div className="message_content" key={index}>
+                    <Message
+                      key={index}
+                      message={message}
+                      my={auth.userID}
+                      mid={
+                        checkMess(
+                          index,
+                          messages,
+                          auth.userID,
+                          userConver,
+                          message.sender_id
+                        ) === 2
+                      }
+                      alone={
+                        checkMess(
+                          index,
+                          messages,
+                          auth.userID,
+                          userConver,
+                          message.sender_id
+                        ) === 0
+                      }
+                      first={
+                        checkMess(
+                          index,
+                          messages,
+                          auth.userID,
+                          userConver,
+                          message.sender_id
+                        ) === 1
+                      }
+                      end={
+                        checkMess(
+                          index,
+                          messages,
+                          auth.userID,
+                          userConver,
+                          message.sender_id
+                        ) === 3
+                      }
+                      own={message.sender_id === auth.userID}
+                      student={userInfor}
+                      userID={userConver}
+                      listSeen={userSeenAt}
+                      Online={props.ListusersOnline}
+                    ></Message>
+                  </div>
+                ))}
+            </div>
+            <div className="inputValue windowchat_feature">
+              <div className="feature_left">
+                {imgView.length > 0 ? (
+                  <>
+                    <div onClick={setEmtyImg} className="features_hover">
+                      <img
+                        src={`${ClientURL}/images/arrow-left.svg`}
+                        style={{ width: "1.5rem", height: "1.5rem" }}
+                      ></img>
+                    </div>
+                  </>
+                ) : (
+                  <ul>
+                    <li className="features_hover stokeTheme">
+                      <input
+                        onChange={(e) => {
+                          pick_imageMess(e);
+                        }}
+                        type="file"
+                        ref={image_message}
+                        multiple
+                        hidden
+                      ></input>
+                      <FiImage
+                        onClick={() => {
+                          image_message.current.click();
+                        }}
+                      />
+                    </li>
+
+                    <li className="features_hover stokeTheme">
+                      <img src={`${ClientURL}/images/sticker.svg`}></img>
+                    </li>
+                    <li className="features_hover stokeTheme">
+                      <FiSmile
+                        onClick={(e) => {
+                          setOpenEmojiPicker(!openEmojiPicker);
+                        }}
+                      ></FiSmile>
+                    </li>
+                  </ul>
+                )}
+              </div>
+
+              <div className=" windowchat_input " ref={windowchat_input}>
+                {imgView.length > 0 && (
+                  <div className="multiFile_layout ">
+                    <input type="file" hidden ref={multiFile} multiFile></input>
+                    <div className="features_hover">
+                      <img
+                        onClick={() => {
+                          multiFile.current.click();
+                        }}
+                        src={`${process.env.REACT_APP_CLIENT_URL}/images/image.svg`}
+                      ></img>
+                    </div>
+                    {imgView.map((e) => (
+                      <>
+                        <img
+                          src={e}
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            margin: "1rem",
+                            borderRadius: "0.6rem",
+                          }}
+                        ></img>
+                      </>
+                    ))}
+                  </div>
+                )}
+                <textarea
+                  cols="20"
+                  rows={rowCount || 1}
+                  style={{ resize: "none" }}
+                  id="send_window_input"
+                  onClick={() => clickConversation(props?.count)}
+                  onChange={inputChange}
+                  placeholder="Aa"
+                  value={inputMess}
+                  ref={inputValue}
+                />
+              </div>
+              <div>
+                <div>
+                  <div
+                    className="features_hover"
+                    onClick={() => inputMess.length > 0 && handleSubmit()}
+                    style={{ cursor: "pointer" }}
+                  >
                     <img
-                      src={`${ClientURL}/images/arrow-left.svg`}
+                      src={`${ClientURL}/images/send-2.svg`}
                       style={{ width: "1.5rem", height: "1.5rem" }}
                     ></img>
                   </div>
-                </>
-              ) : (
-                <ul>
-                  <li className="features_hover">
-                    <input
-                      onChange={(e) => {
-                        pick_imageMess(e);
-                      }}
-                      type="file"
-                      ref={image_message}
-                      multiple
-                      hidden
-                    ></input>
-                    <FiImage
-                      onClick={() => {
-                        image_message.current.click();
-                      }}
-                    />
-                  </li>
-
-                  <li className="features_hover">
-                    <img src={`${ClientURL}/images/sticker.svg`}></img>
-                  </li>
-                  <li className="features_hover">
-                    <FiSmile onClick={(e) => {
-                        setOpenEmojiPicker(!openEmojiPicker);
-                      }}>
-
-                    </FiSmile>
-             
-                  </li>
-                </ul>
-              )}
-            </div>
-
-            <div className=" windowchat_input " ref={windowchat_input}>
-              {imgView.length > 0 && (
-                <div className="multiFile_layout ">
-                  <input type="file" hidden ref={multiFile} multiFile></input>
-                  <div className="features_hover">
-                    <img
-                      onClick={() => {
-                        multiFile.current.click();
-                      }}
-                      src={`${process.env.REACT_APP_CLIENT_URL}/images/image.svg`}
-                    ></img>
-                  </div>
-                  {imgView.map((e) => (
-                    <>
-                      <img
-                        src={e}
-                        style={{
-                          width: "50px",
-                          height: "50px",
-                          margin: "1rem",
-                          borderRadius: "0.6rem",
-                        }}
-                      ></img>
-                    </>
-                  ))}
-                </div>
-              )}
-              <textarea
-                cols="20"
-                rows={rowCount || 1}
-                style={{ resize: "none" }}
-                id="send_window_input"
-                onChange={inputChange}
-                placeholder="Aa"
-                value={inputMess}
-                ref={inputValue}
-              />
-            </div>
-            <div>
-              <div>
-                <div
-                  className="features_hover"
-                  onClick={() => inputMess.length > 0 && handleSubmit()}
-                  style={{ cursor: "pointer" }}
-                >
-                  <img
-                    src={`${ClientURL}/images/send-2.svg`}
-                    style={{ width: "1.5rem", height: "1.5rem" }}
-                  ></img>
                 </div>
               </div>
             </div>
           </div>
+          <div className="emojipick">
+            <EmojiPicker
+              width={350}
+              height={450}
+              open={openEmojiPicker}
+              onEmojiClick={(e, i) => {
+                onClickEmoji(e);
+              }}
+              emojiStyle="facebook"
+            />
+          </div>
         </div>
-        <div className="emojipick">
-          <EmojiPicker
-            width={350}
-            height={450}
-            open={openEmojiPicker}
-            onEmojiClick={(e, i) => {
-              onClickEmoji(e);
-            }}
-            emojiStyle="facebook"
-          />
+      ) : (
+        <div
+          className="hiddenBubble"
+          style={{
+            position: "fixed",
+            right: "9px",
+            bottom: `${props.index * 55 + 70}px`,
+          }}
+        >
+          <div
+            className="closeButton"
+            onClick={() => closeHiddenWindow(props.count)}
+          >
+            <FiXCircle></FiXCircle>
+          </div>
+          <div>
+            <img
+              onClick={() => showHiddenConver(props.count)}
+              style={{ width: "50px" }}
+              className="avatarImage"
+              alt="Avatar"
+              src={userInfor?.img}
+            ></img>{" "}
+          </div>
         </div>
-      </div>
-      {/* <VideoCall></VideoCall> */}
+      )}
     </>
   );
 });

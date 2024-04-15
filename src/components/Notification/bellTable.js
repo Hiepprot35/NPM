@@ -38,6 +38,7 @@ function BellTable() {
   useEffect(() => {
     if (socket) {
       socket.on("receiveRequest", async (values) => {
+        document.title = `Một thông báo mới`;
         data();
       });
     }
@@ -45,9 +46,7 @@ function BellTable() {
   useEffect(() => {
     notification && getUsers();
   }, [notification]);
-  useEffect(() => {
-    console.log(users);
-  }, [users]);
+
   const [showTable, setShowTable] = useState(false);
   const acceptHandle = async (id) => {
     const newUsers = users.filter((e) => e.id !== id);

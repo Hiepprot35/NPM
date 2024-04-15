@@ -3,12 +3,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hook/useAuth";
 import { IsLoading } from "./Loading";
+import { Button } from "antd";
+import { FiLogOut } from "react-icons/fi";
+import SettingComponent from "./setting/SettingComponent";
+
 export const LogOut = () => {
   const { setAuth } = useAuth();
   const navigate = useNavigate();
   const LogoutClick = async () => {
     localStorage.removeItem("AccessToken");
     localStorage.removeItem("RefreshToken");
+    localStorage.removeItem("counter");
+    localStorage.removeItem("hiddenCounter");
 
     setAuth({});
 
@@ -20,13 +26,11 @@ export const LogOut = () => {
           credentials: "include",
         }
       );
-    } catch (error) {}    window.location.reload(true);
+    } catch (error) {}
+    window.location.reload(true);
   };
+  
   return (
-    <div>
-      <button className="login_button" onClick={LogoutClick}>
-        Logout
-      </button>
-    </div>
+    <SettingComponent onClick={LogoutClick} icon={<FiLogOut/>} text={'Đăng xuất'}></SettingComponent>
   );
 };
