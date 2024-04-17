@@ -84,11 +84,20 @@ input[type=text]:focus {
 .header_text span{
     font-size: 0.8rem;
 }
+.hiddenEllipsis{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+
+    width: 9rem;
+}
 .header_text {
     display: flex;
+  
     flex-direction: column;
     align-items: flex-start;
-    margin-left: 1rem;
+
+    margin-left: 0rem;
 }
 
 .header_online {

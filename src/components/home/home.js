@@ -11,15 +11,11 @@ import { getConversation } from "../conversation/getConversation";
 import MessageMainLayout from "../message/messageMainLayout";
 import FriendList from "./friend";
 import { useData } from "../../context/dataContext";
+import MovieFilms from "./MovieFilms";
 export default function Home(props) {
-  const { listWindow, setListWindow, listHiddenBubble, setListHiddenBubble } = useData();
-
-  const navigate = useNavigate();
-  const socket = useSocket();
+  const { listWindow, setListWindow, listHiddenBubble, setListHiddenBubble } =
+    useData();
   const { AccessToken, setAccessToken } = UseToken();
-  const { auth } = useAuth();
-  const [listMSSV, setlistMSSV] = useState();
-
   useEffect(() => {
     if (listWindow) {
       localStorage.setItem("counter", JSON.stringify(listWindow));
@@ -31,39 +27,6 @@ export default function Home(props) {
   }, [listHiddenBubble]);
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
- 
-
-
-  useEffect(() => {
-    const senApi = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.REACT_APP_DB_HOST}/api/findusersend`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              id: auth.userID,
-            }),
-          }
-        );
-        const data = await res.json();
-        setlistMSSV(data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    senApi();
-  }, []);
-
-
-useEffect(() => {
-  console.log(listMSSV)
-}, [listMSSV]);
- 
-
   const getData = async () => {
     const URL = `${process.env.REACT_APP_DB_HOST}/api/getallstudent`;
     try {
@@ -97,11 +60,7 @@ useEffect(() => {
         {isLoading ? (
           <IsLoading />
         ) : (
-          !props.isHidden && (
-            <FriendList
-              listUsers={posts}
-            />
-          )
+          !props.isHidden && <FriendList listUsers={posts} />
         )}
         {/* <div className="centerHome">
           <div className="statusPost">
@@ -129,9 +88,8 @@ useEffect(() => {
             <div className="textPost"></div>
           </div>
         </div> */}
-        <MessageMainLayout
-          isHidden={props.isHidden}
-        />
+        <MovieFilms></MovieFilms>
+        <MessageMainLayout isHidden={props.isHidden} />
 
         {/* <ChatApp user={auth} room={room} /> */}
       </div>

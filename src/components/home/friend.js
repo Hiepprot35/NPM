@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./friend.css";
 import useAuth from "../../hook/useAuth";
-import { FiMessageCircle, FiUserPlus, FiUserCheck } from "react-icons/fi";
+import { FiMessageCircle, FiUserPlus, FiUserCheck, FiX } from "react-icons/fi";
 import { List, Button, Popover } from "antd";
 import { NavLink } from "react-router-dom";
 import { useData } from "../../context/dataContext";
@@ -9,6 +9,7 @@ import { fetchApiRes } from "../../function/getApi";
 import { useSocket } from "../../context/socketContext";
 import { getConversation } from "../conversation/getConversation";
 import GerenalFriendComponent from "./gerenalFriendComponent";
+
 export default function FriendList(props) {
   const { listWindow, setListWindow, listHiddenBubble, setListHiddenBubble } =
     useData();
@@ -61,24 +62,22 @@ export default function FriendList(props) {
   const deleteFriend = async (id) => {
     const converFound = await foundConversation(id, auth.userID);
     try {
-      const data= await fetchApiRes("message/updateConversation", "POST", {
-         Friend: false,
-         id: converFound,
-       });
-       if(data.result)
-       {
-         setIsLoading(false)
-       }
-     } catch (error) {
-       setIsLoading(false)
+      const data = await fetchApiRes("message/updateConversation", "POST", {
+        Friend: false,
+        id: converFound,
+      });
+      if (data.result) {
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setIsLoading(false);
 
-       console.log(error)
-     }
-
-  }
+      console.log(error);
+    }
+  };
   const sendRequestFriend = async (id) => {
     const converFound = await foundConversation(id, auth.userID);
-    setIsLoading(true)
+    setIsLoading(true);
     if (!converFound) {
       try {
         await fetchApiRes("conversations", "POST", {
@@ -86,26 +85,24 @@ export default function FriendList(props) {
           user2: id,
           Requesting: 1,
         });
-        
       } catch (error) {
         console.log(error);
       }
     } else {
       try {
-       const data= await fetchApiRes("message/updateConversation", "POST", {
+        const data = await fetchApiRes("message/updateConversation", "POST", {
           Requesting: true,
-          user1:auth.userID,
-          user2:id,
+          user1: auth.userID,
+          user2: id,
           id: converFound,
         });
-        if(data.result)
-        {
-          setIsLoading(false)
+        if (data.result) {
+          setIsLoading(false);
         }
       } catch (error) {
-        setIsLoading(false)
+        setIsLoading(false);
 
-        console.log(error)
+        console.log(error);
       }
     }
     if (socket) {
@@ -115,9 +112,7 @@ export default function FriendList(props) {
       });
     }
   };
-  useEffect(() => {
-    userFriendList && console.log(userFriendList[0]);
-  }, [userFriendList]);
+
 
   useEffect(() => {
     async function AsyncGetCon() {
@@ -135,11 +130,7 @@ export default function FriendList(props) {
     }
   }, [myFriendList, userFriendList]);
 
-  useEffect(() => {
-    if (gerenalFriend) {
-      console.log(gerenalFriend);
-    }
-  }, [gerenalFriend]);
+
   useEffect(() => {
     getFriendList();
     getUserFriendList();
@@ -190,145 +181,159 @@ export default function FriendList(props) {
       setListHiddenBubble(() => removeElement(listHiddenBubble, converFound));
     }
   };
+  const refListFriend = useRef();
+  const changeListDiv = (second) => { 
+    if(refListFriend.current)
+    {
+      refListFriend.current.classList.toggle("hidden")
+    }
+   }
   return (
-    <div
-      className={props.className ? props.className : `friendListDiv`}
-      style={{ display: "flex" }}
-    >
-      {!props.profile && (
-        <List
-          className="usersInfomation"
-          header={
-            <div>
-              <h1>Danh sách người dùng</h1>
-            </div>
-          }
-          //   footer={<div>Sample FOOTER</div>}
-          bordered
-          dataSource={Object.values(props.listUsers)}
-          renderItem={(student, index) => (
-            <List.Item
-              style={{ width: "100%", height: "100px" }}
-              className="ListItem"
-            >
-              <div
-                className="center"
-                style={{ width: "100%", justifyContent: "space-between" }}
+    <>
+      <div
+        className={props.className ? props.className : `friendListDiv`}
+        ref={refListFriend}
+        style={{ display: "flex" }}
+      >
+        {!props.profile && (
+          <List
+            itemLayout="horizontal"
+            className="usersInfomation"
+            header={
+              <div>
+                <h1>Danh sách người dùng</h1>
+              </div>
+            }
+            // <Content style={{ padding: 16, overflow: "auto" }}/>
+
+            //   footer={<div>Sample FOOTER</div>}
+            bordered
+            dataSource={Object.values(props.listUsers)}
+            renderItem={(student, index) => (
+              <List.Item
+                style={{ width: "100%", height: "100px" }}
+                className="ListItem"
               >
-                <div>
-                  <NavLink
-                    to={`${process.env.REACT_APP_CLIENT_URL}/profile/${student.MSSV}`}
-                  >
-                    <img className="avatarImage" src={student.img} alt="" />
-                  </NavLink>
-                </div>
-                <div className="article-body">
+                <div
+                  className="center"
+                  style={{ width: "100%", justifyContent: "space-between" }}
+                >
                   <div>
-                    <b>{student.Name}</b>
-                    <p>Có {gerenalFriend[index]?.length ?? 0} bạn chung</p>
-                    {gerenalFriend[index] && (
-                      <GerenalFriendComponent
-                        listGerenal={gerenalFriend[index]}
-                      ></GerenalFriendComponent>
-                    )}
+                    <NavLink
+                      to={`${process.env.REACT_APP_CLIENT_URL}/profile/${student.MSSV}`}
+                    >
+                      <img className="avatarImage" src={student.img} alt="" />
+                    </NavLink>
                   </div>
-                  {/* Thêm các thông tin khác tùy ý */}
-                </div>
-                <div style={{ width: "40%" }}>
-                  <Button
-                    type="primary"
-                    size="large"
-                    className="sendButton"
-                    onClick={() => {
-                      handleAddChat(student.UserID);
-                    }}
-                    style={{ width: "3rem", margin: ".2rem" }}
-                    icon={
-                      <FiMessageCircle
-                        style={{ stroke: "blue" }}
-                      ></FiMessageCircle>
-                    }
-                  ></Button>
-                  {myFriendList &&
-                    (!myFriendList.some((e) => e === student.UserID) ? (
-                      <Button
-                        size="large"
-                        style={{ width: "3rem", margin: ".2rem" }}
-                        onClick={() => sendRequestFriend(student.UserID)}
-                        icon={<FiUserPlus></FiUserPlus>}
-                      ></Button>
-                    ) : (
-                        
-                          <Button
+                  <div className="article-body" style={{ width: "50%" }}>
+                    <div className="hiddenEllipsis">
+                      <b className="">{student.Name}</b>
+                      <p>Có {gerenalFriend[index]?.length ?? 0} bạn chung</p>
+                      {gerenalFriend[index] && (
+                        <GerenalFriendComponent
+                          listGerenal={gerenalFriend[index]}
+                        ></GerenalFriendComponent>
+                      )}
+                    </div>
+                    {/* Thêm các thông tin khác tùy ý */}
+                  </div>
+                  <div style={{ width: "40%" }}>
+                    <Button
+                      type="primary"
+                      size="large"
+                      className="sendButton"
+                      onClick={() => {
+                        handleAddChat(student.UserID);
+                      }}
+                      style={{ width: "3rem", margin: ".2rem" }}
+                      icon={
+                        <FiMessageCircle
+                          style={{ stroke: "blue" }}
+                        ></FiMessageCircle>
+                      }
+                    ></Button>
+                    {myFriendList &&
+                      (!myFriendList.some((e) => e === student.UserID) ? (
+                        <Button
+                          size="large"
+                          style={{ width: "3rem", margin: ".2rem" }}
+                          onClick={() => sendRequestFriend(student.UserID)}
+                          icon={<FiUserPlus></FiUserPlus>}
+                        ></Button>
+                      ) : (
+                        <Button
                           size="large"
                           style={{ width: "3rem", margin: ".2rem" }}
                           onClick={() => deleteFriend(student.UserID)}
                           icon={<FiUserCheck></FiUserCheck>}
-                          ></Button>
-                        
-                    ))}
+                        ></Button>
+                      ))}
+                  </div>
+                </div>
+              </List.Item>
+            )}
+          />
+        )}
+        {props.profile && (
+          <div>
+            <div
+              className="center"
+              style={{
+                width: "100%",
+                justifyContent: "space-between",
+                fontSize: `${props?.fontSize}`,
+              }}
+            >
+              <div>
+                <NavLink
+                  to={`${process.env.REACT_APP_CLIENT_URL}/profile/${props.listUsers[0].MSSV}`}
+                >
+                  <img
+                    className="avatarImage"
+                    // style={{ width: "168px" }}
+                    src={props.listUsers[0].img}
+                    alt=""
+                  />
+                </NavLink>
+              </div>
+              <div className={props.hover ? "hoverProfile" : `article-body`}>
+                <div>
+                  <b>{props.listUsers[0].Name}</b>
+                  <p>Có {gerenalFriend[0]?.length ?? 0} bạn chung</p>
+                  {gerenalFriend[0] && (
+                    <GerenalFriendComponent
+                      listGerenal={gerenalFriend[0]}
+                    ></GerenalFriendComponent>
+                  )}
                 </div>
               </div>
-            </List.Item>
-          )}
-        />
-      )}
-      {props.profile && (
-        <div>
-          <div
-            className="center"
-            style={{
-              width: "100%",
-              justifyContent: "space-between",
-              fontSize: `${props?.fontSize}`,
-            }}
-          >
-            <div>
-              <NavLink
-                to={`${process.env.REACT_APP_CLIENT_URL}/profile/${props.listUsers[0].MSSV}`}
-              >
-                <img
-                  className="avatarImage"
-                  // style={{ width: "168px" }}
-                  src={props.listUsers[0].img}
-                  alt=""
-                />
-              </NavLink>
-            </div>
-            <div className={props.hover ? "hoverProfile" : `article-body`}>
-              <div>
-                <b>{props.listUsers[0].Name}</b>
-                <p>Có {gerenalFriend[0]?.length ?? 0} bạn chung</p>
-                {gerenalFriend[0] && (
-                  <GerenalFriendComponent
-                    listGerenal={gerenalFriend[0]}
-                  ></GerenalFriendComponent>
-                )}
+              <div style={{ width: "40%" }}>
+                <Button
+                  type="primary"
+                  size="large"
+                  className="sendButton"
+                  onClick={() => {
+                    handleAddChat(props.listUsers[0].UserID);
+                  }}
+                  style={{ width: "3rem", margin: ".2rem" }}
+                  icon={
+                    <FiMessageCircle
+                      style={{ stroke: "blue" }}
+                    ></FiMessageCircle>
+                  }
+                ></Button>
+                <Button
+                  size="large"
+                  style={{ width: "3rem", margin: ".2rem" }}
+                  onClick={() => sendRequestFriend(props.listUsers[0].UserID)}
+                  icon={<FiUserPlus></FiUserPlus>}
+                ></Button>
               </div>
             </div>
-            <div style={{ width: "40%" }}>
-              <Button
-                type="primary"
-                size="large"
-                className="sendButton"
-                onClick={() => {
-                  handleAddChat(props.listUsers[0].UserID);
-                }}
-                style={{ width: "3rem", margin: ".2rem" }}
-                icon={
-                  <FiMessageCircle style={{ stroke: "blue" }}></FiMessageCircle>
-                }
-              ></Button>
-              <Button
-                size="large"
-                style={{ width: "3rem", margin: ".2rem" }}
-                onClick={() => sendRequestFriend(props.listUsers[0].UserID)}
-                icon={<FiUserPlus></FiUserPlus>}
-              ></Button>
-            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+      <Button shape="circle" onClick={changeListDiv} style={{position:"fixed",left:0,bottom:"0",zIndex:"99"}} icon={<FiX color="black"></FiX>}></Button>
+    </>
   );
 }

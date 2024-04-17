@@ -1,0 +1,125 @@
+.MovieCard {
+  background-position: center;
+  background-size: cover;
+  width: 100%;
+  transition: 500ms ease-out;
+  height: 100%;
+  opacity: 0;
+}
+.MovieFilms {
+  display: flex;
+  height: 100%;
+  transition: 500ms ease-out;
+}
+.MovieContainer {
+  overflow: hidden;
+  position: relative;
+}
+.leftMovieFilm {
+  width: 50%;
+
+  height: 100%;
+  background-color: rgba(34, 33, 33, 0.564);
+}
+
+.activeFilm {
+  /* animation:cc 1s 2s ; */
+  opacity: 1;
+}
+
+@keyframes cc {
+  0% {
+    background-color: black;
+  }
+  100% {
+    background-color: white;
+  }
+}
+.MovieLayout {
+  width: 100%;
+}
+.slideScrollMovie {
+
+  /* bottom: 0; */
+  width: 200px;
+  display: flex;
+  overflow: hidden;
+}
+.slideScrollMovie img {
+  object-fit: contain;
+  width: 100px;
+  border-radius: 1rem;
+  height: 50px;
+}
+.imageSlide {
+  transition: 500ms ease;
+}
+.imageSlide img {
+  border-radius: 1rem;
+}
+.notActiveImage {
+  transition: 500ms linear;
+  transform: scale(0.8);
+  opacity: 0.6;
+}
+.leftContentMovie {
+  transition: 500ms;
+  margin: 2rem;
+}
+.leftMovieFilm h1 {
+  font-family: Tahoma, sans-serif;
+  font-size: 3.5rem;
+}
+.overViewText div {
+  padding: 2rem;
+}
+.overViewText {
+  border-radius: 1rem;
+  background-color: rgba(207, 192, 192, 0.208);
+}
+.buttonFilm2:hover span,
+.buttonFilm:hover span {
+  color: black;
+}
+
+.buttonFilm2:hover svg,
+.buttonFilm:hover svg {
+  color: black;
+}
+.buttonFilmHandle {
+  font-weight: 600;
+}
+.ratingFilm ul{
+  flex-direction: row;
+  /* display: inline-block; */
+}
+.scoreFilm svg {
+  /* fill: white; */
+
+  stroke: black;
+}
+@keyframes cc {
+  0%{visibility: visible;}
+  100%{visibility: none;}
+}
+.Videoplayer{
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100;
+  background-color: rgba(10, 10, 10, 0.629);
+}
+.CloseWindowVideo{
+  position: absolute;
+  top:1rem;
+  right: 1rem;
+}
+.Report{
+  position: absolute;
+  margin: 1rem;
+  border-radius: 1rem;
+  color: black;
+  background-color: rgb(255, 255, 255);
+  
+}

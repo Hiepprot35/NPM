@@ -28,7 +28,6 @@ export async function getStudentInfoByMSSV(data) {
 export async function fetchApiRes(url, method, body) {
   try {
     const urlApi = `${process.env.REACT_APP_DB_HOST}/api/${url}`;
-    console.log(urlApi);
     let requestOptions = {
       method: method,
       headers: { "Content-type": "application/json" },

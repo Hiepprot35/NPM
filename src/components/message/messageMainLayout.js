@@ -103,7 +103,6 @@ export default function MessageMainLayout(props) {
       </div>
       {listHiddenBubble &&
         listHiddenBubble.map((e, i) => (
-          <>
             <WindowChat
               key={i}
               count={e}
@@ -111,7 +110,6 @@ export default function MessageMainLayout(props) {
               index={i}
               ListusersOnline={onlineUser}
             />
-          </>
         ))}
     </div>
   );

@@ -98,7 +98,7 @@ function Header(props) {
           const student = await studentApi.json();
           if (student) {
             setUser(student);
-            setAuth({ ...auth, avtUrl: student.img });
+            // setAuth({ ...auth });
           }
 
           setIsLoading(false);
@@ -229,7 +229,7 @@ function Header(props) {
                                 alt="User Avatar"
                               />
                               <span>
-                                <p>{user?.Name || auth.username}</p>
+                                <p className="hiddenEllipsis">{user?.Name || auth.username}</p>
                               </span>
                             </div>
                           </a>

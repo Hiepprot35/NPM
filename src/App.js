@@ -19,26 +19,19 @@ import useAuth from "./hook/useAuth";
 import UseRfLocal from "./hook/useRFLocal";
 import { useRefresh } from "./hook/useRefresh";
 import UseToken from "./hook/useToken";
+import DetailMovie from "./components/home/DetailMovie";
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   // const socket=useSocket();
   const { auth, setAuth } = useAuth();
   const { RefreshToken } = UseRfLocal();
-  const [arrivalMessage, setArrivalMessage] = useState();
   const { AccessToken, setAccessToken, checkAccessToken } = UseToken();
   const ROLES = [1, 2];
   const [login, setLogin] = useState(true);
   useEffect(() => {
     setIsLoading(false);
   }, [AccessToken]);
-  // useEffect(() => {
-  //   if (socket && auth && auth.userID) {
-  //     console.log(auth.userID);
-  //     socket.emit("addUser", auth.userID);
-  //     socket.on("getUsers", (data) => { console.log(data) })
 
-  //   }
-  // }, [socket, auth]);
 
   const refreshAccessToken = useRefresh();
   useEffect(() => {
@@ -57,9 +50,7 @@ function App() {
       fetchData();
     }
   }, []);
-  useEffect(() => {
-    console.log("auth", auth);
-  }, [auth]);
+
 
   if (!isLoading) {
     if (auth.userID) {
@@ -82,23 +73,23 @@ function App() {
           <Routes>
             <Route
               path="/dangkilop"
-              element={<DangKiLopHoc arrivalMessage={arrivalMessage} />}
+              element={<DangKiLopHoc  />}
             />
             <Route path="/profile/:MSSV" element={<ProfileRoutes  />} />
             <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
+            <Route path="/movie/moviedetail/:id" element={<MovieFilm/>}/>
             {/* <Route path="/" element={<Dashboard />} /> */}
             <Route path="/" element={<Home />} />
             <Route
               path="/message"
               element={<ChatApp />}
-              arrivalMessage={arrivalMessage}
             />
             <Route path="*" element={<Home />} />
             <Route path="/message/:id" element={<MessageRoute />} />
             <Route path="/lichhoc" element={<ViewTimetable />} />
             <Route
               path="/setting"
-              element={<SettingAccount arrivalMessage={arrivalMessage} />}
+              element={<SettingAccount  />}
             />
           </Routes>
         );
@@ -127,6 +118,11 @@ function ProfileRoutes() {
   const { MSSV } = useParams();
 
   return <UserProfile MSSVParams={MSSV} />;
+}
+function MovieFilm() {
+  const { id } = useParams();
+
+  return <DetailMovie MovieID={id} />;
 }
 function MessageRoute() {
   const { id } = useParams();

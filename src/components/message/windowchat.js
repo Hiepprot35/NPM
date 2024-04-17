@@ -290,6 +290,7 @@ export default memo(function WindowChat(props) {
       conversation_id: data?.id,
       sender_id: receiverId,
     };
+    setArrivalMessage();
     const resFunctiongetNewestMessSeen = async () => {
       try {
         const res = await fetch(
@@ -330,7 +331,6 @@ export default memo(function WindowChat(props) {
           `${process.env.REACT_APP_DB_HOST}/api/message/newest/seen/${data}/${auth?.userID}`
         );
         const getMess = await res.json();
-        console.log(getMess, "okkkkkk");
         setuserSeenAt(getMess);
       }
     } catch (error) {
@@ -358,7 +358,11 @@ export default memo(function WindowChat(props) {
         <div className="windowchat" ref={windowchat}>
           <div
             className="top_windowchat"
-           
+            style={
+              props?.count.id === arrivalMessage?.conversation_id
+                ? { backgroundColor: "black" }
+                : {}
+            }
           >
             <div className="header_windowchat">
               {props.count && userInfor && (
@@ -391,7 +395,7 @@ export default memo(function WindowChat(props) {
                         }}
                       >
                         {" "}
-                        <p>{userInfor.Name}</p>
+                        <p className="hiddenEllipsis">{userInfor.Name}</p>
                       </div>
                       {
                         <span>
@@ -611,14 +615,7 @@ export default memo(function WindowChat(props) {
           </div>
         </div>
       ) : (
-        <div
-          className="hiddenBubble"
-          style={{
-            position: "fixed",
-            right: "9px",
-            bottom: `${props.index * 55 + 70}px`,
-          }}
-        >
+        <div className="hiddenBubble">
           <div
             className="closeButton"
             onClick={() => closeHiddenWindow(props.count)}

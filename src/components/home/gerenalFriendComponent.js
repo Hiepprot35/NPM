@@ -23,9 +23,7 @@ export default function GerenalFriendComponent(props) {
   useEffect(() => {
     getUser();
   }, []);
-  useEffect(() => {
-    Users && Users.map((e) => console.log(e));
-  }, [Users]);
+
   return (
     <div className="GerenalFriend">
       <Avatar.Group
@@ -36,8 +34,8 @@ export default function GerenalFriendComponent(props) {
         }}
       >
         {Users &&
-          Users.map((e) => 
-          <Popover content={<HoverProfile MSSV={e.MSSV} isHover={true}></HoverProfile>}>
+          Users.map((e,i) => 
+          <Popover key={i} content={<HoverProfile MSSV={e.MSSV} isHover={true}></HoverProfile>}>
 
           {/* <NavLink to={`${process.env.REACT_APP_CLIENT_URL}/profile/${e.MSSV}`}> */}
 

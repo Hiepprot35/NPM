@@ -19,9 +19,7 @@ export default memo(function Conversation({
   const [isLoading, setIsLoading] = useState(true);
   const [username, setUsername] = useState();
   const [NewestMess, setNewestMesst] = useState();
-  useEffect(() => {
-    console.log("c", NewestMess);
-  }, [NewestMess]);
+
   const data = [conversation.user1, conversation.user2];
   const setOnlineUser = data.find((m) => m !== auth.userID);
   const ListusersOnline = (Online && Online.map((item) => item.userId)) || [];
@@ -109,7 +107,7 @@ export default memo(function Conversation({
                 {" "}
               </span>
             </div>
-            <div className="text_conversation">
+            <div className="text_conversation hiddenEllipsis">
               <span className="conversationName">{user.Name}</span>
               {notSeen_field ? (
                 <></>
