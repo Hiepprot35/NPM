@@ -55,7 +55,7 @@ export default function MessageMainLayout(props) {
   }, [socket]);
 
   return (
-    <div className="25main_layout">
+    <div className="main_layout25 linearBefore">
       {!props.isHidden && (
         <>
           <h1> Tin nhắn </h1>

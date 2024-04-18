@@ -191,7 +191,7 @@ export default function FriendList(props) {
   return (
     <>
       <div
-        className={props.className ? props.className : `friendListDiv`}
+        className={props.className ? props.className : `friendListDiv linearBefore`}
         ref={refListFriend}
         style={{ display: "flex" }}
       >

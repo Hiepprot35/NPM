@@ -20,6 +20,7 @@ export default function MovieFilms() {
   const [CurrentMovie, setCurrentMovie] = useState(0);
   const [Movies, setMovies] = useState([]);
   const [Actors, setActors] = useState();
+  const [BackImg, setBackImg] = useState();
   const refleftMovie = useRef([]);
   const refSmallSlide = useRef();
   const data = async () => {
@@ -114,7 +115,7 @@ export default function MovieFilms() {
   // }
   const [MovieLink, setMovieLink] = useState([]);
   const [Report, setReport] = useState(false);
-  const watchMovieHandle = async (id) => {
+  const watchMovieHandle = async (id, background) => {
     console.log(id);
     const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/videos`, {
       method: "GET",
@@ -126,6 +127,7 @@ export default function MovieFilms() {
     });
     const data = await res.json();
     if (data.results) {
+      setBackImg(`url(https://image.tmdb.org/t/p/original/${background}})`);
       setMovieLink(data.results);
     } else {
       setReport("Xin lỗi. Hệ thông chưa cập nhập phim này");
@@ -135,9 +137,12 @@ export default function MovieFilms() {
   const RefReactPlayer = useRef(null);
   const RefScrollImage = useRef(null);
   const animeText = (i) => ({
-    animate: CurrentMovie === i ? { opacity: 1, transform: "translateY(0%)" } : { opacity: 0, transform: "translateY(-100%)" },
+    animate:
+      CurrentMovie === i
+        ? { opacity: 1, transform: "translateY(0%)" }
+        : { opacity: 0, transform: "translateY(-100%)" },
     inherit: { opacity: 0, transform: "translateY(-100%)" },
-    transition: { duration: 0.3, delay: 1 }
+    transition: { duration: 0.3, delay: 1 },
   });
   const closeWindowHandle = () => {
     setMovieLink([]);
@@ -190,7 +195,7 @@ export default function MovieFilms() {
                           <div>
                             <i>
                               <motion.p
-                               {...animeText(i)}
+                                {...animeText(i)}
                                 style={{
                                   fontSize: "1.4rem",
                                   fontWeight: "600",
@@ -206,9 +211,7 @@ export default function MovieFilms() {
                           ></div>
                         </div>
 
-                        <motion.h1
-                         {...animeText(i)}
-                        >
+                        <motion.h1 {...animeText(i)}>
                           {e.name || e.title}
                         </motion.h1>
                         <div className="linear"></div>
@@ -269,7 +272,9 @@ export default function MovieFilms() {
                       <div>
                         {!Report ? (
                           <Button
-                            onClick={() => watchMovieHandle(e.id)}
+                            onClick={() =>
+                              watchMovieHandle(e.id, e.backdrop_path)
+                            }
                             className="buttonFilmHandle buttonFilm"
                             icon={<FiEye />}
                           >
@@ -357,29 +362,36 @@ export default function MovieFilms() {
           </div>
         </div>
       </div>
-      {MovieLink && MovieLink.length > 0 && (
+      {MovieLink && BackImg && MovieLink.length > 0 && (
         <motion.div
           className="Videoplayer center"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.5 }}
         >
+          {" "}
           <Button
             className="CloseWindowVideo"
             onClick={closeWindowHandle}
             icon={<FiX></FiX>}
           ></Button>
-          <ReactPlayer
-            ref={RefReactPlayer}
-            controls
-            playing
-            url={MovieLink.map(
-              (e) => `https://www.youtube.com/watch?v=${e.key}`
-            )}
-            width="80%"
-            height="80%"
-            // fullscreen={true} // Kích hoạt chế độ toàn màn hình
-          />
+          <div className="ReactPlayer center">
+            <ReactPlayer
+              ref={RefReactPlayer}
+              controls
+              playing
+              url={MovieLink.map(
+                (e) => `https://www.youtube.com/watch?v=${e.key}`
+              )}
+              width="80%"
+              height="80%"
+              // fullscreen={true} // Kích hoạt chế độ toàn màn hình
+            />
+          </div>
+          <div
+            style={{ backgroundImage: `${BackImg}` }}
+            className="backgroundImage"
+          ></div>
         </motion.div>
       )}
     </div>

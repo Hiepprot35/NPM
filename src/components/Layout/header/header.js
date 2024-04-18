@@ -10,8 +10,9 @@ import { IsLoading } from "../../Loading";
 import BellTable from "../../Notification/bellTable";
 import { LogOut } from "../../logout";
 import "./header.css";
-import { FiMoon, FiSettings } from "react-icons/fi";
+import { FiMoon, FiSettings, FiSun } from "react-icons/fi";
 import SettingComponent from "../../setting/SettingComponent";
+import { Button, Popover } from "antd";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -26,7 +27,7 @@ function Header(props) {
   const [chooseHeader, setChooseHeader] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState();
-  const apiKey = "e9f7e8aac0662b6cfe1bb2d11bbb7042";
+  const apiKey = "5b629bb0f5f840b7965193241241704";
   // const bufferString = user2 ? Buffer.from(user2.img).toString('base64') : "11111";
   const cityInputRef = useRef(null); // Tạo một tham chiếu useRef
   const host = process.env.REACT_APP_DB_HOST;
@@ -67,16 +68,19 @@ function Header(props) {
   useEffect(() => {
     let isMounted = true;
     const tempApi = async (city) => {
-      const URL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+      const URL = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=HaNoi&aqi=no
+      `;
       try {
         const temRes = await fetch(URL);
         if (temRes.ok && isMounted) {
           const tem = await temRes.json();
           setWeather({
-            city: tem.name,
-            weather: tem.weather[0].main,
-            temp: tem.main.temp,
-            country: tem.sys.country,
+            city: tem.location.name,
+            weather: tem.current.condition.text,
+            temp: tem.current.temp_c,
+            icon: tem.current.condition.icon,
+
+            country: tem.location.country,
           });
         }
       } catch (error) {
@@ -117,7 +121,51 @@ function Header(props) {
   const ChangeColorTheme = (event) => {
     setPrimaryColor(!primaryColor);
   };
+  const content = () => {
+    return (
+      <div className="Menu_profile_header " ref={Menu_profile_header}>
+        <div className="avatar_link">
+          <div className="hover" style={{ borderRadius: "1rem" }}>
+            <a className="Menu_a_link_profile " href={`/profile/${user.MSSV}`}>
+              <div className="avatar_name">
+                <img
+                  src={user?.img ? `${user.img}` : `${auth.avtUrl}`}
+                  alt="User Avatar"
+                  className="avatarImage"
+                />
+                <span>
+                  <p className="hiddenEllipsis">
+                    {user?.Name || auth.username}
+                  </p>
+                </span>
+              </div>
+            </a>
+          </div>
 
+          <div className="ShowAll_User"></div>
+        </div>
+        <NavLink to={`/setting`}>
+          <SettingComponent
+            icon={<FiSettings></FiSettings>}
+            text={"Cài đặt thông tin"}
+          />
+        </NavLink>
+          {primaryColor?
+          <SettingComponent
+          icon={<FiSun></FiSun>}
+          text={"Light"}
+          onClick={ChangeColorTheme}
+          ></SettingComponent>:
+          <SettingComponent
+          icon={<FiMoon></FiMoon>}
+          text={"Dark"}
+          onClick={ChangeColorTheme}
+          ></SettingComponent>
+        }
+        <LogOut />
+      </div>
+    );
+  };
   useEffect(() => {
     localStorage.setItem("colorTheme", primaryColor);
     document.documentElement.style.setProperty(
@@ -155,13 +203,13 @@ function Header(props) {
                 </NavLink>
               </li>
               <li>
-                <div style={{ display: "flex" }}>
-                  <p className="City cityname"> {weather.city} </p>
-                  <p className="City citytemp"> {weather.temp}*C</p>
+                <div className="center TempText">
                   <img
-                    src={`/images/${weather.weather}.png`}
+                    style={{ width: "32px", height: "32px" }}
+                    src={`${weather.icon}`}
                     alt={weather.weather}
                   />
+                  <p className="City citytemp"> {weather.temp}°C</p>
                 </div>
               </li>
               {header_Student
@@ -187,10 +235,8 @@ function Header(props) {
                 ))}
             </ul>
           </div>
-
           <div className="header_home_user">
             <BellTable></BellTable>
-
             {isLoading ? (
               <IsLoading />
             ) : (
@@ -199,56 +245,18 @@ function Header(props) {
                   <>
                     <div className="">
                       {
-                        <img
-                          onClick={(e) => {
-                            Menu_profile_header.current.classList.toggle(
-                              "show_menu_profile"
-                            );
-                            e.target.classList.toggle("click_avatar");
-                          }}
-                          src={user?.img ? `${user.img}` : `${auth.avtUrl}`}
-                          alt="User Avatar"
-                        />
+                        <Popover
+                          color="none"
+                          trigger={"click"}
+                          content={content}
+                        >
+                          <img
+                            className="avatarImage"
+                            src={user?.img ? `${user.img}` : `${auth.avtUrl}`}
+                            alt="User Avatar"
+                          />
+                        </Popover>
                       }
-                    </div>
-                    <div
-                      className="Menu_profile_header "
-                      ref={Menu_profile_header}
-                    >
-                      <div className="avatar_link">
-                        <div className="hover" style={{ borderRadius: "1rem" }}>
-                          <a
-                            className="Menu_a_link_profile "
-                            href={`/profile/${user.MSSV}`}
-                          >
-                            <div className="avatar_name">
-                              <img
-                                src={
-                                  user?.img ? `${user.img}` : `${auth.avtUrl}`
-                                }
-                                alt="User Avatar"
-                              />
-                              <span>
-                                <p className="hiddenEllipsis">{user?.Name || auth.username}</p>
-                              </span>
-                            </div>
-                          </a>
-                        </div>
-
-                        <div className="ShowAll_User"></div>
-                      </div>
-                      <NavLink to={`/setting`}>
-                        <SettingComponent
-                          icon={<FiSettings></FiSettings>}
-                          text={"Cài đặt thông tin"}
-                        />
-                      </NavLink>
-                      <SettingComponent
-                        icon={<FiMoon></FiMoon>}
-                        text={"Màn hình và trợ sáng"}
-                        onClick={ChangeColorTheme}
-                      ></SettingComponent>
-                      <LogOut />
                     </div>
                   </>
                 )}

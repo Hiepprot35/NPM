@@ -3,11 +3,21 @@
   max-height: 100vh;
   width: 300px;
   position: relative;
+  padding-top: 7vh;
   /* overflow: scroll; */
   background-color: var(--themeColor);
   flex-direction: column;
   transition: 250ms  linear;
 }
+/* .linearBefore::before
+{
+  content: "";
+  position: absolute;
+  top: 7vh;
+  left: 0;
+  right: 0;
+  border: 1px solid black;
+} */
 .hidden{
   width: 0px;
   opacity: 0;

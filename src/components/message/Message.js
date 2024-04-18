@@ -58,7 +58,7 @@ export default memo(function Message({
                 {!own && student?.img && message.content !== null && (
                   <>
                     {(alone || end) && (
-                      <div className={`avatar_dot`}>
+                      <div className={`Avatar_status`}>
                         <img
                           className="avatarImage"
                           src={student.img ? `${student?.img}` : ""}

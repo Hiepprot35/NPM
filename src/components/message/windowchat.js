@@ -368,7 +368,7 @@ export default memo(function WindowChat(props) {
               {props.count && userInfor && (
                 <>
                   <div className="header_online">
-                    <div className="avatar_dot">
+                    <div className="Avatar_status">
                       <img
                         className="avatarImage"
                         alt="Avatar"

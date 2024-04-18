@@ -25,6 +25,9 @@ p,b,h1,h2,h3,span {
   height: 100vh;
   background-color: var(--themeColor);
 }
+.main_layout25 {
+  padding-top: 7vh;
+}
 table,
 th,
 td {
@@ -77,9 +80,11 @@ code {
 } */
 .dot {
   border: 1px solid white;
-  position: relative;
+  position: absolute;
   margin-left: -10px;
   height: 0.8rem;
+  
+  bottom: .3rem;
   width: 0.8rem;
   background-color: #bbb;
   border-radius: 50%;

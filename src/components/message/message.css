@@ -109,8 +109,12 @@
 {
     display: flex;
     position: relative;
+    /* margin-left: 1rem; */
     align-items: center;
     width: 50%;
+}
+.endMessage .Mess_seen_text  {
+    margin-left: 1rem;
 }
 .messageBottom {
    
@@ -150,6 +154,7 @@
     position: fixed;
     bottom: 20px;
     right: 9px;
+    z-index: 101;
     aspect-ratio: 1;
     border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.175);

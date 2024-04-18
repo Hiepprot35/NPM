@@ -53,7 +53,7 @@ export const header_Student=[
             
         },
         {
-            name: "Nhắn tin",
+            name: "Message",
             hash: "/message",
             role:[1,2],
             return:<FiMessageCircle></FiMessageCircle>

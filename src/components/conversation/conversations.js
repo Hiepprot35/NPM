@@ -23,7 +23,6 @@ export default memo(function Conversation({
   const data = [conversation.user1, conversation.user2];
   const setOnlineUser = data.find((m) => m !== auth.userID);
   const ListusersOnline = (Online && Online.map((item) => item.userId)) || [];
-
   useEffect(() => {
     if (socket) {
       socket.on("getUserSeen", (data) => {
@@ -139,7 +138,6 @@ export default memo(function Conversation({
                                     : `  ${NewestMess?.content}`}
                                 </span>
                               )}
-
                               <span>
                                 {timeUse.countTime(NewestMess.created_at)}
                               </span>

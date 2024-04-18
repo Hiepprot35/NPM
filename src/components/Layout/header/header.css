@@ -8,7 +8,7 @@
   display: flex;
   background-color: rgba(82, 81, 81, 0);
   z-index: 100;
-  border-bottom: 1px solid black;
+  
 }
 
 h3,
@@ -106,10 +106,19 @@ h5 {
 .circleButton:hover{
   background-color: rgba(242, 236, 236, 0.888);
 }
+.TempText{
+  background-color: var(--themeColor);
+  margin:1rem;
+  padding:0 1rem 0 1rem;
+  border: 3px solid gray;
+  border-radius: 1rem;
+}
 .Link,
 .City {
   font: 14px/28px D-DIN-Bold, Arial, Verdana, sans-serif;
-  color: white;
+  color: var(--textColor);
+  font-weight: 600;
+  text-transform: uppercase;
   transition: 300ms;
 }
 
@@ -145,10 +154,8 @@ ul {
 
 .Menu_profile_header {
   background-color: var(--themeColor);
-  display: none;
-  position: fixed;
-  top: 70px;
-  right: 60px;
+  display: flex;
+  
   flex-direction: column;
   border-radius: 1rem;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
