@@ -19,6 +19,7 @@ function Header(props) {
     city: "",
     weather: "clear",
     temp: "",
+    icon:"",
     country: "",
   });
   const Menu_profile_header = useRef();
@@ -68,7 +69,7 @@ function Header(props) {
   useEffect(() => {
     let isMounted = true;
     const tempApi = async (city) => {
-      const URL = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=HaNoi&aqi=no
+      const URL = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=HaNoi&aqi=no
       `;
       try {
         const temRes = await fetch(URL);

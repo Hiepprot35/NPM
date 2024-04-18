@@ -73,7 +73,7 @@ export default function SettingAccount() {
 
         <>
             <Header></Header>
-            <Home isHidden={true}></Home>
+            <MessageMainLayout isHidden={true} />
             <div className="column_form" style={{ width: "100%" }}>
                 <div className="main_layout">
                     <h2>
