@@ -89,12 +89,12 @@ export default function Home(props) {
                 <MovieFilms isLoading={isLoading} />
               </InViewComponent>
 
+              <InViewComponent href={"#tvseries"}>
+                <TVMovie></TVMovie>
+              </InViewComponent>
               <InViewComponent href={"#playlist"}>
                 <ListPlay></ListPlay>
               </InViewComponent>
-              {/* <InViewComponent href={"#tvseries"}>
-                <TVMovie></TVMovie>
-              </InViewComponent> */}
             </div>
           </>
         )}

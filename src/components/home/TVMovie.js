@@ -19,10 +19,15 @@ export default function TVMovie() {
   return (
     <>
       <div className="TVMovieClass" id="tvseries">
-
-        {
-            ListTV&&ListTV.map((e)=>{})
-        }
+      <div
+        className="vangohPics"
+        style={{
+          height: "200vh",
+          width: "100%",
+          backgroundImage: `url(/vg1.jpg)`,
+        }}
+      ></div>
+      
       </div>
     </>
   );

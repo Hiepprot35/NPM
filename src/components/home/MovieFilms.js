@@ -1,30 +1,18 @@
-import React, { useEffect, useRef, useState } from "react";
-import "./MovieFilms.css";
+import { Button, Popover, Rate } from "antd";
 import {
-  motion,
   AnimatePresence,
-  Variants,
-  delay,
-  easeOut,
+  motion,
   useScroll,
   useTransform,
 } from "framer-motion";
-import { Button, Popover, Rate } from "antd";
-import ReactPlayer from "react-player";
-import useAuth from "../../hook/useAuth";
-import {
-  FiArrowLeft,
-  FiArrowRight,
-  FiEye,
-  FiHeart,
-  FiInfo,
-  FiMoreHorizontal,
-  FiStar,
-  FiX,
-} from "react-icons/fi";
+import React, { useEffect, useRef, useState } from "react";
+import { FiHeart, FiInfo, FiMoreHorizontal } from "react-icons/fi";
+import { Span, Slide } from "./listPlay";
 import { NavLink } from "react-router-dom";
-import { getNameMonth } from "../../function/getTime";
 import { fetchApiRes } from "../../function/getApi";
+import { getNameMonth } from "../../function/getTime";
+import useAuth from "../../hook/useAuth";
+import "./MovieFilms.css";
 import MyReactPlayer from "./ReactPlayer";
 import WatchFilms from "./watchFilms";
 export default function MovieFilms(props) {
@@ -167,22 +155,6 @@ export default function MovieFilms(props) {
       },
     },
   });
-  const animeSpan = (i, e) => ({
-    initial: "hidden",
-    animate: i === CurrentMovie ? "visible" : "hidden",
-    transition: { duration: 0.2, delay: e / 10 },
-    variants: {
-      visible: {
-        x: 0,
-        opacity: 1,
-      },
-      hidden: {
-        // x: i < CurrentMovie ? "-100%" : "100%",
-        opacity: 0,
-        transition: {},
-      },
-    },
-  });
   const animeText = (i) => ({
     initial: "hidden",
     animate: i === CurrentMovie ? "visible" : "hidden",
@@ -202,12 +174,7 @@ export default function MovieFilms(props) {
       },
     },
   });
-  const RefReactPlayer = useRef(null);
   const RefScrollImage = useRef(null);
-
-  const closeWindowHandle = () => {
-    setMovieLink([]);
-  };
   const addListFilmHandle = async (e) => {
     const res = await fetchApiRes("/getInsertFilm", "POST", {
       UserID: auth.userID,
@@ -215,193 +182,206 @@ export default function MovieFilms(props) {
     });
     alert(res.message);
   };
-  const ref=useRef()
+  const ref = useRef();
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset:["start start","end end"]
+    offset: ["start center", "end center"],
   });
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 1, 0.3]);
+
   return (
     <>
-    <div
-      id="trending"
-      className="MovieContainer"
-      ref={ref}
-      style={{opacity:scrollYProgress }}
-    >
-      <div
-        className="MovieFilms"
-        ref={refMovieFilms}
+      <motion.div
+        id="trending"
+        className="MovieContainer"
+        ref={ref}
+        style={{ opacity: opacity }}
       >
-        <AnimatePresence>
-          {Movies &&
-            Movies.map((e, i) => (
-              <motion.div
-                key={i}
-                className={`MovieCard ${
-                  i === CurrentMovie ? "activeFilm" : ""
-                }`}
-                style={{
-                  backgroundAttachment: "fixed",
-                  backgroundImage: `url(https://image.tmdb.org/t/p/original/${e.backdrop_path})`,
-                }}
-              >
+        <div className="MovieFilms" ref={refMovieFilms}>
+          <AnimatePresence>
+            {Movies &&
+              Movies.map((e, i) => (
                 <motion.div
-                  {...animeSlideFilm(i)}
-                  className="leftMovieFilm center"
-                  style={{ overflow: "hidden" }}
-                  ref={(ref) => (refleftMovie.current[i] = ref)}
+                  key={i}
+                  className={`MovieCard ${
+                    i === CurrentMovie ? "activeFilm" : ""
+                  }`}
+                  style={{
+                    backgroundAttachment: "fixed",
+                    backgroundImage: `url(https://image.tmdb.org/t/p/original/${e.backdrop_path})`,
+                  }}
                 >
-                  <motion.div className="leftContentMovie">
-                    <div
-                      className="center"
-                      style={{ justifyContent: "space-between" }}
-                    >
-                      <div className="" style={{ width: "80%" }}>
-                        <div className="center" style={{ overflow: "hidden" }}>
-                          <motion.div {...animeText(i)}>
-                            <i>
-                              <motion.p
-                                style={{
-                                  fontSize: "1.4rem",
-                                  fontWeight: "600",
-                                }}
-                              >
-                                {getNameMonth(e.release_date)}
-                              </motion.p>
-                            </i>
-                          </motion.div>
-                          <div
-                            className="linear"
-                            style={{ width: "100%" }}
-                          ></div>
-                        </div>
-                        <div
-                          style={{
-                            position: "relative",
-                            margin: "2rem",
-                            overflow: "hidden",
-                          }}
-                        >
-                          <motion.h1 style={{ margin: 0 }} {...animeText(i)}>
-                            {e.name || e.title}
-                          </motion.h1>
-                        </div>
-                        <div className="linear"></div>
-                        <h2>Type: {e.media_type} </h2>
-                      </div>
+                  <motion.div
+                    {...animeSlideFilm(i)}
+                    className="leftMovieFilm center"
+                    style={{ overflow: "hidden" }}
+                    ref={(ref) => (refleftMovie.current[i] = ref)}
+                  >
+                    <motion.div className="leftContentMovie">
                       <div
                         className="center"
-                        style={{ flexDirection: "column" }}
+                        style={{ justifyContent: "space-between" }}
                       >
-                        <img
-                          style={{ width: "100px" }}
-                          src={`https://image.tmdb.org/t/p/original/${e.poster_path}`}
-                        ></img>
-                        <div className="scoreFilm">
-                          <p>Score: {e.vote_average}/10</p>
-                        </div>
-                        <div className="center ratingFilm">
-                          <Rate
-                            defaultValue={e.vote_average / 2}
-                            disabled
-                            allowHalf
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="overViewText">
-                      <div>
-                        <motion.p>
-                          {e.overview.split(" ").map((value, index) => (
-                            <motion.span {...animeSpan(i, index)} key={index}>
-                              {value}{" "}
-                            </motion.span>
-                          ))}
-                        </motion.p>
-                      </div>
-                    </div>
-                    <div
-                      style={{ margin: "1rem", justifyContent: "space-around" }}
-                      className="center filmHandle"
-                    >
-                      <div>
-                        <WatchFilms
-                          id={e.id}
-                          background={e.backdrop_path}
-                          setBackImg={setBackImg}
-                          setMovieLink={setMovieLink}
-                        ></WatchFilms>
-                      </div>
-                      <Popover
-                        trigger="click"
-                        className="popover"
-                        content={
-                          <div>
-                            <div className="center" style={{ margin: ".5rem" }}>
-                              <NavLink to={`movie/moviedetail/${e.id}`}>
-                                <FiInfo></FiInfo>
-                                <span>More detail</span>
-                              </NavLink>
-                            </div>
+                        <div className="" style={{ width: "80%" }}>
+                          <div
+                            className="center"
+                            style={{ overflow: "hidden" }}
+                          >
+                            <motion.div {...animeText(i)}>
+                              <i>
+                                <motion.p
+                                  style={{
+                                    fontSize: "1.4rem",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  {getNameMonth(e.release_date)}
+                                </motion.p>
+                              </i>
+                            </motion.div>
                             <div
                               className="linear"
                               style={{ width: "100%" }}
                             ></div>
-                            <div className="center" style={{ margin: ".5rem" }}>
-                              <Button
-                                onClick={() => addListFilmHandle(e.id)}
-                                type="text"
-                                icon={<FiHeart color="black"></FiHeart>}
-                              >
-                                <span>Add to favorite</span>
-                              </Button>
-                            </div>
                           </div>
-                        }
-                      >
-                        <Button
-                          className=" buttonFilmHandle buttonFilm2"
-                          icon={<FiMoreHorizontal></FiMoreHorizontal>}
+                          <div
+                            style={{
+                              position: "relative",
+                              margin: "2rem",
+                              overflow: "hidden",
+                            }}
+                          >
+                            <motion.h1 style={{ margin: 0 }} {...animeText(i)}>
+                              {e.name || e.title}
+                            </motion.h1>
+                          </div>
+                          <div className="linear"></div>
+                          <h2>Type: {e.media_type} </h2>
+                        </div>
+                        <div
+                          className="center"
+                          style={{ flexDirection: "column" }}
                         >
-                          <span>More information</span>
-                        </Button>
-                      </Popover>
-                    </div>{" "}
-                  </motion.div>
+                          <img
+                            style={{ width: "100px" }}
+                            src={`https://image.tmdb.org/t/p/original/${e.poster_path}`}
+                          ></img>
+                          <div className="scoreFilm">
+                            <p>Score: {e.vote_average}/10</p>
+                          </div>
+                          <div className="center ratingFilm">
+                            <Rate
+                              defaultValue={e.vote_average / 2}
+                              disabled
+                              allowHalf
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="overViewText">
+                        <div>
+                          <motion.p>
+                            {e.overview.split(" ").map((value, index) => (
+                              <Span e={value} i={index}>
+                                {" "}
+                              </Span>
+                            ))}
+                          </motion.p>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          margin: "1rem",
+                          justifyContent: "space-around",
+                        }}
+                        className="center filmHandle"
+                      >
+                        <div>
+                          <WatchFilms
+                            id={e.id}
+                            background={e.backdrop_path}
+                            setBackImg={setBackImg}
+                            setMovieLink={setMovieLink}
+                          ></WatchFilms>
+                        </div>
+                        <Popover
+                          trigger="click"
+                          className="popover"
+                          content={
+                            <div>
+                              <div
+                                className="center"
+                                style={{ margin: ".5rem" }}
+                              >
+                                <NavLink to={`movie/moviedetail/${e.id}`}>
+                                  <FiInfo></FiInfo>
+                                  <span>More detail</span>
+                                </NavLink>
+                              </div>
+                              <div
+                                className="linear"
+                                style={{ width: "100%" }}
+                              ></div>
+                              <div
+                                className="center"
+                                style={{ margin: ".5rem" }}
+                              >
+                                <Button
+                                  onClick={() => addListFilmHandle(e.id)}
+                                  type="text"
+                                  icon={<FiHeart color="black"></FiHeart>}
+                                >
+                                  <span>Add to favorite</span>
+                                </Button>
+                              </div>
+                            </div>
+                          }
+                        >
+                          <Button
+                            className=" buttonFilmHandle buttonFilm2"
+                            icon={<FiMoreHorizontal></FiMoreHorizontal>}
+                          >
+                            <span>More information</span>
+                          </Button>
+                        </Popover>
+                      </div>{" "}
+                    </motion.div>
 
-                  {/* </NavLink> */}
+                    {/* </NavLink> */}
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            ))}
-        </AnimatePresence>
-      </div>
-      <div
-        className="center"
-        style={{
-          width: "100%",
-          position: "absolute",
-          bottom: "0",
-        }}
-      >
-        <div className="slideScrollMovie" ref={RefScrollImage}>
-          <div className="MovieFilms" ref={refSmallSlide}>
-            {Movies &&
-              Movies.map((e, i) => (
-                <div
-                  key={i}
-                  className={`imageSlide ${
-                    CurrentMovie === i ? "ActiveImage" : "notActiveImage"
-                  }`}
-                >
-                  <img
-                    ref={(ref) => (miniImage.current[i] = ref)}
-                    src={`https://image.tmdb.org/t/p/original/${e.backdrop_path}`}
-                  ></img>
-                </div>
               ))}
+          </AnimatePresence>
+        </div>
+        <div
+          className="center"
+          style={{
+            width: "100%",
+            position: "absolute",
+            bottom: "0",
+          }}
+        >
+          <div className="slideScrollMovie" ref={RefScrollImage}>
+            <div className="MovieFilms" ref={refSmallSlide}>
+              {Movies &&
+                Movies.map((e, i) => (
+                  <div
+                    key={i}
+                    className={`imageSlide ${
+                      CurrentMovie === i ? "ActiveImage" : "notActiveImage"
+                    }`}
+                  >
+                    <img
+                      ref={(ref) => (miniImage.current[i] = ref)}
+                      src={`https://image.tmdb.org/t/p/original/${e.backdrop_path}`}
+                    ></img>
+                  </div>
+                ))}
+            </div>
           </div>
         </div>
-      </div>
+      </motion.div>
+      
       {MovieLink && BackImg && MovieLink.length > 0 && (
         <MyReactPlayer
           BackImg={BackImg}
@@ -409,11 +389,6 @@ export default function MovieFilms(props) {
           setMovieLink={setMovieLink}
         ></MyReactPlayer>
       )}
-    </div>
-    <div className="vangohPics" style={{height:"100vh",width:"100%",backgroundImage:`url(/vg1.jpg)`}}>
-
-    </div>
     </>
- 
-);
+  );
 }

@@ -45,7 +45,8 @@ span {
   flex-direction: row;
   transition: 500ms ease-out;
   width: var(--widthContentHome);
-  background-color: var(--themeColor);
+  background-color: black;
+  /* background-color: var(--themeColor); */
 }
 .linear {
 }
@@ -435,4 +436,6 @@ svg {
   height: 100vh;
   background-color: black;
   width: 100%;
+  transition: 500ms ease-out;
+
 }

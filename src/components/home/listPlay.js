@@ -18,7 +18,7 @@ import { timeFilm } from "../../function/getTime";
 function useParallax(value, dis) {
   return useTransform(value, [0, 1], [-dis, dis]);
 }
-function Slide({ children, className }) {
+export function Slide({ children, className }) {
   const ref = useRef();
   const { session, setSession } = useSession();
   const inView = useInView(ref);
@@ -54,7 +54,7 @@ function Slide({ children, className }) {
     </motion.div>
   );
 }
-function Span({ e, i }) {
+export function Span({ e, i }) {
   const ref = useRef();
   const inView = useInView(ref);
   const controls = useAnimation();
@@ -229,7 +229,7 @@ export default function ListPlay() {
         style={{ opacity: opacity, backgroundImage: `url(/vg2.jpg)` }}
       >
         <motion.div className="sunanimation" style={{ rotate: rotate }}>
-          <motion.h1 style={{ fontSize: "8rem" }}>⭐</motion.h1>
+          <motion.h1 style={{ fontSize: "8rem"}}>⭐</motion.h1>
         </motion.div>
 
         <div className="textList center" >
