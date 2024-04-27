@@ -153,11 +153,11 @@
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 2;
+  z-index: 101;
 }
 .hiddenBubble{
-  z-index: 101;
   position: fixed;
+  z-index: 101;
   right: 9px;
   bottom: 70px;
 }

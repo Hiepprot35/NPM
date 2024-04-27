@@ -1,9 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./MovieFilms.css";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  Variants,
+  delay,
+  easeOut,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { Button, Popover, Rate } from "antd";
 import ReactPlayer from "react-player";
-
+import useAuth from "../../hook/useAuth";
 import {
   FiArrowLeft,
   FiArrowRight,
@@ -16,10 +24,14 @@ import {
 } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
 import { getNameMonth } from "../../function/getTime";
-export default function MovieFilms() {
+import { fetchApiRes } from "../../function/getApi";
+import MyReactPlayer from "./ReactPlayer";
+import WatchFilms from "./watchFilms";
+export default function MovieFilms(props) {
   const [CurrentMovie, setCurrentMovie] = useState(0);
   const [Movies, setMovies] = useState([]);
   const [Actors, setActors] = useState();
+  const { auth } = useAuth();
   const [BackImg, setBackImg] = useState();
   const refleftMovie = useRef([]);
   const refSmallSlide = useRef();
@@ -133,33 +145,93 @@ export default function MovieFilms() {
       setReport("Xin lỗi. Hệ thông chưa cập nhập phim này");
     }
   };
-
+  const animeSlideFilm = (i) => ({
+    initial: "hidden",
+    animate: i === CurrentMovie ? "visible" : "hidden",
+    // transition: { duration: 0.5, delay: 0 },
+    variants: {
+      visible: {
+        x: 0,
+        opacity: 1,
+        transition: {
+          duration: 0.5,
+          delay: 0.5,
+        },
+      },
+      hidden: {
+        x: i !== CurrentMovie && "-100%",
+        opacity: 0,
+        transition: {
+          x: { stiffness: 1000 },
+        },
+      },
+    },
+  });
+  const animeSpan = (i, e) => ({
+    initial: "hidden",
+    animate: i === CurrentMovie ? "visible" : "hidden",
+    transition: { duration: 0.2, delay: e / 10 },
+    variants: {
+      visible: {
+        x: 0,
+        opacity: 1,
+      },
+      hidden: {
+        // x: i < CurrentMovie ? "-100%" : "100%",
+        opacity: 0,
+        transition: {},
+      },
+    },
+  });
+  const animeText = (i) => ({
+    initial: "hidden",
+    animate: i === CurrentMovie ? "visible" : "hidden",
+    transition: { duration: 0.5, delay: 1 },
+    variants: {
+      visible: {
+        y: 0,
+        opacity: 1,
+      },
+      hidden: {
+        y: i !== CurrentMovie && 75,
+        // x: i < CurrentMovie ? "-100%" : "100%",
+        opacity: 0,
+        transition: {
+          x: { stiffness: 1000 },
+        },
+      },
+    },
+  });
   const RefReactPlayer = useRef(null);
   const RefScrollImage = useRef(null);
-  const animeText = (i) => ({
-    animate:
-      CurrentMovie === i
-        ? { opacity: 1, transform: "translateY(0%)" }
-        : { opacity: 0, transform: "translateY(-100%)" },
-    inherit: { opacity: 0, transform: "translateY(-100%)" },
-    transition: { duration: 0.3, delay: 1 },
-  });
+
   const closeWindowHandle = () => {
     setMovieLink([]);
   };
+  const addListFilmHandle = async (e) => {
+    const res = await fetchApiRes("/getInsertFilm", "POST", {
+      UserID: auth.userID,
+      filmID: e,
+    });
+    alert(res.message);
+  };
+  const ref=useRef()
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset:["start start","end end"]
+  });
   return (
+    <>
     <div
+      id="trending"
       className="MovieContainer"
-      onWheel={(e) => {
-        if (e.deltaY > 0) {
-          clickNextMovie(); // Cuộn xuống
-        } else {
-          clickBackMovie(); // Cuộn lên
-        }
-      }}
-      style={{ width: "100%", height: "100%" }}
+      ref={ref}
+      style={{opacity:scrollYProgress }}
     >
-      <div className="MovieFilms" ref={refMovieFilms}>
+      <div
+        className="MovieFilms"
+        ref={refMovieFilms}
+      >
         <AnimatePresence>
           {Movies &&
             Movies.map((e, i) => (
@@ -169,33 +241,26 @@ export default function MovieFilms() {
                   i === CurrentMovie ? "activeFilm" : ""
                 }`}
                 style={{
+                  backgroundAttachment: "fixed",
                   backgroundImage: `url(https://image.tmdb.org/t/p/original/${e.backdrop_path})`,
                 }}
               >
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                  animate={{
-                    opacity: CurrentMovie === i ? 1 : 0,
-                    transform: `translateX(${
-                      CurrentMovie === i ? "0%" : "-100%"
-                    })`,
-                  }}
+                  {...animeSlideFilm(i)}
                   className="leftMovieFilm center"
+                  style={{ overflow: "hidden" }}
                   ref={(ref) => (refleftMovie.current[i] = ref)}
                 >
-                  {/* <NavLink to={`/movie/moviedetail/${e.id}`}> */}
-                  <div className="leftContentMovie">
+                  <motion.div className="leftContentMovie">
                     <div
                       className="center"
                       style={{ justifyContent: "space-between" }}
                     >
                       <div className="" style={{ width: "80%" }}>
-                        <div className="center">
-                          <div>
+                        <div className="center" style={{ overflow: "hidden" }}>
+                          <motion.div {...animeText(i)}>
                             <i>
                               <motion.p
-                                {...animeText(i)}
                                 style={{
                                   fontSize: "1.4rem",
                                   fontWeight: "600",
@@ -204,16 +269,23 @@ export default function MovieFilms() {
                                 {getNameMonth(e.release_date)}
                               </motion.p>
                             </i>
-                          </div>
+                          </motion.div>
                           <div
                             className="linear"
                             style={{ width: "100%" }}
                           ></div>
                         </div>
-
-                        <motion.h1 {...animeText(i)}>
-                          {e.name || e.title}
-                        </motion.h1>
+                        <div
+                          style={{
+                            position: "relative",
+                            margin: "2rem",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <motion.h1 style={{ margin: 0 }} {...animeText(i)}>
+                            {e.name || e.title}
+                          </motion.h1>
+                        </div>
                         <div className="linear"></div>
                         <h2>Type: {e.media_type} </h2>
                       </div>
@@ -237,83 +309,51 @@ export default function MovieFilms() {
                         </div>
                       </div>
                     </div>
-                    <motion.div
-                      className="overViewText"
-                      animate={
-                        CurrentMovie === i && {
-                          opacity: 1,
-                          transform: "translateX(0%)",
-                        }
-                      }
-                      inherit={{ opacity: 0, transform: "translateX(-100%)" }}
-                      transition={{ duration: 1, delay: 1 }}
-                    >
+                    <div className="overViewText">
                       <div>
-                        <motion.p
-                          animate={
-                            CurrentMovie === i
-                              ? { opacity: 1, transform: "translateY(0%)" }
-                              : { opacity: 0, transform: "translateY(100%)" }
-                          }
-                          inherit={{
-                            opacity: 0,
-                            transform: "translateY(-100%)",
-                          }}
-                          transition={{ duration: 0.3, delay: 1 }}
-                        >
-                          {e.overview}
+                        <motion.p>
+                          {e.overview.split(" ").map((value, index) => (
+                            <motion.span {...animeSpan(i, index)} key={index}>
+                              {value}{" "}
+                            </motion.span>
+                          ))}
                         </motion.p>
                       </div>
-                    </motion.div>
+                    </div>
                     <div
                       style={{ margin: "1rem", justifyContent: "space-around" }}
                       className="center filmHandle"
                     >
                       <div>
-                        {!Report ? (
-                          <Button
-                            onClick={() =>
-                              watchMovieHandle(e.id, e.backdrop_path)
-                            }
-                            className="buttonFilmHandle buttonFilm"
-                            icon={<FiEye />}
-                          >
-                            <span>Watch</span>
-                          </Button>
-                        ) : (
-                          <Popover content={Report}>
-                            <Button
-                              // onClick={() => watchMovieHandle(e.id)}
-                              className="buttonFilmHandle buttonFilm"
-                              icon={<FiEye />}
-                            >
-                              <span>Watch</span>
-                            </Button>
-                          </Popover>
-                        )}
+                        <WatchFilms
+                          id={e.id}
+                          background={e.backdrop_path}
+                          setBackImg={setBackImg}
+                          setMovieLink={setMovieLink}
+                        ></WatchFilms>
                       </div>
                       <Popover
                         trigger="click"
+                        className="popover"
                         content={
                           <div>
                             <div className="center" style={{ margin: ".5rem" }}>
                               <NavLink to={`movie/moviedetail/${e.id}`}>
                                 <FiInfo></FiInfo>
-                                More detail
+                                <span>More detail</span>
                               </NavLink>
                             </div>
                             <div
                               className="linear"
                               style={{ width: "100%" }}
                             ></div>
-                            <div className="" style={{ margin: ".5rem" }}>
+                            <div className="center" style={{ margin: ".5rem" }}>
                               <Button
+                                onClick={() => addListFilmHandle(e.id)}
                                 type="text"
                                 icon={<FiHeart color="black"></FiHeart>}
                               >
-                                <span style={{ color: "black" }}>
-                                  Add to favorite
-                                </span>
+                                <span>Add to favorite</span>
                               </Button>
                             </div>
                           </div>
@@ -327,7 +367,7 @@ export default function MovieFilms() {
                         </Button>
                       </Popover>
                     </div>{" "}
-                  </div>
+                  </motion.div>
 
                   {/* </NavLink> */}
                 </motion.div>
@@ -353,47 +393,27 @@ export default function MovieFilms() {
                     CurrentMovie === i ? "ActiveImage" : "notActiveImage"
                   }`}
                 >
-                  <motion.img
+                  <img
                     ref={(ref) => (miniImage.current[i] = ref)}
                     src={`https://image.tmdb.org/t/p/original/${e.backdrop_path}`}
-                  ></motion.img>
+                  ></img>
                 </div>
               ))}
           </div>
         </div>
       </div>
       {MovieLink && BackImg && MovieLink.length > 0 && (
-        <motion.div
-          className="Videoplayer center"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          {" "}
-          <Button
-            className="CloseWindowVideo"
-            onClick={closeWindowHandle}
-            icon={<FiX></FiX>}
-          ></Button>
-          <div className="ReactPlayer center">
-            <ReactPlayer
-              ref={RefReactPlayer}
-              controls
-              playing
-              url={MovieLink.map(
-                (e) => `https://www.youtube.com/watch?v=${e.key}`
-              )}
-              width="80%"
-              height="80%"
-              // fullscreen={true} // Kích hoạt chế độ toàn màn hình
-            />
-          </div>
-          <div
-            style={{ backgroundImage: `${BackImg}` }}
-            className="backgroundImage"
-          ></div>
-        </motion.div>
+        <MyReactPlayer
+          BackImg={BackImg}
+          MovieLink={MovieLink}
+          setMovieLink={setMovieLink}
+        ></MyReactPlayer>
       )}
     </div>
-  );
+    <div className="vangohPics" style={{height:"100vh",width:"100%",backgroundImage:`url(/vg1.jpg)`}}>
+
+    </div>
+    </>
+ 
+);
 }

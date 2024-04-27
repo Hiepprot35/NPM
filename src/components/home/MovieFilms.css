@@ -1,30 +1,77 @@
 .MovieCard {
   background-position: center;
   background-size: cover;
+  background-repeat: no-repeat;
+
+  min-height: 500px;
   width: 100%;
   transition: 500ms ease-out;
-  height: 100%;
-  opacity: 0;
+  height: 100vh;
+  visibility: hidden;
+  /* opacity: 0; */
+  -webkit-mask-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0, rgb(233, 18, 18)),
+    color-stop(0.35, rgba(0, 0, 0, 1)),
+    color-stop(0.5, rgba(0, 0, 0, 1)),
+    color-stop(0.65, rgba(0, 0, 0, 1)),
+    color-stop(0.85, rgba(0, 0, 0, 0.6)),
+    color-stop(1, rgba(0, 0, 0, 0))
+  );
 }
 .MovieFilms {
   display: flex;
   height: 100%;
   transition: 500ms ease-out;
 }
-.MovieContainer {
+.vangohPics,
+.userMovie {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   overflow: hidden;
   position: relative;
 }
+.sunanimation h1 {
+  margin: 0;
+}
+.sunanimation {
+  display: flex;
+  position: absolute;
+  height: 100%;
+}
+.MovieContainer {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  overflow: hidden;
+  position: relative;
+  -webkit-mask-image: -webkit-gradient(
+    linear,
+    right bottom,
+    right top,
+    color-stop(0, rgba(0, 0, 0, 1)),
+    color-stop(0.35, rgba(0, 0, 0, 1)),
+    color-stop(0.5, rgba(0, 0, 0, 1)),
+    color-stop(0.65, rgba(0, 0, 0, 1)),
+    color-stop(0.85, rgba(0, 0, 0, 0.6)),
+    color-stop(1, rgba(0, 0, 0, 0))
+  );
+}
 .leftMovieFilm {
   width: 50%;
-
   height: 100%;
-  background-color: rgba(34, 33, 33, 0.564);
+  background-color: var(--backgroundTextColor);
 }
 
 .activeFilm {
-  /* animation:cc 1s 2s ; */
-  opacity: 1;
+  background-attachment: fixed;
+
+  visibility: visible;
 }
 
 @keyframes cc {
@@ -83,7 +130,7 @@
 
 .buttonFilm2:hover svg,
 .buttonFilm:hover svg {
-  color: black;
+  stroke: black !important;
 }
 .buttonFilmHandle {
   font-weight: 600;
@@ -116,7 +163,13 @@
   background-repeat: no-repeat;
   background-size: cover;
 }
-.ReactPlayer{
+.ant-popover-inner,
+.ant-popover-arrow::before,
+.ant-popover-arrow::after {
+  background-color: var(--themeColor) !important;
+}
+
+.ReactPlayer {
   position: absolute;
   z-index: 99;
   width: 100%;

@@ -1,0 +1,19 @@
+.leftHome{
+    position: fixed;
+    right: 0;
+    height: 100vh;
+    opacity: var(--opacityShow);
+    background-color: var(--themeColor);
+    width: calc(100vw - var(--widthContentHome));
+    /* padding: 0 1rem 0 1rem; */
+    padding-left: 1rem;
+    padding-right: 1rem;
+    z-index: 99;
+}
+.newFeedList{
+    transition: 500ms ease;
+    border-radius: 1rem;
+}
+.activeSection{
+    background-color: rgb(170, 42, 42);
+}

@@ -1,21 +1,34 @@
+import { Player } from "@lottiefiles/react-lottie-player";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { FiMessageCircle, FiUserPlus } from "react-icons/fi";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useSocket } from "../../context/socketContext";
-import { fetchApiRes } from "../../function/getApi";
-import useAuth from "../../hook/useAuth";
-import UseToken from "../../hook/useToken";
-import Header from "../Layout/header/header";
-import { IsLoading } from "../Loading";
-import { getConversation } from "../conversation/getConversation";
-import MessageMainLayout from "../message/messageMainLayout";
-import FriendList from "./friend";
 import { useData } from "../../context/dataContext";
+import UseToken from "../../hook/useToken";
+import Layout from "../Layout/layout";
+import { IsLoading } from "../Loading";
 import MovieFilms from "./MovieFilms";
+import TVMovie from "./TVMovie";
+import ListPlay from "./listPlay";
+import { useSession } from "../../context/sectionProvider";
+function useParallax(value, distance) {
+  return useTransform(value, [0, 1], [-distance, distance]);
+}
+function InViewComponent({ href, children }) {
+  const ref = useRef();
+  const { session, setSession } = useSession();
+  const inView = useInView(ref);
+
+  useEffect(() => {
+    if (inView) {
+      console.log(href, "gre");
+      setSession(href);
+    }
+  }, [inView, href]);
+
+  return <motion.div ref={ref}>{children}</motion.div>;
+}
 export default function Home(props) {
-  const { listWindow, setListWindow, listHiddenBubble, setListHiddenBubble } =
-    useData();
-  const { AccessToken, setAccessToken } = UseToken();
+  const { listWindow, listHiddenBubble } = useData();
+  const { AccessToken } = UseToken();
   useEffect(() => {
     if (listWindow) {
       localStorage.setItem("counter", JSON.stringify(listWindow));
@@ -53,46 +66,41 @@ export default function Home(props) {
 
   document.title = "Home";
 
+  useEffect(() => {}, []);
+  const contentHomeRef = useRef(null);
+
+  const { scrollYProgress } = useScroll({
+    offset: ["start start", "end end"],
+  });
+
   return (
     <>
-      <Header hash={"/home"} />
-      <div className={props.isHidden ? "" : "container_main height_vh100"}>
-        {isLoading ? (
-          <IsLoading />
-        ) : (
-          !props.isHidden && <FriendList listUsers={posts} />
-        )}
-        {/* <div className="centerHome">
-          <div className="statusPost">
-            <div className="center">
-              <img
-                alt="tag"
-                src={`${auth?.avtUrl}`}
-                style={{ borderRadius: "50%", width: "70px" }}
-              ></img>{" "}
-              <span
-                style={{
-                  width: "90%",
-                  margin: "1rem",
-                  backgroundColor: "gray",
-                  padding: "1rem",
-                  borderRadius: "1rem",
-                }}
-              >
-                mày nghĩ cc gì vậy ?
-              </span>
+      <motion.div
+        style={{
+          scaleX: scrollYProgress,
+        }}
+        className="progress-bar"
+      ></motion.div>
+      <Layout link={"/home"}>
+        {!props.isHidden && (
+          <>
+            <div className="contentHome" ref={contentHomeRef}>
+              <InViewComponent href={"#trending"}>
+                <MovieFilms isLoading={isLoading} />
+              </InViewComponent>
+
+              <InViewComponent href={"#playlist"}>
+                <ListPlay></ListPlay>
+              </InViewComponent>
+              {/* <InViewComponent href={"#tvseries"}>
+                <TVMovie></TVMovie>
+              </InViewComponent> */}
             </div>
-          </div>
-          <div className="bodyPost">
-            <div className="imgPost"></div>
-            <div className="textPost"></div>
-          </div>
-        </div> */}
-        <MovieFilms></MovieFilms>
-        <MessageMainLayout isHidden={props.isHidden} />
+          </>
+        )}
 
         {/* <ChatApp user={auth} room={room} /> */}
-      </div>
+      </Layout>
     </>
   );
 }

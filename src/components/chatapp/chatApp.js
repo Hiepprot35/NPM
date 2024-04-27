@@ -8,6 +8,7 @@ import Conversation from "../conversation/conversations";
 import { getConversation } from "../conversation/getConversation";
 import WindowChat from "../message/windowchat";
 import "./chatApp.css";
+import Layout from "../Layout/layout";
 const ChatApp = ({ messageId }) => {
   document.title = "Message";
   const messageScroll = useRef(null);
@@ -155,9 +156,8 @@ const ChatApp = ({ messageId }) => {
 
   return (
     <>
-      <Header hash={"/message"}></Header>
       {
-        <>
+        <Layout link={'/message'}>
           <div className="Container_ChatApp">
             <div className="Narbar_ChatApp">
               <h1>Đoạn chat</h1>
@@ -255,7 +255,7 @@ const ChatApp = ({ messageId }) => {
               )}
             </div>
           </div>
-        </>
+        </Layout>
       }
     </>
   );

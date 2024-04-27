@@ -1,0 +1,105 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Mukta:wght@200;300;400;500;600;700;800&display=swap');
+
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800,300italic,400italic,600italic,700italic,800italic);
+$heading-font-family: "Montserrat", sans-serif;
+$paragraph-font-family: "Open Sans", sans-serif;
+$font-Dieu:"Dancing Script", cursive;
+.userMovie {
+  display: flex;
+  overflow: hidden;
+
+  height: 200vh;
+  width: var(--widthContentHome);
+  justify-content: flex-end;
+}
+.abcdef {
+  display: flex;
+  background-color: rgba(121, 115, 115, 0.401);
+  width: 50%;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.circleScroll {
+  width: 20px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: rgb(208, 38, 38);
+  position: absolute;
+  transition: 250ms ease;
+  left: 0;
+  // bottom: -20px;
+}
+.MyScrollBar {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 30%;
+  margin:1rem;
+  z-index: 10001;
+  height: 5px;
+  transform-origin: 0%;
+  background-color: rgb(255, 255, 255);
+}
+.listMovies {
+  display: flex;
+}
+.textList {
+  width: 50%;
+}
+.CardMovie {
+  border-radius: 1rem;
+  margin: 1px;
+  width: calc((var(--widthContentHome)) / 8);
+  background-color: var(--themeColor);
+  height: 60vh;
+}
+.CardMovie h1 {
+  font-style: $heading-font-family;
+}
+.CardMovie article {
+  width: 100%;
+  height: 100%;
+  background-color: var(--themeColor);
+}
+.detailMovieCard p {
+  color: rgb(149, 141, 141);
+  font-weight: 600;
+}
+#playlist .detailMovieCard ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+.textList{
+  padding: 5rem;
+  font-family: $font-Dieu;
+}
+.textList p{
+  padding: 4rem;
+  border-radius: 1rem;
+  background-color: rgba(58, 56, 56, 0.718);
+}
+.detailMovieCard {
+  font-family: $paragraph-font-family;
+  font-size: 0.8rem;
+  display: flex;
+  height: 10vh;
+  width: 100%;
+}
+.cardBackGround:hover {
+  scale: (1.1);
+}
+.cardBackGround {
+  transform: 500ms linear;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100%;
+  height: 30vh;
+  object-fit: contain;
+}

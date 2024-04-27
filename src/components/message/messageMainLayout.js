@@ -96,21 +96,8 @@ export default function MessageMainLayout(props) {
             />
           ))}
       </div>
-      <div className="newMessage center">
-        <span>
-          <FiEdit></FiEdit>
-        </span>
-      </div>
-      {listHiddenBubble &&
-        listHiddenBubble.map((e, i) => (
-            <WindowChat
-              key={i}
-              count={e}
-              isHidden={true}
-              index={i}
-              ListusersOnline={onlineUser}
-            />
-        ))}
+    
+
     </div>
   );
 }

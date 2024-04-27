@@ -20,6 +20,8 @@ import UseRfLocal from "./hook/useRFLocal";
 import { useRefresh } from "./hook/useRefresh";
 import UseToken from "./hook/useToken";
 import DetailMovie from "./components/home/DetailMovie";
+import FriendList from "./components/home/friend";
+import Layout from "./components/Layout/layout";
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   // const socket=useSocket();
@@ -80,6 +82,8 @@ function App() {
             <Route path="/movie/moviedetail/:id" element={<MovieFilm/>}/>
             {/* <Route path="/" element={<Dashboard />} /> */}
             <Route path="/" element={<Home />} />
+            <Route path="/friends" element={<FriendList />} />
+
             <Route
               path="/message"
               element={<ChatApp />}

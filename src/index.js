@@ -10,6 +10,7 @@ import { ActiveSectionContextProvider } from "./context/ActiveSectionContextProv
 import { SocketProvider } from "./context/socketContext";
 import { WindowChatProvider } from "./context/windowChatContext";
 import { DataProvider } from "./context/dataContext";
+import { SessionProvider } from "./context/sectionProvider";
 
 document.title = "Login";
 
@@ -17,13 +18,15 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <ActiveSectionContextProvider>
     <AuthProvider>
-      <DataProvider>
-        <SocketProvider>
-          <BrowserRouter>
-            <App></App>
-          </BrowserRouter>
-        </SocketProvider>
-      </DataProvider>
+      <SessionProvider>
+        <DataProvider>
+          <SocketProvider>
+            <BrowserRouter>
+              <App></App>
+            </BrowserRouter>
+          </SocketProvider>
+        </DataProvider>
+      </SessionProvider>
     </AuthProvider>
   </ActiveSectionContextProvider>
 );

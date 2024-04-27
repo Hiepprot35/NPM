@@ -10,16 +10,16 @@ import { IsLoading } from "../../Loading";
 import BellTable from "../../Notification/bellTable";
 import { LogOut } from "../../logout";
 import "./header.css";
-import { FiMoon, FiSettings, FiSun } from "react-icons/fi";
+import { FiMoon, FiSearch, FiSettings, FiSun } from "react-icons/fi";
 import SettingComponent from "../../setting/SettingComponent";
-import { Button, Popover } from "antd";
+import { Button, Input, Popover } from "antd";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
     city: "",
     weather: "clear",
     temp: "",
-    icon:"",
+    icon: "",
     country: "",
   });
   const Menu_profile_header = useRef();
@@ -102,6 +102,7 @@ function Header(props) {
 
           const student = await studentApi.json();
           if (student) {
+            console.log("student",student)
             setUser(student);
             // setAuth({ ...auth });
           }
@@ -121,6 +122,12 @@ function Header(props) {
 
   const ChangeColorTheme = (event) => {
     setPrimaryColor(!primaryColor);
+  };
+  const refSearchButton = useRef();
+  const searchHnadleShow = () => {
+    if (refSearchButton.current) {
+      refSearchButton.current.classList.toggle("activeSearch");
+    }
   };
   const content = () => {
     return (
@@ -151,18 +158,19 @@ function Header(props) {
             text={"Cài đặt thông tin"}
           />
         </NavLink>
-          {primaryColor?
+        {primaryColor ? (
           <SettingComponent
-          icon={<FiSun></FiSun>}
-          text={"Light"}
-          onClick={ChangeColorTheme}
-          ></SettingComponent>:
-          <SettingComponent
-          icon={<FiMoon></FiMoon>}
-          text={"Dark"}
-          onClick={ChangeColorTheme}
+            icon={<FiSun></FiSun>}
+            text={"Light"}
+            onClick={ChangeColorTheme}
           ></SettingComponent>
-        }
+        ) : (
+          <SettingComponent
+            icon={<FiMoon></FiMoon>}
+            text={"Dark"}
+            onClick={ChangeColorTheme}
+          ></SettingComponent>
+        )}
         <LogOut />
       </div>
     );
@@ -184,7 +192,7 @@ function Header(props) {
   }, []);
   return (
     <>
-      <div className="header_user">
+      <div className="header_user center">
         <div className="header_container">
           <div>
             <ul className="list">
@@ -230,13 +238,21 @@ function Header(props) {
                       className="Link"
                       onClick={() => setChooseHeader(element.name)}
                     >
-                      {element.return}
+                      {element.name}
                     </NavLink>
                   </li>
                 ))}
             </ul>
           </div>
           <div className="header_home_user">
+            <div className=" searchInput" ref={refSearchButton}>
+          
+                {/* <Input size="large"></Input> */}
+                <input placeholder="Search everything"></input>
+                <div onClick={searchHnadleShow} className="circleButton">
+                <FiSearch></FiSearch>
+              </div>
+            </div>
             <BellTable></BellTable>
             {isLoading ? (
               <IsLoading />

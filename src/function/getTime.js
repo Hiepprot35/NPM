@@ -19,6 +19,12 @@ export function getTime(data) {
   }
   return `${currentHours}:${formatMinute}`;
 }
+export function timeFilm(data)
+{
+  const hours=Math.floor(data/60)
+  const minutes=data-hours*60;
+  return `${hours}h ${minutes}m`
+}
 export function getDate(data) {
   console.log("Nhay vao", data);
   const timeSent = new Date(data);

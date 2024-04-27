@@ -9,23 +9,48 @@ body {
   font-size: 15px;
 }
 html {
+    overflow-x: hidden;
   --themeColor: white;
   --textColor: black;
+  --widthContentHome: 85vw;
+  --opacityShow: 1;
   --icon_size: 1.5rem;
-
+  --backgroundTextColor: rgba(34, 33, 33, 0.564);
 }
-p,b,h1,h2,h3,span {
+p,
+b,
+h1,
+h2,
+h3,
+span {
   color: var(--textColor);
 }
+.hiddenNvaBar svg {
+  fill: var(--textColor);
+}
+.progress-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  right: 0;
+  height: 5px;
+  background: red;
+  transform-origin: 0%;
+}
+
 .container_main {
-  border: 1px solid;
   display: flex;
   justify-content: space-between;
   flex-direction: row;
-  height: 100vh;
+  transition: 500ms ease-out;
+  width: var(--widthContentHome);
   background-color: var(--themeColor);
 }
-.main_layout25 {
+.linear {
+}
+.leftHome {
+  transition: 500ms ease-out;
   padding-top: 7vh;
 }
 table,
@@ -83,8 +108,8 @@ code {
   position: absolute;
   margin-left: -10px;
   height: 0.8rem;
-  
-  bottom: .3rem;
+
+  bottom: 0.3rem;
   width: 0.8rem;
   background-color: #bbb;
   border-radius: 50%;
@@ -97,7 +122,7 @@ code {
 
 .Loading_container {
   position: absolute;
-  top: 0;
+  top: 7vh;
   z-index: 999;
   left: 0;
   width: 100%;
@@ -128,8 +153,6 @@ div {
     rotate: 360deg;
   }
 }
-
-
 
 table {
   border: 1px solid #ccc;
@@ -256,8 +279,6 @@ article img {
   transition: transform 0.4s ease-in-out;
 }
 
-
-
 article span {
   display: inline-flex;
   align-items: center;
@@ -325,13 +346,16 @@ Generic layout (demo looks)
 .settingComopent {
   justify-content: flex-start !important;
   margin: 1rem;
-  padding: .5rem;
-  border-radius: .3rem;
+  padding: 0.5rem;
+  border-radius: 0.3rem;
   transition: 250ms linear;
 }
-.linear{
+.weightFont {
+  font-weight: 600;
+}
+.linear {
   width: 80%;
-  border: 1px solid rgba(202, 192, 192, 0.714)
+  border: 1px solid rgba(202, 192, 192, 0.714);
 }
 .hover:hover {
   background-color: rgba(202, 198, 198, 0.703);
@@ -366,4 +390,49 @@ Generic layout (demo looks)
 }
 .button:hover {
   background-color: rgba(200, 129, 23, 0.685);
+}
+.newFeedList {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+}
+.newFeedList:hover {
+  background-color: gray;
+}
+.contentHome {
+  scroll-padding: 1rem;
+  scrollbar-width: 10px;
+  width: 100%;
+  height: 100%;
+}
+::-webkit-scrollbar {
+  width: 10px; 
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ff0000; 
+  border-radius: 5px;
+}
+svg {
+  stroke: var(--textColor);
+}
+.hiddenNvaBar {
+  position: fixed;
+  right: 15vw;
+  margin: 0;
+  top: 7vh;
+  z-index: 99;
+  transition: 500ms linear;
+}
+.hiddenSideBar {
+  right: 2vw !important;
+}
+.userMovie {
+  height: 100vh;
+  background-color: black;
+  width: 100%;
 }

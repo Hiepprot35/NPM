@@ -515,7 +515,7 @@ export default memo(function WindowChat(props) {
                     </div>
                   </>
                 ) : (
-                  <ul>
+                  <ul style={{display:"flex",padding:"0",margin:"0"}}>
                     <li className="features_hover stokeTheme">
                       <input
                         onChange={(e) => {
@@ -610,7 +610,7 @@ export default memo(function WindowChat(props) {
               onEmojiClick={(e, i) => {
                 onClickEmoji(e);
               }}
-              emojiStyle="facebook"
+              emojiStyle="iphone"
             />
           </div>
         </div>

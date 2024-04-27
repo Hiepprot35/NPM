@@ -26,6 +26,7 @@ export const useRefresh = () => {
       });
 
       if (response.status !== 200) {
+        console.log("ok")
         localStorage.removeItem("AccessToken");
         localStorage.removeItem("RefreshToken");
         navigate("/");
