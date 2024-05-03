@@ -60,35 +60,36 @@ h5 {
 
 .searchInput input {
   border: none;
-  border-radius: 20px;
-  color: #333;
-  font-size: 16px;
+  border-radius: 1rem;
+  color: hsl(0, 0%, 20%);
+  font-size: 1rem;
   font-weight: 400;
-  height: 100%;
+  opacity: 0;
   outline: none;
-  padding: 0 15px;
+  padding: 0 1rem;
   position: relative;
-  transition: all .5s ease-in-out;
+  transition: all 0.5s ease-in-out;
   width: 100%;
 }
-.activeSearch{
-  max-width: 350px !important;
-}
-.activeSearch .circleButton{
-  border: none !important;
-}
-.activeSearch input{
-  padding-left: 40px !important;
+.activeSearch {
+  max-width: 20rem !important;
 }
 .activeSearch .circleButton {
-  
+  border: none !important;
+}
+.activeSearch input {
+  opacity: 1;
+  background-color: var(--themeColor);
+  color: var(--textColor);
+  padding-left: 2.3rem !important;
+}
+.activeSearch .circleButton {
   transform: rotate(360deg);
   /* transition: 1s l inear; */
-
 }
-.searchInput .circleButton
-{
+.searchInput .circleButton {
   transition: 500ms linear;
+  aspect-ratio: 1;
   position: absolute;
   top: 0;
   left: 0;
@@ -99,15 +100,15 @@ h5 {
   display: flex;
   transition: 500ms linear;
   position: relative;
-  height: 40px;
-  max-width: 40px;
+  /* height: ; */
+  max-width: 2rem;
 }
 .center {
   align-items: center;
 }
 
 .center input {
-  padding: 10px;
+  padding: 1rem;
 }
 
 .header_home_user img {
@@ -124,13 +125,13 @@ h5 {
 .header_user .list li {
   height: 100%;
   display: flex;
-  min-width: 50px;
+  min-width: 3rem;
   transition: 250ms;
   align-items: center;
   justify-content: center;
 }
 .hrefLink {
-  width: 80px;
+  width: 5rem;
   position: relative;
 }
 .ActiveLink::before {
@@ -140,27 +141,22 @@ h5 {
 .hrefLink::before {
   content: "";
   position: absolute;
-  /* background-color: rgb(202, 214, 213); */
   bottom: 0;
   width: 100%;
-  /* left: 0; */
-
-  /* width: 100%; */
   height: 3px;
-  /* background-color: rgba(252, 247, 247, 0.604); */
 }
 .searchInput {
   display: flex;
+  height: 2rem;
 }
 .circleButton {
   cursor: pointer;
-  width: 40px;
-  height: 40px;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   background-color: var(--themeColor);
   display: flex;
   margin: 1rem;
-  border: 1px solid rgba(171, 160, 160, 0.699);
   align-items: center;
   transition: 250ms linear;
   justify-content: center;

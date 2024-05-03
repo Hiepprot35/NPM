@@ -280,12 +280,7 @@ article img {
   transition: transform 0.4s ease-in-out;
 }
 
-article span {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-  color: #28666e;
-}
+
 
 article span:focus {
   outline: 1px dotted #28666e;
@@ -438,4 +433,18 @@ svg {
   width: 100%;
   transition: 500ms ease-out;
 
+}
+span,a
+{
+  font-size: 1rem;
+}
+@media only screen and (min-width: 1920px) and (max-width: 2800px) {
+  html {
+    font-size: 24px;
+  }
+}
+@media only screen and (min-width: 2800px)  {
+  html {
+    font-size: 32px;
+  }
 }

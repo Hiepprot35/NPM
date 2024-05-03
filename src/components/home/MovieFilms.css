@@ -2,7 +2,6 @@
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
-
   min-height: 500px;
   width: 100%;
   transition: 500ms ease-out;
@@ -21,10 +20,17 @@
     color-stop(1, rgba(0, 0, 0, 0))
   );
 }
+
 .MovieFilms {
   display: flex;
   height: 100%;
+  width: 100%;
   transition: 500ms ease-out;
+}
+.MovieFilms2{
+  margin: .4rem;
+  display: flex;
+  width:15vw;
 }
 .vangohPics,
 .userMovie {
@@ -35,21 +41,16 @@
   overflow: hidden;
   position: relative;
 }
-.sunanimation h1 {
-  margin: 0;
-}
-.sunanimation {
-  display: flex;
-  position: absolute;
-  height: 100%;
-}
+
 .MovieContainer {
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
   overflow: hidden;
-  height: 100.1vh;
+  transition: 300ms ease-out;
+  height: 100vh;
+  width: var(--widthContentHome);
   position: relative;
   -webkit-mask-image: -webkit-gradient(
     linear,
@@ -57,9 +58,9 @@
     right top,
     color-stop(0, rgba(0, 0, 0, 1)),
     color-stop(0.35, rgba(0, 0, 0, 1)),
-    color-stop(0.5, rgba(0, 0, 0, 1)),
-    color-stop(0.65, rgba(0, 0, 0, 1)),
-    color-stop(0.85, rgba(0, 0, 0, 0.6)),
+    color-stop(0.5, rgb(44, 42, 42)),
+    color-stop(0.65, rgb(53, 51, 51)),
+    color-stop(0.85, rgba(75, 73, 73, 0.6)),
     color-stop(1, rgba(0, 0, 0, 0))
   );
 }
@@ -71,7 +72,6 @@
 
 .activeFilm {
   background-attachment: fixed;
-
   visibility: visible;
 }
 
@@ -87,29 +87,37 @@
   width: 100%;
 }
 .slideScrollMovie {
-  /* bottom: 0; */
-  width: 200px;
+  background-color: rgba(25, 24, 24, 0.77);
+  backdrop-filter: blur(1rem);
+  width: 90%;
+  height: 100%;
+  border-radius: 1rem 1rem 0 0;
   display: flex;
   overflow: hidden;
 }
-.slideScrollMovie img {
-  object-fit: contain;
-  width: 100px;
-  border-radius: 1rem;
-  height: 50px;
-}
+
 .imageSlide {
+  cursor: pointer;
   transition: 500ms ease;
 }
 .imageSlide img {
-  border-radius: 1rem;
+  width: 4.5rem;
+  aspect-ratio: 10/12;
+  object-fit: contain;
+
+  border-radius: .9rem;
 }
 .notActiveImage {
   transition: 500ms linear;
-  transform: scale(0.8);
   opacity: 0.6;
 }
+.ActiveImage{
+  border-radius: 1rem;
+
+  background-color: rgba(53, 53, 53, 0.512);
+}
 .leftContentMovie {
+  width: 100%;
   transition: 500ms;
   margin: 2rem;
 }
@@ -117,10 +125,19 @@
   font-family: Tahoma, sans-serif;
   font-size: 3.5rem;
 }
+.overViewText p,
+.SeeMoreText {
+  display: -webkit-box;
+
+  overflow: hidden;
+  /* text-overflow: ellipsis; */
+}
 .overViewText div {
   padding: 2rem;
 }
 .overViewText {
+  width: 90%;
+
   border-radius: 1rem;
   background-color: rgba(207, 192, 192, 0.208);
 }

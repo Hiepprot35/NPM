@@ -1,14 +1,13 @@
 @import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Mukta:wght@200;300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Mukta:wght@200;300;400;500;600;700;800&display=swap");
 
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800,300italic,400italic,600italic,700italic,800italic);
 $heading-font-family: "Montserrat", sans-serif;
 $paragraph-font-family: "Open Sans", sans-serif;
-$font-Dieu:"Dancing Script", cursive;
+$font-Dieu: "Dancing Script", cursive;
 .userMovie {
   display: flex;
   overflow: hidden;
-
   height: 200vh;
   width: var(--widthContentHome);
   justify-content: flex-end;
@@ -17,43 +16,55 @@ $font-Dieu:"Dancing Script", cursive;
   display: flex;
   background-color: rgba(121, 115, 115, 0.401);
   width: 50%;
-  overflow: hidden;
+  align-items: center;
   flex-direction: column;
   justify-content: center;
 }
-
-.circleScroll {
-  width: 20px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  cursor: pointer;
-  background-color: rgb(208, 38, 38);
-  position: absolute;
-  transition: 250ms ease;
-  left: 0;
-  // bottom: -20px;
+.sunanimation h1 {
+  margin: 0;
 }
-.MyScrollBar {
+.sunanimation {
   display: flex;
-  align-items: center;
-  position: relative;
-  width: 30%;
-  margin:1rem;
-  z-index: 10001;
-  height: 5px;
-  transform-origin: 0%;
-  background-color: rgb(255, 255, 255);
+  left: 0;
+  position: absolute;
+  height: 100%;
 }
+
 .listMovies {
   display: flex;
+  width: 90%;
+  overflow-x: scroll;
+}
+.listMovies::-webkit-scrollbar {
+  height: .4rem;
+  width: 50%;
+}
+
+/* Track */
+.listMovies::-webkit-scrollbar-track {
+  border-radius: .4rem;
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+.listMovies::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+/* Handle on hover */
+.listMovies::-webkit-scrollbar-thumb:hover {
+  background: #555; 
 }
 .textList {
   width: 50%;
 }
+.textList span{
+  font-size: 2.3rem;
+}
 .CardMovie {
   border-radius: 1rem;
-  margin: 1px;
-  width: calc((var(--widthContentHome)) / 8);
+  margin:0.2%;
+  width: 25%;
   background-color: var(--themeColor);
   height: 60vh;
 }
@@ -75,15 +86,24 @@ $font-Dieu:"Dancing Script", cursive;
   padding: 0;
   width: 100%;
 }
-.textList{
-  padding: 5rem;
-  font-family: $font-Dieu;
+.parrallaxText{
+  margin: 4rem;
+  background-color: rgba(131, 121, 121, 0.707);
+  flex-direction: column;
+  border-radius: 1rem;
+  padding:2rem
+
 }
 .textList p{
-  padding: 4rem;
-  border-radius: 1rem;
-  background-color: rgba(58, 56, 56, 0.718);
+  padding:0;
+  margin: 0;
 }
+.textList {
+  display: flex;
+
+  font-family: $font-Dieu;
+}
+
 .detailMovieCard {
   font-family: $paragraph-font-family;
   font-size: 0.8rem;

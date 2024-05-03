@@ -1,30 +1,36 @@
 import { Player } from "@lottiefiles/react-lottie-player";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useData } from "../../context/dataContext";
 import UseToken from "../../hook/useToken";
 import Layout from "../Layout/layout";
 import { IsLoading } from "../Loading";
 import MovieFilms from "./MovieFilms";
+import { useInView } from "react-intersection-observer";
+
 import TVMovie from "./TVMovie";
 import ListPlay from "./listPlay";
 import { useSession } from "../../context/sectionProvider";
 function useParallax(value, distance) {
   return useTransform(value, [0, 1], [-distance, distance]);
 }
-function InViewComponent({ href, children }) {
-  const ref = useRef();
+function InViewComponent({ href, children,style }) {
   const { session, setSession } = useSession();
-  const inView = useInView(ref);
+  const {ref,inView} = useInView({threshold:0.5});
 
   useEffect(() => {
-    if (inView) {
-      console.log(href, "gre");
-      setSession(href);
+    if (inView ){
+      setSession(href)
     }
-  }, [inView, href]);
+    
+  }, [inView]);
 
-  return <motion.div ref={ref}>{children}</motion.div>;
+
+  return (
+    <motion.div ref={ref} >
+      {children}
+    </motion.div>
+  );
 }
 export default function Home(props) {
   const { listWindow, listHiddenBubble } = useData();
@@ -85,16 +91,16 @@ export default function Home(props) {
         {!props.isHidden && (
           <>
             <div className="contentHome" ref={contentHomeRef}>
-              <InViewComponent href={"#trending"}>
-                <MovieFilms isLoading={isLoading} />
+              <InViewComponent  style={{height:"100vh"}} href={"#trending"}>
+                <MovieFilms />
               </InViewComponent>
-
-              <InViewComponent href={"#tvseries"}>
-                <TVMovie></TVMovie>
-              </InViewComponent>
-              <InViewComponent href={"#playlist"}>
+              <InViewComponent style={{height:"200vh"}} href={"#playlist"}>
                 <ListPlay></ListPlay>
               </InViewComponent>
+              <InViewComponent  style={{height:"100vh"}} href={"#tvseries"}>
+                <TVMovie></TVMovie>
+              </InViewComponent>
+          
             </div>
           </>
         )}

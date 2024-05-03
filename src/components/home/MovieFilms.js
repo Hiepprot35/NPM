@@ -1,43 +1,45 @@
 import { Button, Popover, Rate } from "antd";
 import {
   AnimatePresence,
+  color,
   motion,
   useScroll,
   useTransform,
 } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { FiHeart, FiInfo, FiMoreHorizontal } from "react-icons/fi";
-import { Span, Slide } from "./listPlay";
+import { Span, Slide, Text } from "./listPlay";
 import { NavLink } from "react-router-dom";
-import { fetchApiRes } from "../../function/getApi";
+import { TheMovieApi, fetchApiRes } from "../../function/getApi";
 import { getNameMonth } from "../../function/getTime";
 import useAuth from "../../hook/useAuth";
 import "./MovieFilms.css";
 import MyReactPlayer from "./ReactPlayer";
 import WatchFilms from "./watchFilms";
+export const genresList = async () => {
+  const MOVIE = await TheMovieApi(
+    `https://api.themoviedb.org/3/genre/movie/list`
+  );
+  const data1 = MOVIE?.genres;
+  const TV = await TheMovieApi(`https://api.themoviedb.org/3/genre/tv/list  `);
+  const data2 = TV?.genres;
+  return data1.concat(data2);
+};
 export default function MovieFilms(props) {
   const [CurrentMovie, setCurrentMovie] = useState(0);
   const [Movies, setMovies] = useState([]);
-  const [Actors, setActors] = useState();
   const { auth } = useAuth();
   const [BackImg, setBackImg] = useState();
   const refleftMovie = useRef([]);
   const refSmallSlide = useRef();
+  const [GenresList, setGenresList] = useState();
   const data = async () => {
-    const res = await fetch(
-      "https://api.themoviedb.org/3/trending/all/day?language=en-US",
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxYTMxMjY0M2U3MzQ5YjAyM2Q4YWE0NzViMzUyMzYwMSIsInN1YiI6IjY1ZTZkOGMzOGQxYjhlMDE4NzY3MjEwOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.IhIe9_G8KXIFkM2bHAhWYkZy_uaOvUolfJrfI1YQZm4",
-        },
-      }
+    const data = await TheMovieApi(
+      "https://api.themoviedb.org/3/trending/all/day?language=en-US"
     );
-    const data = await res.json();
     setMovies(data.results);
-    console.log(data);
+    const data2 = await genresList();
+    setGenresList(data2);
   };
 
   useEffect(() => {
@@ -49,31 +51,13 @@ export default function MovieFilms(props) {
       refMovieFilms.current.style.width = `${Movies.length * 100}%`;
       refSmallSlide.current.style.width = `${Movies.length * 100}%`;
     }
+    console.log(Movies);
   }, [Movies]);
+
   useEffect(() => {
-    if (refMovieFilms.current && refSmallSlide.current) {
-      refMovieFilms.current.style.transform = `translateX(-${
-        (CurrentMovie * 100) / Movies.length
-      }%)`;
-      refSmallSlide.current.style.transform = `translateX(-${
-        ((CurrentMovie - 1) * 100) / Movies.length
-      }%)`;
-      if (CurrentMovie === 0) {
-        RefScrollImage.current.style.marginLeft = "100px";
-        refSmallSlide.current.style.transform = `translateX(0%)`;
-      } else {
-        RefScrollImage.current.style.marginLeft = "0";
-      }
-    }
-
-    if (RefScrollImage.current) {
-      RefScrollImage.current.style.width =
-        CurrentMovie >= 1 ? "300px" : "200px";
-    }
-  }, [CurrentMovie]);
-
+    console.log("genres", GenresList);
+  }, [GenresList]);
   const miniImage = useRef([]);
-  const largeImg = useRef([]);
   const clickNextMovie = () => {
     setReport();
 
@@ -84,7 +68,6 @@ export default function MovieFilms(props) {
         setCurrentMovie((pre) => pre + 1);
       }
     }
-    // setMovies(moveFirstElementToEnd(m))
   };
   const clickBackMovie = () => {
     setReport();
@@ -102,41 +85,36 @@ export default function MovieFilms(props) {
         clickNextMovie();
       }
     };
+    const moviePercent = (CurrentMovie * 100) / Movies?.length;
+    const smallSlidePercent = (CurrentMovie * 100) / Movies?.length;
 
-    document.addEventListener("keydown", handleKeyPress);
+    if (refMovieFilms.current && refSmallSlide.current) {
+      refMovieFilms.current.style.transform = `translateX(-${moviePercent}%)`;
+      refSmallSlide.current.style.transform = `translateX(-${smallSlidePercent}%)`;
+    }
+    if (ref.current) {
+      ref.current.addEventListener("keydown", handleKeyPress);
+      ref.current.tabIndex = 0;
 
-    return () => {
-      document.removeEventListener("keydown", handleKeyPress);
-    };
+      if (CurrentMovie >= 0 && Movies) {
+        setBackImg(
+          `url(https://image.tmdb.org/t/p/original/${Movies[CurrentMovie]?.backdrop_path})`
+        );
+      }
+
+      return () => {
+        ref?.current?.removeEventListener("keydown", handleKeyPress);
+      };
+    }
   }, [CurrentMovie, Movies]);
 
-  // const anime=(i)=>{
-  //   if()
-  // }
   const [MovieLink, setMovieLink] = useState([]);
   const [Report, setReport] = useState(false);
-  const watchMovieHandle = async (id, background) => {
-    console.log(id);
-    const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/videos`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxYTMxMjY0M2U3MzQ5YjAyM2Q4YWE0NzViMzUyMzYwMSIsInN1YiI6IjY1ZTZkOGMzOGQxYjhlMDE4NzY3MjEwOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.IhIe9_G8KXIFkM2bHAhWYkZy_uaOvUolfJrfI1YQZm4",
-      },
-    });
-    const data = await res.json();
-    if (data.results) {
-      setBackImg(`url(https://image.tmdb.org/t/p/original/${background}})`);
-      setMovieLink(data.results);
-    } else {
-      setReport("Xin lỗi. Hệ thông chưa cập nhập phim này");
-    }
-  };
+  const [FilmData, setFilmData] = useState();
+
   const animeSlideFilm = (i) => ({
     initial: "hidden",
     animate: i === CurrentMovie ? "visible" : "hidden",
-    // transition: { duration: 0.5, delay: 0 },
     variants: {
       visible: {
         x: 0,
@@ -166,7 +144,6 @@ export default function MovieFilms(props) {
       },
       hidden: {
         y: i !== CurrentMovie && 75,
-        // x: i < CurrentMovie ? "-100%" : "100%",
         opacity: 0,
         transition: {
           x: { stiffness: 1000 },
@@ -187,7 +164,6 @@ export default function MovieFilms(props) {
     target: ref,
     offset: ["start center", "end center"],
   });
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 1, 0.3]);
 
   return (
     <>
@@ -195,7 +171,10 @@ export default function MovieFilms(props) {
         id="trending"
         className="MovieContainer"
         ref={ref}
-        style={{ opacity: opacity }}
+        style={{
+          backgroundImage: `${BackImg}`,
+        }}
+        // style={{ opacity: opacity }}
       >
         <div className="MovieFilms" ref={refMovieFilms}>
           <AnimatePresence>
@@ -206,10 +185,6 @@ export default function MovieFilms(props) {
                   className={`MovieCard ${
                     i === CurrentMovie ? "activeFilm" : ""
                   }`}
-                  style={{
-                    backgroundAttachment: "fixed",
-                    backgroundImage: `url(https://image.tmdb.org/t/p/original/${e.backdrop_path})`,
-                  }}
                 >
                   <motion.div
                     {...animeSlideFilm(i)}
@@ -222,7 +197,7 @@ export default function MovieFilms(props) {
                         className="center"
                         style={{ justifyContent: "space-between" }}
                       >
-                        <div className="" style={{ width: "80%" }}>
+                        <div className="" style={{ width: "40vw" }}>
                           <div
                             className="center"
                             style={{ overflow: "hidden" }}
@@ -266,8 +241,19 @@ export default function MovieFilms(props) {
                             style={{ width: "100px" }}
                             src={`https://image.tmdb.org/t/p/original/${e.poster_path}`}
                           ></img>
-                          <div className="scoreFilm">
-                            <p>Score: {e.vote_average}/10</p>
+                          <div
+                            className="scoreFilm center"
+                            style={{ margin: ".3rem" }}
+                          >
+                            <span>
+                              <img
+                                style={{ width: "2rem", marginRight: ".6rem" }}
+                                src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg"
+                              ></img>
+                            </span>
+                            <p style={{ fontWeight: "600" }}>
+                              {e.vote_average}/10
+                            </p>
                           </div>
                           <div className="center ratingFilm">
                             <Rate
@@ -280,13 +266,7 @@ export default function MovieFilms(props) {
                       </div>
                       <div className="overViewText">
                         <div>
-                          <motion.p>
-                            {e.overview.split(" ").map((value, index) => (
-                              <Span e={value} i={index}>
-                                {" "}
-                              </Span>
-                            ))}
-                          </motion.p>
+                          <Text hiddenText={true} text={e.overview} />
                         </div>
                       </div>
                       <div
@@ -357,31 +337,53 @@ export default function MovieFilms(props) {
           className="center"
           style={{
             width: "100%",
+            height: "15%",
             position: "absolute",
             bottom: "0",
           }}
         >
-          <div className="slideScrollMovie" ref={RefScrollImage}>
+          <div className="slideScrollMovie " ref={RefScrollImage}>
             <div className="MovieFilms" ref={refSmallSlide}>
               {Movies &&
                 Movies.map((e, i) => (
                   <div
-                    key={i}
-                    className={`imageSlide ${
+                    className={`MovieFilms2 center  ${
                       CurrentMovie === i ? "ActiveImage" : "notActiveImage"
-                    }`}
+                    } `}
+                    key={i}
                   >
-                    <img
-                      ref={(ref) => (miniImage.current[i] = ref)}
-                      src={`https://image.tmdb.org/t/p/original/${e.backdrop_path}`}
-                    ></img>
+                    <div
+                      onClick={() => setCurrentMovie(i)}
+                      className={`imageSlide `}
+                    >
+                      <img
+                        ref={(ref) => (miniImage.current[i] = ref)}
+                        src={`https://image.tmdb.org/t/p/original/${e.poster_path}`}
+                      ></img>
+                    </div>
+                    <div className="center" style={{ flexDirection: "column" }}>
+                      <Text
+                        style={{ fontSize: "1rem" }}
+                        text={`${e?.title || e?.name}`}
+                      ></Text>
+                      <Text
+                        style={{ fontSize: ".6rem", color: "gray" }}
+                        text={`${
+                          GenresList &&
+                          e.genre_ids.map(
+                            (e) =>
+                              GenresList.find((values) => values.id === e)?.name
+                          )
+                        }`}
+                      />
+                    </div>
                   </div>
                 ))}
             </div>
           </div>
         </div>
       </motion.div>
-      
+
       {MovieLink && BackImg && MovieLink.length > 0 && (
         <MyReactPlayer
           BackImg={BackImg}

@@ -21,19 +21,21 @@ export default function Nvarbar() {
       href: "#trending",
       icon: <FiTrendingUp></FiTrendingUp>,
     },
+ 
+
+    { title: "Playlist", icon: <FiTag></FiTag>, href: "#playlist" },
     {
       title: "TV Series",
       href: "#tvseries",
       icon: <FiCoffee></FiCoffee>,
     },
-
-    { title: "Playlist", icon: <FiTag></FiTag>, href: "#playlist" },
     {
       title: "Following",
       href: "#following",
 
       icon: <FiUsers></FiUsers>,
     },
+
   ];
   const [ShowNvaBar, setShowNvaBar] = useState(true);
   const playerClose = useRef(null);

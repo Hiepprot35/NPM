@@ -22,7 +22,7 @@ export default function TVMovie() {
       <div
         className="vangohPics"
         style={{
-          height: "200vh",
+          height: "100%",
           width: "100%",
           backgroundImage: `url(/vg1.jpg)`,
         }}
