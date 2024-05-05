@@ -63,7 +63,7 @@ export default function MessageMainLayout(props) {
             <>
               {conversations.map(
                 (c, i) =>
-                  c.Friend === 1 && ( // Kiểm tra xem conversation có thuộc tính Friend không
+                  c.Friend === 1 && ( 
                     <div
                       key={i}
                       className="converrsation_chat"

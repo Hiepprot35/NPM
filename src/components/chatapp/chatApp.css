@@ -1,10 +1,7 @@
 .ChatApp {
     background-color: var(--themeColor);
     display: flex;
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    width: 80%;
+    height: 100%;
     flex-direction: column;
     justify-content: flex-end;
 }
@@ -64,11 +61,8 @@ input[type=text]:focus {
 .Container_ChatApp {
     /* top: 7vh; */
     padding-top: 7vh;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: 0;
-    position: fixed;
+    width: var(--widthContentHome);
+    height: 100vh;
     display: flex;
     justify-content: flex-start;
     background-color: var(--themeColor);
@@ -82,7 +76,7 @@ input[type=text]:focus {
 
 .Narbar_ChatApp {
     overflow: hidden;
-    padding-left: 2rem;
+    padding-left: .5rem;
     width: 25%;
     background-color: var(--themeColor);
 
@@ -113,9 +107,10 @@ input[type=text]:focus {
 
 .Main_ChatApp {
     width: 100%;
+    height: 100%;
     border-radius: 1rem;
     background-color: white;
-
+    position: relative;
 }
 .Main_ChatApp .Mess_seen_text img
 {
@@ -126,7 +121,7 @@ input[type=text]:focus {
 .Main_ChatApp .Mess_seen_text .listImg
 {
     width: 7rem;
-    height: 9rem !important;
+    height: 9rem ;
 }
 .Body_mainChatApp .Body_Chatpp .main_windowchat
 {
@@ -134,6 +129,7 @@ input[type=text]:focus {
 }
 .Body_Chatpp .inputValue{
     height: auto;
+    max-height: 15vh;
     width: 100%;
 }
 .Header_ChatApp .header_online h3 {
@@ -212,7 +208,7 @@ input[type=text]:focus {
     display: flex;
     justify-content: center ;
     transition: 0.125ms;
-    padding: .3rem 2rem .3rem 2rem;
+    /* padding: .3rem 0rem .3rem 2rem; */
 }
 
 .Header_ChatApp {
@@ -246,8 +242,8 @@ input[type=text]:focus {
 
 .chatMenuInput {
     border-radius: 15px;
-    width: 90%;
-    margin:  0px 0px 0px;
+    width: 100%;
+    margin:  0 0 1rem 0;
     padding: 10px 2rem 10px 20px;
     transition: 0.5s;
     box-sizing: border-box;

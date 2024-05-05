@@ -3,6 +3,7 @@ import {
   FiImage,
   FiMinus,
   FiPhone,
+  FiSend,
   FiSmile,
   FiVideo,
   FiX,
@@ -16,13 +17,15 @@ import EmojiPicker from "emoji-picker-react";
 import { getStudentInfoByMSSV, getUserinfobyID } from "../../function/getApi";
 import Message from "./Message";
 import { data } from "jquery";
+import { Popover } from "antd";
+import { getMess } from "../conversation/conversations";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 
 export default memo(function WindowChat(props) {
   const { auth } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const socket = useSocket();
-  const [inputMess, setInputmess] = useState();
+  const [inputMess, setInputmess] = useState("");
   const [userName, setUsername] = useState();
   const userConver =
     props.count?.user1 === auth.userID
@@ -107,25 +110,55 @@ export default memo(function WindowChat(props) {
     }
   }
   function onClickEmoji(e) {
-    setEmoji((pre) => pre + e.emoji);
-    setFileImg((pre) => [...pre, e.imageUrl]);
+    console.log("Imes", inputMess);
+    setEmoji((prev) => [
+      ...prev,
+      { id: inputMess.length, emoji: e.emoji, imageUrl: e.imageUrl },
+    ]);
+    setFileImg(pre=>[...pre,e.imageUrl])
   }
+
+
   useEffect(() => {
-    setInputmess(emoji);
+    if(inputMess)
+      {
+        console.log(inputMess)
+      }
+  }, [inputMess]);
+  useEffect(() => {
+    if (emoji.length > 0 && emoji[emoji.length - 1].emoji !== undefined) {
+      setInputmess(
+        (prevInputMess) => prevInputMess + emoji[emoji.length - 1].emoji
+      );
+    }
   }, [emoji]);
-  async function handleSubmit() {
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setEmoji([]);
+    setFileImg([])
+    setInputmess("");
+    inputValue.current.focus();
     try {
       const imgData = new FormData();
       imgData.append("sender_id", auth.userID);
       imgData.append("conversation_id", props.count.id);
-      if (fileImg.length > 0) {
+      if (fileImg.length > 0 && inputMess?.length && emoji.length===0) {
         for (const file of fileImg) {
           imgData.append("content", file);
         }
         imgData.append("isFile", 1);
-      } else {
+      }
+      if (fileImg.length === 0 && inputMess.length > 0) {
         imgData.append("isFile", 0);
         imgData.append("content", inputMess);
+      } else {
+        let updatedInputMess = inputMess;
+        emoji.forEach((e, i) => {
+          updatedInputMess = updatedInputMess.replace(e.emoji, "emojiLink"+e.imageUrl+"emojiLink");
+        });
+        imgData.append("isFile", 0);
+        imgData.append("content", updatedInputMess);
       }
 
       const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
@@ -148,8 +181,6 @@ export default memo(function WindowChat(props) {
       setMessages([...messages, MessageDataRes]);
       setEmtyImg();
       props.setsendMess((pre) => !pre);
-      setInputmess("");
-      inputValue.current.focus();
       // props.cc(MessageDataRes);
     } catch (err) {
       console.log(err);
@@ -319,6 +350,7 @@ export default memo(function WindowChat(props) {
     }
   };
   const [rowCount, setRowcount] = useState(1);
+
   useEffect(() => {
     inputMess && setRowcount(Math.ceil(inputMess.length / 20));
     !inputMess && setRowcount(1);
@@ -355,7 +387,10 @@ export default memo(function WindowChat(props) {
   return (
     <>
       {!props.isHidden ? (
-        <div className="windowchat" ref={windowchat}>
+        <div
+          className={`windowchat ${props.ChatApp && `ChatAppMess`}`}
+          ref={windowchat}
+        >
           <div
             className="top_windowchat"
             style={
@@ -417,6 +452,7 @@ export default memo(function WindowChat(props) {
             <div className="button_windowchat">
               <div
                 className="features_hover"
+                style={props.ChatApp ? { display: "none" } : {}}
                 onClick={(e) => {
                   closeWindow(props.count.id);
                 }}
@@ -425,6 +461,7 @@ export default memo(function WindowChat(props) {
               </div>
               <div
                 className="features_hover"
+                style={props.ChatApp ? { display: "none" } : {}}
                 onClick={() => {
                   hiddenWindowHandle(props.count);
                 }}
@@ -503,8 +540,8 @@ export default memo(function WindowChat(props) {
                   </div>
                 ))}
             </div>
-            <div className="inputValue windowchat_feature">
-              <div className="feature_left">
+            <div className="inputValue windowchat_feature center">
+              <div className="feature_left center">
                 {imgView.length > 0 ? (
                   <>
                     <div onClick={setEmtyImg} className="features_hover">
@@ -515,7 +552,7 @@ export default memo(function WindowChat(props) {
                     </div>
                   </>
                 ) : (
-                  <ul style={{display:"flex",padding:"0",margin:"0"}}>
+                  <ul style={{ display: "flex", padding: "0", margin: "0" }}>
                     <li className="features_hover stokeTheme">
                       <input
                         onChange={(e) => {
@@ -533,10 +570,24 @@ export default memo(function WindowChat(props) {
                       />
                     </li>
 
-                    <li className="features_hover stokeTheme">
+                    <li
+                      className="features_hover stokeTheme"
+                      style={
+                        inputMess?.length > 0
+                          ? { display: "none" }
+                          : { opacity: 1 }
+                      }
+                    >
                       <img src={`${ClientURL}/images/sticker.svg`}></img>
                     </li>
-                    <li className="features_hover stokeTheme">
+                    <li
+                      className="features_hover stokeTheme"
+                      // style={
+                      //   inputMess?.length > 0
+                      //     ? { display: "none" }
+                      //     : { opacity: 1 }
+                      // }
+                    >
                       <FiSmile
                         onClick={(e) => {
                           setOpenEmojiPicker(!openEmojiPicker);
@@ -547,7 +598,11 @@ export default memo(function WindowChat(props) {
                 )}
               </div>
 
-              <div className=" windowchat_input " ref={windowchat_input}>
+              <div
+                className=" windowchat_input "
+                style={inputMess?.length > 0 ? { width: "75%" } : {}}
+                ref={windowchat_input}
+              >
                 {imgView.length > 0 && (
                   <div className="multiFile_layout ">
                     <input type="file" hidden ref={multiFile} multiFile></input>
@@ -577,7 +632,7 @@ export default memo(function WindowChat(props) {
                 <textarea
                   cols="20"
                   rows={rowCount || 1}
-                  style={{ resize: "none" }}
+                  style={{ resize: "none", paddingLeft: ".8rem" }}
                   id="send_window_input"
                   onClick={() => clickConversation(props?.count)}
                   onChange={inputChange}
@@ -590,13 +645,10 @@ export default memo(function WindowChat(props) {
                 <div>
                   <div
                     className="features_hover"
-                    onClick={() => inputMess.length > 0 && handleSubmit()}
+                    onClick={(e) => inputMess.length > 0 && handleSubmit(e)}
                     style={{ cursor: "pointer" }}
                   >
-                    <img
-                      src={`${ClientURL}/images/send-2.svg`}
-                      style={{ width: "1.5rem", height: "1.5rem" }}
-                    ></img>
+                    <FiSend></FiSend>
                   </div>
                 </div>
               </div>
@@ -610,28 +662,68 @@ export default memo(function WindowChat(props) {
               onEmojiClick={(e, i) => {
                 onClickEmoji(e);
               }}
-              emojiStyle="iphone"
+              emojiStyle="facebook"
             />
           </div>
         </div>
       ) : (
-        <div className="hiddenBubble">
+        <Popover
+          placement="left"
+          title={
+            <div
+              style={{
+                overflow: "hidden",
+                whiteSpace: "wrap",
+
+                textOverflow: "ellipsis",
+                maxWidth: "10rem",
+                // height: "1rem",
+              }}
+            >
+              <p>{userInfor?.Name}</p>
+            </div>
+          }
+          content={
+            <div
+              className="hiddenText"
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "wrap",
+                maxWidth: "10rem",
+                maxHeight: "3rem",
+              }}
+            >
+              <p style={{ color: "gray" }}>
+                {messages &&
+                  messages[messages?.length - 1]?.sender_id === auth?.userID &&
+                  "Bạn: "}{" "}
+                {messages && messages[messages.length - 1]?.content}{" "}
+              </p>
+            </div>
+          }
+        >
           <div
-            className="closeButton"
-            onClick={() => closeHiddenWindow(props.count)}
+            className="hiddenBubble"
+            style={{ bottom: `${4.4 + 3.2 * props.index}rem` }}
           >
-            <FiXCircle></FiXCircle>
+            <div
+              className="closeButton"
+              onClick={() => closeHiddenWindow(props.count)}
+            >
+              <FiXCircle></FiXCircle>
+            </div>
+            <div>
+              <img
+                onClick={() => showHiddenConver(props.count)}
+                style={{ width: "3rem" }}
+                className="avatarImage"
+                alt="Avatar"
+                src={userInfor?.img}
+              ></img>{" "}
+            </div>
           </div>
-          <div>
-            <img
-              onClick={() => showHiddenConver(props.count)}
-              style={{ width: "50px" }}
-              className="avatarImage"
-              alt="Avatar"
-              src={userInfor?.img}
-            ></img>{" "}
-          </div>
-        </div>
+        </Popover>
       )}
     </>
   );

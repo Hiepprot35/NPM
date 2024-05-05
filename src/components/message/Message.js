@@ -5,6 +5,7 @@ import * as timeUse from "../../function/getTime";
 import { IsLoading } from "../Loading";
 import useAuth from "../../hook/useAuth";
 import { useSocket } from "../../context/socketContext";
+import { Popover } from "antd";
 export default memo(function Message({
   message,
   own,
@@ -43,6 +44,35 @@ export default memo(function Message({
       return "";
     }
   }
+  const ccc = () => {
+    return (
+      <>
+        {message?.content.includes("https://cdn.jsdelivr.net") ? (
+          <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",marginTop:".4rem"}}>
+            {message.content.split("emojiLink").map((e, index) =>
+              e.includes("https://cdn.jsdelivr.net") ? (
+                <span key={index}>
+                  <img alt="icon" style={{ width: "1rem" ,height:"1rem",margin:".1rem"}} src={`${e}`} />
+                </span>
+              ) : (
+                e.length>0 &&<span style={{marginBottom:".4rem"}} key={index}>{e}</span>
+              )
+            )}
+          </div>
+        ) : (
+          <span>{message.content}</span>
+        )}
+      </>
+    );
+  };
+
+  // useEffect(() => {
+  //   if(message.content)
+  //     {
+
+  //       ccc()
+  //     }
+  // }, [message?.content]);
   return (
     <>
       <div className="containerMessage" ref={messageRef}>
@@ -76,24 +106,33 @@ export default memo(function Message({
                   </>
                 )}
                 {message.content != null ? (
-                  <div className={`Mess_seen_text  `}>
-                    {message.isFile ? (
-                      <>
-                        {listAnh &&
-                          listAnh.map((e) => (
-                            <img
-                              className={listAnh.length > 1 ? "listImg" : ""}
-                              src={e}
-                            ></img>
-                          ))}
-                      </>
-                    ) : (
-                      <p className={`messageText `}>{message.content}</p>
-                    )}
-                    <div className="messageBottom">
+                  <Popover
+                    placement="left"
+                    content={
                       <p ref={time}>{timeUse.getTime(message.created_at)}</p>
+                    }
+                  >
+                    <div className={`Mess_seen_text  `}>
+                      {message.isFile ? (
+                        <>
+                          {listAnh &&
+                            listAnh.map((e) => (
+                              <img
+                                className={listAnh.length > 1 ? "listImg" : ""}
+                                style={
+                                  e.includes("emoji")
+                                    ? { width: "1rem ", height: "1rem " }
+                                    : {}
+                                }
+                                src={e}
+                              ></img>
+                            ))}
+                        </>
+                      ) : (
+                        <div className="messageText">{ccc()}</div>
+                      )}
                     </div>
-                  </div>
+                  </Popover>
                 ) : (
                   <></>
                 )}

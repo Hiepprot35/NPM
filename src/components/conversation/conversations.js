@@ -4,6 +4,20 @@ import useAuth from "../../hook/useAuth";
 import "./conversation.css";
 import { useSocket } from "../../context/socketContext";
 import { fetchApiRes } from "../../function/getApi";
+export const getMess = async (conversation) => {
+  try {
+ 
+    const res = await fetch(
+      `${process.env.REACT_APP_DB_HOST}/api/message/newest/${conversation.id}`
+    );
+    const data2 = await res.json();
+    
+    return data2
+  } catch (err) {
+    console.log(err)
+    console.log("Không có giá trí");
+  }
+};
 export default memo(function Conversation({
   conversation,
   Online,
@@ -19,8 +33,8 @@ export default memo(function Conversation({
   const [isLoading, setIsLoading] = useState(true);
   const [username, setUsername] = useState();
   const [NewestMess, setNewestMesst] = useState();
-
   const data = [conversation.user1, conversation.user2];
+
   const setOnlineUser = data.find((m) => m !== auth.userID);
   const ListusersOnline = (Online && Online.map((item) => item.userId)) || [];
   useEffect(() => {
@@ -68,24 +82,13 @@ export default memo(function Conversation({
     studentInfo();
   }, [username]);
 
-  const getMess = async () => {
-    try {
-      let friendId = conversation.user1;
-      if (conversation.user1 != conversation.user2) {
-        friendId = data.find((m) => m !== currentUser);
-      }
-      const res = await fetch(
-        `${process.env.REACT_APP_DB_HOST}/api/message/newest/${conversation.id}`
-      );
-      const data2 = await res.json();
-      setNewestMesst(data2);
-    } catch (err) {
-      console.log("Không có giá trí");
-    }
+  const getNewestMess = async () => {
+   const data= await getMess(conversation)
+   setNewestMesst(data)
   };
 
   useEffect(() => {
-    getMess();
+    getNewestMess();
   }, [sendMess]);
   return (
     <>

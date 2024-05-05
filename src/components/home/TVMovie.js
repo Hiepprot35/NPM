@@ -24,7 +24,7 @@ export default function TVMovie() {
         style={{
           height: "100%",
           width: "100%",
-          backgroundImage: `url(/vg1.jpg)`,
+          backgroundImage: `url(/vg2.jpg)`,
         }}
       ></div>
       

@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Navigate,
-  Route,
-  Routes,
-  useParams
-} from "react-router-dom";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import Chuongtrinhdaotao from "./chuongtrinhdaotao";
 import Dashboard from "./components/Dashboard/Dashboard";
 import ChatApp from "./components/chatapp/chatApp";
@@ -34,7 +29,6 @@ function App() {
     setIsLoading(false);
   }, [AccessToken]);
 
-
   const refreshAccessToken = useRefresh();
   useEffect(() => {
     if (RefreshToken) {
@@ -52,7 +46,6 @@ function App() {
       fetchData();
     }
   }, []);
-
 
   if (!isLoading) {
     if (auth.userID) {
@@ -73,28 +66,19 @@ function App() {
       } else if (auth.role === 2) {
         return (
           <Routes>
-            <Route
-              path="/dangkilop"
-              element={<DangKiLopHoc  />}
-            />
-            <Route path="/profile/:MSSV" element={<ProfileRoutes  />} />
+            <Route path="/dangkilop" element={<DangKiLopHoc />} />
+            <Route path="/profile/:MSSV" element={<ProfileRoutes />} />
             <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
-            <Route path="/movie/moviedetail/:id" element={<MovieFilm/>}/>
+            <Route path="/movie/moviedetail/:id" element={<MovieFilm />} />
             {/* <Route path="/" element={<Dashboard />} /> */}
             <Route path="/" element={<Home />} />
             <Route path="/friends" element={<FriendList />} />
 
-            <Route
-              path="/message"
-              element={<ChatApp />}
-            />
+            <Route path="/message" element={<ChatApp />} />
             <Route path="*" element={<Home />} />
-            <Route path="/message/:id" element={<MessageRoute />} />
+            <Route path="/message/:messageId" element={<MessageRoute />} />
             <Route path="/lichhoc" element={<ViewTimetable />} />
-            <Route
-              path="/setting"
-              element={<SettingAccount  />}
-            />
+            <Route path="/setting" element={<SettingAccount />} />
           </Routes>
         );
       }
@@ -114,8 +98,7 @@ function App() {
         </Routes>
       );
     }
-  } 
-  
+  }
 }
 
 function ProfileRoutes() {
@@ -129,8 +112,8 @@ function MovieFilm() {
   return <DetailMovie MovieID={id} />;
 }
 function MessageRoute() {
-  const { id } = useParams();
+  const { messageId } = useParams();
 
-  return <ChatApp messageId={id} />;
+  return <ChatApp messageId={messageId} />;
 }
 export default App;

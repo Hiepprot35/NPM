@@ -142,6 +142,10 @@ code {
   border-top: solid rgba(8, 8, 8, 0.993) 10px;
   animation: load linear infinite 1s;
 }
+html{
+  background-color: var(--themeColor);
+
+}
 div {
   display: block;
 }
@@ -211,7 +215,12 @@ table th {
     display: block;
     margin-bottom: 0.625em;
   }
+  .hiddenText{
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 
+  }
   table td {
     border-bottom: 1px solid #ddd;
     display: block;

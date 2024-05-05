@@ -119,7 +119,7 @@
 .leftContentMovie {
   width: 100%;
   transition: 500ms;
-  margin: 2rem;
+  padding: 2rem;
 }
 .leftMovieFilm h1 {
   font-family: Tahoma, sans-serif;

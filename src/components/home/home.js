@@ -91,13 +91,13 @@ export default function Home(props) {
         {!props.isHidden && (
           <>
             <div className="contentHome" ref={contentHomeRef}>
-              <InViewComponent  style={{height:"100vh"}} href={"#trending"}>
+              <InViewComponent  style={{height:"100vh"}} href={`${process.env.REACT_APP_CLIENT_URL}/home#trending`}>
                 <MovieFilms />
               </InViewComponent>
-              <InViewComponent style={{height:"200vh"}} href={"#playlist"}>
+              <InViewComponent style={{height:"200vh"}} href={`${process.env.REACT_APP_CLIENT_URL}/home#playlist`}>
                 <ListPlay></ListPlay>
               </InViewComponent>
-              <InViewComponent  style={{height:"100vh"}} href={"#tvseries"}>
+              <InViewComponent  style={{height:"100vh"}} href={`${process.env.REACT_APP_CLIENT_URL}/home#tvseries`}>
                 <TVMovie></TVMovie>
               </InViewComponent>
           

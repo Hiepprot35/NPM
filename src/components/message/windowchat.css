@@ -6,7 +6,10 @@
   box-shadow: rgba(60, 64, 67, 0.3) -2px -1px 2px 0px,
     rgba(60, 64, 67, 0.15) 3px -3px 3px 1px;
 }
-
+ .windowchat
+{
+  box-shadow: none !important;
+}
 .emojipick {
   max-width: 500px;
   max-height: 500px;
@@ -14,6 +17,7 @@
   bottom: 2rem;
   z-index: 3;
 }
+
 .stokeTheme svg {
     height: 1.1rem;
     width: 1.1rem;
@@ -90,6 +94,7 @@
 }
 .windowchat_input #send_window_input {
   background-color: transparent;
+  width: 100%;
   border: none !important;
 
   font-size: 1.02rem;
@@ -123,10 +128,10 @@
   border-radius: 1rem;
   background-color: rgb(209, 199, 199);
   width: 55%;
+  max-width: 75%;
   height: 100%;
   transition: 250ms linear;
   align-items: center;
-  justify-content: center;
 }
 .main_windowchat {
   overflow: hidden;
@@ -144,7 +149,7 @@
   border-radius: 1rem;
 }
 .windowchat .Mess_seen_text .listImg {
-  height: 4rem !important;
+  height: 4rem ;
   width: 4rem;
   border-radius: 1rem;
   margin-left: 1rem;

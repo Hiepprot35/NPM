@@ -28,6 +28,7 @@ const ChatApp = ({ messageId }) => {
   const [isSeen, setisSeen] = useState(false);
   useEffect(() => {
     if (messageId) {
+      console.log("zoo mess")
       const senApi = async () => {
         try {
           const res = await fetch(
@@ -40,6 +41,7 @@ const ChatApp = ({ messageId }) => {
               body: JSON.stringify({ id: auth.userID }),
             }
           );
+          console.log("currentchat",res)
           const data = await res.json();
           setCurrentChat(data);
         } catch (err) {
@@ -54,6 +56,7 @@ const ChatApp = ({ messageId }) => {
   let isCancel = false;
   // const ListusersOnline = onlineUser && onlineUser.map(item => item.userId) || [];
   const ClickChat = (data) => {
+    console.log(data)
     setCurrentChat(data);
   };
   useEffect(() => {
@@ -244,6 +247,7 @@ const ChatApp = ({ messageId }) => {
                             cc={setArrivalMessage}
                             count={currentChat}
                             Seen={userSeenAt}
+                            ChatApp={true}
                             setsendMess={setsendMess}
                             ListusersOnline={onlineUser}
                           ></WindowChat>

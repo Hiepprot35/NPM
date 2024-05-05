@@ -181,7 +181,7 @@ h5 {
 }
 
 .Link {
-  color: white;
+  color: var(--textColor);
   text-decoration: none;
 }
 

@@ -311,7 +311,7 @@ export default function MovieFilms(props) {
                                   type="text"
                                   icon={<FiHeart color="black"></FiHeart>}
                                 >
-                                  <span>Add to favorite</span>
+                                  <span>Add to Playlist</span>
                                 </Button>
                               </div>
                             </div>

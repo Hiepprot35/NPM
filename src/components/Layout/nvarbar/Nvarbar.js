@@ -18,24 +18,26 @@ export default function Nvarbar() {
   const newFeed = [
     {
       title: "Trending",
-      href: "#trending",
+      href: `${process.env.REACT_APP_CLIENT_URL}/home#trending`,
       icon: <FiTrendingUp></FiTrendingUp>,
     },
- 
 
-    { title: "Playlist", icon: <FiTag></FiTag>, href: "#playlist" },
+    {
+      title: "Playlist",
+      icon: <FiTag></FiTag>,
+      href: `${process.env.REACT_APP_CLIENT_URL}/home#playlist`,
+    },
     {
       title: "TV Series",
-      href: "#tvseries",
+      href: `${process.env.REACT_APP_CLIENT_URL}/home#tvseries`,
       icon: <FiCoffee></FiCoffee>,
     },
     {
       title: "Following",
-      href: "#following",
+      href: `${process.env.REACT_APP_CLIENT_URL}/home#following`,
 
       icon: <FiUsers></FiUsers>,
     },
-
   ];
   const [ShowNvaBar, setShowNvaBar] = useState(true);
   const playerClose = useRef(null);

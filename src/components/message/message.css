@@ -1,175 +1,162 @@
 .message {
-    display: flex;
-    margin-bottom: 0.3rem;
-    flex-direction: column;    
-    
+  display: flex;
+  margin-bottom: 0.3rem;
+  flex-direction: column;
 }
 .Mess_seen_text {
-    --opacityhover: hidden;
-  }
-.messageTop ,.messageBottom
-{
-    display: flex;
-    margin: 0px 1rem 0px 1rem;
-    align-items: center;
-} .firstMessage,.midMessage
-{
-
-    margin-left: 3.7rem;
-    margin-bottom: 0.2rem;
+  --opacityhover: hidden;
 }
-.firstMessage .messageText{
-    border-radius: 2rem 2rem 2rem .3rem ;
-
+.messageTop,
+.messageBottom {
+  display: flex;
+  margin: 0px 1rem 0px 1rem;
+  align-items: center;
 }
-.endMessage .messageText{
-    border-radius: 0.3rem 2rem 2rem 2.5rem ;
-
+.firstMessage,
+.midMessage {
+  margin-left: 3.7rem;
+  margin-bottom: 0.2rem;
 }
-.own .firstMessage, .own .midMessage
-{
-
-    margin-right: 3.7rem;
-    margin-bottom: 0.2rem;
+.firstMessage .messageText {
+  border-radius: 2rem 2rem 2rem 0.3rem;
 }
-.firstMessage .messageText{
-    border-radius: 2rem 2rem 2rem .3rem ;
-
+.endMessage .messageText {
+  border-radius: 0.3rem 2rem 2rem 2.5rem;
 }
-.endMessage .messageText{
-    border-radius: 0.3rem 2rem 2rem 2.5rem ;
-
+.own .firstMessage,
+.own .midMessage {
+  margin-right: 3.7rem;
+  margin-bottom: 0.2rem;
 }
-.avatar_dot
-{
-    display: flex;
-    margin: 0 0.9rem 0 0;
-    margin-top: 0px;
-    margin-right: 0.9rem;
-    margin-bottom: 0px;
-    margin-left: 0px;
-    align-items: flex-end;
-    justify-content: flex-end;
+.firstMessage .messageText {
+  border-radius: 2rem 2rem 2rem 0.3rem;
 }
-.own .messageTop, .own .Seen_field,.own .Mess_seen_text
-
-{
-    flex-direction: row-reverse;
-
+.endMessage .messageText {
+  border-radius: 0.3rem 2rem 2rem 2.5rem;
 }
-.Mess_seen_container
-{
-    display: flex;
-    flex-direction: column;
+.avatar_dot {
+  display: flex;
+  margin: 0 0.9rem 0 0;
+  margin-top: 0px;
+  margin-right: 0.9rem;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  align-items: flex-end;
+  justify-content: flex-end;
 }
-.Seen_field
-{
-    --hiden_seen:hidden;
-    display: flex;
-    align-items: center;
-
+.own .messageTop,
+.own .Seen_field,
+.own .Mess_seen_text {
+  flex-direction: row-reverse;
+}
+.Mess_seen_container {
+  display: flex;
+  flex-direction: column;
+}
+.Seen_field {
+  --hiden_seen: hidden;
+  display: flex;
+  align-items: center;
 }
 
-.Seen_field:hover
-{
-    --hiden_seen:visible
+.Seen_field:hover {
+  --hiden_seen: visible;
 }
-.Seen_field p
-{
-    visibility: var(--hiden_seen);
-    transition: 0.1s linear;
-    padding-right: 0.4rem;
+.Seen_field p {
+  visibility: var(--hiden_seen);
+  transition: 0.1s linear;
+  padding-right: 0.4rem;
 }
-.message.own
-{
-    display: flex;
-    flex-direction: column;
+.message.own {
+  display: flex;
+  flex-direction: column;
 }
 .messageImg {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
 }
 
 .messageText {
-    padding: .5rem 1rem .5rem 1rem;
-    font-size: medium;
-    border-radius:.5rem 1rem 1rem .5rem;
-    background-color: #a8aaad9b;
-    color: rgb(0, 0, 0);
-    display: inline-block;
-    max-width: 100%;
-    overflow-wrap: break-word;
-    margin: 0px;
+  padding: 0.3rem .8rem;
+  font-size: medium;
+  border-radius: 0.5rem 1rem 1rem 0.5rem;
+  background-color: #a8aaad9b;
+  color: rgb(0, 0, 0);
+
+  width: 100%; /* Thay đổi max-width thành width hoặc loại bỏ nếu không cần thiết */
+  margin: 0;
 }
 
-.Mess_seen_text,.forget_pass
-{
-    display: flex;
-    position: relative;
-    /* margin-left: 1rem; */
-    align-items: center;
-    width: 50%;
+.messageText span {
+  display: block;
+  word-wrap: break-word;
 }
-.endMessage .Mess_seen_text  {
-    margin-left: 1rem;
+.Mess_seen_text,
+.forget_pass {
+  display: flex;
+  position: relative;
+  margin-left: 1rem;
+  align-items: center;
+  max-width: 80%;
+}
+.endMessage .Mess_seen_text {
+  margin-left: 1rem;
 }
 .messageBottom {
-   
-    position: relative;
+  position: relative;
 }
-.messageBottom p{
-    border-radius: 10px;
-    color: white !important;
-    font-size: 0.7rem;
-    padding: 0.4rem;
-    transition: 0.1s linear;
-    visibility: var(--opacityhover);
-    background-color: rgba(141, 141, 141, 0.712);
+.messageBottom p {
+  border-radius: 10px;
+  color: white !important;
+  font-size: 0.7rem;
+  padding: 0.4rem;
+  transition: 0.1s linear;
+  visibility: var(--opacityhover);
+  background-color: rgba(141, 141, 141, 0.712);
 }
 
-.Mess_seen_text:hover{
-    --opacityhover:visible;
-    color: black;
-    
+.Mess_seen_text:hover {
+  --opacityhover: visible;
+  color: black;
 }
 .message.own .messageText {
-    background-color: rgb(2, 0, 0);
-    border-radius: 1rem .5rem .5rem 1rem;
-    color: rgb(255, 255, 255);
+  background-color: rgba(36, 153, 149, 0.752);
+  border-radius: 1rem 0.5rem 0.5rem 1rem;
+  color: rgb(255, 255, 255);
 }
 .center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.newMessage svg{
-    width: 20px;
-    height: 20px;
+.newMessage svg {
+  width: 20px;
+  height: 20px;
 }
-.newMessage{
-    width: 50px;
-    position: fixed;
-    bottom: 20px;
-    right: 9px;
-    z-index: 10100;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.175);
-    transition: 250ms linear;
+.newMessage {
+  width: 50px;
+  position: fixed;
+  bottom: 20px;
+  right: 9px;
+  z-index: 10100;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.175);
+  transition: 250ms linear;
 }
 .newMessage:hover::before {
-    content: "Tin nhắn mới";
-    position: absolute;
-    right: 110%;
-    font-size: .8rem;
-    background-color: white;
-    display: flex;
-    border-radius: .5rem;
-    align-items: center;
-    justify-content: center;
-    width: 90px;
-    height: 30px;
+  content: "Tin nhắn mới";
+  position: absolute;
+  right: 110%;
+  font-size: 0.8rem;
+  background-color: white;
+  display: flex;
+  border-radius: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 30px;
 }

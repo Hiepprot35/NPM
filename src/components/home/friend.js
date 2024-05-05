@@ -64,7 +64,7 @@ export default function FriendList(props) {
     ]);
 
     const result = conversations.reduce((acc, curr) => {
-      if (curr.result.length > 0) {
+      if (curr?.result?.length > 0) {
         acc = curr.result[0].id;
       }
       return acc;
@@ -172,7 +172,7 @@ export default function FriendList(props) {
   };
   const getUserFriendList = async () => {
     const listFriend = [];
-    for (let i = 0; i < Users.length; i++) {
+    for (let i = 0; i < Users?.length; i++) {
       const result = await fetchApiRes("message/getFriendList", "POST", {
         userID: Users[i].UserID,
       });
@@ -215,6 +215,7 @@ export default function FriendList(props) {
   };
   return (
     <>
+    <Layout></Layout>
         <div
           className={
             props.className ? props.className : `friendListDiv linearBefore`
