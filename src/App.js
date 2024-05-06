@@ -35,7 +35,7 @@ function App() {
       setIsLoading(true);
       async function fetchData() {
         try {
-          const refreshedData = await refreshAccessToken();
+          await refreshAccessToken();
           setIsLoading(false);
         } catch (error) {
           setIsLoading(false);

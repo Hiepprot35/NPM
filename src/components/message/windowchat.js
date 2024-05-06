@@ -44,8 +44,7 @@ export default memo(function WindowChat(props) {
   const windowchat = useRef(null);
   const [userInfor, setUserInfo] = useState();
   const [messages, setMessages] = useState(props.messages);
-  const { listWindow, setListWindow, listHiddenBubble, setListHiddenBubble } =
-    useData();
+  const { listWindow,setListWindow, setListHiddenBubble } = useData();
 
   async function getMessages() {
     if (props.count?.id) {
@@ -60,19 +59,15 @@ export default memo(function WindowChat(props) {
           }
         );
         const data = await res.json();
-
         setMessages(data);
       } catch (err) {
         console.log(err);
       }
     }
   }
-  function closeWindow(c) {
-    setListWindow((pre) => {
-      const newData = pre.filter((obj) => obj.id !== c);
-      return newData;
-    });
-  }
+
+
+
   function closeHiddenWindow(e) {
     setListHiddenBubble((pre) => {
       const newData = pre.filter((obj) => obj.id !== e.id);
@@ -94,7 +89,7 @@ export default memo(function WindowChat(props) {
       data.push(c);
       return data;
     });
-    closeWindow(c.id);
+    props.props.closeWindow();
   }
   function pick_imageMess(e) {
     const imgMessFile = e.target.files;
@@ -109,21 +104,22 @@ export default memo(function WindowChat(props) {
       );
     }
   }
+  useEffect(() => {
+    console.log(props.count)
+    return()=>{console.log("Un",props.count)}
+  }, []);
   function onClickEmoji(e) {
-    console.log("Imes", inputMess);
     setEmoji((prev) => [
       ...prev,
       { id: inputMess.length, emoji: e.emoji, imageUrl: e.imageUrl },
     ]);
-    setFileImg(pre=>[...pre,e.imageUrl])
+    setFileImg((pre) => [...pre, e.imageUrl]);
   }
 
-
   useEffect(() => {
-    if(inputMess)
-      {
-        console.log(inputMess)
-      }
+    if (inputMess) {
+      console.log(inputMess);
+    }
   }, [inputMess]);
   useEffect(() => {
     if (emoji.length > 0 && emoji[emoji.length - 1].emoji !== undefined) {
@@ -136,14 +132,14 @@ export default memo(function WindowChat(props) {
   async function handleSubmit(e) {
     e.preventDefault();
     setEmoji([]);
-    setFileImg([])
+    setFileImg([]);
     setInputmess("");
     inputValue.current.focus();
     try {
       const imgData = new FormData();
       imgData.append("sender_id", auth.userID);
       imgData.append("conversation_id", props.count.id);
-      if (fileImg.length > 0 && inputMess?.length && emoji.length===0) {
+      if (fileImg.length > 0 && inputMess?.length && emoji.length === 0) {
         for (const file of fileImg) {
           imgData.append("content", file);
         }
@@ -155,7 +151,10 @@ export default memo(function WindowChat(props) {
       } else {
         let updatedInputMess = inputMess;
         emoji.forEach((e, i) => {
-          updatedInputMess = updatedInputMess.replace(e.emoji, "emojiLink"+e.imageUrl+"emojiLink");
+          updatedInputMess = updatedInputMess.replace(
+            e.emoji,
+            "emojiLink" + e.imageUrl + "emojiLink"
+          );
         });
         imgData.append("isFile", 0);
         imgData.append("content", updatedInputMess);
@@ -363,12 +362,15 @@ export default memo(function WindowChat(props) {
           `${process.env.REACT_APP_DB_HOST}/api/message/newest/seen/${data}/${auth?.userID}`
         );
         const getMess = await res.json();
-        setuserSeenAt(getMess);
+        if (getMess) {
+          setuserSeenAt(getMess);
+        }
       }
     } catch (error) {
       console.log(error);
     }
   };
+  // console.log("render",props.count)
   useEffect(() => {
     getNewstMess(props?.count.id);
   }, []);
@@ -388,7 +390,7 @@ export default memo(function WindowChat(props) {
     <>
       {!props.isHidden ? (
         <div
-          className={`windowchat ${props.ChatApp && `ChatAppMess`}`}
+          className={`windowchat ${props.count.id}`}
           ref={windowchat}
         >
           <div
@@ -400,14 +402,18 @@ export default memo(function WindowChat(props) {
             }
           >
             <div className="header_windowchat">
-              {props.count && userInfor && (
+              {
                 <>
                   <div className="header_online">
                     <div className="Avatar_status">
                       <img
                         className="avatarImage"
                         alt="Avatar"
-                        src={userInfor.img ? `${userInfor.img}` : ""}
+                        src={
+                          userInfor?.img
+                            ? `${userInfor.img}`
+                            : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZwrwaoNJkmjq6oB9qqONbVrUzEnhKlpz8sPFtxWVs_A&s"
+                        }
                       ></img>
                       <span
                         className={`dot ${
@@ -430,7 +436,7 @@ export default memo(function WindowChat(props) {
                         }}
                       >
                         {" "}
-                        <p className="hiddenEllipsis">{userInfor.Name}</p>
+                        <p className="hiddenEllipsis">{userInfor?.Name}</p>
                       </div>
                       {
                         <span>
@@ -447,14 +453,14 @@ export default memo(function WindowChat(props) {
                     </div>
                   </div>
                 </>
-              )}
+              }
             </div>
             <div className="button_windowchat">
               <div
                 className="features_hover"
                 style={props.ChatApp ? { display: "none" } : {}}
                 onClick={(e) => {
-                  closeWindow(props.count.id);
+                  props.closeWindow();
                 }}
               >
                 <FiX></FiX>
@@ -719,7 +725,12 @@ export default memo(function WindowChat(props) {
                 style={{ width: "3rem" }}
                 className="avatarImage"
                 alt="Avatar"
-                src={userInfor?.img}
+                loading="lazy"
+                src={
+                  userInfor
+                    ? userInfor.img
+                    : "https://img.freepik.com/free-vector/loading-circles-blue-gradient_78370-2646.jpg?size=338&ext=jpg&ga=GA1.1.553209589.1714953600&semt=sph"
+                }
               ></img>{" "}
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { useSocket } from "../../context/socketContext";
 import useAuth from "../../hook/useAuth";
@@ -7,6 +7,7 @@ import WindowChat from "./windowchat";
 import { useWindowChat } from "../../context/windowChatContext";
 import { useData } from "../../context/dataContext";
 import { getConversation } from "../conversation/getConversation";
+
 export default function MessageMainLayout(props) {
   const [onlineUser, setOnlineUser] = useState();
   const socket = useSocket();
@@ -22,6 +23,9 @@ export default function MessageMainLayout(props) {
     }
     AsyncGetCon();
   }, []);
+  const closeWindow = (c) => {
+    setListWindow(listWindow.filter((item) => item.id !== c.id));
+  };
   const onClickConser = (c) => {
     setListWindow((prev) => {
       const newClicked = [...prev];
@@ -30,7 +34,12 @@ export default function MessageMainLayout(props) {
         newClicked.splice(existingIndex, 1);
       }
       if (conversations) {
-        const con = conversations.filter((e) => e.id === c);
+        const con = [];
+        for (const e of conversations) {
+          if (e?.id === c) {
+            con.push(e);
+          }
+        }
         newClicked.unshift(con[0]);
       }
       return newClicked;
@@ -54,6 +63,7 @@ export default function MessageMainLayout(props) {
     };
   }, [socket]);
 
+
   return (
     <div className="main_layout25 linearBefore">
       {!props.isHidden && (
@@ -63,7 +73,7 @@ export default function MessageMainLayout(props) {
             <>
               {conversations.map(
                 (c, i) =>
-                  c.Friend === 1 && ( 
+                  c.Friend === 1 && (
                     <div
                       key={i}
                       className="converrsation_chat"
@@ -88,16 +98,16 @@ export default function MessageMainLayout(props) {
         {listWindow &&
           listWindow.map((e, i) => (
             <WindowChat
-              key={i}
+              key={e.id}
               count={e}
               index={i}
+              closeWindow={() => closeWindow(e)}
               isHidden={false}
               ListusersOnline={onlineUser}
             />
           ))}
       </div>
-    
-
     </div>
+    
   );
 }
