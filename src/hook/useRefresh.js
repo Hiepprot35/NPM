@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 export const useRefresh = () => {
   const { auth, setAuth } = useAuth();
   const { AccessToken, setAccessToken } = UseToken();
-  const cookieValue = Cookies.get("RefreshToken") || "";
   const { RefreshToken } = UseRfLocal();
   const host = process.env.REACT_APP_DB_HOST;
   const navigate = useNavigate();
@@ -30,8 +29,8 @@ export const useRefresh = () => {
         localStorage.removeItem("AccessToken");
         localStorage.removeItem("RefreshToken");
         navigate("/");
-        return;
       } else {
+        console.log(RefreshToken)
         if (response.status === 200) {
           const data = await response.json();
           const { Role, UserID, Username, avtUrl } = data;
@@ -42,7 +41,6 @@ export const useRefresh = () => {
             username: Username,
             avtUrl: avtUrl,
           });
-          return;
         }
       }
     } catch (error) {

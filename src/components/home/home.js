@@ -14,23 +14,28 @@ import { useSession } from "../../context/sectionProvider";
 function useParallax(value, distance) {
   return useTransform(value, [0, 1], [-distance, distance]);
 }
-function InViewComponent({ href, children,style }) {
+export function Image({ src, style, className }) {
+  return (
+    <img
+      alt="Image"
+      loading="lazy"
+      className={className}
+      style={style}
+      src={src ? src : process.env.REACT_APP_CLIENT_URL + "/images/loading.svg"}
+    ></img>
+  );
+}
+function InViewComponent({ href, children, style }) {
   const { session, setSession } = useSession();
-  const {ref,inView} = useInView({threshold:0.5});
+  const { ref, inView } = useInView({ threshold: 0.5 });
 
   useEffect(() => {
-    if (inView ){
-      setSession(href)
+    if (inView) {
+      setSession(href);
     }
-    
   }, [inView]);
 
-
-  return (
-    <motion.div ref={ref} >
-      {children}
-    </motion.div>
-  );
+  return <motion.div ref={ref}>{children}</motion.div>;
 }
 export default function Home(props) {
   const { listWindow, listHiddenBubble } = useData();
@@ -91,16 +96,24 @@ export default function Home(props) {
         {!props.isHidden && (
           <>
             <div className="contentHome" ref={contentHomeRef}>
-              <InViewComponent  style={{height:"100vh"}} href={`${process.env.REACT_APP_CLIENT_URL}/home#trending`}>
+              <InViewComponent
+                style={{ height: "100vh" }}
+                href={`${process.env.REACT_APP_CLIENT_URL}/home#trending`}
+              >
                 <MovieFilms />
               </InViewComponent>
-              <InViewComponent style={{height:"200vh"}} href={`${process.env.REACT_APP_CLIENT_URL}/home#playlist`}>
+              <InViewComponent
+                style={{ height: "200vh" }}
+                href={`${process.env.REACT_APP_CLIENT_URL}/home#playlist`}
+              >
                 <ListPlay></ListPlay>
               </InViewComponent>
-              <InViewComponent  style={{height:"100vh"}} href={`${process.env.REACT_APP_CLIENT_URL}/home#tvseries`}>
+              <InViewComponent
+                style={{ height: "100vh" }}
+                href={`${process.env.REACT_APP_CLIENT_URL}/home#tvseries`}
+              >
                 <TVMovie></TVMovie>
               </InViewComponent>
-          
             </div>
           </>
         )}

@@ -31,6 +31,7 @@ function App() {
 
   const refreshAccessToken = useRefresh();
   useEffect(() => {
+    console.log(RefreshToken)
     if (RefreshToken) {
       setIsLoading(true);
       async function fetchData() {

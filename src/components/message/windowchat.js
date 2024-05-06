@@ -19,6 +19,7 @@ import Message from "./Message";
 import { data } from "jquery";
 import { Popover } from "antd";
 import { getMess } from "../conversation/conversations";
+import { Image } from "../home/home";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 
 export default memo(function WindowChat(props) {
@@ -44,7 +45,7 @@ export default memo(function WindowChat(props) {
   const windowchat = useRef(null);
   const [userInfor, setUserInfo] = useState();
   const [messages, setMessages] = useState(props.messages);
-  const { listWindow,setListWindow, setListHiddenBubble } = useData();
+  const { listWindow, setListWindow, setListHiddenBubble } = useData();
 
   async function getMessages() {
     if (props.count?.id) {
@@ -65,8 +66,6 @@ export default memo(function WindowChat(props) {
       }
     }
   }
-
-
 
   function closeHiddenWindow(e) {
     setListHiddenBubble((pre) => {
@@ -89,7 +88,7 @@ export default memo(function WindowChat(props) {
       data.push(c);
       return data;
     });
-    props.props.closeWindow();
+    props.closeWindow();
   }
   function pick_imageMess(e) {
     const imgMessFile = e.target.files;
@@ -105,8 +104,10 @@ export default memo(function WindowChat(props) {
     }
   }
   useEffect(() => {
-    console.log(props.count)
-    return()=>{console.log("Un",props.count)}
+    console.log(props.count);
+    return () => {
+      console.log("Un", props.count);
+    };
   }, []);
   function onClickEmoji(e) {
     setEmoji((prev) => [
@@ -389,10 +390,7 @@ export default memo(function WindowChat(props) {
   return (
     <>
       {!props.isHidden ? (
-        <div
-          className={`windowchat ${props.count.id}`}
-          ref={windowchat}
-        >
+        <div className={`windowchat ${props.count.id}`} ref={windowchat}>
           <div
             className="top_windowchat"
             style={
@@ -406,15 +404,11 @@ export default memo(function WindowChat(props) {
                 <>
                   <div className="header_online">
                     <div className="Avatar_status">
-                      <img
+                      <Image
                         className="avatarImage"
                         alt="Avatar"
-                        src={
-                          userInfor?.img
-                            ? `${userInfor.img}`
-                            : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZwrwaoNJkmjq6oB9qqONbVrUzEnhKlpz8sPFtxWVs_A&s"
-                        }
-                      ></img>
+                        src={userInfor?.img}
+                      ></Image>
                       <span
                         className={`dot ${
                           props.ListusersOnline &&
@@ -719,19 +713,14 @@ export default memo(function WindowChat(props) {
             >
               <FiXCircle></FiXCircle>
             </div>
-            <div>
-              <img
-                onClick={() => showHiddenConver(props.count)}
+            <div onClick={() => showHiddenConver(props.count)}>
+              <Image
                 style={{ width: "3rem" }}
                 className="avatarImage"
                 alt="Avatar"
                 loading="lazy"
-                src={
-                  userInfor
-                    ? userInfor.img
-                    : "https://img.freepik.com/free-vector/loading-circles-blue-gradient_78370-2646.jpg?size=338&ext=jpg&ga=GA1.1.553209589.1714953600&semt=sph"
-                }
-              ></img>{" "}
+                src={userInfor?.img}
+              ></Image>{" "}
             </div>
           </div>
         </Popover>
