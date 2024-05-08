@@ -12,6 +12,7 @@ function BellTable() {
   const socket = useSocket();
   const notificationRef = useRef();
   const { auth } = useAuth();
+  const [Clicked, setClicked] = useState(false);
   const [notification, setNotification] = useState([]);
   const [users, setUsers] = useState([]);
   const data = async () => {
@@ -49,6 +50,7 @@ function BellTable() {
 
   const [showTable, setShowTable] = useState(false);
   const acceptHandle = async (id) => {
+    setClicked(!Clicked)
     const newUsers = users.filter((e) => e.id !== id);
     setUsers(newUsers);
     await fetchApiRes("message/updateConversation", "POST", {
@@ -59,6 +61,8 @@ function BellTable() {
     });
   };
   const deleteHandle = async (id) => {
+    setClicked(!Clicked)
+
     const newUsers = users.filter((e) => e.id !== id);
     setUsers(newUsers);
     await fetchApiRes("message/updateConversation", "POST", {
@@ -71,30 +75,33 @@ function BellTable() {
       <div
         className="circleButton notification"
         ref={notificationRef}
-        onClick={() => {
-          setShowTable(!showTable);
-        }}
+       
       >
         <div className="countNoti">
           <p>{users && users.length}</p>
         </div>
-        <span>
+        <div className="">
+        <span  onClick={() => {
+          setShowTable(!showTable);
+        }}>
           <FiBell></FiBell>
         </span>
+          </div>
         {showTable && (
           <div className="tableNotification">
             <div>
-              {users &&
+              {users.length>0 ?
                 users.map((e, i) => (
-                  <div className="infoNofi">
+                  <div className="infoNofi center">
                     <div
                       className="divCenterdiv"
-                      style={{ marginLeft: "1rem" }}
                     >
-                      <img src={`${e.img}`}></img>
+                      <div style={{margin:".5rem"}}>
+                        <img src={`${e.img}`}></img>
+                      </div>
                       <div>
                         <p>
-                          <b>{e.name}</b> gửi lời mời kết bạn
+                          <strong>{e.name}</strong> gửi lời mời kết bạn
                         </p>
                         <div className="divCenterdiv">
                           <div
@@ -107,13 +114,19 @@ function BellTable() {
                             className="button"
                             onClick={() => deleteHandle(e.id)}
                           >
-                            <p>Từ chối</p>
+                            <p style={{color:"black"}}>Từ chối</p>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
+                ))
+                :
+                <div className="infoNofi center"style={{height:"4rem"}}>
+
+                <p>Hiện tại không có thông báo mới</p>
+                </div>
+              }
             </div>
           </div>
         )}

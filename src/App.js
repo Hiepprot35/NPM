@@ -31,7 +31,6 @@ function App() {
 
   const refreshAccessToken = useRefresh();
   useEffect(() => {
-    console.log(RefreshToken)
     if (RefreshToken) {
       setIsLoading(true);
       async function fetchData() {
@@ -70,7 +69,7 @@ function App() {
             <Route path="/dangkilop" element={<DangKiLopHoc />} />
             <Route path="/profile/:MSSV" element={<ProfileRoutes />} />
             <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
-            <Route path="/movie/moviedetail/:id" element={<MovieFilm />} />
+            <Route path="/movie/moviedetail/:id" element={<DeltailMovieFilms />} />
             {/* <Route path="/" element={<Dashboard />} /> */}
             <Route path="/" element={<Home />} />
             <Route path="/friends" element={<FriendList />} />
@@ -105,9 +104,9 @@ function App() {
 function ProfileRoutes() {
   const { MSSV } = useParams();
 
-  return <UserProfile MSSVParams={MSSV} />;
+  return <UserProfile MSSV={MSSV} />;
 }
-function MovieFilm() {
+function DeltailMovieFilms() {
   const { id } = useParams();
 
   return <DetailMovie MovieID={id} />;

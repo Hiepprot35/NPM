@@ -25,7 +25,7 @@ export function Image({ src, style, className }) {
     ></img>
   );
 }
-function InViewComponent({ href, children, style }) {
+export function InViewComponent({ href, children, style }) {
   const { session, setSession } = useSession();
   const { ref, inView } = useInView({ threshold: 0.5 });
 

@@ -12,7 +12,7 @@
 }
 .newFeedList{
     transition: 500ms ease;
-    border-radius: 1rem;
+    border-radius: .7rem;
 }
 .activeSection{
     background-color: rgb(170, 42, 42);

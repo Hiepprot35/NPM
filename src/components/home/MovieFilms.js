@@ -16,6 +16,7 @@ import useAuth from "../../hook/useAuth";
 import "./MovieFilms.css";
 import MyReactPlayer from "./ReactPlayer";
 import WatchFilms from "./watchFilms";
+import { Image } from "./home";
 export const genresList = async () => {
   const MOVIE = await TheMovieApi(
     `https://api.themoviedb.org/3/genre/movie/list`
@@ -87,11 +88,14 @@ export default function MovieFilms(props) {
     };
     const moviePercent = (CurrentMovie * 100) / Movies?.length;
     const smallSlidePercent = (CurrentMovie * 100) / Movies?.length;
-
     if (refMovieFilms.current && refSmallSlide.current) {
       refMovieFilms.current.style.transform = `translateX(-${moviePercent}%)`;
       refSmallSlide.current.style.transform = `translateX(-${smallSlidePercent}%)`;
     }
+    if(CurrentMovie===0 && Movies &&RefScrollImage.current)
+      {
+        RefScrollImage.current.style.paddingLeft="40%"
+      }
     if (ref.current) {
       ref.current.addEventListener("keydown", handleKeyPress);
       ref.current.tabIndex = 0;
@@ -101,7 +105,6 @@ export default function MovieFilms(props) {
           `url(https://image.tmdb.org/t/p/original/${Movies[CurrentMovie]?.backdrop_path})`
         );
       }
-
       return () => {
         ref?.current?.removeEventListener("keydown", handleKeyPress);
       };
@@ -231,16 +234,28 @@ export default function MovieFilms(props) {
                             </motion.h1>
                           </div>
                           <div className="linear"></div>
-                          <h2>Type: {e.media_type} </h2>
+                          <h2>
+                            <Text
+                              style={{ fontSize: "1.5rem", color: "#ededed" }}
+                              text={`${
+                                GenresList &&
+                                e.genre_ids.map(
+                                  (e) =>
+                                    GenresList.find((values) => values.id === e)
+                                      ?.name
+                                )
+                              }`}
+                            />{" "}
+                          </h2>
                         </div>
                         <div
                           className="center"
                           style={{ flexDirection: "column" }}
                         >
-                          <img
+                          <Image
                             style={{ width: "100px" }}
-                            src={`https://image.tmdb.org/t/p/original/${e.poster_path}`}
-                          ></img>
+                            src={e.poster_path &&`https://image.tmdb.org/t/p/original/${e.poster_path}`}
+                          ></Image>
                           <div
                             className="scoreFilm center"
                             style={{ margin: ".3rem" }}
@@ -354,16 +369,16 @@ export default function MovieFilms(props) {
                   >
                     <div
                       onClick={() => setCurrentMovie(i)}
-                      className={`imageSlide `}
+                      className={`imageSlide  center `}
                     >
-                      <img
+                      <Image
                         ref={(ref) => (miniImage.current[i] = ref)}
-                        src={`https://image.tmdb.org/t/p/original/${e.poster_path}`}
-                      ></img>
+                        src={ e.poster_path &&`https://image.tmdb.org/t/p/original/${e.poster_path}`}
+                      ></Image>
                     </div>
-                    <div className="center" style={{ flexDirection: "column" }}>
+                    <div className="textImageSlide" style={{ flexDirection: "column",width:"50%",transition:"500ms ease" }}>
                       <Text
-                        style={{ fontSize: "1rem" }}
+                        style={{ fontSize: "1rem",color:"white" }}
                         text={`${e?.title || e?.name}`}
                       ></Text>
                       <Text

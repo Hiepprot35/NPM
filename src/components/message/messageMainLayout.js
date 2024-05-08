@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
-import { FiEdit } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { useData } from "../../context/dataContext";
 import { useSocket } from "../../context/socketContext";
 import useAuth from "../../hook/useAuth";
 import Conversation from "../conversation/conversations";
-import WindowChat from "./windowchat";
-import { useWindowChat } from "../../context/windowChatContext";
-import { useData } from "../../context/dataContext";
 import { getConversation } from "../conversation/getConversation";
 
 export default function MessageMainLayout(props) {
@@ -23,9 +20,7 @@ export default function MessageMainLayout(props) {
     }
     AsyncGetCon();
   }, []);
-  const closeWindow = (c) => {
-    setListWindow(listWindow.filter((item) => item.id !== c.id));
-  };
+
   const onClickConser = (c) => {
     setListWindow((prev) => {
       const newClicked = [...prev];
@@ -49,7 +44,6 @@ export default function MessageMainLayout(props) {
       return data;
     });
   };
-
   useEffect(() => {
     if (socket) {
       socket.on("getUsers", (data) => {
@@ -62,52 +56,39 @@ export default function MessageMainLayout(props) {
       }
     };
   }, [socket]);
-
-
   return (
-    <div className="main_layout25 linearBefore">
-      {!props.isHidden && (
-        <>
-          <h1> Tin nhắn </h1>
-          {conversations && (
-            <>
-              {conversations.map(
-                (c, i) =>
-                  c.Friend === 1 && (
-                    <div
-                      key={i}
-                      className="converrsation_chat"
-                      onClick={() => {
-                        onClickConser(c.id);
-                      }}
-                    >
-                      <Conversation
-                        count={props.counter}
-                        conversation={c}
-                        notSeen_field={true}
-                        Online={onlineUser}
-                      ></Conversation>
-                    </div>
-                  )
-              )}
-            </>
-          )}
-        </>
-      )}
-      <div className="windowchat_container">
-        {listWindow &&
-          listWindow.map((e, i) => (
-            <WindowChat
-              key={e.id}
-              count={e}
-              index={i}
-              closeWindow={() => closeWindow(e)}
-              isHidden={false}
-              ListusersOnline={onlineUser}
-            />
-          ))}
+    <>
+      <div className="main_layout25 linearBefore">
+        {!props.isHidden && (
+          <>
+            <h1> Tin nhắn </h1>
+            {conversations && (
+              <>
+                {conversations.map(
+                  (c, i) =>
+                    c.Friend === 1 && (
+                      <div
+                        key={i}
+                        className="converrsation_chat center"
+                        onClick={() => {
+                          onClickConser(c.id);
+                        }}
+                      >
+                        <Conversation
+                          count={props.counter}
+                          conversation={c}
+                          notSeen_field={true}
+                          Online={onlineUser}
+                        ></Conversation>
+                      </div>
+                    )
+                )}
+              </>
+            )}
+          </>
+        )}
       </div>
-    </div>
-    
+     
+    </>
   );
 }

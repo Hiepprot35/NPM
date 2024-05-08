@@ -102,7 +102,6 @@ function Header(props) {
 
           const student = await studentApi.json();
           if (student) {
-            console.log("student",student)
             setUser(student);
             // setAuth({ ...auth });
           }
@@ -214,7 +213,7 @@ function Header(props) {
               <li>
                 <div className="center TempText">
                   <img
-                    style={{ width: "32px", height: "32px" }}
+                    style={{ width: "2rem", height: "2rem" }}
                     src={`${weather.icon}`}
                     alt={weather.weather}
                   />

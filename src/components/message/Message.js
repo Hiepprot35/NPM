@@ -8,15 +8,14 @@ import { useSocket } from "../../context/socketContext";
 import { Popover } from "antd";
 export default memo(function Message({
   message,
+  i,
   own,
   student,
   Online,
   listSeen,
+  messages,
   userID,
-  first,
-  end,
-  mid,
-  alone,
+  checkMess,
 }) {
   const time = useRef(null);
   const { auth } = useAuth();
@@ -31,14 +30,36 @@ export default memo(function Message({
       setListAnh(data);
     }
   }, []);
-  function checkMess() {
-    if (first) {
+  const ag = () => {
+    const l = messages.length;
+    const sender = message.sender_id;
+    if (i === l - 1) {
+      return 3;
+    }
+    if (i > 0 && i < l - 1) {
+      const prevSender = messages[i - 1].sender_id;
+      const nextSender = messages[i + 1].sender_id;
+      if (prevSender === sender && nextSender === sender) {
+        return 2;
+      }
+      if (prevSender !== sender && nextSender === sender) {
+        return 1;
+      }
+      if (prevSender === sender && nextSender !== sender) {
+        return 3;
+      }
+      return 2;
+    }
+    return 3;
+  };
+  function messName() {
+    if (ag() === 1) {
       return "firstMessage";
     }
-    if (mid) {
+    if (ag() === 2) {
       return "midMessage";
     }
-    if (end) {
+    if (ag() === 3) {
       return "endMessage";
     } else {
       return "";
@@ -48,14 +69,29 @@ export default memo(function Message({
     return (
       <>
         {message?.content.includes("https://cdn.jsdelivr.net") ? (
-          <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",marginTop:".4rem"}}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              marginTop: ".4rem",
+            }}
+          >
             {message.content.split("emojiLink").map((e, index) =>
               e.includes("https://cdn.jsdelivr.net") ? (
                 <span key={index}>
-                  <img alt="icon" style={{ width: "1rem" ,height:"1rem",margin:".1rem"}} src={`${e}`} />
+                  <img
+                    alt="icon"
+                    style={{ width: "1rem", height: "1rem", margin: ".1rem" }}
+                    src={`${e}`}
+                  />
                 </span>
               ) : (
-                e.length>0 &&<span style={{marginBottom:".4rem"}} key={index}>{e}</span>
+                e.length > 0 && (
+                  <span style={{ marginBottom: ".4rem" }} key={index}>
+                    {e}
+                  </span>
+                )
               )
             )}
           </div>
@@ -66,20 +102,13 @@ export default memo(function Message({
     );
   };
 
-  // useEffect(() => {
-  //   if(message.content)
-  //     {
-
-  //       ccc()
-  //     }
-  // }, [message?.content]);
   return (
     <>
       <div className="containerMessage" ref={messageRef}>
         {message ? (
           <div
             className={
-              own ? `message own ${checkMess()}` : `message ${checkMess()}`
+              own ? `message own own_${messName()}` : `message ${messName()}`
             }
           >
             {}
@@ -87,7 +116,7 @@ export default memo(function Message({
               <div className="messageTop">
                 {!own && student?.img && message.content !== null && (
                   <>
-                    {(alone || end) && (
+                    {(ag() === 0 || ag() === 3) && (
                       <div className={`Avatar_status`}>
                         <img
                           className="avatarImage"

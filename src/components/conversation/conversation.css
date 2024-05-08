@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     cursor: pointer;
-    padding:1rem 0 1rem 0;
+    margin:.4rem .4rem .4rem .4rem;
     width: 100%;
   }
   .Avatar_status{
@@ -30,6 +30,9 @@
     .conversationName {
       display: none;
     }
+  }
+  .messConversation span{
+    font-size: .8rem;
   }
   .messConversation
   {

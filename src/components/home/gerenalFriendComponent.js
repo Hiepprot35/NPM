@@ -8,12 +8,11 @@ import HoverProfile from "../UserProfile/hoverProfile";
 export default function GerenalFriendComponent(props) {
   const [Users, setUsers] = useState();
   const getUser = async () => {
-    let ListInfo = [];
     if (props.listGerenal) {
       const result = await Promise.all(
         props.listGerenal.map(async (e) => {
           const data = await fetchApiRes(`username`, "POST", { UserID: e });
-          const user = await fetchApiRes(`getStudentbyID/${data[0].username}`);
+          const user = await fetchApiRes(`getStudentbyID/${data[0]?.username}`);
           return user;
         })
       );
@@ -22,7 +21,7 @@ export default function GerenalFriendComponent(props) {
   };
   useEffect(() => {
     getUser();
-  }, []);
+  }, [props.listGerenal]);
 
   return (
     <div className="GerenalFriend">
@@ -34,16 +33,18 @@ export default function GerenalFriendComponent(props) {
         }}
       >
         {Users &&
-          Users.map((e,i) => 
-          <Popover key={i} content={<HoverProfile MSSV={e.MSSV} isHover={true}></HoverProfile>}>
-
-          {/* <NavLink to={`${process.env.REACT_APP_CLIENT_URL}/profile/${e.MSSV}`}> */}
-
-          <Avatar shape="circle" src={`${e.img}`}></Avatar>
-          {/* </NavLink> */}
-          </Popover>
-        )
-          }
+          Users.map((e, i) => (
+            <Popover
+              key={i}
+              content={
+                <>
+               <UserProfile MSSV={e.MSSV} isHover={true}></UserProfile>
+                </>
+              }
+            >
+              <Avatar shape="circle" src={`${e.img}`}></Avatar>
+            </Popover>
+          ))}
       </Avatar.Group>
     </div>
   );

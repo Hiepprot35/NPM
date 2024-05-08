@@ -45,12 +45,12 @@ export default function Login({ setAccessToken }) {
       if (dataRes.AccessToken) {
         setAccessToken(dataRes.AccessToken);
         setRefreshToken(dataRes.RefreshToken);
-        const { Role, Username, UserID, avtUrl } = dataRes;
+        const { Role, Username, UserID, avtURL } = dataRes;
         setAuth({
           role: Role,
           username: Username,
           userID: UserID,
-          avtUrl: avtUrl,
+          avtUrl: avtURL,
         });
         setIsLoading(false);
       }

@@ -16,7 +16,6 @@ h5 {
   font-weight: 700;
   color: #333;
   font-size: 1.3rem;
-  font-family: Quicksand, sans-serif;
 }
 
 .header_home_user {
@@ -48,7 +47,10 @@ h5 {
 .header-left {
   display: inline-block;
 }
-
+::placeholder
+{
+  font-size: .8rem;
+}
 .header_container {
   height: 100%;
   /* background: rgb(0, 0, 0); */
@@ -173,7 +175,7 @@ h5 {
 }
 .Link,
 .City {
-  font-family: Arial, sans-serif;
+  font-family: Tahoma, sans-serif;
   color: var(--textColor);
   font-weight: 600;
   /* text-transform: uppercase; */

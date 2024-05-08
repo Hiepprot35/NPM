@@ -9,12 +9,11 @@
 .messageTop,
 .messageBottom {
   display: flex;
-  margin: 0px 1rem 0px 1rem;
   align-items: center;
 }
 .firstMessage,
 .midMessage {
-  margin-left: 3.7rem;
+  margin-left: 3rem;
   margin-bottom: 0.2rem;
 }
 .firstMessage .messageText {
@@ -28,8 +27,16 @@
   margin-right: 3.7rem;
   margin-bottom: 0.2rem;
 }
+.own_firstMessage .messageText{
+  border-radius: 2rem 2rem 0.3rem 2rem !important;
+
+}
+.own_endMessage .messageText{
+  border-radius: 2rem 0.3rem 2rem 2rem !important;
+
+}
 .firstMessage .messageText {
-  border-radius: 2rem 2rem 2rem 0.3rem;
+  border-radius: 2rem 2rem 2rem 0.3rem ;
 }
 .endMessage .messageText {
   border-radius: 0.3rem 2rem 2rem 2.5rem;
@@ -98,12 +105,11 @@
 .forget_pass {
   display: flex;
   position: relative;
-  margin-left: 1rem;
   align-items: center;
   max-width: 80%;
 }
 .endMessage .Mess_seen_text {
-  margin-left: 1rem;
+  margin-left: 0.5rem;
 }
 .messageBottom {
   position: relative;

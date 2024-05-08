@@ -1,57 +1,60 @@
-.notification{
-    position: relative;
+.notification {
+  position: relative;
+
 }
-.countNoti{
-    position: absolute;
-    top: -20%;
-    background-color: red;
-    width:  20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    right: 0;
+.countNoti {
+  position: absolute;
+  top: -20%;
+  background-color: rgba(233, 12, 12, 0.833);
+  width: 1.3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  right: 0;
 }
-.countNoti p{
-    color: white;
+.countNoti p {
+  color: var(--textColor);
 }
-.divCenterdiv{
-    display: flex;
-    width: 100%;
-    margin: 1rem;
-    justify-content: space-around;
+.divCenterdiv p {
+  font-family: "Roboto", "Arial", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
 }
-.AcceptButton
-{
-    color: white;
-    background-color:rgb(8,102,255) !important;
+.divCenterdiv {
+  display: flex;
+  width: 100%;
+  margin: 0.3rem;
+  justify-content: space-around;
 }
-.button{
-    border-radius: 0.4rem;
-    margin: .2;
-    font-weight: 600;
-    background-color: #D8DADF;
-    padding: 0.4rem 0.9rem 0.4rem 0.9rem;
-    
+.AcceptButton {
+  color: white;
+  background-color: rgb(8, 102, 255) !important;
 }
-.tableNotification{
-    width: 300px;
-    position: absolute;
-    top: 105%;
-    border-radius: .5rem;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    right: -50%;
-    min-height: 50px;
-    background-color: white;
+.button {
+  border-radius: 0.4rem;
+  margin: 0.2;
+  font-weight: 600;
+  background-color: #d8dadf;
+  padding: 0.4rem 0.9rem 0.4rem 0.9rem;
+}
+.tableNotification {
+  width: 20rem;
+  position: absolute;
+  padding: 0.5rem;
+  top: 105%;
+  border-radius: 0.5rem;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  right: -50%;
+  background-color: var(--themeColor);
 }
 .infoNofi {
-    transition: 250ms linear;
-    border-radius: .3rem;
-    margin-left: 1rem;
-    display: flex;
-    align-items: center;
+  transition: 250ms linear;
+  border-radius: 0.3rem;
+  display: flex;
+  align-items: center;
 }
-.infoNofi:hover
+/* .infoNofi:hover
 {
     background-color: rgb(202, 193, 193);
-}
+} */

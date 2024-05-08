@@ -27,10 +27,10 @@
   width: 100%;
   transition: 500ms ease-out;
 }
-.MovieFilms2{
-  margin: .4rem;
+.MovieFilms2 {
+  /* margin: 0.4rem; */
   display: flex;
-  width:15vw;
+  width: calc(var(--widthContentHome)/5);
 }
 .vangohPics,
 .userMovie {
@@ -93,28 +93,39 @@
   height: 100%;
   border-radius: 1rem 1rem 0 0;
   display: flex;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .imageSlide {
   cursor: pointer;
-  transition: 500ms ease;
+  width: 50%;
+  height: 100%;
+  position: relative;
 }
-.imageSlide img {
-  width: 4.5rem;
-  aspect-ratio: 10/12;
-  object-fit: contain;
 
-  border-radius: .9rem;
+.imageSlide img {
+  transition: 0.5s linear;
+  position: absolute;
+  margin-bottom: 5%;
+  bottom: 0;
+  text-align: center;
+  height: 90%;
+  aspect-ratio: 10/12;
+  object-fit: cover;
+  border-radius: 0.4rem;
 }
 .notActiveImage {
-  transition: 500ms linear;
   opacity: 0.6;
 }
-.ActiveImage{
+.ActiveImage img {
+  filter: drop-shadow(0 0 0.75rem rgb(233, 231, 115));
+  height: 110%;
+}
+.ActiveImage {
+  font-size: 1rem !important;
   border-radius: 1rem;
-
-  background-color: rgba(53, 53, 53, 0.512);
+  /* background-color: rgba(53, 53, 53, 0.512); */
 }
 .leftContentMovie {
   width: 100%;

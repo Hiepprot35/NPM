@@ -1,20 +1,23 @@
-import React, { Component, useEffect, useRef, useState } from "react";
-import "./nvarbar.css";
-import MessageMainLayout from "../../message/messageMainLayout";
+import { Player } from "@lottiefiles/react-lottie-player";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FiCoffee,
-  FiMessageCircle,
   FiTag,
   FiTrendingUp,
-  FiUserPlus,
-  FiUsers,
+  FiUsers
 } from "react-icons/fi";
-import BubbleConver from "../../conversation/bubbleConver";
+import { useData } from "../../../context/dataContext";
 import { useSession } from "../../../context/sectionProvider";
-import { Player } from "@lottiefiles/react-lottie-player";
+import { useSocket } from "../../../context/socketContext";
+import BubbleConver from "../../conversation/bubbleConver";
+import MessageMainLayout from "../../message/messageMainLayout";
+import Windowchat from "../../message/windowchat";
+import "./nvarbar.css";
 export default function Nvarbar() {
   const { session, setSession } = useSession();
+  const {socket}=useSocket()
 
+  const { listWindow } = useData();
   const newFeed = [
     {
       title: "Trending",
@@ -102,6 +105,17 @@ export default function Nvarbar() {
           <div className="linear"></div>
         </div>
         <MessageMainLayout />
+      </div>
+      <div className="windowchat_container">
+        {listWindow &&
+          listWindow.map((e, i) => (
+            <Windowchat
+              key={e.id}
+              count={e}
+              index={i}
+              isHidden={false}
+            />
+          ))}
       </div>
       <BubbleConver></BubbleConver>
     </>

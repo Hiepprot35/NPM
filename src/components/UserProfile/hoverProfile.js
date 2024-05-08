@@ -11,6 +11,7 @@ import Home from "../home/home";
 import FriendList from "../home/friend";
 import MessageMainLayout from "../message/messageMainLayout";
 import { Layout } from "antd";
+import UserProfile from "./userProfile";
 const { Content, Footer } = Layout;
 
 export default function HoverProfile(props) {
@@ -39,13 +40,12 @@ export default function HoverProfile(props) {
       <div className="hoverProfile">
         <div className="">
           {UserInfo && (
-            <FriendList
+            <UserProfile
               className="userProfile"
               fontSize="1rem"
-              profile={true}
+              // MSSV={UserInfo.MSSV}
               hover={true}
-              listUsers={[{ ...UserInfo }]}
-            ></FriendList>
+            ></UserProfile>
           )}
         </div>
       </div>

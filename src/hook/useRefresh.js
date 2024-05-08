@@ -25,14 +25,13 @@ export const useRefresh = () => {
       });
 
       if (response.status !== 200) {
-        console.log("ok")
         localStorage.removeItem("AccessToken");
         localStorage.removeItem("RefreshToken");
         navigate("/");
       } else {
-        console.log(RefreshToken)
         if (response.status === 200) {
           const data = await response.json();
+          console.log(data,"data")
           const { Role, UserID, Username, avtUrl } = data;
           setAccessToken(data.AccessToken);
           setAuth({

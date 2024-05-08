@@ -1,4 +1,6 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { Popover } from "antd";
+import EmojiPicker from "emoji-picker-react";
+import { memo, useEffect, useRef, useState } from "react";
 import {
   FiImage,
   FiMinus,
@@ -9,17 +11,13 @@ import {
   FiX,
   FiXCircle,
 } from "react-icons/fi";
-import { useSocket } from "../../context/socketContext";
-import useAuth from "../../hook/useAuth";
-import "./windowchat.css";
 import { useData } from "../../context/dataContext";
-import EmojiPicker from "emoji-picker-react";
+import { useSocket } from "../../context/socketContext";
 import { getStudentInfoByMSSV, getUserinfobyID } from "../../function/getApi";
-import Message from "./Message";
-import { data } from "jquery";
-import { Popover } from "antd";
-import { getMess } from "../conversation/conversations";
+import useAuth from "../../hook/useAuth";
 import { Image } from "../home/home";
+import Message from "./Message";
+import "./windowchat.css";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 
 export default memo(function WindowChat(props) {
@@ -46,6 +44,20 @@ export default memo(function WindowChat(props) {
   const [userInfor, setUserInfo] = useState();
   const [messages, setMessages] = useState(props.messages);
   const { listWindow, setListWindow, setListHiddenBubble } = useData();
+  const [onlineUser, setOnlineUser] = useState();
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("getUsers", (data) => {
+        setOnlineUser(data);
+      });
+    }
+    return () => {
+      if (socket) {
+        socket.off("disconnect");
+      }
+    };
+  }, [socket]);
 
   async function getMessages() {
     if (props.count?.id) {
@@ -88,7 +100,7 @@ export default memo(function WindowChat(props) {
       data.push(c);
       return data;
     });
-    props.closeWindow();
+    closeWindow();
   }
   function pick_imageMess(e) {
     const imgMessFile = e.target.files;
@@ -103,12 +115,7 @@ export default memo(function WindowChat(props) {
       );
     }
   }
-  useEffect(() => {
-    console.log(props.count);
-    return () => {
-      console.log("Un", props.count);
-    };
-  }, []);
+
   function onClickEmoji(e) {
     setEmoji((prev) => [
       ...prev,
@@ -272,48 +279,9 @@ export default memo(function WindowChat(props) {
       container.scrollTop = container.scrollHeight;
     }
   }, [messages]);
-
-  const checkMess = useCallback((i, array, authID, user, sender) => {
-    let value;
-    if (sender === authID) {
-      value = user;
-    }
-    if (sender === user) {
-      value = authID;
-    }
-    const l = array.length;
-    if (i === 0 || i === l - 1) {
-      return 0;
-    }
-    if (i > 0 && i < l - 1) {
-      if (
-        array[i - 1].sender_id === authID &&
-        array[i + 1].sender_id === authID
-      ) {
-        return 0;
-      }
-      if (
-        array[i - 1].sender_id !== value &&
-        array[i + 1].sender_id === value
-      ) {
-        return 3;
-      }
-      if (
-        array[i - 1].sender_id === value &&
-        array[i + 1].sender_id !== value
-      ) {
-        return 1;
-      }
-      if (
-        array[i - 1].sender_id !== value &&
-        array[i + 1].sender_id !== value
-      ) {
-        return 2;
-      }
-    }
-
-    return undefined;
-  }, []);
+  const closeWindow = () => {
+    setListWindow(listWindow.filter((item) => item.id !== props.count.id));
+  };
   const clickConversation = async (data) => {
     const user12 = [data?.user1, data?.user2];
     const receiverId = user12.find((member) => member !== auth.userID);
@@ -411,8 +379,8 @@ export default memo(function WindowChat(props) {
                       ></Image>
                       <span
                         className={`dot ${
-                          props.ListusersOnline &&
-                          props.ListusersOnline.some(
+                          onlineUser &&
+                          onlineUser.some(
                             (e) => e.userId === userConver
                           )
                             ? "activeOnline"
@@ -453,8 +421,8 @@ export default memo(function WindowChat(props) {
               <div
                 className="features_hover"
                 style={props.ChatApp ? { display: "none" } : {}}
-                onClick={(e) => {
-                  props.closeWindow();
+                onClick={() => {
+                  closeWindow();
                 }}
               >
                 <FiX></FiX>
@@ -492,47 +460,13 @@ export default memo(function WindowChat(props) {
                 messages.map((message, index) => (
                   <div className="message_content" key={index}>
                     <Message
+                      i={index}
                       key={index}
                       message={message}
                       my={auth.userID}
-                      mid={
-                        checkMess(
-                          index,
-                          messages,
-                          auth.userID,
-                          userConver,
-                          message.sender_id
-                        ) === 2
-                      }
-                      alone={
-                        checkMess(
-                          index,
-                          messages,
-                          auth.userID,
-                          userConver,
-                          message.sender_id
-                        ) === 0
-                      }
-                      first={
-                        checkMess(
-                          index,
-                          messages,
-                          auth.userID,
-                          userConver,
-                          message.sender_id
-                        ) === 1
-                      }
-                      end={
-                        checkMess(
-                          index,
-                          messages,
-                          auth.userID,
-                          userConver,
-                          message.sender_id
-                        ) === 3
-                      }
                       own={message.sender_id === auth.userID}
                       student={userInfor}
+                      messages={messages}
                       userID={userConver}
                       listSeen={userSeenAt}
                       Online={props.ListusersOnline}
@@ -674,7 +608,6 @@ export default memo(function WindowChat(props) {
               style={{
                 overflow: "hidden",
                 whiteSpace: "wrap",
-
                 textOverflow: "ellipsis",
                 maxWidth: "10rem",
                 // height: "1rem",
@@ -695,7 +628,7 @@ export default memo(function WindowChat(props) {
               }}
             >
               <p style={{ color: "gray" }}>
-                {messages &&
+                {messages?.length>1 &&
                   messages[messages?.length - 1]?.sender_id === auth?.userID &&
                   "Bạn: "}{" "}
                 {messages && messages[messages.length - 1]?.content}{" "}
@@ -721,6 +654,16 @@ export default memo(function WindowChat(props) {
                 loading="lazy"
                 src={userInfor?.img}
               ></Image>{" "}
+              <span
+                className={`dot ${
+                  onlineUser &&
+                  onlineUser.some((e) => e.userId === userConver)
+                    ? "activeOnline"
+                    : {}
+                }`}
+              >
+                {" "}
+              </span>
             </div>
           </div>
         </Popover>
