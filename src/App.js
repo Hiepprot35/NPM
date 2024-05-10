@@ -109,7 +109,7 @@ function ProfileRoutes() {
 function DeltailMovieFilms() {
   const { id } = useParams();
 
-  return <DetailMovie MovieID={id} />;
+  return <DetailMovie movieID={id} />;
 }
 function MessageRoute() {
   const { messageId } = useParams();

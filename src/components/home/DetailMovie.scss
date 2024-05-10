@@ -191,45 +191,168 @@ $font-Dieu: "Dancing Script", cursive;
   width: 75vw;
   height: 200vh;
 }
-.actorsMovie
-{
+.actorsMovie {
   display: flex;
   min-width: 100%;
   height: 10rem;
   overflow-x: scroll;
   overflow-y: hidden;
 }
-.actorsMovie img{
+.actorsMovie img {
   height: 7rem;
   width: 5rem;
 }
-.actor{
-  margin-right: .4rem;
+.actor {
+  margin-right: 0.4rem;
   height: 100%;
   flex-direction: column;
 }
 .Poster img {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
-.actorsMovie::-webkit-scrollbar
-{
-  height: .4rem;
+.actorsMovie::-webkit-scrollbar {
+  height: 0.4rem;
   border-radius: 1rem;
 }
-.actorsMovie::-webkit-scrollbar-track
-{
+.actorsMovie::-webkit-scrollbar-track {
   color: gray;
 }
-.comment{
+.comment {
+  position: relative;
   display: flex;
   align-items: center;
   background-color: var(--themeColor);
-  padding: 1rem;
 }
-.likedislike
-{
+.commentMovie .center {
+  position: relative;
+}
+.tag {
+  cursor: pointer;
   display: flex;
 }
-.activeLike svg{
+.tagList {
+  position: absolute;
+  background-color: rgb(0, 0, 0);
+  top: 3rem;
+}
+.likedislike {
+  display: flex;
+}
+.activeLike svg {
   fill: var(--textColor);
+}
+.spanInput {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.inputDiv {
+  display: flex;
+
+  margin: 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--themeColor);
+  color: var(--textColor);
+  border: none;
+  outline: 0;
+  z-index: 0;
+  position: relative;
+  min-height: 3rem;
+}
+.sendComment
+{
+  margin:.5rem;
+  cursor: pointer;
+  height: 100%;
+  font-size: 1.4rem;
+}
+.commentDiv {
+  position: relative;
+  margin: 1rem;
+  z-index: 1;
+  outline: 0;
+}
+.headerComment{
+  display: flex;
+}
+.NameAndContent
+{
+  background-color: #626666a5;
+  border-radius: 1rem;
+  padding:1rem ;
+  margin-left: .6rem;
+}
+.commentDiv p
+{
+  width: 19rem;
+  min-height: 2rem;
+}
+.placehoder {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 0;
+  height: 50%;
+  width: 19rem;
+}
+.spanComment {
+  min-width: 1rem;
+  min-height: 1rem;
+  max-width: 20rem;
+  max-height: 5rem;
+}
+
+.linearComment{
+  
+  height: calc(100% - 2.6rem);
+  border-left: 0.1rem solid  rgba(107, 107, 107, 0.649);
+  margin-left: 1.27rem;
+}
+.CommentReply
+{
+  position: relative;
+}
+.CommentReply .AvatarComment2::before{
+  content: "";
+  position: absolute;
+  left:-1.73rem;
+  width: 2rem;
+  
+  height: 50%;
+  border-left: 0.1rem solid  rgba(107, 107, 107, 0.649);
+  border-bottom: 0.1rem solid  rgba(107, 107, 107, 0.649);
+  border-bottom-left-radius: .5rem;
+}
+.CommentReply .notLastComment::before{
+  content: "";
+  position: absolute;
+  width: 2rem;
+  left: -1.73rem;
+  height: 100%;
+  border-left: 0.1rem solid rgba(107, 107, 107, 0.649);
+}
+.AvatarComment2
+{
+  position: relative;
+}
+.CommentReply
+{
+  margin-left: 3rem;
+}
+.contentComment{
+  margin:.3rem 0 .2rem 0;
+}
+.contentComment .tagNameHref {
+  background-color: rgba(255, 255, 255, 0);
+  font-weight: 700;
+}
+.contentComment .tagNameHref:hover{
+  text-decoration: underline;
+}
+.tagNameHref{
+  background-color: #a5f5e88e;
+}
+.likeButton {
+  margin: 1rem;
+  cursor: pointer;
 }

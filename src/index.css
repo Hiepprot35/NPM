@@ -81,7 +81,6 @@ code {
 .avatarImage {
   width: 2.5rem;
   aspect-ratio: 1;
-  border: 1px rgb(173, 167, 167) solid;
   border-radius: 50%;
 
   position: relative;

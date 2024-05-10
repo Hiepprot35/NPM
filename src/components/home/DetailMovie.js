@@ -2,11 +2,16 @@ import React, { useState, useEffect } from "react";
 import "./DetailMovie.js";
 import Layout from "../Layout/layout.js";
 import { Image } from "./home.js";
+import parse from "html-react-parser";
 import { Button, Rate } from "antd";
 import useAuth from "../../hook/useAuth.js";
 import { fetchApiRes, getStudentInfoByMSSV } from "../../function/getApi.js";
-import { FiThumbsDown, FiThumbsUp } from "react-icons/fi";
+import { FiSend, FiThumbsDown, FiThumbsUp } from "react-icons/fi";
 import Comment from "./Comment.js";
+import UserProfile from "../UserProfile/userProfile.js";
+import { useRef } from "react";
+import MyComment from "./MyComment.js";
+
 export default function DetailMovie(props) {
   const { auth } = useAuth();
   const [Movies, setMovies] = useState([]);
@@ -15,34 +20,52 @@ export default function DetailMovie(props) {
   const [myComment, setMyComment] = useState();
   const [comments, setComment] = useState([]);
   const [me, setMe] = useState();
-  const [Clicked, setClicked] = useState(false);
+  const [Reder, setRender] = useState(false);
+  const [OpenTag, setOpenTag] = useState(false);
+  const [FilterTag, setFilterTag] = useState([]);
 
   const getComment = async () => {
     const res = await fetchApiRes(
-      `/gettAllCommentFilms/${props.MovieID}`,
+      `/gettAllCommentFilms/?movieID=${props.movieID}/`,
       "GET"
     );
     console.log(res);
-    setComment(res.result);
+    setComment(res?.result);
     const data = await getStudentInfoByMSSV(auth.username);
     setMe(data);
   };
   useEffect(() => {
     getComment();
-  }, [Clicked]);
+  }, [Reder]);
 
   const sendComment = async () => {
-    const res = await fetchApiRes("insertComment", "POST", {
-      userID: auth.username,
-      content: myComment,
-      movieID: props.MovieID,
-    });
-    setMyComment("");
-    setClicked(!Clicked);
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(myComment, "text/html");
+
+    const spanElement = doc.querySelector(".tagNameHref");
+    if (spanElement) {
+      const dataValues = spanElement.dataset.values;
+      const name = spanElement.innerHTML;
+      console.log(name);
+      const data = myComment.replace(
+        `<span`,
+        `<a href="${process.env.REACT_APP_CLIENT_URL}/profile/${dataValues}"`
+      );
+      const data2 = data.replace("/span>", "/a>");
+      console.log(data2);
+      const res = await fetchApiRes("insertComment", "POST", {
+        userID: auth.username,
+        content: data2,
+        movieID: props.MovieID,
+      });
+      inputRef.current.innerHTML = "";
+      setMyComment("");
+      setRender(!Reder);
+    }
   };
   const data = async () => {
     const res = await fetch(
-      `https://api.themoviedb.org/3/movie/${props.MovieID}?api_key=1a312643e7349b023d8aa475b3523601`,
+      `https://api.themoviedb.org/3/movie/${props.movieID}?api_key=1a312643e7349b023d8aa475b3523601`,
       {
         method: "GET",
         headers: {
@@ -55,12 +78,13 @@ export default function DetailMovie(props) {
     const data = await res.json();
     setMovies(data);
   };
+
   useEffect(() => {
     document.title = ` ${Movies.title || Movies.name}`;
   }, [Movies]);
   const getActors = async () => {
     const res = await fetch(
-      `https://api.themoviedb.org/3/movie/${props.MovieID}/credits?api_key=1a312643e7349b023d8aa475b3523601`,
+      `https://api.themoviedb.org/3/movie/${props.movieID}/credits?api_key=1a312643e7349b023d8aa475b3523601`,
       {
         method: "GET",
         headers: {
@@ -78,6 +102,32 @@ export default function DetailMovie(props) {
     data();
     getActors();
   }, []);
+
+  const inputRef = useRef();
+  const [tagName, settagName] = useState();
+  const handleInputChange = () => {
+    if (inputRef.current) {
+      console.log("change", inputRef.current.innerHTML);
+      setMyComment(inputRef.current.innerHTML);
+    }
+  };
+  const addSpan = (className, values) => {
+    if (inputRef.current) {
+      const span = document.createElement("span");
+      span.className = className;
+      span.innerHTML = `&nbsp;`;
+      inputRef.current.appendChild(span);
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(span);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  };
+
+  const ref = useRef([]);
+  const refTag = useRef();
 
   return (
     <>
@@ -156,18 +206,12 @@ export default function DetailMovie(props) {
                   )}
               </div>
               <div className="commentMovie">
-                <div className="center">
-                  <img className="avatarImage" src={`${auth.avtUrl}`}></img>
-                  <input
-                    placeholder={`Bình luận với vai trò ${me?.Name}`}
-                    onChange={(e) => setMyComment(e.target.value)}
-                    value={myComment}
-                    type="text"
-                  ></input>
-                  {myComment && <Button onClick={sendComment}>Comment</Button>}
-                </div>
+                  <MyComment
+                    setRender={setRender}
+                    movieID={props.movieID}
+                  ></MyComment>
                 <div className="allComment">
-                  {comments && comments.map((e, i) => <Comment comment={e} />)}
+                  {comments && comments.map((e, i) =>( i<comments.length-1? <Comment key={i} className={"notLastComment"} comment={e} />:<Comment key={i} className={"lastComment"} comment={e} /> ))}
                 </div>
               </div>
             </div>
