@@ -1,7 +1,24 @@
 .myCommentComponent
 {
+    position: relative;
     display: flex;
-    padding: 3rem;
+    background-color: rgba(189, 196, 203, 0.479);
+    width: 40rem;
     align-items: center;
     border-radius: 1rem;
+    padding-left: 3rem;
 }
+.tag {
+    cursor: pointer;
+    display: flex;
+  }
+  .tagList {
+    padding: 1rem;
+    position: absolute !important;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    left: 10rem;
+    background-color: rgb(116, 111, 111);
+    top: 50%;z-index: 3;
+  }

@@ -27,6 +27,7 @@ export default function MyComment(props) {
         return user;
       })
     );
+    console.log(users,"friend")
     setMyFriendList(users);
   };
   const handleInputChange = (props) => {
@@ -87,6 +88,7 @@ export default function MyComment(props) {
     console.log(myComment);
     if (myComment && inputRef.current) {
       if (myComment.includes("@")) {
+        console.log("tim thay @")
         setOpenTag(true);
         if (myComment.includes("@&nbsp") && OpenTag) {
           setOpenTag(false);
@@ -159,9 +161,9 @@ export default function MyComment(props) {
         )}
       </div>
       {FilterTag && OpenTag && (
-        <div className="tagList">
+        <div className="tagList center">
           {FilterTag.map((e) => (
-            <div className="tag center" onClick={() => tagHandle(e)}>
+            <div className="tag center" style={{margin:".5rem"}} onClick={() => tagHandle(e)}>
               <img className="avatarImage" src={`${e.img}`}></img>
               <p>{e.Name}</p>
             </div>

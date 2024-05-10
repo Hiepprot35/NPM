@@ -126,6 +126,7 @@ $font-Dieu: "Dancing Script", cursive;
   width: 100vw;
   height: auto;
   display: flex;
+  background: var(--themeColor);
   justify-content: center;
 }
 .HeaderDetail {
@@ -221,20 +222,17 @@ $font-Dieu: "Dancing Script", cursive;
   position: relative;
   display: flex;
   align-items: center;
-  background-color: var(--themeColor);
 }
 .commentMovie .center {
   position: relative;
 }
-.tag {
-  cursor: pointer;
-  display: flex;
+.allComment
+{
+  border-radius: 1rem;
+  padding: 3rem;
+  background-color: var(--themeColor);
 }
-.tagList {
-  position: absolute;
-  background-color: rgb(0, 0, 0);
-  top: 3rem;
-}
+
 .likedislike {
   display: flex;
 }
