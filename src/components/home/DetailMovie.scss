@@ -225,9 +225,9 @@ $font-Dieu: "Dancing Script", cursive;
 }
 .commentMovie .center {
   position: relative;
+  flex-direction: column;
 }
-.allComment
-{
+.allComment {
   border-radius: 1rem;
   padding: 3rem;
   background-color: var(--themeColor);
@@ -257,9 +257,8 @@ $font-Dieu: "Dancing Script", cursive;
   position: relative;
   min-height: 3rem;
 }
-.sendComment
-{
-  margin:.5rem;
+.sendComment {
+  margin: 0.5rem;
   cursor: pointer;
   height: 100%;
   font-size: 1.4rem;
@@ -270,18 +269,21 @@ $font-Dieu: "Dancing Script", cursive;
   z-index: 1;
   outline: 0;
 }
-.headerComment{
+.headerComment {
   display: flex;
 }
-.NameAndContent
-{
-  background-color: #626666a5;
+.bodyComment {
+  background-color: #d8e3e376;
+  margin:0 0rem 1rem 1rem;
   border-radius: 1rem;
-  padding:1rem ;
-  margin-left: .6rem;
 }
-.commentDiv p
-{
+.NameAndContent {
+  border-radius: 1rem;
+  background-color: var(--themeColor);
+  padding: 1rem;
+  margin: 1rem;
+}
+.commentDiv p {
   width: 19rem;
   min-height: 2rem;
 }
@@ -300,28 +302,26 @@ $font-Dieu: "Dancing Script", cursive;
   max-height: 5rem;
 }
 
-.linearComment{
-  
+.linearComment {
   height: calc(100% - 2.6rem);
-  border-left: 0.1rem solid  rgba(107, 107, 107, 0.649);
+  border-left: 0.1rem solid rgba(107, 107, 107, 0.649);
   margin-left: 1.27rem;
 }
-.CommentReply
-{
+.CommentReply {
   position: relative;
 }
-.CommentReply .AvatarComment2::before{
+.CommentReply .AvatarComment2::before {
   content: "";
   position: absolute;
-  left:-1.73rem;
+  left: -1.73rem;
   width: 2rem;
-  
+
   height: 50%;
-  border-left: 0.1rem solid  rgba(107, 107, 107, 0.649);
-  border-bottom: 0.1rem solid  rgba(107, 107, 107, 0.649);
-  border-bottom-left-radius: .5rem;
+  border-left: 0.1rem solid rgba(107, 107, 107, 0.649);
+  border-bottom: 0.1rem solid rgba(107, 107, 107, 0.649);
+  border-bottom-left-radius: 0.5rem;
 }
-.CommentReply .notLastComment::before{
+.CommentReply .notLastComment::before {
   content: "";
   position: absolute;
   width: 2rem;
@@ -329,26 +329,24 @@ $font-Dieu: "Dancing Script", cursive;
   height: 100%;
   border-left: 0.1rem solid rgba(107, 107, 107, 0.649);
 }
-.AvatarComment2
-{
+.AvatarComment2 {
   position: relative;
 }
-.CommentReply
-{
+.CommentReply {
   margin-left: 3rem;
 }
-.contentComment{
-  margin:.3rem 0 .2rem 0;
+.contentComment {
+  margin: 0.3rem 0 0.2rem 0;
 }
-.contentComment .tagNameHref {
-  background-color: rgba(255, 255, 255, 0);
-  font-weight: 700;
-}
-.contentComment .tagNameHref:hover{
+
+.contentComment .tagNameHref:hover {
   text-decoration: underline;
 }
-.tagNameHref{
-  background-color: #a5f5e88e;
+.tagNameHref {
+  color: rgb(21, 142, 255);
+  padding: 0.3rem;
+  border-radius: 0.3rem;
+  background-color: rgb(229, 243, 255);
 }
 .likeButton {
   margin: 1rem;

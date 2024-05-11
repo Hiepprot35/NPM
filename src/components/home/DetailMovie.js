@@ -186,8 +186,8 @@ export default function DetailMovie(props) {
                 <p style={{ fontSize: "1rem" }}>{Movies.overview}</p>
               </div>
               <div className="actorsMovie">
-                {Actors &&
-                  Actors.cast.map(
+                {Actors?.cast &&
+                  Actors?.cast.map(
                     (actor, index) =>
                       actor?.profile_path && (
                         <div key={index} className="center actor hiddenText">

@@ -49,7 +49,8 @@ export default function Comment({ comment, users, isReply,className }) {
     const doc = parser.parseFromString(e, "text/html");
     const aElement = doc.querySelector("a.tagNameHref");
     if (aElement) {
-      const data = aElement.getAttribute("data-values");
+      const data = aElement.getAttribute("data-lexical-text");
+      console.log("hover",data)
       return (
         <Popover content={<UserProfile MSSV={data}></UserProfile>}>
           {parse(e)}

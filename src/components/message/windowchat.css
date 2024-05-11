@@ -13,9 +13,9 @@
 .emojipick {
   max-width: 500px;
   max-height: 500px;
-  position: fixed;
+  position: absolute;
   bottom: 2rem;
-  z-index: 3;
+  z-index: 10;
 }
 
 .stokeTheme svg {

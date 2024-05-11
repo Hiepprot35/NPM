@@ -1,13 +1,15 @@
 import { default as React, useEffect, useRef, useState } from "react";
 import "./myComment.scss";
-import { FiSend } from "react-icons/fi";
+import { FiSend, FiSmile } from "react-icons/fi";
 import { fetchApiRes } from "../../function/getApi.js";
 import useAuth from "../../hook/useAuth.js";
+import EmojiPicker from "emoji-picker-react";
+import { each } from "jquery";
 export default function MyComment(props) {
   const refTag = useRef();
   const inputRef = useRef();
   const [FilterTag, setFilterTag] = useState();
-  const [OpenTag, setOpenTag] = useState();
+  const [OpenTag, setOpenTag] = useState(false);
   const [myComment, setMyComment] = useState();
   const [myFriendList, setMyFriendList] = useState([]);
   const { auth } = useAuth();
@@ -27,23 +29,43 @@ export default function MyComment(props) {
         return user;
       })
     );
-    console.log(users,"friend")
+    console.log(users, "friend");
     setMyFriendList(users);
   };
-  const handleInputChange = (props) => {
-    if (inputRef.current) {
-      console.log("change", inputRef.current.innerHTML);
-      setMyComment(inputRef.current.innerHTML);
+  const getPreviousCharacter = () => {
+    const selection = window.getSelection();
+    if (
+      selection.focusNode &&
+      selection.focusNode.nodeType === Node.TEXT_NODE
+    ) {
+      const range = selection.getRangeAt(0);
+      const offset = range.startOffset;
+      const text = selection.focusNode.textContent;
+      if (offset > 0) {
+        const previousCharacter = text[offset - 1];
+        if (previousCharacter === "@") {
+          console.log("câcc", previousCharacter);
+          setOpenTag(true);
+        }
+      } else {
+        console.log("câcc");
+
+        setOpenTag(false);
+      }
     }
   };
-  useEffect(() => {
-    OpenTag && getFriendList();
-  }, [OpenTag]);
+  const [TagName, setTagName] = useState([]);
+  const handleInputChange = () => {
+    if (inputRef.current) {
+      setMyComment(inputRef.current.innerHTML);
+      if (OpenTag) {
+        setCountTag((pre) => pre + 1);
+      }
+    }
+  };
 
   useEffect(() => {
-    if (!OpenTag && myComment) {
-      addSpan("spanComment");
-    }
+    OpenTag && getFriendList();
   }, [OpenTag]);
 
   useEffect(() => {
@@ -52,60 +74,65 @@ export default function MyComment(props) {
 
   const addSpan = (className, values) => {
     if (inputRef.current) {
-      const span = document.createElement("span");
-      span.className = className;
-      span.innerHTML = `&nbsp;`;
-      inputRef.current.appendChild(span);
-      const selection = window.getSelection();
-      const range = document.createRange();
-      range.selectNodeContents(span);
-      range.collapse(false);
-      selection.removeAllRanges();
-      selection.addRange(range);
+      if (values.dataset) {
+        return `<span dataset=${values.dataset} class=${className} >${values.Name}</span>`;
+      } else {
+        return`<span  class=${className} >${values.Name}</span>`;
+      }
+      
     }
   };
   const tagHandle = (e) => {
     setMyComment((pre) => pre + e.Name);
     if (inputRef.current) {
-      const span = document.createElement("span");
-      span.className = "tagNameHref";
-      span.innerHTML = e.Name;
-      span.dataset.values = e.MSSV;
-      inputRef.current.appendChild(span);
-      const selection = window.getSelection();
-      const range = document.createRange();
-      inputRef.current.innerHTML = inputRef.current.innerHTML.replace("@", "");
-      setMyComment(inputRef.current.innerHTML);
-      setOpenTag(false);
-      range.selectNodeContents(span);
-      range.collapse(false);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  };
+      const inputText = inputRef.current.innerHTML;
 
+      setTagName((pre) => [...pre, e.Name]);
+      inputRef.current.innerHTML = inputText.replace(
+        "@",
+        `<span data-lexical-text=${e.MSSV} class="tagNameHref" >${e.Name}</span><span class="spanComment"> </span>`
+      );
+      handleInputChange();
+      setOpenTag(false);
+      setCountTag(0);
+
+    }
+
+  };
+  const [CountTag, setCountTag] = useState(0);
   useEffect(() => {
-    console.log(myComment);
-    if (myComment && inputRef.current) {
+    console.log("My comment", myComment);
+    if (inputRef.current && myComment) {
       if (myComment.includes("@")) {
-        console.log("tim thay @")
         setOpenTag(true);
-        if (myComment.includes("@&nbsp") && OpenTag) {
-          setOpenTag(false);
-        }
+        const atIndex = myComment.indexOf("@");
+        const charAfterAt = myComment.slice(atIndex + 1);
+        const filterUpdate = myFriendList.filter((values) =>
+          values.Name.includes(charAfterAt.replace("</span>", ""))
+        );
+        setFilterTag(filterUpdate);
       } else {
         setOpenTag(false);
       }
+
+      if (myComment.includes("@&nbsp") && OpenTag) {
+        setOpenTag(false);
+      }
+      // if (!OpenTag && myComment && CountTag === 0) {
+      //   addSpan("spanComment", {Name:" "});
+      // }
     }
-  }, [myComment]);
+  }, [myComment, CountTag]);
+
   const sendComment = async () => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(myComment, "text/html");
     let content = "";
     const spanElement = doc.querySelector(".tagNameHref");
     if (spanElement) {
-      const dataValues = spanElement.dataset.values;
       const name = spanElement.innerHTML;
+      const dataValues = spanElement.dataset.lexicalText;
+      console.log(dataValues)
       const data = myComment.replace(
         `<span`,
         `<a href="${process.env.REACT_APP_CLIENT_URL}/profile/${dataValues}"`
@@ -115,9 +142,20 @@ export default function MyComment(props) {
     } else {
       content = myComment;
     }
+    let updateContent = content;
+    if (Emoji) {
+      Emoji.map(
+        (e) =>
+          (updateContent = content.replace(
+            e.emoji,
+            `<img className="emoji" src="${e.imageUrl}"> <img/>`
+          ))
+      );
+    }
+    // console.log(updateContent)
     const res = await fetchApiRes("insertComment", "POST", {
       userID: auth.username,
-      content: content,
+      content: updateContent,
       movieID: props.movieID,
       replyID: props.reply,
     });
@@ -125,12 +163,25 @@ export default function MyComment(props) {
     setMyComment("");
     props.setRender((pre) => !pre);
   };
+  const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
+  const [Emoji, setEmoji] = useState([]);
+  const onClickEmoji = (e) => {
+    if (inputRef.current) {
+      inputRef.current.innerHTML = inputRef.current.innerHTML + " " + e.emoji;
+      handleInputChange();
+    }
+    setEmoji((prev) => {
+      if (!prev.some((item) => item.emoji === e.emoji)) {
+        return [...prev, { emoji: e.emoji, imageUrl: e.imageUrl }];
+      }
+      return prev;
+    });
+  };
   return (
     <div className=" myCommentComponent">
       <div className="AvatarComment">
         <div className="AvatarComment2">
-
-        <img className="avatarImage" src={`${auth.avtUrl}`}></img>
+          <img className="avatarImage" src={`${auth.avtUrl}`}></img>
         </div>
         <div className="linearComment"></div>
       </div>
@@ -141,6 +192,7 @@ export default function MyComment(props) {
           ref={refTag}
           contentEditable="true"
           onInput={(e) => handleInputChange(e)}
+          onClick={getPreviousCharacter}
           suppressContentEditableWarning={true}
         >
           <p ref={inputRef}></p>
@@ -154,18 +206,47 @@ export default function MyComment(props) {
             </p>
           </div>
         )}
-        {myComment && myComment !== "<br>" && (
-          <span className="circleButton" onClick={sendComment}>
-            <FiSend />
-          </span>
-        )}
+        <div className="featureComment">
+          <div
+            className="center"
+            style={{ margin: "1rem" }}
+            onClick={(e) => {
+              setOpenEmojiPicker(!openEmojiPicker);
+            }}
+          >
+            <FiSmile></FiSmile>
+            <div className="emojipick" style={{ zIndex: "6" }}>
+              <EmojiPicker
+                width={350}
+                height={450}
+                open={openEmojiPicker}
+                onEmojiClick={(e, i) => {
+                  onClickEmoji(e);
+                }}
+                emojiStyle="facebook"
+              />
+            </div>
+          </div>
+
+          {myComment && myComment !== "<br>" && (
+            <>
+              <span className="circleButton" onClick={sendComment}>
+                <FiSend />
+              </span>
+            </>
+          )}
+        </div>
       </div>
       {FilterTag && OpenTag && (
-        <div className="tagList center">
+        <div className="tagList ">
           {FilterTag.map((e) => (
-            <div className="tag center" style={{margin:".5rem"}} onClick={() => tagHandle(e)}>
+            <div
+              className="tag"
+              style={{ margin: ".5rem" }}
+              onClick={() => tagHandle(e)}
+            >
               <img className="avatarImage" src={`${e.img}`}></img>
-              <p>{e.Name}</p>
+              <p style={{ margin: ".3rem" }}>{e.Name}</p>
             </div>
           ))}
         </div>
