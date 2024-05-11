@@ -156,11 +156,18 @@ export default function MovieFilms(props) {
   });
   const RefScrollImage = useRef(null);
   const addListFilmHandle = async (e) => {
-    const res = await fetchApiRes("/getInsertFilm", "POST", {
-      UserID: auth.userID,
-      filmID: e,
-    });
-    alert(res.message);
+    if(auth.userID)
+      {
+
+        const res = await fetchApiRes("/getInsertFilm", "POST", {
+          UserID: auth.userID,
+          filmID: e,
+        });
+        alert(res.message);
+      }
+      else{
+        alert("Bạn cần đăng nhập để thêm vào playlist. ")
+      }
   };
   const ref = useRef();
   const { scrollYProgress } = useScroll({

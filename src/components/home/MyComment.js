@@ -5,6 +5,7 @@ import { fetchApiRes } from "../../function/getApi.js";
 import useAuth from "../../hook/useAuth.js";
 import EmojiPicker from "emoji-picker-react";
 import { each } from "jquery";
+import { IsLoading } from "../Loading.js";
 export default function MyComment(props) {
   const refTag = useRef();
   const inputRef = useRef();
@@ -16,7 +17,7 @@ export default function MyComment(props) {
   const checkID = (array, id) => {
     return array.user1 === id ? array.user2 : array.user1;
   };
-
+  const [isLoading, setisLoading] = useState(false);
   const getFriendList = async () => {
     const result = await fetchApiRes("message/getFriendList", "POST", {
       userID: auth.userID,
@@ -124,44 +125,57 @@ export default function MyComment(props) {
     }
   }, [myComment, CountTag]);
 
-  const sendComment = async () => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(myComment, "text/html");
-    let content = "";
-    const spanElement = doc.querySelector(".tagNameHref");
-    if (spanElement) {
-      const name = spanElement.innerHTML;
-      const dataValues = spanElement.dataset.lexicalText;
-      console.log(dataValues)
-      const data = myComment.replace(
-        `<span`,
-        `<a href="${process.env.REACT_APP_CLIENT_URL}/profile/${dataValues}"`
-      );
-      const data2 = data.replace("/span>", "/a>");
-      content = data2;
-    } else {
-      content = myComment;
+  const sendComment = async (e) => {
+    e.preventDefault()
+    let isSending=false
+    setisLoading(true)
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(myComment, "text/html");
+      let content = "";
+      const spanElement = doc.querySelector(".tagNameHref");
+      if (spanElement) {
+        const name = spanElement.innerHTML;
+        const dataValues = spanElement.dataset.lexicalText;
+        console.log(dataValues)
+        const data = myComment.replace(
+          `<span`,
+          `<a href="${process.env.REACT_APP_CLIENT_URL}/profile/${dataValues}"`
+        );
+        const data2 = data.replace("/span>", "/a>");
+        content = data2;
+      } else {
+        content = myComment;
+      }
+      let updateContent = content;
+      if (Emoji) {
+        Emoji.map(
+          (e) =>
+            (updateContent = content.replace(
+              e.emoji,
+              `<img className="emoji" src="${e.imageUrl}"> <img/>`
+            ))
+        );
+      }
+      // console.log(updateContent)
+      const res = await fetchApiRes("insertComment", "POST", {
+        userID: auth.username,
+        content: updateContent,
+        movieID: props.movieID,
+        replyID: props.reply,
+      });
+      if(res.result)
+        {
+          setisLoading(false)
+        }
+      inputRef.current.innerHTML = "";
+      setMyComment("");
+      props.setRender((pre) => !pre);
+    } catch (error) {
+      setisLoading(false)
+
     }
-    let updateContent = content;
-    if (Emoji) {
-      Emoji.map(
-        (e) =>
-          (updateContent = content.replace(
-            e.emoji,
-            `<img className="emoji" src="${e.imageUrl}"> <img/>`
-          ))
-      );
-    }
-    // console.log(updateContent)
-    const res = await fetchApiRes("insertComment", "POST", {
-      userID: auth.username,
-      content: updateContent,
-      movieID: props.movieID,
-      replyID: props.reply,
-    });
-    inputRef.current.innerHTML = "";
-    setMyComment("");
-    props.setRender((pre) => !pre);
+   
   };
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
   const [Emoji, setEmoji] = useState([]);
@@ -178,6 +192,8 @@ export default function MyComment(props) {
     });
   };
   return (
+    <>
+    {!isLoading ?<IsLoading></IsLoading> :
     <div className=" myCommentComponent">
       <div className="AvatarComment">
         <div className="AvatarComment2">
@@ -252,5 +268,8 @@ export default function MyComment(props) {
         </div>
       )}
     </div>
+    
+    }</>
+
   );
 }

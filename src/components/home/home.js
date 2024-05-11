@@ -7,10 +7,10 @@ import Layout from "../Layout/layout";
 import { IsLoading } from "../Loading";
 import MovieFilms from "./MovieFilms";
 import { useInView } from "react-intersection-observer";
-
 import TVMovie from "./TVMovie";
 import ListPlay from "./listPlay";
 import { useSession } from "../../context/sectionProvider";
+import useAuth from "../../hook/useAuth";
 function useParallax(value, distance) {
   return useTransform(value, [0, 1], [-distance, distance]);
 }
@@ -28,7 +28,6 @@ export function Image({ src, style, className }) {
 export function InViewComponent({ href, children, style }) {
   const { session, setSession } = useSession();
   const { ref, inView } = useInView({ threshold: 0.5 });
-
   useEffect(() => {
     if (inView) {
       setSession(href);
@@ -83,6 +82,7 @@ export default function Home(props) {
   const { scrollYProgress } = useScroll({
     offset: ["start start", "end end"],
   });
+  const { auth } = useAuth();
 
   return (
     <>
@@ -102,12 +102,14 @@ export default function Home(props) {
               >
                 <MovieFilms />
               </InViewComponent>
-              <InViewComponent
-                style={{ height: "200vh" }}
-                href={`${process.env.REACT_APP_CLIENT_URL}/home#playlist`}
-              >
-                <ListPlay></ListPlay>
-              </InViewComponent>
+              {auth?.userID && (
+                <InViewComponent
+                  style={{ height: "200vh" }}
+                  href={`${process.env.REACT_APP_CLIENT_URL}/home#playlist`}
+                >
+                  <ListPlay></ListPlay>
+                </InViewComponent>
+              )}
               <InViewComponent
                 style={{ height: "100vh" }}
                 href={`${process.env.REACT_APP_CLIENT_URL}/home#tvseries`}

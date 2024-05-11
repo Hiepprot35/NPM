@@ -17,6 +17,7 @@ import UseToken from "./hook/useToken";
 import DetailMovie from "./components/home/DetailMovie";
 import FriendList from "./components/home/friend";
 import Layout from "./components/Layout/layout";
+import { IsLoading } from "./components/Loading";
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   // const socket=useSocket();
@@ -87,17 +88,22 @@ function App() {
         <Routes>
           {/* <Route path="*" element={<Navigate to="/"></Navigate>} /> */}
           {/* <Route path="*" element={<IsLoading />} /> */}
-          <Route path="*" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/create" element={<CreateStudent />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/movie/moviedetail/:id" element={<DeltailMovieFilms />} />
 
           <Route
             path="/login"
-            element={<Login setAccessToken={setAccessToken} />}
+            element={<Login />}
           />
-          <Route path="/" element={<Login setAccessToken={setAccessToken} />} />
         </Routes>
       );
     }
+  }
+  else
+  {
+    return (<IsLoading></IsLoading>)
   }
 }
 

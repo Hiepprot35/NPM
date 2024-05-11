@@ -121,11 +121,11 @@ code {
 }
 
 .Loading_container {
-  position: absolute;
+  position: fixed;
   top: 7vh;
   z-index: 999;
   left: 0;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   display: flex;
   justify-content: center;

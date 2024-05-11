@@ -5,31 +5,19 @@ import { IsLoading } from "../Loading";
 import useAuth from "../../hook/useAuth";
 import UseRfLocal from "../../hook/useRFLocal";
 import io from "socket.io-client";
+import UseToken from "../../hook/useToken";
 import "./login.css";
 import VerifyCodeEmail from "../sendEmail/verifyCodeEmail";
 const host = process.env.REACT_APP_DB_HOST;
 const imgLinkBasic = {
   link: "https://pbs.twimg.com/media/EnOnhlSWEAEeYB3?format=jpg&name=large",
 };
-export default function Login({ setAccessToken }) {
-  const input_username = useRef(null);
-  const input_password = useRef(null);
-  const navigate = useNavigate();
-  const { auth, setAuth } = useAuth();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+export const LoginGoolge = ({ children  }) => {
   const { setRefreshToken } = UseRfLocal();
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState();
-  const [loginImgBackground, setLoginImgBackground] = useState(imgLinkBasic);
-  const [verifyCode, setverifyCode] = useState({ code: "", SentTime: 0 });
-  const [infoToSendGmail, setinfoToSendGmail] = useState();
-  const [verifyCodeInput, setVerifyCodeInput] = useState();
-  const [ResApi, setResApi] = useState();
-  const [user, setUser] = useState("");
+  const { setAccessToken } = UseToken();
+  const { setAuth } = useAuth();
   const GoogleAuth = () => {
     window.location.href = `${process.env.REACT_APP_DB_HOST}/api/auth/google/callback`;
-    setIsLoading(true);
   };
   const getUser = async () => {
     try {
@@ -52,16 +40,39 @@ export default function Login({ setAccessToken }) {
           userID: UserID,
           avtUrl: avtURL,
         });
-        setIsLoading(false);
       }
     } catch (err) {
       console.log(err);
     }
   };
-
   useEffect(() => {
     getUser();
   }, []);
+
+  return (
+    <div className="login_google" onClick={GoogleAuth}>
+      {children }
+    </div>
+  );
+};
+export default function Login() {
+  const input_username = useRef(null);
+  const input_password = useRef(null);
+  const navigate = useNavigate();
+  const { auth, setAuth } = useAuth();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+  const { setRefreshToken } = UseRfLocal();
+  const { setAccessToken } = UseToken();
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState();
+
+  const [loginImgBackground, setLoginImgBackground] = useState(imgLinkBasic);
+  const [verifyCode, setverifyCode] = useState({ code: "", SentTime: 0 });
+  const [infoToSendGmail, setinfoToSendGmail] = useState();
+  const [verifyCodeInput, setVerifyCodeInput] = useState();
+  const [ResApi, setResApi] = useState();
+
   useEffect(() => {
     const data = {
       to: infoToSendGmail?.to,
@@ -111,7 +122,7 @@ export default function Login({ setAccessToken }) {
     });
 
     const dataRes = await resoponse.json();
-    console.log("Login",dataRes)
+    console.log("Login", dataRes);
     if (dataRes.AccessToken) {
       const user = dataRes;
       setResApi(dataRes);
@@ -274,11 +285,7 @@ export default function Login({ setAccessToken }) {
                 </div>
                 <div className="forget_save_div">
                   <div className="forget_pass">
-                    <a
-                      onClick={GoogleAuth}
-                      ref={forget_pass_text}
-                      className="forget_pass_text"
-                    >
+                    <a ref={forget_pass_text} className="forget_pass_text">
                       Forgot Password?
                     </a>
                   </div>
@@ -312,22 +319,28 @@ export default function Login({ setAccessToken }) {
                   </div>
                 </div>
 
-                <div className="login_google" onClick={GoogleAuth}>
-                  <div>
-                    <span style={{ color: "white", margin: "1rem" }}>OR</span>
-                  </div>
-                  <div className="login_google_button">
+                <LoginGoolge>
+                  <>
                     <div>
-                      <img
-                        style={{ width: "2rem", height: "2rem" }}
-                        src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png"
-                      ></img>
+                      <span style={{ color: "white", margin: "1rem" }}>OR</span>
                     </div>
-                    <div className="button_google">
-                      <span style={{ color: "black" }}> Login with Google</span>
+                    <div className="login_google_button">
+                      <div>
+                        <img
+                          style={{ width: "2rem", height: "2rem" }}
+                          alt="google"
+                          src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png"
+                        ></img>
+                      </div>
+                      <div className="button_google">
+                        <span style={{ color: "black" }}>
+                          {" "}
+                          Login with Google
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  </>
+                </LoginGoolge>
               </form>
             )}
             <div className="warning">

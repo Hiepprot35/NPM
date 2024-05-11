@@ -3,6 +3,8 @@ import React, { memo, useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useSocket } from "../../../context/socketContext";
 import { getStudentInfoByMSSV } from "../../../function/getApi";
+import { IoLogoGoogle } from "react-icons/io";
+
 import { getUserinfobyID } from "../../../function/getApi";
 import useAuth from "../../../hook/useAuth";
 import { header_Student } from "../../../lib/data";
@@ -13,6 +15,7 @@ import "./header.css";
 import { FiMoon, FiSearch, FiSettings, FiSun } from "react-icons/fi";
 import SettingComponent from "../../setting/SettingComponent";
 import { Button, Input, Popover } from "antd";
+import { LoginGoolge } from "../../login/login";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -245,10 +248,8 @@ function Header(props) {
           </div>
           <div className="header_home_user">
             <div className=" searchInput" ref={refSearchButton}>
-          
-                {/* <Input size="large"></Input> */}
-                <input placeholder="Search everything"></input>
-                <div onClick={searchHnadleShow} className="circleButton">
+              <input placeholder="Search everything"></input>
+              <div onClick={searchHnadleShow} className="circleButton">
                 <FiSearch></FiSearch>
               </div>
             </div>
@@ -257,7 +258,7 @@ function Header(props) {
               <IsLoading />
             ) : (
               <>
-                {user && (
+                {user ? (
                   <>
                     <div className="">
                       {
@@ -275,7 +276,14 @@ function Header(props) {
                       }
                     </div>
                   </>
-                )}
+                ):(<>
+                  <LoginGoolge>
+                    <span className="circleButton"><IoLogoGoogle/></span>
+                  </LoginGoolge>
+                  Or
+                  <span> </span>
+                  <NavLink style={{padding:"1rem"}} to="/login">Login</NavLink>
+                </>)}
               </>
             )}
           </div>

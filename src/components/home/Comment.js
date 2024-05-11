@@ -6,6 +6,7 @@ import parse from "html-react-parser";
 import { Popover } from "antd";
 import UserProfile from "../UserProfile/userProfile";
 import MyComment from "./MyComment";
+import { countTime, getDate, getTime } from "../../function/getTime";
 
 export default function Comment({ comment, users, isReply,className }) {
   const { auth } = useAuth();
@@ -116,6 +117,9 @@ export default function Comment({ comment, users, isReply,className }) {
               </div>
             </div>
             <div className="likedislike">
+              <span>
+                {countTime(comment.create_at)}
+              </span>
               <span
                 className={
                   ComemntDetail &&

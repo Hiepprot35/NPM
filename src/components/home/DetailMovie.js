@@ -206,12 +206,29 @@ export default function DetailMovie(props) {
                   )}
               </div>
               <div className="commentMovie">
+                {auth.userID && (
                   <MyComment
                     setRender={setRender}
                     movieID={props.movieID}
                   ></MyComment>
+                )}
                 <div className="allComment">
-                  {comments && comments.map((e, i) =>( i<comments.length-1? <Comment key={i} className={"notLastComment"} comment={e} />:<Comment key={i} className={"lastComment"} comment={e} /> ))}
+                  {comments &&
+                    comments.map((e, i) =>
+                      i < comments.length - 1 ? (
+                        <Comment
+                          key={i}
+                          className={"notLastComment"}
+                          comment={e}
+                        />
+                      ) : (
+                        <Comment
+                          key={i}
+                          className={"lastComment"}
+                          comment={e}
+                        />
+                      )
+                    )}
                 </div>
               </div>
             </div>

@@ -19,7 +19,8 @@ h5 {
 }
 
 .header_home_user {
-  margin-right: 3rem;
+  margin-right: 1vw;
+  min-width: 12vw;
   display: flex;
   align-items: center;
 }
@@ -177,7 +178,7 @@ h5 {
 .City {
   font-family: Tahoma, sans-serif;
   color: var(--textColor);
-  font-weight: 600;
+  /* font-weight: 600; */
   /* text-transform: uppercase; */
   transition: 300ms;
 }
@@ -223,7 +224,9 @@ hr {
 .ActiveLink svg {
   stroke: var(--textColor);
 }
-.ActiveLink {
+.ActiveLink a{
+  color:  rgb(177, 241, 232) ;
+  font-family: "'ttcommons', sans-serif";
   /* background-color: rgba(158, 154, 154, 0.682); */
 }
 .show_menu_profile {
