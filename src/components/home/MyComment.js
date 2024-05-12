@@ -163,8 +163,9 @@ export default function MyComment(props) {
         content: updateContent,
         movieID: props.movieID,
         replyID: props.reply,
+        create_at:Date.now()
       });
-      if(res.result)
+      if(res)
         {
           setisLoading(false)
         }
@@ -193,7 +194,7 @@ export default function MyComment(props) {
   };
   return (
     <>
-    {!isLoading ?<IsLoading></IsLoading> :
+    {
     <div className=" myCommentComponent">
       <div className="AvatarComment">
         <div className="AvatarComment2">

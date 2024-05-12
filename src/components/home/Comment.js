@@ -8,7 +8,7 @@ import UserProfile from "../UserProfile/userProfile";
 import MyComment from "./MyComment";
 import { countTime, getDate, getTime } from "../../function/getTime";
 
-export default function Comment({ comment, users, isReply,className }) {
+export default function Comment({ comment, users, isReply, className }) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState();
   const [ComemntDetail, setComemntDetail] = useState([]);
@@ -17,8 +17,11 @@ export default function Comment({ comment, users, isReply,className }) {
     const res = await fetchApiRes(
       `/gettAllCommentFilms/?movieID=${comment.movieID}&replyID=${comment.id}`
     );
-    console.log(res, "reply");
-    setCommentsRep(res.result);
+    if(res?.result.length>0)
+      {
+
+        setCommentsRep(res.result);
+      }
   };
   const getComment = async () => {
     if (comment) {
@@ -51,7 +54,7 @@ export default function Comment({ comment, users, isReply,className }) {
     const aElement = doc.querySelector("a.tagNameHref");
     if (aElement) {
       const data = aElement.getAttribute("data-lexical-text");
-      console.log("hover",data)
+      console.log("hover", data);
       return (
         <Popover content={<UserProfile MSSV={data}></UserProfile>}>
           {parse(e)}
@@ -88,7 +91,7 @@ export default function Comment({ comment, users, isReply,className }) {
     }
   }, [comment]);
   return (
-    <div className={`comment ${className}` }>
+    <div className={`comment ${className}`}>
       <div className="containerComment">
         <div className="headerComment">
           <div className="AvatarComment">
@@ -117,9 +120,9 @@ export default function Comment({ comment, users, isReply,className }) {
               </div>
             </div>
             <div className="likedislike">
-              <span>
-                {countTime(comment.create_at)}
-              </span>
+              <Popover content={<p>{getDate(comment.create_at)} lúc {getTime(comment.create_at)}</p>}>
+                <span>{countTime(comment.create_at)}</span>
+              </Popover>
               <span
                 className={
                   ComemntDetail &&
@@ -173,10 +176,21 @@ export default function Comment({ comment, users, isReply,className }) {
         )}
         {CommentsRep && (
           <div className="CommentReply">
-            {CommentsRep.map((e,i) => (
-              i< CommentsRep.length-1?<Comment comment={e} className={'notLastComment'} isReply={false}></Comment>:
-              <Comment comment={e} className={"lastComment"} isReply={false}></Comment>
-            ))}
+            {CommentsRep.map((e, i) =>
+              i < CommentsRep.length - 1 ? (
+                <Comment
+                  comment={e}
+                  className={"notLastComment"}
+                  isReply={false}
+                ></Comment>
+              ) : (
+                <Comment
+                  comment={e}
+                  className={"lastComment"}
+                  isReply={false}
+                ></Comment>
+              )
+            )}
           </div>
         )}
       </div>

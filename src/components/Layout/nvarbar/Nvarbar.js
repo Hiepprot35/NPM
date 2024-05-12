@@ -16,8 +16,11 @@ import "./nvarbar.css";
 export default function Nvarbar() {
   const { session, setSession } = useSession();
   const {socket}=useSocket()
-
-  const { listWindow } = useData();
+  const { listWindow,listHiddenBubble } = useData();
+  const [Conver, setConver] = useState(listHiddenBubble.concat(listWindow));
+  useEffect(() => {
+    setConver(listHiddenBubble.concat(listWindow))
+  }, [listHiddenBubble,listWindow]);
   const newFeed = [
     {
       title: "Trending",
@@ -107,8 +110,8 @@ export default function Nvarbar() {
         <MessageMainLayout />
       </div>
       <div className="windowchat_container">
-        {listWindow &&
-          listWindow.map((e, i) => (
+        {Conver &&
+          Conver.map((e, i) => (
             <Windowchat
               key={e.id}
               count={e}

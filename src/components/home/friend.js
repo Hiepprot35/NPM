@@ -12,9 +12,10 @@ import { getConversation } from "../conversation/getConversation";
 import GerenalFriendComponent from "./gerenalFriendComponent";
 import Header from "../Layout/header/header";
 import Layout from "../Layout/layout";
+import { data } from "jquery";
 
 export default function FriendList(props) {
-  const { listWindow, setListWindow, listHiddenBubble, setListHiddenBubble } =
+  const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
     useData();
   const socket = useSocket();
 
@@ -63,7 +64,6 @@ export default function FriendList(props) {
         user2: user1,
       }),
     ]);
-
     const result = conversations.reduce((acc, curr) => {
       if (curr?.result?.length > 0) {
         acc = curr.result[0].id;
@@ -74,18 +74,23 @@ export default function FriendList(props) {
     return result;
   };
   const addToConverArray = (array, prev, id) => {
+    console.log(array,prev,id)
     const newClicked = prev.filter((obj) => obj.id !== id);
     const con = array.find((e) => e.id === id);
-    if (con) {
-      newClicked.unshift(con);
-    }
+    if(con)
+      {
+
+        newClicked.unshift(con);
+      }
+    
+
     return newClicked;
   };
-  useEffect(() => {
-    if (clickNewCon && conversations) {
-      setListWindow((pre) => addToConverArray(conversations, pre, clickNewCon));
-    }
-  }, [conversations]);
+  // useEffect(() => {
+  //   if (clickNewCon && conversations) {
+  //     setListWindow((pre) => addToConverArray(conversations, pre, clickNewCon));
+  //   }
+  // }, [conversations]);
   const removeElement = (array, index) => {
     const newArray = array.filter((obj) => obj?.id !== index);
     return newArray;
@@ -189,25 +194,36 @@ export default function FriendList(props) {
 
   const handleAddChat = async (id) => {
     const converFound = await foundConversation(id, auth.userID);
+    console.log("adddchat");
     if (!converFound) {
       try {
         const res = await fetchApiRes("conversations", "POST", {
           user1: auth.userID,
           user2: id,
+          created_at:Date.now()
         });
 
         const data = res?.result;
+        console.log(data,"ssss")
         setClickNewCon(data);
       } catch (error) {
         console.log(error);
       }
     } else {
-      setListWindow(() =>
-        addToConverArray(conversations, listWindow, converFound)
-      );
-      setListHiddenBubble(() => removeElement(listHiddenBubble, converFound));
+      const data = addToConverArray(conversations, listWindow, converFound);
+      setListWindow(data);
+      setListHiddenBubble(removeElement(listHiddenBubble, converFound));
     }
   };
+  useEffect(() => {
+    if(conversations && clickNewCon)
+      {
+
+        const data = addToConverArray(conversations, listWindow, clickNewCon);
+        setListWindow(data);
+        setListHiddenBubble(removeElement(listHiddenBubble, clickNewCon));
+      }
+  }, [conversations,clickNewCon]);
   const refListFriend = useRef();
   const changeListDiv = (second) => {
     if (refListFriend.current) {

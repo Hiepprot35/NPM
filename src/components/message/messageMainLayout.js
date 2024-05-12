@@ -9,9 +9,9 @@ export default function MessageMainLayout(props) {
   const [onlineUser, setOnlineUser] = useState();
   const socket = useSocket();
   const { auth } = useAuth();
-  const [conversations, setConversation] = useState();
+  const [conversations, setConversation] = useState([]);
 
-  const { listWindow, setListWindow, listHiddenBubble, setListHiddenBubble } =
+  const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
     useData();
   useEffect(() => {
     async function AsyncGetCon() {
@@ -62,7 +62,7 @@ export default function MessageMainLayout(props) {
         {!props.isHidden && (
           <>
             <h1> Tin nhắn </h1>
-            {conversations && (
+            {conversations.length>0 && (
               <>
                 {conversations.map(
                   (c, i) =>

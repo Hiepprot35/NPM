@@ -219,6 +219,7 @@ const ChatApp = ({ messageId }) => {
                           Arrivalmess={arrivalMessage}
                           sendMess={sendMess}
                           Online={onlineUser}
+                        
                           listSeen={isSeen}
                         />
                       </div>
@@ -247,6 +248,7 @@ const ChatApp = ({ messageId }) => {
                             cc={setArrivalMessage}
                             count={currentChat}
                             Seen={userSeenAt}
+                            chatApp={true}
                             ChatApp={true}
                             setsendMess={setsendMess}
                             ListusersOnline={onlineUser}

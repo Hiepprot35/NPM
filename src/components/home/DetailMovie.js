@@ -1,16 +1,12 @@
-import React, { useState, useEffect } from "react";
-import "./DetailMovie.js";
-import Layout from "../Layout/layout.js";
-import { Image } from "./home.js";
-import parse from "html-react-parser";
-import { Button, Rate } from "antd";
-import useAuth from "../../hook/useAuth.js";
+import { Rate } from "antd";
+import React, { useEffect, useRef, useState } from "react";
 import { fetchApiRes, getStudentInfoByMSSV } from "../../function/getApi.js";
-import { FiSend, FiThumbsDown, FiThumbsUp } from "react-icons/fi";
+import useAuth from "../../hook/useAuth.js";
+import Layout from "../Layout/layout.js";
 import Comment from "./Comment.js";
-import UserProfile from "../UserProfile/userProfile.js";
-import { useRef } from "react";
+import "./DetailMovie.js";
 import MyComment from "./MyComment.js";
+import { Image } from "./home.js";
 
 export default function DetailMovie(props) {
   const { auth } = useAuth();
@@ -29,8 +25,13 @@ export default function DetailMovie(props) {
       `/gettAllCommentFilms/?movieID=${props.movieID}/`,
       "GET"
     );
-    console.log(res);
-    setComment(res?.result);
+    const commentsRes = res?.result.sort((a, b) => {
+      const timeA = new Date(a.create_at).getTime();
+      const timeB = new Date(b.create_at).getTime();
+      return -timeA + timeB;
+    });
+    console.log(commentsRes, "comment");
+    setComment(commentsRes);
     const data = await getStudentInfoByMSSV(auth.username);
     setMe(data);
   };

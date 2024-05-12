@@ -90,13 +90,10 @@ function App() {
           {/* <Route path="*" element={<IsLoading />} /> */}
           <Route path="/login" element={<Login />} />
           <Route path="/create" element={<CreateStudent />} />
-          <Route path="/" element={<Home />} />
+          <Route path="*" element={<Home />} />
           <Route path="/movie/moviedetail/:id" element={<DeltailMovieFilms />} />
 
-          <Route
-            path="/login"
-            element={<Login />}
-          />
+         
         </Routes>
       );
     }

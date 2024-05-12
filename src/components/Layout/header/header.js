@@ -16,6 +16,7 @@ import { FiMoon, FiSearch, FiSettings, FiSun } from "react-icons/fi";
 import SettingComponent from "../../setting/SettingComponent";
 import { Button, Input, Popover } from "antd";
 import { LoginGoolge } from "../../login/login";
+import { useData } from "../../../context/dataContext";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -25,6 +26,7 @@ function Header(props) {
     icon: "",
     country: "",
   });
+  const { setListWindow } = useData();
   const Menu_profile_header = useRef();
   const [city, setCity] = useState("hanoi");
   const { auth, setAuth } = useAuth();
@@ -48,14 +50,36 @@ function Header(props) {
   }, [socket]);
   const updateTitle = async (id) => {
     const username = await getUserinfobyID(parseInt(id));
-    const nameSV = await getStudentInfoByMSSV(username.username);
+    console.log(username, "username");
+    const nameSV = await getStudentInfoByMSSV(username?.username);
     document.title = `${nameSV.Name} gửi tin nhắn`;
   };
+  useEffect(() => {
+    console.log("auth", auth);
+  }, []);
   useEffect(() => {
     let isMounted = true;
     if (socket && isMounted) {
       socket.on("getMessage", (data) => {
         if (data.sender_id !== auth.userID) {
+          setListWindow((prev) => {
+            const exists = prev.some(
+              (item) => item.id === data.conversation_id
+            );
+          
+            if (!exists) {
+              return [
+                ...prev,
+                {
+                  id: data.conversation_id,
+                  user1: data.sender_id,
+                  user2: data.receiverId,
+                },
+              ];
+            }
+            return prev;
+          });
+
           updateTitle(data.sender_id);
         }
       });
@@ -135,22 +159,21 @@ function Header(props) {
     return (
       <div className="Menu_profile_header " ref={Menu_profile_header}>
         <div className="avatar_link">
-          <div className="hover" style={{ borderRadius: "1rem" }}>
-            <a className="Menu_a_link_profile " href={`/profile/${user.MSSV}`}>
-              <div className="avatar_name">
-                <img
-                  src={user?.img ? `${user.img}` : `${auth.avtUrl}`}
-                  alt="User Avatar"
-                  className="avatarImage"
-                />
-                <span>
-                  <p className="hiddenEllipsis">
-                    {user?.Name || auth.username}
-                  </p>
-                </span>
-              </div>
-            </a>
-          </div>
+          <NavLink
+            className="Menu_a_link_profile "
+            to={`/profile/${user?.MSSV}`}
+          >
+            <div className="avatar_name hover">
+              <img
+                src={`${auth.avtUrl}`}
+                alt="User Avatar"
+                className="avatarImage"
+              />
+              <span>
+                <p className="hiddenEllipsis">{user?.Name || auth.username}</p>
+              </span>
+            </div>
+          </NavLink>
 
           <div className="ShowAll_User"></div>
         </div>
@@ -258,7 +281,7 @@ function Header(props) {
               <IsLoading />
             ) : (
               <>
-                {user ? (
+                {auth.userID ? (
                   <>
                     <div className="">
                       {
@@ -269,21 +292,27 @@ function Header(props) {
                         >
                           <img
                             className="avatarImage"
-                            src={user?.img ? `${user.img}` : `${auth.avtUrl}`}
+                            src={`${auth.avtUrl}`}
                             alt="User Avatar"
                           />
                         </Popover>
                       }
                     </div>
                   </>
-                ):(<>
-                  <LoginGoolge>
-                    <span className="circleButton"><IoLogoGoogle/></span>
-                  </LoginGoolge>
-                  Or
-                  <span> </span>
-                  <NavLink style={{padding:"1rem"}} to="/login">Login</NavLink>
-                </>)}
+                ) : (
+                  <>
+                    <LoginGoolge>
+                      <span className="circleButton">
+                        <IoLogoGoogle />
+                      </span>
+                    </LoginGoolge>
+                    Or
+                    <span> </span>
+                    <NavLink style={{ padding: "1rem" }} to="/login">
+                      Login
+                    </NavLink>
+                  </>
+                )}
               </>
             )}
           </div>

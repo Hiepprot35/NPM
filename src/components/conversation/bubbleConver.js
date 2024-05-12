@@ -7,15 +7,15 @@ export default function BubbleConver() {
 
   return (
     <>
-      {listHiddenBubble &&
+      {/* {listHiddenBubble &&
         listHiddenBubble.map((e, i) => (
           <WindowChat
-            key={i}
+            key={e.id}
             count={e}
             isHidden={true}
             index={i}
           />
-        ))}
+        ))} */}
           <div className="newMessage center">
         <span>
           <FiEdit></FiEdit>

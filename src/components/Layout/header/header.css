@@ -211,12 +211,11 @@ hr {
 }
 
 .Menu_profile_header {
-  background-color: var(--themeColor);
+  /* background-color: var(--themeColor); */
   display: flex;
 
   flex-direction: column;
   border-radius: 1rem;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 .setting {
   margin: 1rem;
@@ -234,7 +233,8 @@ hr {
 }
 
 .avatar_name {
-  margin: 10px;
+  border-radius: .5rem;
+  margin: 1rem;
   display: flex;
   align-items: center;
 }

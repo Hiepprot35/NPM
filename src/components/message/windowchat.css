@@ -148,6 +148,10 @@
   height: 50%;
   border-radius: 1rem;
 }
+.arrviedMess
+{
+  background-color: rgba(34, 26, 26, 0.442);
+}
 .windowchat .Mess_seen_text .listImg {
   height: 4rem ;
   width: 4rem;
@@ -163,8 +167,7 @@
 .hiddenBubble{
   position: fixed;
   z-index: 101;
-  right: 9px;
-  bottom: 70px;
+  bottom: 5rem;
 }
 .hiddenBubble:hover svg {
   opacity: 1;
