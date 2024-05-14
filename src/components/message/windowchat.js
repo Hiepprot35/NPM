@@ -20,7 +20,7 @@ import Message from "./Message";
 import "./windowchat.css";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 
-export default memo(function WindowChat(props) {
+export default (function WindowChat(props) {
   const { auth } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const socket = useSocket();
@@ -58,7 +58,10 @@ export default memo(function WindowChat(props) {
   useEffect(() => {
     if (socket) {
       socket.on("updateNewSend", (data) => {
-        getMessages();
+        if (data.conversation_id === props.count.id) {
+          getMessages();
+          console.log(data)
+        }
         if (props.chatApp) {
           props.setsendMess((pre) => !pre);
         }
@@ -193,9 +196,9 @@ export default memo(function WindowChat(props) {
 
       setMessages([...messages, MessageDataRes]);
       setEmtyImg();
-      if (props.chatApp) {
-        props.setsendMess((pre) => !pre);
-      }
+      // if (props.chatApp) {
+      //   props.setsendMess((pre) => !pre);
+      // }
       // props.cc(MessageDataRes);
     } catch (err) {
       console.log(err);
@@ -282,11 +285,7 @@ export default memo(function WindowChat(props) {
   //     container.scrollTop = data.height;
   //   }
   // }, [messages]);
-  useEffect(() => {
-    if (messagesRef.current) {
-      console.log(messagesRef.current.getBoundingClientRect());
-    }
-  }, [messagesRef,messages]);
+
   const closeWindow = () => {
     setListWindow(listWindow.filter((item) => item.id !== props.count.id));
   };
@@ -677,7 +676,10 @@ export default memo(function WindowChat(props) {
                   >
                     <FiXCircle></FiXCircle>
                   </div>
-                  <div style={{position:"relative"}} onClick={() => showHiddenConver(props.count)}>
+                  <div
+                    style={{ position: "relative" }}
+                    onClick={() => showHiddenConver(props.count)}
+                  >
                     <Image
                       style={{ width: "3rem" }}
                       className="avatarImage"

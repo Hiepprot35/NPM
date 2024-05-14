@@ -56,7 +56,7 @@ const ChatApp = ({ messageId }) => {
   let isCancel = false;
   // const ListusersOnline = onlineUser && onlineUser.map(item => item.userId) || [];
   const ClickChat = (data) => {
-    console.log(data)
+    console.log("chat",data)
     setCurrentChat(data);
   };
   useEffect(() => {
