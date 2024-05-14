@@ -1,5 +1,5 @@
 import { Controls, Player } from "@lottiefiles/react-lottie-player";
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useSocket } from "../../../context/socketContext";
 import { getStudentInfoByMSSV } from "../../../function/getApi";
@@ -11,12 +11,23 @@ import { header_Student } from "../../../lib/data";
 import { IsLoading } from "../../Loading";
 import BellTable from "../../Notification/bellTable";
 import { LogOut } from "../../logout";
+import { motion } from "framer-motion";
 import "./header.css";
-import { FiMoon, FiSearch, FiSettings, FiSun } from "react-icons/fi";
+import {
+  FiArrowDown,
+  FiChevronDown,
+  FiMoon,
+  FiSearch,
+  FiSettings,
+  FiSun,
+} from "react-icons/fi";
 import SettingComponent from "../../setting/SettingComponent";
 import { Button, Input, Popover } from "antd";
 import { LoginGoolge } from "../../login/login";
 import { useData } from "../../../context/dataContext";
+import { genresList } from "../../home/MovieFilms";
+import Search from "./Search";
+import _, { debounce } from "lodash";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -31,23 +42,51 @@ function Header(props) {
   const [city, setCity] = useState("hanoi");
   const { auth, setAuth } = useAuth();
   const [chooseHeader, setChooseHeader] = useState();
+  const [GenresList, setGenresList] = useState();
+  const [showGenres, setShowGenres] = useState(false);
+  const data = async () => {
+    const data2 = await genresList();
+    setGenresList(data2);
+  };
+  useEffect(() => {
+    data();
+  }, []);
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState();
   const apiKey = "5b629bb0f5f840b7965193241241704";
   // const bufferString = user2 ? Buffer.from(user2.img).toString('base64') : "11111";
   const cityInputRef = useRef(null); // Tạo một tham chiếu useRef
   const host = process.env.REACT_APP_DB_HOST;
-
+  const sidebar = {
+    open: {
+      clipPath: "inset(0% 0% 0% 0% round 10px)",
+      transition: {
+        type: "spring",
+        bounce: 0,
+        duration: 0.7,
+        delayChildren: 0.03,
+        staggerChildren: 0.05,
+      },
+    },
+    closed: {
+      clipPath: "inset(10% 50% 90% 50% round 10px)",
+      transition: {
+        type: "spring",
+        bounce: 0,
+        duration: 0.3,
+      },
+    },
+  };
   useEffect(() => {
     if (socket) {
-      socket.emit("addUser", auth.userID);
+      socket.emit("addUser", auth?.userID);
     }
     return () => {
       if (socket) {
         socket.off("disconnect");
       }
     };
-  }, [socket]);
+  }, [socket, auth]);
   const updateTitle = async (id) => {
     const username = await getUserinfobyID(parseInt(id));
     console.log(username, "username");
@@ -57,6 +96,15 @@ function Header(props) {
   useEffect(() => {
     console.log("auth", auth);
   }, []);
+  const itemVariants = {
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 300, damping: 24 },
+    },
+    closed: { opacity: 0, y: 20, transition: { duration: 0.2 } },
+  };
+
   useEffect(() => {
     let isMounted = true;
     if (socket && isMounted) {
@@ -66,7 +114,7 @@ function Header(props) {
             const exists = prev.some(
               (item) => item.id === data.conversation_id
             );
-          
+
             if (!exists) {
               return [
                 ...prev,
@@ -128,9 +176,9 @@ function Header(props) {
           const studentApi = await fetch(URL);
 
           const student = await studentApi.json();
+          console.log(student);
           if (student) {
             setUser(student);
-            // setAuth({ ...auth });
           }
 
           setIsLoading(false);
@@ -141,7 +189,8 @@ function Header(props) {
       };
       studentInfo();
     }
-  }, []);
+  }, [auth]);
+  const [SearchQuery, setSearchQuery] = useState("");
   const [primaryColor, setPrimaryColor] = useState(
     localStorage.getItem("colorTheme") === "true"
   );
@@ -150,11 +199,19 @@ function Header(props) {
     setPrimaryColor(!primaryColor);
   };
   const refSearchButton = useRef();
-  const searchHnadleShow = () => {
+  const searchHandle = () => {
     if (refSearchButton.current) {
       refSearchButton.current.classList.toggle("activeSearch");
     }
   };
+  const searchQueryHandle=(e)=>{
+    setSearchQuery(e.target.value)
+  }
+  useEffect(() => {
+    console.log(SearchQuery)
+  }, [SearchQuery]);
+  const debouncedHandleSearch = useCallback(debounce(searchQueryHandle, 500),[]);
+
   const content = () => {
     return (
       <div className="Menu_profile_header " ref={Menu_profile_header}>
@@ -170,7 +227,7 @@ function Header(props) {
                 className="avatarImage"
               />
               <span>
-                <p className="hiddenEllipsis">{user?.Name || auth.username}</p>
+                <p className="hiddenEllipsis">{user?.Name}</p>
               </span>
             </div>
           </NavLink>
@@ -236,6 +293,7 @@ function Header(props) {
                   </Player>
                 </NavLink>
               </li>
+
               <li>
                 <div className="center TempText">
                   <img
@@ -267,14 +325,69 @@ function Header(props) {
                     </NavLink>
                   </li>
                 ))}
+              <li>
+                <div className="geresList">
+                  <div
+                    className="center"
+                    onClick={() => setShowGenres((pre) => !pre)}
+                  >
+                    <span>Thể loại</span>
+                    {
+                      <span
+                        className="chevron"
+                        style={
+                          showGenres
+                            ? {
+                                transform: "rotate(180deg)",
+                                marginTop: "-.2rem",
+                              }
+                            : {}
+                        }
+                      >
+                        <FiChevronDown></FiChevronDown>
+                      </span>
+                    }
+                  </div>
+                  {
+                    <motion.div
+                      variants={sidebar}
+                      animate={showGenres ? "open" : "closed"}
+                      className="genres"
+                    >
+                      {GenresList &&
+                        GenresList.map((e) => (
+                          <motion.div
+                            variants={itemVariants}
+                            className="Pergenres center hover"
+                          >
+                            <a
+                              href={`${process.env.REACT_APP_CLIENT_URL}/films/?id=${e.id}&type=${e.name}`}
+                              style={{ color: "white" }}
+                            >
+                              {e.name}
+                            </a>
+                          </motion.div>
+                        ))}
+                    </motion.div>
+                  }
+                </div>
+              </li>
             </ul>
           </div>
           <div className="header_home_user">
             <div className=" searchInput" ref={refSearchButton}>
-              <input placeholder="Search everything"></input>
-              <div onClick={searchHnadleShow} className="circleButton">
+              <input
+                onChange={debouncedHandleSearch}
+                placeholder="Search everything"
+              ></input>
+              <div onClick={searchHandle} className="circleButton">
                 <FiSearch></FiSearch>
               </div>
+              { (
+                <div style={{position:"absolute",top:"100%",left:"1rem"}}>
+                  <Search query={SearchQuery}></Search>
+                </div>
+              )}
             </div>
             <BellTable></BellTable>
             {isLoading ? (

@@ -27,20 +27,36 @@ export function detaiData(data)
   const timeSent = new Date(data);
 
 }
+export function countDownToNow(startTimeMillis) {
+  const currentTimeMillis = new Date().getTime();
+  const timeDifferenceMillis = currentTimeMillis - startTimeMillis;
+  const oneDayMillis = 24 * 60 * 60 * 1000;
+
+  // Tính số ngày còn lại
+  const daysRemaining = Math.floor((oneDayMillis - timeDifferenceMillis) / (24 * 60 * 60 * 1000));
+
+  // Nếu còn ít hơn 1 ngày, in ra giờ và phút
+  if (daysRemaining < 1) {
+      const hours = Math.floor((oneDayMillis - timeDifferenceMillis) / (60 * 60 * 1000));
+      const minutes = Math.floor(((oneDayMillis - timeDifferenceMillis) % (60 * 60 * 1000)) / (60 * 1000));
+      return `${hours} giờ ${minutes} phút`;
+  }
+
+  // Nếu còn nhiều hơn 1 ngày, in ra số ngày còn lại
+  return `${daysRemaining} ngày`;
+}
 export function countTime(data) {
-  const timeSent = new Date(data);
+  const timeSent = new Date(parseInt(data));
   const date = new Date();
-  const result = date.getTime() - timeSent.getTime();
-  const hour = Math.floor(result / (1000 * 60 * 60));
-  const minute = Math.floor(result / (1000 * 60)) - 60 * hour;
-  const second = Math.floor(result / 1000) - 60 * minute;
-  const formatMinute = minute < 10 ? `0${minute}` : minute;
+  const hour =-timeSent.getHours()+date.getHours()
+  const minute = -timeSent.getMinutes()+date.getMinutes()
+  const second = -timeSent.getSeconds()+date.getSeconds()
   if (hour < 1) {
-    return minute >= 1 ? `${formatMinute} phút` : `vừa xong`;
+    return minute >= 1 ? `${minute} phút` : `vừa xong`;
   } else if (hour < 24) {
     return `${hour} giờ`;
-  } else {
-    return `${Math.floor(hour / 24)} ngày`;
+  } else if(-timeSent.getDate()+date.getDate()>1) {
+    return `${timeSent.getDate()+date.getDate()} ngày`;
   }
 }
 export const getNameMonth = (time) => {

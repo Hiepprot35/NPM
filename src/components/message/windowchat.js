@@ -49,15 +49,21 @@ export default memo(function WindowChat(props) {
 
   useEffect(() => {
     if (socket) {
-      socket.on("getUsers", (data) => {
+      socket.emit("getUsers");
+      socket.on("sendUsers", (data) => {
         setOnlineUser(data);
       });
     }
-    return () => {
-      if (socket) {
-        socket.off("disconnect");
-      }
-    };
+  }, [socket]);
+  useEffect(() => {
+    if (socket) {
+      socket.on("updateNewSend", (data) => {
+        getMessages();
+        if (props.chatApp) {
+          props.setsendMess((pre) => !pre);
+        }
+      });
+    }
   }, [socket]);
 
   async function getMessages() {
@@ -149,15 +155,12 @@ export default memo(function WindowChat(props) {
           imgData.append("content", file);
         }
         imgData.append("isFile", 1);
-        imgData.append("created_at",Date.now())
-
+        imgData.append("created_at", Date.now());
       }
       if (fileImg.length === 0 && inputMess.length > 0) {
         imgData.append("isFile", 0);
         imgData.append("content", inputMess);
-        imgData.append("created_at",Date.now())
-
-        
+        imgData.append("created_at", Date.now());
       } else {
         let updatedInputMess = inputMess;
         emoji.forEach((e, i) => {
@@ -168,7 +171,7 @@ export default memo(function WindowChat(props) {
         });
         imgData.append("isFile", 0);
         imgData.append("content", updatedInputMess);
-        imgData.append("created_at",Date.now())
+        imgData.append("created_at", Date.now());
       }
 
       const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
@@ -190,7 +193,9 @@ export default memo(function WindowChat(props) {
 
       setMessages([...messages, MessageDataRes]);
       setEmtyImg();
-      props.setsendMess((pre) => !pre);
+      if (props.chatApp) {
+        props.setsendMess((pre) => !pre);
+      }
       // props.cc(MessageDataRes);
     } catch (err) {
       console.log(err);
@@ -221,9 +226,9 @@ export default memo(function WindowChat(props) {
         setMessages((prev) => [...prev, arrivalMessage]);
     }
   }, [arrivalMessage]);
+
   useEffect(() => {
-    let isMounted = true;
-    if (socket && isMounted) {
+    if (socket) {
       socket.on("getMessage", (data) => {
         if (data.sender_id !== auth.userID) {
           setArrivalMessage({
@@ -236,13 +241,6 @@ export default memo(function WindowChat(props) {
         }
       });
     }
-
-    return () => {
-      isMounted = false;
-      if (socket && isMounted) {
-        socket.disconnect();
-      }
-    };
   }, [socket]);
 
   useEffect(() => {
@@ -275,28 +273,34 @@ export default memo(function WindowChat(props) {
   useEffect(() => {
     getMessages();
   }, [props.count?.id]);
-
+  const messagesRef = useRef();
+  // useEffect(() => {
+  //   if (main_windowchat.current && messagesRef.current && messages) {
+  //     const container = main_windowchat.current;
+  //     const data = messagesRef.current.getBoundingClientRect();
+  //     console.log("scroll", data.height);
+  //     container.scrollTop = data.height;
+  //   }
+  // }, [messages]);
   useEffect(() => {
-    if (main_windowchat.current) {
-      const container = main_windowchat.current;
-      container.scrollTop = container.scrollHeight;
+    if (messagesRef.current) {
+      console.log(messagesRef.current.getBoundingClientRect());
     }
-  }, [messages]);
+  }, [messagesRef,messages]);
   const closeWindow = () => {
     setListWindow(listWindow.filter((item) => item.id !== props.count.id));
   };
   const clickConversation = async (data) => {
-    const user12 = [data?.id?.user1, data?.id?.user2];
-    const receiverId = user12.find((member) => member !== auth.userID);
+    const user12 = [data?.conver?.user1, data?.conver?.user2];
+    const receiverId = user12.find((member) => member !== auth.UserID);
     const sentToApi = {
-      conversation_id: data?.id,
+      Seen_at: Date.now(),
+      conversation_id: data?.conver.id,
       sender_id: receiverId,
-      Seen_at:Date.now()
     };
-    if(document.title.includes(data.name))
-      {
-        document.title="Xin chàooo"
-      }
+    if (document.title.includes(data.name)) {
+      document.title = "Xin chàooo";
+    }
     setArrivalMessage();
     const resFunctiongetNewestMessSeen = async () => {
       try {
@@ -317,7 +321,7 @@ export default memo(function WindowChat(props) {
     resFunctiongetNewestMessSeen();
     if (socket) {
       const sendSocket = {
-        converid: data?.id,
+        converid: data?.conver.id,
         sender_id: auth.userID,
         receiverId,
         isSeen: true,
@@ -365,13 +369,16 @@ export default memo(function WindowChat(props) {
   }, [socket]);
   return (
     <>
-      {(
+      {
         <>
-          {(listWindow.some((e) => e.id === props?.count.id) ||props.chatApp)  && (
+          {(listWindow.some((e) => e.id === props?.count.id) ||
+            props.chatApp) && (
             <div className={`windowchat ${props.count.id}`} ref={windowchat}>
               <div
-                className={`top_windowchat ${ props?.count.id === arrivalMessage?.conversation_id &&"arrviedMess"}`}
-                
+                className={`top_windowchat ${
+                  props?.count.id === arrivalMessage?.conversation_id &&
+                  "arrviedMess"
+                }`}
               >
                 <div className="header_windowchat">
                   {
@@ -386,7 +393,9 @@ export default memo(function WindowChat(props) {
                           <span
                             className={`dot ${
                               onlineUser &&
-                              onlineUser.some((online) => online.userId === userConver)
+                              onlineUser.some(
+                                (online) => online.userId === userConver
+                              )
                                 ? "activeOnline"
                                 : {}
                             }`}
@@ -406,8 +415,8 @@ export default memo(function WindowChat(props) {
                           </div>
                           {
                             <span>
-                              {props.ListusersOnline &&
-                              props.ListusersOnline.some(
+                              {onlineUser &&
+                              onlineUser.some(
                                 (e) => e.userId === userConver
                               ) ? (
                                 <>Online</>
@@ -460,23 +469,26 @@ export default memo(function WindowChat(props) {
               </div>
               <div className="Body_Chatpp">
                 <div className="main_windowchat" ref={main_windowchat}>
-                  {messages &&
-                    messages.map((message, index) => (
-                      <div className="message_content" key={index}>
-                        <Message
-                          i={index}
-                          key={index}
-                          message={message}
-                          my={auth.userID}
-                          own={message.sender_id === auth.userID}
-                          student={userInfor}
-                          messages={messages}
-                          userID={userConver}
-                          listSeen={userSeenAt}
-                          Online={props.ListusersOnline}
-                        ></Message>
-                      </div>
-                    ))}
+                  <div className="messages" ref={messagesRef}>
+                    {" "}
+                    {messages &&
+                      messages.map((message, index) => (
+                        <div className="message_content" key={index}>
+                          <Message
+                            i={index}
+                            key={index}
+                            message={message}
+                            my={auth.userID}
+                            own={message.sender_id === auth.userID}
+                            student={userInfor}
+                            messages={messages}
+                            userID={userConver}
+                            listSeen={userSeenAt}
+                            Online={onlineUser}
+                          ></Message>
+                        </div>
+                      ))}
+                  </div>
                 </div>
                 <div className="inputValue windowchat_feature center">
                   <div className="feature_left center">
@@ -579,7 +591,12 @@ export default memo(function WindowChat(props) {
                       rows={rowCount || 1}
                       style={{ resize: "none", paddingLeft: ".8rem" }}
                       id="send_window_input"
-                      onClick={() => clickConversation({id:props?.count,name:userInfor?.Name})}
+                      onClick={() =>
+                        clickConversation({
+                          conver: props?.count,
+                          name: userInfor?.Name,
+                        })
+                      }
                       onChange={inputChange}
                       placeholder="Aa"
                       value={inputMess}
@@ -612,77 +629,78 @@ export default memo(function WindowChat(props) {
               </div>
             </div>
           )}
-          {listHiddenBubble.some((e) => e.id === props?.count.id) && (
-            <Popover
-              placement="left"
-              title={
-                <div
-                  style={{
-                    overflow: "hidden",
-                    whiteSpace: "wrap",
-                    textOverflow: "ellipsis",
-                    maxWidth: "10rem",
-                    // height: "1rem",
-                  }}
-                >
-                  <p>{userInfor?.Name}</p>
-                </div>
-              }
-              content={
-                <div
-                  className="hiddenText"
-                  style={{
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "wrap",
-                    maxWidth: "10rem",
-                    maxHeight: "3rem",
-                  }}
-                >
-                  <p style={{ color: "gray" }}>
-                    {messages?.length > 1 &&
-                      messages[messages?.length - 1]?.sender_id ===
-                        auth?.userID &&
-                      "Bạn: "}{" "}
-                    {messages && messages[messages.length - 1]?.content}{" "}
-                  </p>
-                </div>
-              }
-            >
-              <div
-                className="hiddenBubble"
-                style={{ bottom: `${4.4 + 3.2 * props.index}rem` }}
+          {listHiddenBubble.some((e) => e.id === props?.count.id) &&
+            !props.chatApp && (
+              <Popover
+                placement="left"
+                title={
+                  <div
+                    style={{
+                      overflow: "hidden",
+                      whiteSpace: "wrap",
+                      textOverflow: "ellipsis",
+                      maxWidth: "10rem",
+                      // height: "1rem",
+                    }}
+                  >
+                    <p>{userInfor?.Name}</p>
+                  </div>
+                }
+                content={
+                  <div
+                    className="hiddenText"
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "wrap",
+                      maxWidth: "10rem",
+                      maxHeight: "3rem",
+                    }}
+                  >
+                    <p style={{ color: "gray" }}>
+                      {messages?.length > 1 &&
+                        messages[messages?.length - 1]?.sender_id ===
+                          auth?.userID &&
+                        "Bạn: "}{" "}
+                      {messages && messages[messages.length - 1]?.content}{" "}
+                    </p>
+                  </div>
+                }
               >
                 <div
-                  className="closeButton"
-                  onClick={() => closeHiddenWindow(props.count)}
+                  className="hiddenBubble"
+                  style={{ bottom: `${4.4 + 3.2 * props.index}rem` }}
                 >
-                  <FiXCircle></FiXCircle>
-                </div>
-                <div onClick={() => showHiddenConver(props.count)}>
-                  <Image
-                    style={{ width: "3rem" }}
-                    className="avatarImage"
-                    alt="Avatar"
-                    loading="lazy"
-                    src={userInfor?.img}
-                  ></Image>{" "}
-                  <span
-                    className={`dot ${
-                      onlineUser &&
-                      onlineUser.some((e) => e.userId === userConver)
-                        ? "activeOnline"
-                        : {}
-                    }`}
+                  <div
+                    className="closeButton"
+                    onClick={() => closeHiddenWindow(props.count)}
                   >
-                    {" "}
-                  </span>
+                    <FiXCircle></FiXCircle>
+                  </div>
+                  <div style={{position:"relative"}} onClick={() => showHiddenConver(props.count)}>
+                    <Image
+                      style={{ width: "3rem" }}
+                      className="avatarImage"
+                      alt="Avatar"
+                      loading="lazy"
+                      src={userInfor?.img}
+                    ></Image>{" "}
+                    <span
+                      className={`dot ${
+                        onlineUser &&
+                        onlineUser.some((e) => e.userId === userConver)
+                          ? "activeOnline"
+                          : {}
+                      }`}
+                    >
+                      {" "}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Popover>
-          )}
+              </Popover>
+            )}
         </>
-      )}
+      }
     </>
   );
 });

@@ -1,16 +1,18 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiX } from 'react-icons/fi';
 import ReactPlayer from 'react-player';
 import { Button } from 'antd';
 
 export default function MyReactPlayer({ BackImg, MovieLink,setMovieLink }) {
+
   const RefReactPlayer = useRef(null);
   const closeWindowHandle = () => {
-    setMovieLink([]);
+    setMovieLink();
   };
+
   return (
-    MovieLink && BackImg && MovieLink.length > 0 && (
+    BackImg && MovieLink && MovieLink.length>0 && (
       <motion.div
         className="Videoplayer center"
         initial={{ scale: 0 }}

@@ -39,9 +39,9 @@ export default memo(function Conversation({
   const ListusersOnline = (Online && Online.map((item) => item.userId)) || [];
   useEffect(() => {
     if (socket) {
-      socket.on("getUserSeen", (data) => {
+      socket.on("getUserSeen",async (data) => {
         if (data) {
-          getMess();
+          await getNewestMess();
         }
       });
     }
@@ -109,7 +109,7 @@ export default memo(function Conversation({
                 {" "}
               </span>
             </div>
-            <div className="text_conversation hiddenEllipsis">
+            <div className="text_conversation hiddenEllipsis" style={{width:"100%"}}>
               <span className="conversationName">{user.Name}</span>
               {notSeen_field ? (
                 <></>

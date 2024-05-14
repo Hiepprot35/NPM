@@ -7,7 +7,7 @@ import Comment from "./Comment.js";
 import "./DetailMovie.js";
 import MyComment from "./MyComment.js";
 import { Image } from "./home.js";
-
+import { motion } from "framer-motion";
 export default function DetailMovie(props) {
   const { auth } = useAuth();
   const [Movies, setMovies] = useState([]);
@@ -38,7 +38,8 @@ export default function DetailMovie(props) {
   useEffect(() => {
     getComment();
   }, [Reder]);
-
+  const [showComment, setshowComment] = useState(false);
+  const [showActor, setShowActor] = useState(false);
   const sendComment = async () => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(myComment, "text/html");
@@ -63,6 +64,30 @@ export default function DetailMovie(props) {
       setMyComment("");
       setRender(!Reder);
     }
+  };
+  const variants = {
+    open: {
+      transition: { staggerChildren: 0.05, delayChildren: 0.03 },
+    },
+    closed: {
+      transition: { staggerChildren: 0.05, staggerDirection: -1 },
+    },
+  };
+  const variants2 = {
+    open: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        y: { stiffness: 1000, velocity: -100 },
+      },
+    },
+    closed: {
+      y: 50,
+      opacity: 0,
+      transition: {
+        y: { stiffness: 1000 },
+      },
+    },
   };
   const data = async () => {
     const res = await fetch(
@@ -129,7 +154,14 @@ export default function DetailMovie(props) {
 
   const ref = useRef([]);
   const refTag = useRef();
-
+  const showActorHandle = () => {
+    setShowActor(true);
+    setshowComment(false);
+  };
+  const showCommentHandle = () => {
+    setShowActor(false);
+    setshowComment(true);
+  };
   return (
     <>
       <Layout>
@@ -181,57 +213,112 @@ export default function DetailMovie(props) {
                       allowHalf
                     ></Rate>
                   </div>
+                  <div style={{ margin: "1rem" }}>
+                    <p style={{ fontSize: "1rem" }}>{Movies.overview}</p>
+                  </div>
                 </div>
               </div>
-              <div style={{ margin: "1rem" }}>
-                <p style={{ fontSize: "1rem" }}>{Movies.overview}</p>
-              </div>
-              <div className="actorsMovie">
-                {Actors?.cast &&
-                  Actors?.cast.map(
-                    (actor, index) =>
-                      actor?.profile_path && (
-                        <div key={index} className="center actor hiddenText">
-                          <Image
-                            // className="avatarImage"
-                            src={`${url}/${actor.profile_path}`}
-                          ></Image>
-                          <div
-                            className="hiddenText"
-                            style={{ height: "3rem" }}
-                          >
-                            <p key={index}>{actor.name}</p>
+              <ul className="ulVerion">
+                <li
+                  className="center"
+                  onClick={() => {
+                    showActorHandle();
+                  }}
+                >
+                  <p>Casting</p>
+                </li>
+                <li
+                  className="center"
+                  onClick={() => {
+                    showCommentHandle();
+                  }}
+                >
+                  <p>Comment</p>
+                </li>
+                <li className="center">
+                  <p>Same type</p>
+                </li>
+              </ul>
+              {showActor && (
+                <div className="actorsMovie">
+                  {Actors?.cast &&
+                    Actors?.cast.map(
+                      (actor, index) =>
+                        actor?.profile_path && (
+                          <div key={index} className="center actor hiddenText">
+                            <Image
+                              // className="avatarImage"
+                              src={`${url}/${actor.profile_path}`}
+                            ></Image>
+                            <div
+                              className="hiddenText"
+                              style={{ height: "3rem" }}
+                            >
+                              <p key={index}>{actor.name}</p>
+                            </div>
                           </div>
-                        </div>
-                      )
-                  )}
-              </div>
-              <div className="commentMovie">
-                {auth.userID && (
-                  <MyComment
-                    setRender={setRender}
-                    movieID={props.movieID}
-                  ></MyComment>
-                )}
-                <div className="allComment">
-                  {comments &&
-                    comments.map((e, i) =>
-                      i < comments.length - 1 ? (
-                        <Comment
-                          key={i}
-                          className={"notLastComment"}
-                          comment={e}
-                        />
-                      ) : (
-                        <Comment
-                          key={i}
-                          className={"lastComment"}
-                          comment={e}
-                        />
-                      )
+                        )
                     )}
                 </div>
-              </div>
+              )}
+              {
+                <motion.div
+                  variants={variants}
+                  animate={showComment ? "open" : "closed"}
+                  className="commentMovie"
+                >
+                  {auth.userID && (
+                    <motion.div variants={variants2}>
+                      <MyComment
+                        setRender={setRender}
+                        movieID={props.movieID}
+                      ></MyComment>
+                    </motion.div>
+                  )}
+                  <div className="allComment">
+                    <div style={{ display: "flex" }}>
+                      <div style={{ margin: 0, position: "relative" }}>
+                        <h1 style={{ margin: 0 }}>Comment</h1>
+                        <div
+                        className="center"
+                          style={{
+                            position: "absolute",
+                            right: "-1.7rem",
+                            top: "0",
+                            width:"1.4rem",
+                            height:"1.4rem",
+                            fontSize: ".8rem",
+                            backgroundColor: "gray",
+                            borderRadius: "50%",
+                          }}
+                        >
+                          <p>{comments.length}</p>
+                        </div>
+                      </div>
+                    </div>
+                    {comments &&
+                      comments.map((e, i) =>
+                        i < comments.length - 1 ? (
+                          <motion.div variants={variants2}>
+                            <Comment
+                              key={i}
+                              className={"notLastComment"}
+                              comment={e}
+                            />
+                          </motion.div>
+                        ) : (
+                          <motion.div variants={variants2}>
+                            <Comment
+                              key={i}
+                              className={"lastComment"}
+                              comment={e}
+                            />
+                          </motion.div>
+                        )
+                      )}
+                  </div>
+                </motion.div>
+              }
             </div>
           </div>
         )}

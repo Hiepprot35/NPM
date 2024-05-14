@@ -16,6 +16,57 @@ import WatchFilms from "./watchFilms";
 import MyReactPlayer from "./ReactPlayer";
 import "./DetailMovie.scss";
 import { timeFilm } from "../../function/getTime";
+export function CardMovie({ film, index, className }) {
+  return (
+    <div className={`CardMovie ${className}`} key={index}>
+      <article>
+        <header>
+          <div
+            className="cardBackGround"
+            style={{
+              backgroundImage: `url('https://image.tmdb.org/t/p/original/${film.poster_path}')`,
+            }}
+          ></div>
+        </header>
+        <div style={{ marginLeft: "1rem" }}>
+          <div style={{ height: "4rem", overflow: "hidden" }}>
+            <h1
+              style={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {film?.original_title}
+            </h1>
+          </div>
+
+          <div className="detailMovieCard center" style={{ height: "5vh" }}>
+            <p>
+              {timeFilm(film?.runtime)}/ {film?.production_companies[0]?.name}/{" "}
+              {film.genres.map((e, index) => (
+                <i key={index}>
+                  <>
+                    {" "}
+                    {e?.name}
+                    {index < film?.genres.length - 1 && ","}
+                  </>
+                </i>
+              ))}
+            </p>
+          </div>
+
+          <div className="center" style={{ margin: "1rem" }}>
+            <div className="linear"></div>
+          </div>
+          <footer>
+           
+          </footer>
+        </div>
+      </article>
+    </div>
+  );
+}
 function useParallax(value, dis) {
   return useTransform(value, [0, 1], [-dis, dis]);
 }
@@ -50,7 +101,7 @@ export function Slide({ children, className }) {
     },
   };
   return (
-    <motion.div  className={className} ref={ref} {...animeSpan}>
+    <motion.div className={className} ref={ref} {...animeSpan}>
       {children}
     </motion.div>
   );
@@ -83,7 +134,13 @@ export function Span({ e, i, style, onClick }) {
     },
   };
   return (
-    <motion.span key={i} onClick={onClick} style={style} ref={ref} {...animeSpan}>
+    <motion.span
+      key={i}
+      onClick={onClick}
+      style={style}
+      ref={ref}
+      {...animeSpan}
+    >
       {e}{" "}
     </motion.span>
   );
@@ -113,7 +170,9 @@ export const Text = (props) => {
     >
       <>
         {!props.hiddenText ? (
-          splitText.map((e, i) => <Span style={props.style}  key={i} e={e} i={i} />)
+          splitText.map((e, i) => (
+            <Span style={props.style} key={i} e={e} i={i} />
+          ))
         ) : (
           <>
             {truncatedText.map((e, i) => (
@@ -211,7 +270,7 @@ export default function ListPlay() {
 
         <div className="textList center">
           <motion.div className="parrallaxText" style={{ y }} ref={textRef}>
-            <Text text={text} style={{fontSize:'2.5rem'}}></Text>
+            <Text text={text} style={{ fontSize: "2.5rem" }}></Text>
             {/* <br></br> */}
             <Text text={"-------------------------"} />
             <Text text="Vincent Van Gogh"></Text>
@@ -269,8 +328,6 @@ export default function ListPlay() {
                       <div className="center">
                         <WatchFilms
                           id={film.id}
-                          setMovieLink={setMovieLink}
-                          setBackImg={setBackImg}
                         ></WatchFilms>
                       </div>
                     </footer>
@@ -281,13 +338,7 @@ export default function ListPlay() {
           </div>
         </Slide>
       </motion.div>
-      {MovieLink && BackImg && MovieLink.length > 0 && (
-        <MyReactPlayer
-          BackImg={BackImg}
-          MovieLink={MovieLink}
-          setMovieLink={setMovieLink}
-        ></MyReactPlayer>
-      )}
+     
     </>
   );
 }

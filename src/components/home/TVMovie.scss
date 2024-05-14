@@ -1,11 +1,44 @@
-.TVMovieClass
-{
-    width: var(--widthContentHome);
-    height: 200vh;
-    background-color: rgb(113, 94, 94);
+.TVMovieClass {
+  width: var(--widthContentHome);
+  height: 200vh;
+  background-color: rgb(113, 94, 94);
 }
-.vangohPics{
-    background-color: black;
-    background-blend-mode: luminosity;
+.vangohPics {
+  background-color: black;
+  background-blend-mode: luminosity;
+}
+.containerMoviesType{
+  background: var(--themeColor);
+}
+.ulVerion{
+  display: flex ;
+  width: 100%;
+  height: 2rem;
+  justify-content: space-around;
+  flex-direction: row !important;
+  list-style: none;
+}
+.ulVerion li:hover
+{
+  background-color: gray;
+}
+.ulVerion li{
+  width: 30%;
+  height: 100%;
+  cursor: pointer;
+}
+.MoviesType {
+  width: var(--widthContentHome);
+  justify-content: center;
+  grid-template-columns: 22%  22%  22%  22%;
+  column-gap: 1.5%;
+  display: grid;
+}
+.CardType{
+    width: 100%;
+}
+.pageText
+{
 
+  margin:1rem
 }

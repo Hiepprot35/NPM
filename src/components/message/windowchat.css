@@ -44,6 +44,8 @@
 }
 .top_windowchat {
   border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -138,6 +140,9 @@
   scroll-behavior: smooth;
   overflow-y: scroll;
   height: 50vh;
+  flex-direction: column-reverse;
+  display: flex;
+
 }
 .multiFile_layout {
   display: flex;

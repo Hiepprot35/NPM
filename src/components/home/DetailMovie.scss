@@ -225,6 +225,8 @@ $font-Dieu: "Dancing Script", cursive;
 }
 .commentMovie .center {
   position: relative;
+  width: 70%;
+
   flex-direction: column;
 }
 .allComment {
@@ -264,10 +266,10 @@ $font-Dieu: "Dancing Script", cursive;
   font-size: 1.4rem;
 }
 .commentDiv {
+  width: 100%;
   position: relative;
-  margin: 1rem;
   z-index: 1;
-  outline: 0;
+  padding: 1rem;
 }
 .headerComment {
   display: flex;
@@ -284,7 +286,7 @@ $font-Dieu: "Dancing Script", cursive;
   margin: 1rem;
 }
 .commentDiv p {
-  width: 19rem;
+  width: 100%;
   min-height: 2rem;
 }
 .placehoder {

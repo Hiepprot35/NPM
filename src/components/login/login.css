@@ -262,6 +262,6 @@
     }
     .validation,
     .message {
-        font-size: 20px;
+        font-size: 1rem;
         color: rgb(253, 9, 9);
     }

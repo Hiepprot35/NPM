@@ -19,6 +19,7 @@ export default memo(function Message({
 }) {
   const time = useRef(null);
   const { auth } = useAuth();
+  const [OnlineUser, setOnlineUser] = useState();
   const socket = useSocket();
   const seen_text = useRef(null);
   const messageRef = useRef(null);
@@ -47,8 +48,9 @@ export default memo(function Message({
       }
       if (prevSender === sender && nextSender !== sender) {
         return 3;
+      } else {
+        return 0;
       }
-      return 2;
     }
     return 3;
   };
@@ -62,7 +64,7 @@ export default memo(function Message({
     if (ag() === 3) {
       return "endMessage";
     } else {
-      return "";
+      return "aloneMessage";
     }
   }
   const ccc = () => {
@@ -134,36 +136,39 @@ export default memo(function Message({
                     )}
                   </>
                 )}
-                {message.content != null ? (
-                  <Popover
-                    placement="left"
-                    content={
-                      <p ref={time}>{timeUse.getTime(message.created_at)}</p>
-                    }
-                  >
-                    <div className={`Mess_seen_text  `}>
-                      {message.isFile ? (
-                        <>
-                          {listAnh &&
-                            listAnh.map((e) => (
-                              <img
-                                className={listAnh.length > 1 ? "listImg" : ""}
-                                style={
-                                  e.includes("emoji")
-                                    ? { width: "1rem ", height: "1rem " }
-                                    : {}
-                                }
-                                src={e}
-                              ></img>
-                            ))}
-                        </>
-                      ) : (
-                        <div className="messageText">{ccc()}</div>
-                      )}
-                    </div>
-                  </Popover>
-                ) : (
-                  <></>
+                {message.content != null && (
+                    <Popover
+                      placement={own ? "left" : "right"}
+                      overlayStyle={{padding:0}}
+                      content={
+                        <p style={{ padding: 0 }} ref={time}>
+                          {timeUse.getTime(message.created_at)}
+                        </p>
+                      }
+                    >
+                      <div className={`Mess_seen_text  `}>
+                        {message.isFile ? (
+                          <>
+                            {listAnh &&
+                              listAnh.map((e) => (
+                                <img
+                                  className={
+                                    listAnh.length > 1 ? "listImg" : ""
+                                  }
+                                  style={
+                                    e.includes("emoji")
+                                      ? { width: "1rem ", height: "1rem " }
+                                      : {}
+                                  }
+                                  src={e}
+                                ></img>
+                              ))}
+                          </>
+                        ) : (
+                          <div className="messageText">{ccc()}</div>
+                        )}
+                      </div>
+                    </Popover>
                 )}
               </div>
               {student && message?.id === listSeen?.id && listSeen && (

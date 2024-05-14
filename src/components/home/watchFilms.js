@@ -1,10 +1,10 @@
 import { Button, Popover } from "antd";
-import React from "react";
+import React, { memo } from "react";
 import ReactPlayer from "react-player";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { FiEye, FiX } from "react-icons/fi";
-export default function WatchFilms({setBackImg,setMovieLink,id,background}) {
+ function WatchFilms({setBackImg,setMovieLink,id,background}) {
   const token = `eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxYTMxMjY0M2U3MzQ5YjAyM2Q4YWE0NzViMzUyMzYwMSIsInN1YiI6IjY1ZTZkOGMzOGQxYjhlMDE4NzY3MjEwOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.IhIe9_G8KXIFkM2bHAhWYkZy_uaOvUolfJrfI1YQZm4`;
   const [Report, setReport] = useState(false);
   const watchMovieHandle = async () => {
@@ -64,3 +64,4 @@ export default function WatchFilms({setBackImg,setMovieLink,id,background}) {
     </>
   );
 }
+export default memo(WatchFilms)

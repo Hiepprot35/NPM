@@ -196,7 +196,7 @@ const ChatApp = ({ messageId }) => {
                 : conversations &&
                   conversations.map((c, index) => (
                     <Link
-                      key={index}
+                      key={c.id}
                       to={`/message/${
                         c.user1 === auth.userID ? c.user2 : c.user1
                       }`}
@@ -249,7 +249,6 @@ const ChatApp = ({ messageId }) => {
                             count={currentChat}
                             Seen={userSeenAt}
                             chatApp={true}
-                            ChatApp={true}
                             setsendMess={setsendMess}
                             ListusersOnline={onlineUser}
                           ></WindowChat>

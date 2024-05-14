@@ -16,6 +16,9 @@
   margin-left: 3rem;
   margin-bottom: 0.2rem;
 }
+.midMessage{
+  margin-left: 3rem;
+}
 .firstMessage .messageText {
   border-radius: 2rem 2rem 2rem 0.3rem;
 }
@@ -36,10 +39,11 @@
 
 }
 .firstMessage .messageText {
-  border-radius: 2rem 2rem 2rem 0.3rem ;
+  border-radius: 1.5rem 2rem 2rem 0.3rem ;
 }
 .endMessage .messageText {
-  border-radius: 0.3rem 2rem 2rem 2.5rem;
+  border-top-left-radius: 0.3;
+  border-bottom-left-radius: 1.5rem;
 }
 .avatar_dot {
   display: flex;
@@ -105,7 +109,11 @@
   align-items: center;
   max-width: 80%;
 }
-.endMessage .Mess_seen_text {
+.message_content{
+  margin-left: .5rem;
+  margin-right: .5rem;
+}
+.endMessage .Mess_seen_text ,.aloneMessage .Mess_seen_text{
   margin-left: 0.5rem;
 }
 .messageBottom {
@@ -165,4 +173,7 @@
   justify-content: center;
   width: 5em;
   height: 2rem;
+}
+.aloneMessage{
+  margin-left: 0;
 }

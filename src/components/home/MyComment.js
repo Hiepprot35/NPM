@@ -45,7 +45,6 @@ export default function MyComment(props) {
       if (offset > 0) {
         const previousCharacter = text[offset - 1];
         if (previousCharacter === "@") {
-          console.log("câcc", previousCharacter);
           setOpenTag(true);
         }
       } else {
@@ -56,12 +55,20 @@ export default function MyComment(props) {
     }
   };
   const [TagName, setTagName] = useState([]);
+  const [countText, setCountText] = useState(0);
   const handleInputChange = () => {
     if (inputRef.current) {
-      setMyComment(inputRef.current.innerHTML);
-      if (OpenTag) {
-        setCountTag((pre) => pre + 1);
+      if (inputRef.current.innerHTML.length <= 200) {
+        setMyComment(inputRef.current.innerHTML);
+        setCountText(inputRef.current.innerHTML.length);
+        if (OpenTag) {
+          setCountTag((pre) => pre + 1);
+        }
+      } else {
+        // Nếu vượt quá 200 ký tự, giữ nguyên giá trị hiện tại
+        inputRef.current.innerHTML = inputRef.current.innerHTML.substring(0, 200);
       }
+    } else {
     }
   };
 
@@ -73,16 +80,6 @@ export default function MyComment(props) {
     setFilterTag([...myFriendList]);
   }, [myFriendList]);
 
-  const addSpan = (className, values) => {
-    if (inputRef.current) {
-      if (values.dataset) {
-        return `<span dataset=${values.dataset} class=${className} >${values.Name}</span>`;
-      } else {
-        return`<span  class=${className} >${values.Name}</span>`;
-      }
-      
-    }
-  };
   const tagHandle = (e) => {
     setMyComment((pre) => pre + e.Name);
     if (inputRef.current) {
@@ -91,18 +88,15 @@ export default function MyComment(props) {
       setTagName((pre) => [...pre, e.Name]);
       inputRef.current.innerHTML = inputText.replace(
         "@",
-        `<span data-lexical-text=${e.MSSV} class="tagNameHref" >${e.Name}</span><span class="spanComment"> </span>`
+        `<span class="tagNameHref"  data-lexical-text=${e.MSSV} >${e.Name}</span><span class="spanComment"> </span>`
       );
       handleInputChange();
       setOpenTag(false);
       setCountTag(0);
-
     }
-
   };
   const [CountTag, setCountTag] = useState(0);
   useEffect(() => {
-    console.log("My comment", myComment);
     if (inputRef.current && myComment) {
       if (myComment.includes("@")) {
         setOpenTag(true);
@@ -126,27 +120,11 @@ export default function MyComment(props) {
   }, [myComment, CountTag]);
 
   const sendComment = async (e) => {
-    e.preventDefault()
-    let isSending=false
-    setisLoading(true)
+    e.preventDefault();
+    let isSending = false;
+    setisLoading(true);
     try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(myComment, "text/html");
-      let content = "";
-      const spanElement = doc.querySelector(".tagNameHref");
-      if (spanElement) {
-        const name = spanElement.innerHTML;
-        const dataValues = spanElement.dataset.lexicalText;
-        console.log(dataValues)
-        const data = myComment.replace(
-          `<span`,
-          `<a href="${process.env.REACT_APP_CLIENT_URL}/profile/${dataValues}"`
-        );
-        const data2 = data.replace("/span>", "/a>");
-        content = data2;
-      } else {
-        content = myComment;
-      }
+      let content = myComment;
       let updateContent = content;
       if (Emoji) {
         Emoji.map(
@@ -157,26 +135,23 @@ export default function MyComment(props) {
             ))
         );
       }
-      // console.log(updateContent)
+      console.log("send", updateContent);
       const res = await fetchApiRes("insertComment", "POST", {
         userID: auth.username,
         content: updateContent,
         movieID: props.movieID,
         replyID: props.reply,
-        create_at:Date.now()
+        create_at: Date.now(),
       });
-      if(res)
-        {
-          setisLoading(false)
-        }
+      if (res) {
+        setisLoading(false);
+      }
       inputRef.current.innerHTML = "";
       setMyComment("");
       props.setRender((pre) => !pre);
     } catch (error) {
-      setisLoading(false)
-
+      setisLoading(false);
     }
-   
   };
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
   const [Emoji, setEmoji] = useState([]);
@@ -194,83 +169,83 @@ export default function MyComment(props) {
   };
   return (
     <>
-    {
-    <div className=" myCommentComponent">
-      <div className="AvatarComment">
-        <div className="AvatarComment2">
-          <img className="avatarImage" src={`${auth.avtUrl}`}></img>
-        </div>
-        <div className="linearComment"></div>
-      </div>
-
-      <div className="inputDiv center">
-        <div
-          className="commentDiv"
-          ref={refTag}
-          contentEditable="true"
-          onInput={(e) => handleInputChange(e)}
-          onClick={getPreviousCharacter}
-          suppressContentEditableWarning={true}
-        >
-          <p ref={inputRef}></p>
-        </div>
-        {(myComment === "<br>" || !myComment) && (
-          <div className="placehoder">
-            <p>
-              {props.user
-                ? `Đang trả lời bình luận của ${props.user}`
-                : "Nội dung"}
-            </p>
+      {
+        <div className=" myCommentComponent">
+          <div className="AvatarComment">
+            <div className="AvatarComment2">
+              <img className="avatarImage" src={`${auth.avtUrl}`}></img>
+            </div>
+            <div className="linearComment"></div>
           </div>
-        )}
-        <div className="featureComment">
-          <div
-            className="center"
-            style={{ margin: "1rem" }}
-            onClick={(e) => {
-              setOpenEmojiPicker(!openEmojiPicker);
-            }}
-          >
-            <FiSmile></FiSmile>
-            <div className="emojipick" style={{ zIndex: "6" }}>
-              <EmojiPicker
-                width={350}
-                height={450}
-                open={openEmojiPicker}
-                onEmojiClick={(e, i) => {
-                  onClickEmoji(e);
+
+          <div className="inputDiv center">
+            <div
+              className="commentDiv"
+              ref={inputRef}
+              contentEditable="true"
+              onInput={(e) => handleInputChange(e)}
+              onClick={getPreviousCharacter}
+              suppressContentEditableWarning={true}
+            ></div>
+            {(myComment === "<br>" || !myComment) && (
+              <div className="placehoder">
+                <p>
+                  {props.user
+                    ? `Đang trả lời bình luận của ${props.user}`
+                    : "Nội dung"}
+                </p>
+              </div>
+            )}
+            <div className="featureComment">
+              <div
+                className=""
+                style={{ margin: "1rem" }}
+                onClick={(e) => {
+                  setOpenEmojiPicker(!openEmojiPicker);
                 }}
-                emojiStyle="facebook"
-              />
+              >
+                <FiSmile></FiSmile>
+                <div className="emojipick" style={{ zIndex: "6" }}>
+                  <EmojiPicker
+                    width={350}
+                    height={450}
+                    open={openEmojiPicker}
+                    onEmojiClick={(e, i) => {
+                      onClickEmoji(e);
+                    }}
+                    emojiStyle="facebook"
+                  />
+                </div>
+                <span style={{color:`rgb(${255*countText/200},${255-255*countText/200},${255-255*countText/200}`}}>
+                  { `${countText}/200`} {countText===200 &&` vượt quá kí tự quy định`}
+                </span>
+              </div>
+
+              {myComment && myComment !== "<br>" && (
+                <>
+                  <span className="circleButton" onClick={sendComment}>
+                    <FiSend />
+                  </span>
+                </>
+              )}
             </div>
           </div>
-
-          {myComment && myComment !== "<br>" && (
-            <>
-              <span className="circleButton" onClick={sendComment}>
-                <FiSend />
-              </span>
-            </>
+          {FilterTag && OpenTag && (
+            <div className="tagList ">
+              {FilterTag.map((e) => (
+                <div
+                  className="tag"
+                  style={{ margin: ".5rem" }}
+                  onClick={() => tagHandle(e)}
+                >
+                  <img className="avatarImage" src={`${e.img}`}></img>
+                  <p style={{ margin: ".3rem" }}>{e.Name}</p>
+                </div>
+              ))}
+            </div>
           )}
         </div>
-      </div>
-      {FilterTag && OpenTag && (
-        <div className="tagList ">
-          {FilterTag.map((e) => (
-            <div
-              className="tag"
-              style={{ margin: ".5rem" }}
-              onClick={() => tagHandle(e)}
-            >
-              <img className="avatarImage" src={`${e.img}`}></img>
-              <p style={{ margin: ".3rem" }}>{e.Name}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-    
-    }</>
-
+      }
+    </>
   );
 }

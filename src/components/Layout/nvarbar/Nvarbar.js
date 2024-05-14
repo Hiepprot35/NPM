@@ -11,6 +11,7 @@ import { useSession } from "../../../context/sectionProvider";
 import { useSocket } from "../../../context/socketContext";
 import BubbleConver from "../../conversation/bubbleConver";
 import MessageMainLayout from "../../message/messageMainLayout";
+import { motion } from "framer-motion";
 import Windowchat from "../../message/windowchat";
 import "./nvarbar.css";
 export default function Nvarbar() {
@@ -21,6 +22,36 @@ export default function Nvarbar() {
   useEffect(() => {
     setConver(listHiddenBubble.concat(listWindow))
   }, [listHiddenBubble,listWindow]);
+  const itemVariants={
+    open: {
+    
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 300, damping: 24 }
+    },
+    closed: { opacity: 0, y: 20, transition: { duration: 0.2 } }
+  };
+  
+  const sidebar = {
+    open: {
+      clipPath: "inset(0% 0% 0% 0% round 1rem)",
+      transition: {
+        type: "spring",
+        bounce: 0,
+        duration: 0.1,
+        delayChildren: .3,
+        staggerChildren: 0.05
+      }
+    },
+    closed: {
+      clipPath: "inset(10% 50% 90% 50% round 1rem)",
+      transition: {
+        type: "spring",
+        bounce: 0,
+        duration: 0.1
+      }
+    }
+  };
   const newFeed = [
     {
       title: "Trending",
@@ -83,13 +114,13 @@ export default function Nvarbar() {
           style={{ height: "2rem", width: "2rem" }}
         />
       </div>
-      <div className="leftHome">
+      <motion.div animate={ShowNvaBar?"open":"closed"} variants={sidebar} className="leftHome">
         <div className="newFeed">
           <span>
             <p className="weightFont">New feed</p>
           </span>
           {newFeed.map((e, i) => (
-            <a href={`${e.href}`} key={i}>
+            <motion.a variants={itemVariants} href={`${e.href}`} key={i}>
               <div
                 key={i}
                 className={`newFeedList ${
@@ -101,14 +132,14 @@ export default function Nvarbar() {
                   {e.title}
                 </p>
               </div>
-            </a>
+            </motion.a>
           ))}
         </div>
         <div className="center" style={{ margin: "1rem" }}>
           <div className="linear"></div>
         </div>
         <MessageMainLayout />
-      </div>
+      </motion.div>
       <div className="windowchat_container">
         {Conver &&
           Conver.map((e, i) => (

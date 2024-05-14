@@ -106,7 +106,7 @@ code {
 .dot {
   border: 1px solid white;
   position: absolute;
-  margin-left: -10px;
+  right: 0rem;
   height: 0.8rem;
 
   bottom: 0.3rem;

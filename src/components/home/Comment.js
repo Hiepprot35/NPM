@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { FiThumbsDown, FiThumbsUp } from "react-icons/fi";
 import useAuth from "../../hook/useAuth";
 import { fetchApiRes, getStudentInfoByMSSV } from "../../function/getApi";
-import parse from "html-react-parser";
+import parse, { domToReact } from "html-react-parser";
 import { Popover } from "antd";
 import UserProfile from "../UserProfile/userProfile";
 import MyComment from "./MyComment";
 import { countTime, getDate, getTime } from "../../function/getTime";
-
-export default function Comment({ comment, users, isReply, className }) {
+ function Comment({ comment, users, isReply, className }) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState();
   const [ComemntDetail, setComemntDetail] = useState([]);
@@ -17,11 +16,9 @@ export default function Comment({ comment, users, isReply, className }) {
     const res = await fetchApiRes(
       `/gettAllCommentFilms/?movieID=${comment.movieID}&replyID=${comment.id}`
     );
-    if(res?.result.length>0)
-      {
-
-        setCommentsRep(res.result);
-      }
+    if (res?.result.length > 0) {
+      setCommentsRep(res.result);
+    }
   };
   const getComment = async () => {
     if (comment) {
@@ -48,22 +45,49 @@ export default function Comment({ comment, users, isReply, className }) {
     setClicked(!Clicked);
   };
   const checkComment = (e) => {
-    const data = parse(e);
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(e, "text/html");
-    const aElement = doc.querySelector("a.tagNameHref");
-    if (aElement) {
-      const data = aElement.getAttribute("data-lexical-text");
-      console.log("hover", data);
-      return (
-        <Popover content={<UserProfile MSSV={data}></UserProfile>}>
-          {parse(e)}
-        </Popover>
-      );
-    } else {
-      return parse(e);
-    }
+    let updatedComment = e;
+    const options = {
+      replace: ({ name, attribs, children }) => {
+        if (name === 'span' && attribs && attribs.class === 'tagNameHref') {
+          const data = attribs['data-lexical-text'];
+          return (
+            <Popover content={<UserProfile MSSV={data} />}>
+              <a href={`${process.env.REACT_APP_CLIENT_URL}/profile/${data}`} className="tagNameHref" data-lexical-text={data}>
+                {domToReact(children)}
+              </a>
+            </Popover>
+          );
+        }
+      }
+    };
+  
+    return <>{parse(updatedComment, options)}</>;
   };
+  // const checkComment = (e) => {
+  //   const data = parse(e);
+  //   const parser = new DOMParser();
+  //   const doc = parser.parseFromString(e, "text/html");
+  //   const aElements = doc.querySelectorAll("span.tagNameHref");
+  //   let comment="";
+  //   if (aElements) {
+  //     aElements.forEach((aElement) => {
+  //       const data = aElement.getAttribute("data-lexical-text");
+  //       const inner = aElement.innerHTML;
+  //       console.log(`<span class="tagNameHref" data-lexical-text="${data}">${inner}</span>`)
+  //       comment = e.replaceAll(
+  //         `<span class="tagNameHref" data-lexical-text="${data}">${inner}</span>`,
+  //         `<a class="tagNameHref" href="${process.env.REACT_APP_CLIENT_URL}/profile/${data}" data-lexical-text="${data}">${inner}</a>`
+  //       );
+  //     });
+  //     return (
+  //       <Popover content={<UserProfile MSSV={data}></UserProfile>}>
+  //         {parse(comment)}
+  //       </Popover>
+  //     );
+  //   } else {
+  //     return parse(e);
+  //   }
+  // };
   const disLikeHandle = async (e) => {
     const res = await fetchApiRes("insertLike", "PUT", {
       commentID: e,
@@ -120,7 +144,14 @@ export default function Comment({ comment, users, isReply, className }) {
               </div>
             </div>
             <div className="likedislike">
-              <Popover content={<p>{getDate(comment.create_at)} lúc {getTime(comment.create_at)}</p>}>
+              <Popover
+                content={
+                  <p>
+                    {getDate(comment.create_at)} lúc{" "}
+                    {getTime(comment.create_at)}
+                  </p>
+                }
+              >
                 <span>{countTime(comment.create_at)}</span>
               </Popover>
               <span
@@ -197,3 +228,5 @@ export default function Comment({ comment, users, isReply, className }) {
     </div>
   );
 }
+
+export default memo(Comment)

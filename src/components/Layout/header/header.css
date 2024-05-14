@@ -80,10 +80,16 @@ h5 {
 .activeSearch .circleButton {
   border: none !important;
 }
+.activeSearch .circleButton{
+  background-color: var(--textColor);
+}
+.activeSearch svg{
+  stroke: var(--themeColor);
+}
 .activeSearch input {
   opacity: 1;
-  background-color: var(--themeColor);
-  color: var(--textColor);
+  background-color: var(--textColor);
+  color: var(--themeColor);
   padding-left: 2.3rem !important;
 }
 .activeSearch .circleButton {
@@ -262,3 +268,62 @@ hr {
 .click_avatar {
   border: 0.1rem solid white;
 }
+.geresList{
+  position: relative;
+  cursor: pointer;
+
+}
+.chevron
+{
+  transition:300ms ease;
+  margin-top: .5rem;
+}
+.genres{
+  position: absolute;
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  width: 60vw;
+  /* display: flex; */
+  height: auto;
+  background-color: black;
+  top: 100%;
+}
+.Pergenres{
+  transition: 300ms ease;
+  padding: 1rem;
+}
+.SearchResults{
+
+}
+.result:hover{
+  background: gray;
+}
+.result{
+  display: flex;
+  background-color: rgb(0, 0, 0);
+  padding:1rem 2rem 1rem 2rem;
+  min-width: 20vw;
+}
+.result img{
+  height: 10vh;
+
+  object-fit: cover;
+  border-radius: 0 !important;
+}
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 50px;
+  padding: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #25b09b;
+  --_m: 
+    conic-gradient(#0000 10%,#000),
+    linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--_m);
+          mask: var(--_m);
+  -webkit-mask-composite: source-out;
+          mask-composite: subtract;
+  animation: l3 1s infinite linear;
+}
+@keyframes l3 {to{transform: rotate(1turn)}}

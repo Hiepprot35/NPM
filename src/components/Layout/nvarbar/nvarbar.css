@@ -4,7 +4,7 @@
     height: 100vh;
     opacity: var(--opacityShow);
     background-color: var(--themeColor);
-    width: calc(100vw - var(--widthContentHome));
+    width: 15vw;
     /* padding: 0 1rem 0 1rem; */
     padding-left: 1rem;
     padding-right: 1rem;
