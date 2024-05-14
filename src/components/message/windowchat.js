@@ -291,7 +291,7 @@ export default (function WindowChat(props) {
   };
   const clickConversation = async (data) => {
     const user12 = [data?.conver?.user1, data?.conver?.user2];
-    const receiverId = user12.find((member) => member !== auth.UserID);
+    const receiverId = user12.find((member) => member !== auth.userID);
     const sentToApi = {
       Seen_at: Date.now(),
       conversation_id: data?.conver.id,
