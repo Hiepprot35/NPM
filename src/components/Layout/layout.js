@@ -2,11 +2,11 @@ import React from "react";
 import Header from "./header/header";
 import Nvarbar from "./nvarbar/Nvarbar";
 
-export default function Layout({ link,children }) {
+export default function Layout({link, children,nvarbar }) {
   return (
     <>
       <Header hash={link} />
-      <Nvarbar></Nvarbar>
+      {!nvarbar&&<Nvarbar></Nvarbar>}
       <div className="container_main height_vh100">{children}</div>
     </>
   );

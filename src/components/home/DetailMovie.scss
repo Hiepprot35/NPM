@@ -126,26 +126,38 @@ $font-Dieu: "Dancing Script", cursive;
   width: 100vw;
   height: auto;
   display: flex;
-  background: var(--themeColor);
+  background: black;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
 }
 .HeaderDetail {
   width: 75vw;
-  height: 100vh;
+  height: 50vh;
   display: flex;
   justify-content: center;
-  position: absolute;
+  // position: absolute;
 }
 .backgroundDetail {
   width: 100%;
+  background-position: center;
   background-size: cover;
   height: 100%;
   background-repeat: no-repeat;
+}
+.miniText{
+  font-size: .8rem;
+  color: rgb(170, 159, 159);
+}
+.actor{
+  font-family: 'Noto Serif Toto', sans-serif;
+
 }
 .Poster {
   display: flex;
   height: 50vh;
   width: 75vw;
+  margin-top: -10%;
   position: relative;
   z-index: 5;
   align-items: center;
@@ -166,35 +178,16 @@ $font-Dieu: "Dancing Script", cursive;
     color-stop(1, rgba(0, 0, 0, 0))
   );
 }
-.Poster::before {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.33);
-  clip-path: polygon(0 30%, 0 100%, 100% 100%, 100% 75%);
-  z-index: -1;
-}
 
-.Poster::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  clip-path: polygon(0 30%, 0 29%, 100% 74%, 100% 75%);
 
-  background-color: rgb(255, 255, 2);
-}
+
 .BodyDetail {
-  margin-top: 50vh;
   position: relative;
   width: 75vw;
   height: 200vh;
 }
 .actorsMovie {
   display: flex;
-  min-width: 100%;
   height: 10rem;
   overflow-x: scroll;
   overflow-y: hidden;
@@ -208,15 +201,25 @@ $font-Dieu: "Dancing Script", cursive;
   height: 100%;
   flex-direction: column;
 }
+.sessionDetail{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.sessionChild{
+  width: 50%;
+}
 .Poster img {
+  height:70%;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 .actorsMovie::-webkit-scrollbar {
-  height: 0.4rem;
+  height: 0.1rem;
   border-radius: 1rem;
+  color: gray;
 }
 .actorsMovie::-webkit-scrollbar-track {
-  color: gray;
+  color: rgb(210, 0, 0);
 }
 .comment {
   position: relative;

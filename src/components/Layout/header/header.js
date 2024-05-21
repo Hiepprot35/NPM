@@ -1,5 +1,12 @@
 import { Controls, Player } from "@lottiefiles/react-lottie-player";
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { NavLink } from "react-router-dom";
 import { useSocket } from "../../../context/socketContext";
 import { getStudentInfoByMSSV } from "../../../function/getApi";
@@ -28,6 +35,7 @@ import { useData } from "../../../context/dataContext";
 import { genresList } from "../../home/MovieFilms";
 import Search from "./Search";
 import _, { debounce } from "lodash";
+import { useOutsideClick } from "../../../hook/useOutsideClick";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -54,8 +62,6 @@ function Header(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState();
   const apiKey = "5b629bb0f5f840b7965193241241704";
-  // const bufferString = user2 ? Buffer.from(user2.img).toString('base64') : "11111";
-  const cityInputRef = useRef(null); // Tạo một tham chiếu useRef
   const host = process.env.REACT_APP_DB_HOST;
   const sidebar = {
     open: {
@@ -89,20 +95,18 @@ function Header(props) {
   }, [socket, auth]);
   const updateTitle = async (id) => {
     const username = await getUserinfobyID(parseInt(id));
-    console.log(username, "username");
     const nameSV = await getStudentInfoByMSSV(username?.username);
     document.title = `${nameSV.Name} gửi tin nhắn`;
   };
-  useEffect(() => {
-    console.log("auth", auth);
-  }, []);
+
   const itemVariants = {
     open: {
+      zIndex: 2,
       opacity: 1,
       y: 0,
       transition: { type: "spring", stiffness: 300, damping: 24 },
     },
-    closed: { opacity: 0, y: 20, transition: { duration: 0.2 } },
+    closed: { zIndex: 0, opacity: 0, y: 20, transition: { duration: 0.2 } },
   };
 
   useEffect(() => {
@@ -140,7 +144,6 @@ function Header(props) {
       }
     };
   }, [socket]);
-  const [avt, setAvt] = useState();
   useEffect(() => {
     let isMounted = true;
     const tempApi = async (city) => {
@@ -204,13 +207,16 @@ function Header(props) {
       refSearchButton.current.classList.toggle("activeSearch");
     }
   };
-  const searchQueryHandle=(e)=>{
-    setSearchQuery(e.target.value)
-  }
+  const searchQueryHandle = (e) => {
+    setSearchQuery(e.target.value);
+  };
   useEffect(() => {
-    console.log(SearchQuery)
+    console.log(SearchQuery);
   }, [SearchQuery]);
-  const debouncedHandleSearch = useCallback(debounce(searchQueryHandle, 500),[]);
+  const debouncedHandleSearch = useCallback(
+    debounce(searchQueryHandle, 500),
+    []
+  );
 
   const content = () => {
     return (
@@ -269,9 +275,7 @@ function Header(props) {
     );
   }, [primaryColor]);
 
-  useEffect(() => {
-    setAvt(auth.avtUrl);
-  }, []);
+  const typeMoviesRef = useOutsideClick(() => setShowGenres(false));
   return (
     <>
       <div className="header_user center">
@@ -280,17 +284,7 @@ function Header(props) {
             <ul className="list">
               <li>
                 <NavLink to="/">
-                  <Player
-                    autoplay
-                    speed={1}
-                    src="https://lottie.host/c775397d-d0b4-434c-b084-489acbe2d17b/CpkFsQb8HX.json"
-                    style={{ height: "60px", width: "60px" }}
-                  >
-                    <Controls
-                      visible={false}
-                      buttons={["play", "repeat", "frame", "debug"]}
-                    />
-                  </Player>
+                  <p>TuanHiep</p>
                 </NavLink>
               </li>
 
@@ -328,8 +322,9 @@ function Header(props) {
               <li>
                 <div className="geresList">
                   <div
-                    className="center"
+                    ref={typeMoviesRef}
                     onClick={() => setShowGenres((pre) => !pre)}
+                    className="center"
                   >
                     <span>Thể loại</span>
                     {
@@ -355,18 +350,19 @@ function Header(props) {
                       className="genres"
                     >
                       {GenresList &&
-                        GenresList.map((e) => (
-                          <motion.div
-                            variants={itemVariants}
-                            className="Pergenres center hover"
+                        GenresList.map((e, i) => (
+                          <a
+                            href={`${process.env.REACT_APP_CLIENT_URL}/films/?id=${e.id}&type=${e.name}`}
+                            style={{ color: "white" }}
                           >
-                            <a
-                              href={`${process.env.REACT_APP_CLIENT_URL}/films/?id=${e.id}&type=${e.name}`}
-                              style={{ color: "white" }}
+                            <motion.div
+                              key={i}
+                              variants={itemVariants}
+                              className="Pergenres center hover"
                             >
                               {e.name}
-                            </a>
-                          </motion.div>
+                            </motion.div>
+                          </a>
                         ))}
                     </motion.div>
                   }
@@ -383,11 +379,13 @@ function Header(props) {
               <div onClick={searchHandle} className="circleButton">
                 <FiSearch></FiSearch>
               </div>
-              { (
-                <div style={{position:"absolute",top:"100%",left:"1rem"}}>
+              {
+                <div
+                  style={{ position: "absolute", top: "100%", left: "1rem" }}
+                >
                   <Search query={SearchQuery}></Search>
                 </div>
-              )}
+              }
             </div>
             <BellTable></BellTable>
             {isLoading ? (

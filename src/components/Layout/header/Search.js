@@ -76,7 +76,7 @@ function Search({ query }) {
         if (Movies.length > 0) {
           setShow(true);
         }
-      }, 1);
+      }, 1000);
     } else {
       setShow(false);
     }
@@ -109,7 +109,7 @@ function Search({ query }) {
                           />
                         </a>
                       </div>
-                      <div className="">
+                      <div className="contentSearch">
                         <span>
                           {Movies[i]?.original_title || Movies[i]?.title}
                         </span>

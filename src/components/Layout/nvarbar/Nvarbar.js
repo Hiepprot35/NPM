@@ -14,7 +14,7 @@ import MessageMainLayout from "../../message/messageMainLayout";
 import { motion } from "framer-motion";
 import Windowchat from "../../message/windowchat";
 import "./nvarbar.css";
-export default function Nvarbar() {
+export default function Nvarbar(props) {
   const { session, setSession } = useSession();
   const {socket}=useSocket()
   const { listWindow,listHiddenBubble } = useData();
@@ -98,7 +98,7 @@ export default function Nvarbar() {
     }
   };
   return (
-    <>
+    <div>
       <div
         className="hiddenNvaBar circleButton  "
         onClick={(e) => hiddenNavBarHandle(e)}
@@ -152,6 +152,6 @@ export default function Nvarbar() {
           ))}
       </div>
       <BubbleConver></BubbleConver>
-    </>
+    </div>
   );
 }

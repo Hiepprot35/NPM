@@ -102,6 +102,12 @@ export default function Home(props) {
               >
                 <MovieFilms />
               </InViewComponent>
+              <InViewComponent
+                style={{ height: "100vh" }}
+                href={`${process.env.REACT_APP_CLIENT_URL}/home#tvseries`}
+              >
+                <TVMovie></TVMovie>
+              </InViewComponent>
               {auth?.userID && (
                 <InViewComponent
                   style={{ height: "200vh" }}
@@ -110,12 +116,6 @@ export default function Home(props) {
                   <ListPlay></ListPlay>
                 </InViewComponent>
               )}
-              <InViewComponent
-                style={{ height: "100vh" }}
-                href={`${process.env.REACT_APP_CLIENT_URL}/home#tvseries`}
-              >
-                <TVMovie></TVMovie>
-              </InViewComponent>
             </div>
           </>
         )}

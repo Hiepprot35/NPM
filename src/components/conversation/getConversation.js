@@ -14,7 +14,6 @@ export const getConversation = async (auth) => {
       }
   
     const respon = await res.json();
-    console.log(respon,"ok")
     return respon;
     } catch (error) {
       console.error("Error in getConversation:", error.message);

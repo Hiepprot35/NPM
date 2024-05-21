@@ -161,7 +161,8 @@ h5 {
 .circleButton {
   cursor: pointer;
   width: 2rem;
-  height: 2rem;
+ 
+  aspect-ratio: 1 ;
   border-radius: 50%;
   background-color: var(--themeColor);
   display: flex;
@@ -327,3 +328,7 @@ hr {
   animation: l3 1s infinite linear;
 }
 @keyframes l3 {to{transform: rotate(1turn)}}
+.contentSearch{
+  display: flex;
+  flex-direction: column;
+}

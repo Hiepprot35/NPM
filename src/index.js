@@ -11,6 +11,7 @@ import { SocketProvider } from "./context/socketContext";
 import { WindowChatProvider } from "./context/windowChatContext";
 import { DataProvider } from "./context/dataContext";
 import { SessionProvider } from "./context/sectionProvider";
+import { WidthProvider } from "./context/widthProvider";
 
 document.title = "Login";
 
@@ -21,9 +22,11 @@ root.render(
       <SessionProvider>
         <DataProvider>
           <SocketProvider>
-            <BrowserRouter>
-              <App></App>
-            </BrowserRouter>
+            <WidthProvider>
+              <BrowserRouter>
+                <App></App>
+              </BrowserRouter>
+            </WidthProvider>
           </SocketProvider>
         </DataProvider>
       </SessionProvider>

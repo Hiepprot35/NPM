@@ -173,12 +173,12 @@ export default function MyComment(props) {
         <div className=" myCommentComponent">
           <div className="AvatarComment">
             <div className="AvatarComment2">
-              <img className="avatarImage" src={`${auth.avtUrl}`}></img>
+              <img className="avatarImage"  src={`${auth.avtUrl}`}></img>
             </div>
             <div className="linearComment"></div>
           </div>
 
-          <div className="inputDiv center">
+          <div className="inputDiv center" style={{width:"90%",flexDirection:"column"}}>
             <div
               className="commentDiv"
               ref={inputRef}

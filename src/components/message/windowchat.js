@@ -18,9 +18,10 @@ import useAuth from "../../hook/useAuth";
 import { Image } from "../home/home";
 import Message from "./Message";
 import "./windowchat.css";
+import { data } from "jquery";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 
-export default (function WindowChat(props) {
+export default memo(function WindowChat(props) {
   const { auth } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const socket = useSocket();
@@ -56,20 +57,10 @@ export default (function WindowChat(props) {
     }
   }, [socket]);
   useEffect(() => {
-    if (socket) {
-      socket.on("updateNewSend", (data) => {
-        if (data.conversation_id === props.count.id) {
-          getMessages();
-          console.log(data)
-        }
-        if (props.chatApp) {
-          props.setsendMess((pre) => !pre);
-        }
-      });
-    }
-  }, [socket]);
-
+    console.log(props.count.id);
+  }, [props.count.id]);
   async function getMessages() {
+    console.log("Conver", props.count.id);
     if (props.count?.id) {
       try {
         const res = await fetch(
@@ -131,11 +122,6 @@ export default (function WindowChat(props) {
   }
 
   useEffect(() => {
-    if (inputMess) {
-      console.log(inputMess);
-    }
-  }, [inputMess]);
-  useEffect(() => {
     if (emoji.length > 0 && emoji[emoji.length - 1].emoji !== undefined) {
       setInputmess(
         (prevInputMess) => prevInputMess + emoji[emoji.length - 1].emoji
@@ -184,7 +170,7 @@ export default (function WindowChat(props) {
       const MessageDataRes = await res.json();
       if (socket) {
         socket.emit("sendMessage", {
-          conversation_id: MessageDataRes.conversation_id,
+          conversation_id: props.count.id,
           sender_id: MessageDataRes.sender_id,
           receiverId: userConver,
           content: MessageDataRes.content,
@@ -231,22 +217,6 @@ export default (function WindowChat(props) {
   }, [arrivalMessage]);
 
   useEffect(() => {
-    if (socket) {
-      socket.on("getMessage", (data) => {
-        if (data.sender_id !== auth.userID) {
-          setArrivalMessage({
-            sender_id: data.sender_id,
-            content: data.content,
-            isFile: parseInt(data.isFile),
-            created_at: Date.now(),
-            conversation_id: data.conversation_id,
-          });
-        }
-      });
-    }
-  }, [socket]);
-
-  useEffect(() => {
     const updateTitle = async () => {
       if (arrivalMessage) {
         const username = await getUserinfobyID(
@@ -267,6 +237,9 @@ export default (function WindowChat(props) {
     getUsername();
   }, [props.count]);
   useEffect(() => {
+    console.log("props");
+  }, [props]);
+  useEffect(() => {
     if (windowchat.current) {
       if (props.index > 3) {
         windowchat.current.style.display = "none";
@@ -277,14 +250,6 @@ export default (function WindowChat(props) {
     getMessages();
   }, [props.count?.id]);
   const messagesRef = useRef();
-  // useEffect(() => {
-  //   if (main_windowchat.current && messagesRef.current && messages) {
-  //     const container = main_windowchat.current;
-  //     const data = messagesRef.current.getBoundingClientRect();
-  //     console.log("scroll", data.height);
-  //     container.scrollTop = data.height;
-  //   }
-  // }, [messages]);
 
   const closeWindow = () => {
     setListWindow(listWindow.filter((item) => item.id !== props.count.id));
@@ -350,22 +315,50 @@ export default (function WindowChat(props) {
       console.log(error);
     }
   };
+  useEffect(() => {
+    console.log("render", props.count);
+  }, []);
   // console.log("render",props.count)
   useEffect(() => {
     getNewstMess(props?.count.id);
-  }, []);
-  useEffect(() => {
-    getMessages(props?.count);
-  }, []);
+  }, [props?.count.id]);
+
   useEffect(() => {
     if (socket) {
+      const handleUpdateNewSend = (data) => {
+        getMessages();
+        if (props.chatApp) {
+          props.setsendMess((pre) => !pre);
+        }
+      };
+      const updateMess = (data) => {
+        setArrivalMessage({
+          sender_id: data.sender_id,
+          content: data.content,
+          isFile: parseInt(data.isFile),
+          created_at: Date.now(),
+          conversation_id: data.conversation_id,
+        });
+      };
+      socket.on("getMessage", (data) => updateMess(data));
+      socket.on("updateNewSend", handleUpdateNewSend);
       socket.on("getUserSeen", (data) => {
         if (data) {
           getNewstMess(data.converid);
         }
       });
+      return () => {
+        socket.off("getUserSeen", (data) => {
+          if (data) {
+            getNewstMess(data.converid);
+          }
+        });
+        socket.off("getMessages", (data) => updateMess(data));
+
+        socket.off("updateNewSend", handleUpdateNewSend);
+      };
     }
-  }, [socket]);
+  }, [socket, props.count.id]);
   return (
     <>
       {
@@ -598,6 +591,11 @@ export default (function WindowChat(props) {
                       }
                       onChange={inputChange}
                       placeholder="Aa"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          inputMess.length > 0 && handleSubmit(e);
+                        }
+                      }}
                       value={inputMess}
                       ref={inputValue}
                     />
@@ -606,6 +604,7 @@ export default (function WindowChat(props) {
                     <div>
                       <div
                         className="features_hover"
+                       
                         onClick={(e) => inputMess.length > 0 && handleSubmit(e)}
                         style={{ cursor: "pointer" }}
                       >

@@ -1,21 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
-import useAuth from "../../hook/useAuth";
-import { TheMovieApi, fetchApiRes } from "../../function/getApi";
-import { Card } from "antd";
 import {
-  color,
   motion,
   useAnimation,
   useInView,
   useScroll,
   useTransform,
 } from "framer-motion";
-import Meta from "antd/es/card/Meta";
-import { useSession } from "../../context/sectionProvider";
-import WatchFilms from "./watchFilms";
-import MyReactPlayer from "./ReactPlayer";
-import "./DetailMovie.scss";
+import React, { useEffect, useRef, useState } from "react";
+import { TheMovieApi, fetchApiRes } from "../../function/getApi";
 import { timeFilm } from "../../function/getTime";
+import useAuth from "../../hook/useAuth";
+import "./DetailMovie.scss";
+import WatchFilms from "./watchFilms";
 export function CardMovie({ film, index, className }) {
   return (
     <div className={`CardMovie ${className}`} key={index}>
@@ -43,25 +38,24 @@ export function CardMovie({ film, index, className }) {
 
           <div className="detailMovieCard center" style={{ height: "5vh" }}>
             <p>
-              {timeFilm(film?.runtime)}/ {film?.production_companies[0]?.name}/{" "}
-              {film.genres.map((e, index) => (
-                <i key={index}>
-                  <>
-                    {" "}
-                    {e?.name}
-                    {index < film?.genres.length - 1 && ","}
-                  </>
-                </i>
-              ))}
+            {film.runtime && timeFilm(film.runtime)} / 
+        {film?.production_companies?.[0]?.name ? film.production_companies[0].name : 'No production company available'} / 
+        {film.genres && film.genres.length > 0 ? (
+          film.genres.map((e, index) => (
+            <span key={index}>
+              {e?.name}{index < film.genres.length - 1 && ","}
+            </span>
+          ))
+        ) : (
+          'No genres available'
+        )}
             </p>
           </div>
 
           <div className="center" style={{ margin: "1rem" }}>
             <div className="linear"></div>
           </div>
-          <footer>
-           
-          </footer>
+          <footer></footer>
         </div>
       </article>
     </div>
@@ -106,7 +100,7 @@ export function Slide({ children, className }) {
     </motion.div>
   );
 }
-export function Span({ e, i, style, onClick }) {
+export function Span({ e, i, style, onClick, className, isMore }) {
   const ref = useRef();
   const inView = useInView(ref);
   const controls = useAnimation();
@@ -136,12 +130,14 @@ export function Span({ e, i, style, onClick }) {
   return (
     <motion.span
       key={i}
+      className={className}
       onClick={onClick}
       style={style}
       ref={ref}
       {...animeSpan}
     >
-      {e}{" "}
+      {e}
+      {!isMore && " "}
     </motion.span>
   );
 }
@@ -149,11 +145,18 @@ export function Span({ e, i, style, onClick }) {
 export const Text = (props) => {
   const [seeMore, setSeeMore] = useState(false);
   const countSee = 20;
+
   const [CountSeeMore, setCountSeeMore] = useState(20);
   const splitText = props.text.split(" ");
   const truncatedText = splitText.slice(0, countSee);
   const remainingText = splitText.slice(countSee);
-
+  const ref = useRef();
+  const inView = useInView(ref);
+  useEffect(() => {
+    if (!inView) {
+      setSeeMore(false);
+    }
+  }, [inView]);
   const handleSeeMoreClick = () => {
     setSeeMore(true);
     setCountSeeMore(20);
@@ -166,7 +169,7 @@ export const Text = (props) => {
     <motion.p
       className="SeeMoreText"
       onClick={seeMore ? handleNotSeeMoreClick : null}
-      ref={props.ref}
+      ref={ref}
     >
       <>
         {!props.hiddenText ? (
@@ -182,13 +185,16 @@ export const Text = (props) => {
               remainingText.map((e, i) => <Span e={e} i={i} />)
             ) : (
               <>
-                <Span key={CountSeeMore} i={CountSeeMore} e={"..."} />
                 <Span
                   onClick={handleSeeMoreClick}
-                  i={CountSeeMore + 1}
-                  key={CountSeeMore + 1}
-                  style={{ color: "#faff2f", cursor: "pointer" }}
-                  e={"Xem thêm"}
+                  key={CountSeeMore}
+                  i={CountSeeMore}
+                  style={{
+                    color: "#faff2f",
+                    ...props.style,
+                    cursor: "pointer",
+                  }}
+                  e={"... Xem thêm"}
                 />
               </>
             )}
@@ -326,9 +332,7 @@ export default function ListPlay() {
                     </div>
                     <footer>
                       <div className="center">
-                        <WatchFilms
-                          id={film.id}
-                        ></WatchFilms>
+                        <WatchFilms id={film.id}></WatchFilms>
                       </div>
                     </footer>
                   </div>
@@ -338,7 +342,6 @@ export default function ListPlay() {
           </div>
         </Slide>
       </motion.div>
-     
     </>
   );
 }

@@ -22,10 +22,7 @@ export default memo(function Conversation({
   conversation,
   Online,
   notSeen_field,
-  Arrivalmess,
-  currentUser,
   sendMess,
-  listSeen,
 }) {
   const [user, setUser] = useState();
   const { auth } = useAuth();
@@ -81,7 +78,9 @@ export default memo(function Conversation({
 
     studentInfo();
   }, [username]);
-
+  useEffect(() => {
+    console.log("render conver")
+  }, []);
   const getNewestMess = async () => {
    const data= await getMess(conversation)
    setNewestMesst(data)

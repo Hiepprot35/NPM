@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSocket } from "../../context/socketContext";
 import { getUserinfobyID } from "../../function/getApi";
@@ -14,21 +14,18 @@ const ChatApp = ({ messageId }) => {
   const messageScroll = useRef(null);
   const inputMess = useRef();
   const { auth } = useAuth();
-  useEffect(() => {
-    console.log(auth);
-  }, []);
+
   const [MSSVReceived, setMSSVReceived] = useState();
   const [data, setData] = useState([]);
   const [conversations, setConversation] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
-  const [arrivalMessage, setArrivalMessage] = useState(null);
   const [userSeenAt, setuserSeenAt] = useState();
   const [clicked, setClicket] = useState(false);
   const [onlineUser, setOnlineUser] = useState();
   const [isSeen, setisSeen] = useState(false);
   useEffect(() => {
     if (messageId) {
-      console.log("zoo mess")
+      console.log("zoo mess");
       const senApi = async () => {
         try {
           const res = await fetch(
@@ -41,7 +38,6 @@ const ChatApp = ({ messageId }) => {
               body: JSON.stringify({ id: auth.userID }),
             }
           );
-          console.log("currentchat",res)
           const data = await res.json();
           setCurrentChat(data);
         } catch (err) {
@@ -56,7 +52,6 @@ const ChatApp = ({ messageId }) => {
   let isCancel = false;
   // const ListusersOnline = onlineUser && onlineUser.map(item => item.userId) || [];
   const ClickChat = (data) => {
-    console.log("chat",data)
     setCurrentChat(data);
   };
   useEffect(() => {
@@ -64,14 +59,6 @@ const ChatApp = ({ messageId }) => {
   }, [currentChat]);
   useEffect(() => {
     if (socket) {
-      socket.on("getMessage", (data) => {
-        setArrivalMessage({
-          sender_id: data.sender_id,
-          content: data.content,
-          isFile: data.isFile,
-          created_at: Date.now(),
-        });
-      });
       socket.on("getUserSeen", (data) => {
         setisSeen(data);
       });
@@ -101,7 +88,7 @@ const ChatApp = ({ messageId }) => {
       setData([convers]);
     }
     AsyncGetCon();
-  }, [arrivalMessage]);
+  }, []);
   const [sendMess, setsendMess] = useState(false);
   useEffect(() => {
     const receiverId = currentChat
@@ -156,11 +143,13 @@ const ChatApp = ({ messageId }) => {
       setSearchResults(result);
     }
   }, [searchTerm]);
-
+  useEffect(() => {
+    console.log("ccurnechat",currentChat)
+  }, [currentChat]);
   return (
     <>
       {
-        <Layout link={'/message'}>
+        <Layout nvarbar={true} link={"/message"}>
           <div className="Container_ChatApp">
             <div className="Narbar_ChatApp">
               <h1>Đoạn chat</h1>
@@ -186,7 +175,6 @@ const ChatApp = ({ messageId }) => {
                       <Conversation
                         conversation={c}
                         currentUser={auth.userID}
-                        Arrivalmess={arrivalMessage}
                         sendMess={sendMess}
                         Online={onlineUser}
                         listSeen={isSeen}
@@ -216,10 +204,8 @@ const ChatApp = ({ messageId }) => {
                         <Conversation
                           conversation={c}
                           currentUser={auth.userID}
-                          Arrivalmess={arrivalMessage}
                           sendMess={sendMess}
                           Online={onlineUser}
-                        
                           listSeen={isSeen}
                         />
                       </div>
@@ -245,7 +231,6 @@ const ChatApp = ({ messageId }) => {
                       <div className="Body_mainChatApp">
                         <div className="ChatApp">
                           <WindowChat
-                            cc={setArrivalMessage}
                             count={currentChat}
                             Seen={userSeenAt}
                             chatApp={true}
@@ -266,4 +251,4 @@ const ChatApp = ({ messageId }) => {
   );
 };
 
-export default ChatApp;
+export default memo(ChatApp);

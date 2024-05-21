@@ -3,26 +3,30 @@
   height: 200vh;
   background-color: rgb(113, 94, 94);
 }
+.sessionTV {
+
+  width: var(--widthContentHome);
+}
 .vangohPics {
-  background-color: black;
+  background-color: var(--themeColor);
   background-blend-mode: luminosity;
 }
-.containerMoviesType{
+.containerMoviesType {
+  width: var(--widthContentHome);
   background: var(--themeColor);
 }
-.ulVerion{
-  display: flex ;
+.ulVerion {
+  display: flex;
   width: 100%;
   height: 2rem;
   justify-content: space-around;
   flex-direction: row !important;
   list-style: none;
 }
-.ulVerion li:hover
-{
+.ulVerion li:hover {
   background-color: gray;
 }
-.ulVerion li{
+.ulVerion li {
   width: 30%;
   height: 100%;
   cursor: pointer;
@@ -30,15 +34,10 @@
 .MoviesType {
   width: var(--widthContentHome);
   justify-content: center;
-  grid-template-columns: 22%  22%  22%  22%;
-  column-gap: 1.5%;
-  display: grid;
 }
-.CardType{
-    width: 100%;
+.CardType {
+  width: 100%;
 }
-.pageText
-{
-
-  margin:1rem
+.pageText {
+  margin: 1rem;
 }

@@ -1,0 +1,59 @@
+.circleSlide svg
+{
+    stroke: black;
+}
+.SlideComponent img
+{
+    
+}
+.SlideSession{
+	display: flex;
+}
+.cardSlide ,.imgSlide
+{
+    transition: 500ms linear;
+}
+
+.detailSlide
+{
+    background-color: rgb(119, 114, 114);
+    height: 35vh;
+    color: white;
+    padding: 1rem;
+    overflow: hidden;
+
+}
+.detailSlide p
+{
+    font-family: "Nunito Sans", sans-serif;
+
+}
+
+.detailSlide ul {
+	margin: 0;
+	padding: 0;
+}
+.detailSlide ul li {
+	display: inline-block;
+	margin: 0 .3em .3em 0;
+	padding: 0;
+}
+.detailSlide ul li a:hover
+{
+    background-color: white;
+    color: black;
+}
+.detailSlide ul li a {
+	display: inline-block;
+	max-width: 7rem;
+	line-height: 2rem;
+	border: 1px solid white;
+	border-radius: .3rem;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	color: #ffffff;
+	text-decoration: none;
+	-webkit-transition: .2s;
+	transition: .2s;
+}

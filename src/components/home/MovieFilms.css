@@ -7,18 +7,6 @@
   transition: 500ms ease-out;
   height: 100%;
   visibility: hidden;
-  /* opacity: 0; */
-  -webkit-mask-image: -webkit-gradient(
-    linear,
-    left bottom,
-    left top,
-    color-stop(0, rgb(233, 18, 18)),
-    color-stop(0.35, rgba(0, 0, 0, 1)),
-    color-stop(0.5, rgba(0, 0, 0, 1)),
-    color-stop(0.65, rgba(0, 0, 0, 1)),
-    color-stop(0.85, rgba(0, 0, 0, 0.6)),
-    color-stop(1, rgba(0, 0, 0, 0))
-  );
 }
 
 .MovieFilms {
@@ -30,7 +18,7 @@
 .MovieFilms2 {
   /* margin: 0.4rem; */
   display: flex;
-  width: calc(var(--widthContentHome)/5);
+  width: calc(var(--widthContentHome) / 5);
 }
 .vangohPics,
 .userMovie {
@@ -41,28 +29,37 @@
   overflow: hidden;
   position: relative;
 }
-
+/*  */
 .MovieContainer {
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+
   overflow: hidden;
   transition: 300ms ease-out;
   height: 100vh;
   width: var(--widthContentHome);
   position: relative;
-  -webkit-mask-image: -webkit-gradient(
-    linear,
-    right bottom,
-    right top,
-    color-stop(0, rgba(0, 0, 0, 1)),
-    color-stop(0.35, rgba(0, 0, 0, 1)),
-    color-stop(0.5, rgb(44, 42, 42)),
-    color-stop(0.65, rgb(53, 51, 51)),
-    color-stop(0.85, rgba(75, 73, 73, 0.6)),
-    color-stop(1, rgba(0, 0, 0, 0))
+
+}
+.circleShadow{
+  position: absolute;
+  /* inset: 0; */
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  mask-image: radial-gradient(
+    circle,
+    rgb(255, 255, 255) 0%,
+    rgb(255, 255, 255) 25%,
+
+    rgb(255, 255, 255) 50%,
+
+    rgba(29, 34, 33, 0.4173318985797444) 82%,
+    rgba(43, 43, 48, 1) 200%
   );
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 .leftMovieFilm {
   width: 50%;

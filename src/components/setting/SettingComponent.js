@@ -1,10 +1,11 @@
 import React from "react";
 import { motion } from "framer-motion";
 const SettingComponent = ({ icon, text, onClick }) => {
+  
   return (
     <motion.div
-      inherit={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      inherit={{ opacity: 0,x:-100 }}
+      animate={{ opacity: 1,x:0 }}
       // exit={{opacity:0}}
       transition={{ duration: 1 }}
       className="center settingComopent hover"
