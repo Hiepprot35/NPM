@@ -136,6 +136,7 @@ export default function MyComment(props) {
         );
       }
       console.log("send", updateContent);
+      
       const res = await fetchApiRes("insertComment", "POST", {
         userID: auth.username,
         content: updateContent,
@@ -170,12 +171,11 @@ export default function MyComment(props) {
   return (
     <>
       {
-        <div className=" myCommentComponent">
+        <div className={` myCommentComponent ${props.className}`} style={props.style}>
           <div className="AvatarComment">
             <div className="AvatarComment2">
               <img className="avatarImage"  src={`${auth.avtUrl}`}></img>
             </div>
-            <div className="linearComment"></div>
           </div>
 
           <div className="inputDiv center" style={{width:"90%",flexDirection:"column"}}>
@@ -192,9 +192,10 @@ export default function MyComment(props) {
                 <p>
                   {props.user
                     ? `Đang trả lời bình luận của ${props.user}`
-                    : "Nội dung"}
+                    : "Write a comment"}
                 </p>
               </div>
+              
             )}
             <div className="featureComment">
               <div
@@ -216,7 +217,7 @@ export default function MyComment(props) {
                     emojiStyle="facebook"
                   />
                 </div>
-                <span style={{color:`rgb(${255*countText/200},${255-255*countText/200},${255-255*countText/200}`}}>
+                <span style={{color:`rgb(${255*countText/200},${255-255*countText/200},${255-255*countText/200}`,marginLeft:"1rem"}}>
                   { `${countText}/200`} {countText===200 &&` vượt quá kí tự quy định`}
                 </span>
               </div>

@@ -20,7 +20,7 @@ import { useInView } from "react-intersection-observer";
 import { IsLoading } from "../Loading.js";
 import NotFoundFilms from "./NotFoundFilms.js";
 import ReactPlayer from "react-player";
-export function InViewAnimate({ children, variants }) {
+export function InViewAnimate({ children, variants, setCurrent }) {
   const { ref, inView } = useInView({ threshold: 0.5 });
   const controls = useAnimation();
 
@@ -28,11 +28,14 @@ export function InViewAnimate({ children, variants }) {
     if (inView) {
       controls.start("openSession");
     } else {
+      if (setCurrent) {
+        setCurrent(0);
+      }
       controls.start("closeSession");
     }
   }, [inView, controls]);
   return (
-    <motion.div animate={controls} ref={ref}>
+    <motion.div animate={controls} style={{ marginTop: "8rem" }} ref={ref}>
       {children};
     </motion.div>
   );
@@ -43,13 +46,13 @@ export default function DetailMovie(props) {
   const url = "https://image.tmdb.org/t/p/original";
   const [Actors, setActors] = useState();
   const [myComment, setMyComment] = useState();
-  const [Images,setImages]=useState()
+  const [Images, setImages] = useState();
   const [comments, setComment] = useState([]);
   const [me, setMe] = useState();
   const [Render, setRender] = useState(false);
   const [VideosMovie, setVideosMovie] = useState();
   const [CurrentVideo, setCurrentVideo] = useState(0);
-  const [CurrentImage,setCurrenImage]=useState(0)
+  const [CurrentImage, setCurrenImage] = useState(0);
   const [Loading, setLoading] = useState(true);
   const getVideos = async (movie_id) => {
     const res = await TheMovieApi(
@@ -65,9 +68,9 @@ export default function DetailMovie(props) {
     const res = await TheMovieApi(
       `https://api.themoviedb.org/3/movie/${movie_id}/images`
     );
-    console.log(res,"okdaksdasd")
-    if (res.posters) {
-      return res.posters.slice(0,30);
+    console.log(res, "okdaksdasd");
+    if (res.backdrops) {
+      return res.backdrops.slice(0, 30);
     } else {
       return null;
     }
@@ -75,18 +78,18 @@ export default function DetailMovie(props) {
   useEffect(() => {
     const getVideosUef = async () => {
       const data = await getVideos(props.movieID);
-      const images=await getImages(props.movieID)
-      setImages(images)
+      const images = await getImages(props.movieID);
+      setImages(images);
       setVideosMovie(data);
     };
     getVideosUef();
   }, []);
   useEffect(() => {
-    console.log("Images",Images)
+    console.log("Images", Images);
   }, [Images]);
   const getComment = async () => {
     const res = await fetchApiRes(
-      `/gettAllCommentFilms/?movieID=${props.movieID}/`,
+      `/gettAllCommentFilms/?movieID=${props.movieID}&replyID=-1/`,
       "GET"
     );
     const commentsRes = res?.result.sort((a, b) => {
@@ -116,12 +119,11 @@ export default function DetailMovie(props) {
     openSession: { opacity: 1, transition: { duration: 1 } },
     closeSession: {
       opacity: 0,
-      
     },
   };
   const videoVariant = {
     openSession: {
-      transition: { staggerChildren: 0.5, delayChildren: 0.1},
+      transition: { staggerChildren: 0.5, delayChildren: 0.1 },
     },
     closeSession: {
       transition: { staggerChildren: 0, staggerDirection: 1 },
@@ -201,14 +203,18 @@ export default function DetailMovie(props) {
     }
   };
   const videosSlideRef = useRef();
-  const ImagesSlideRef=useRef()
+  const ImagesSlideRef = useRef();
   useEffect(() => {
-    if (VideosMovie && videosSlideRef.current && Images&&ImagesSlideRef.current) {
+    if (
+      VideosMovie &&
+      videosSlideRef.current &&
+      Images &&
+      ImagesSlideRef.current
+    ) {
       videosSlideRef.current.style.width = VideosMovie.length * 40 + "vw";
       ImagesSlideRef.current.style.width = Images.length * 15 + "vw";
-
     }
-  }, [VideosMovie,Images]);
+  }, [VideosMovie, Images]);
   useEffect(() => {
     console.log("Movies", Movies);
     if (Movies.title || Movies.name) {
@@ -426,163 +432,178 @@ export default function DetailMovie(props) {
                     }
                   </motion.div>
                 </InViewAnimate>
-                <InViewAnimate>
+                <InViewAnimate setCurrent={setCurrentVideo}>
+                  <div
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <p
+                      className="deltailMovieText"
+                      style={{ fontSize: "3rem" }}
+                    >
+                      Videos
+                    </p>
                     <div
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        justifyContent: "space-between",
-                      }}
+                      className="center"
+                      style={{ height: "5rem", width: "4rem" }}
                     >
-                      <p
-                        className="deltailMovieText"
-                        style={{ fontSize: "3rem" }}
+                      <span
+                        style={{ fontSize: "2rem" }}
+                        onClick={() => setCurrentVideo((pre) => pre - 1)}
                       >
-                        Videos
-                      </p>
-                      <div className="center" style={{ height: "5rem", width: "4rem" }}>
-                        <span style={{fontSize:"2rem"}} onClick={() => setCurrentVideo((pre) => pre - 1)}>
-                          <FiArrowLeft/>{" "}
-                        </span>
-                        <span style={{fontSize:"2rem"}} onClick={() => setCurrentVideo((pre) => pre + 1)}>
-                          <FiArrowRight />{" "}
-                        </span>
-                      </div>
+                        <FiArrowLeft />{" "}
+                      </span>
+                      <span
+                        style={{ fontSize: "2rem" }}
+                        onClick={() => setCurrentVideo((pre) => pre + 1)}
+                      >
+                        <FiArrowRight />{" "}
+                      </span>
                     </div>
-                    <motion.div
+                  </div>
+                  <motion.div
                     variants={videoVariant}
-                      className="VideoSlide"
-                      ref={videosSlideRef}
-                    >
-                      {VideosMovie && VideosMovie.length > 0 ? (
-                        VideosMovie.map((video) => (
-                          <motion.div
-                            variants={variantOpacity}
-                            className="VideoMovie"
-                            key={video.id}
-                          >
-                            <ReactPlayer
-                              playing
-                              light={true}
-                              url={`https://www.youtube.com/watch?v=${video.key}`}
-                              width="40rem"
-                              height="25rem"
-                            />
-                          </motion.div>
-                        ))
-                      ) : (
-                        <p>No videos available</p>
-                      )}
+                    className="VideoSlide"
+                    ref={videosSlideRef}
+                  >
+                    {VideosMovie && VideosMovie.length > 0 ? (
+                      VideosMovie.map((video) => (
+                        <motion.div
+                          variants={variantOpacity}
+                          className="VideoMovie"
+                          key={video.id}
+                        >
+                          <ReactPlayer
+                            playing
+                            light={true}
+                            url={`https://www.youtube.com/watch?v=${video.key}`}
+                            width="40rem"
+                            height="25rem"
+                          />
+                        </motion.div>
+                      ))
+                    ) : (
+                      <p>No videos available</p>
+                    )}
                   </motion.div>
                 </InViewAnimate>
-                <InViewAnimate>
+                <InViewAnimate setCurrent={setCurrenImage}>
+                  <div
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <p
+                      className="deltailMovieText"
+                      style={{ fontSize: "3rem" }}
+                    >
+                      Photos
+                    </p>
                     <div
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        justifyContent: "space-between",
-                      }}
+                      className="center"
+                      style={{ height: "5rem", width: "4rem" }}
                     >
-                      <p
-                        className="deltailMovieText"
-                        style={{ fontSize: "3rem" }}
+                      <span
+                        style={{ fontSize: "2rem" }}
+                        onClick={() => setCurrenImage((pre) => pre - 1)}
                       >
-                        Photos
-                      </p>
-                      <div className="center" style={{ height: "5rem", width: "4rem" }}>
-                        <span style={{fontSize:"2rem"}} onClick={() => setCurrenImage((pre) => pre - 1)}>
-                          <FiArrowLeft/>{" "}
-                        </span>
-                        <span style={{fontSize:"2rem"}} onClick={() => setCurrenImage((pre) => pre + 1)}>
-                          <FiArrowRight />{" "}
-                        </span>
-                      </div>
+                        <FiArrowLeft />{" "}
+                      </span>
+                      <span
+                        style={{ fontSize: "2rem" }}
+                        onClick={() => setCurrenImage((pre) => pre + 1)}
+                      >
+                        <FiArrowRight />{" "}
+                      </span>
                     </div>
-                    <motion.div
+                  </div>
+                  <motion.div
                     variants={videoVariant}
-                      className="VideoSlide"
-                      ref={ImagesSlideRef}
-                    >
-                      {Images && Images.length > 0 ? (
-                        Images.map((image) => (
-                          <motion.div
-                            variants={variantOpacity}
-                            style={{width:"15vw",height:"30vh"}}
-                            key={image.id}
-                          >
-                            <img
-          style={{objectFit:"contain",width:"100%",height:"100%"}}
-                              src={`${url}/${image.file_path}`}
-                             
-                            />
-                          </motion.div>
-                        ))
-                      ) : (
-                        <p>No videos available</p>
-                      )}
+                    className="VideoSlide"
+                    ref={ImagesSlideRef}
+                  >
+                    {Images && Images.length > 0 ? (
+                      Images.map((image) => (
+                        <motion.div
+                          variants={variantOpacity}
+                          style={{ width: "30vw", margin: "1rem" }}
+                          key={image.id}
+                        >
+                          <img
+                            style={{ objectFit: "cover", width: "30vw" }}
+                            src={`${url}/${image.file_path}`}
+                          />
+                        </motion.div>
+                      ))
+                    ) : (
+                      <p>No videos available</p>
+                    )}
                   </motion.div>
                 </InViewAnimate>
-                {/* {
-                  <InViewAnimate>
-                    <motion.session className="">
-                      <motion.div
-                        variants={variantSessionRight}
-                        className=" sessionChild"
-                      >
-                        {auth.userID && (
-                          <motion.div variants={variants2}>
-                            <MyComment
-                              setRender={setRender}
-                              movieID={props.movieID}
-                            ></MyComment>
-                          </motion.div>
-                        )}
-
-                        <div className="allComment">
-                          <div style={{ display: "flex" }}>
-                            <div style={{ margin: 0, position: "relative" }}>
-                              <h1 style={{ margin: 0 }}>Comment</h1>
-                              <div
-                                className="center"
-                                style={{
-                                  position: "absolute",
-                                  right: "-1.7rem",
-                                  top: "0",
-                                  width: "1.4rem",
-                                  height: "1.4rem",
-                                  fontSize: ".8rem",
-                                  backgroundColor: "gray",
-                                  borderRadius: "50%",
-                                }}
-                              >
-                                <p>{comments.length}</p>
-                              </div>
-                            </div>
+                {
+                  <motion.session className="">
+                    <motion.div
+                      variants={variantSessionRight}
+                      className=" "
+                    >
+                      {" "}
+                      <div style={{ display: "flex" }}>
+                        <div style={{ margin: 0, position: "relative" }}>
+                          <h1 style={{ margin: 0 }}>Comment</h1>
+                          <div
+                            className="center"
+                            style={{
+                              position: "absolute",
+                              right: "-1.7rem",
+                              top: "0",
+                              width: "1.4rem",
+                              height: "1.4rem",
+                              fontSize: ".8rem",
+                              backgroundColor: "gray",
+                              borderRadius: "50%",
+                            }}
+                          >
+                            <p>{comments.length}</p>
                           </div>
-                          {comments.map((e, i) =>
-                            i < comments.length - 1 ? (
-                              <motion.div variants={variants2}>
-                                <Comment
-                                  key={i}
-                                  className={"notLastComment"}
-                                  comment={e}
-                                />
-                              </motion.div>
-                            ) : (
-                              <motion.div variants={variants2}>
-                                <Comment
-                                  key={i}
-                                  className={"lastComment"}
-                                  comment={e}
-                                />
-                              </motion.div>
-                            )
-                          )}
                         </div>
-                      </motion.div>
-                    </motion.session>
-                  </InViewAnimate>
-                } */}
+                      </div>
+                      {auth.userID && (
+                        <motion.div variants={variants2}>
+                          <MyComment
+                            setRender={setRender}
+                            movieID={props.movieID}
+                          ></MyComment>
+                        </motion.div>
+                      )}
+                      <div className="allComment">
+                        {comments.map((e, i) =>
+                          i < comments.length - 1 && e.replyID ? (
+                            <motion.div variants={variants2}>
+                              <Comment
+                                key={i}
+                                className={"notLastComment"}
+                                comment={e}
+                              />
+                            </motion.div>
+                          ) : (
+                            <motion.div variants={variants2}>
+                              <Comment
+                                key={i}
+                                className={"lastComment"}
+                                comment={e}
+                              />
+                            </motion.div>
+                          )
+                        )}
+                      </div>
+                    </motion.div>
+                  </motion.session>
+                }
               </motion.div>
             </motion.div>
           ) : (

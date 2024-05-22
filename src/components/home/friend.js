@@ -276,7 +276,6 @@ export default function FriendList(props) {
                         ></GerenalFriendComponent>
                       )}
                     </div>
-                    {/* Thêm các thông tin khác tùy ý */}
                   </div>
                   <div style={{ width: "40%" }}>
                     <Button

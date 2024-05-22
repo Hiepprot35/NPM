@@ -48,17 +48,26 @@ export function countDownToNow(startTimeMillis) {
 export function countTime(data) {
   const timeSent = new Date(parseInt(data));
   const date = new Date();
-  const hour =-timeSent.getHours()+date.getHours()
-  const minute = -timeSent.getMinutes()+date.getMinutes()
-  const second = -timeSent.getSeconds()+date.getSeconds()
+
+  const diffInSeconds = Math.floor((date - timeSent) / 1000);
+  const hour = Math.floor(diffInSeconds / 3600);
+  const minute = Math.floor((diffInSeconds % 3600) / 60);
+  const second = diffInSeconds % 60;
+
   if (hour < 1) {
-    return minute >= 1 ? `${minute} phút` : `vừa xong`;
+    if (minute >= 1) {
+      return `${minute} phút`;
+    } else {
+      return `vừa xong`;
+    }
   } else if (hour < 24) {
     return `${hour} giờ`;
-  } else if(-timeSent.getDate()+date.getDate()>1) {
-    return `${timeSent.getDate()+date.getDate()} ngày`;
+  } else {
+    const day = Math.floor(hour / 24);
+    return `${day} ngày`;
   }
 }
+
 export const getNameMonth = (time) => {
   if (time) {
         

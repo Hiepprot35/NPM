@@ -7,7 +7,7 @@ import { Popover } from "antd";
 import UserProfile from "../UserProfile/userProfile";
 import MyComment from "./MyComment";
 import { countTime, getDate, getTime } from "../../function/getTime";
- function Comment({ comment, users, isReply, className }) {
+function Comment({ comment, users, isReply, className }) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState();
   const [ComemntDetail, setComemntDetail] = useState([]);
@@ -48,19 +48,23 @@ import { countTime, getDate, getTime } from "../../function/getTime";
     let updatedComment = e;
     const options = {
       replace: ({ name, attribs, children }) => {
-        if (name === 'span' && attribs && attribs.class === 'tagNameHref') {
-          const data = attribs['data-lexical-text'];
+        if (name === "span" && attribs && attribs.class === "tagNameHref") {
+          const data = attribs["data-lexical-text"];
           return (
             <Popover content={<UserProfile MSSV={data} />}>
-              <a href={`${process.env.REACT_APP_CLIENT_URL}/profile/${data}`} className="tagNameHref" data-lexical-text={data}>
+              <a
+                href={`${process.env.REACT_APP_CLIENT_URL}/profile/${data}`}
+                className="tagNameHref"
+                data-lexical-text={data}
+              >
                 {domToReact(children)}
               </a>
             </Popover>
           );
         }
-      }
+      },
     };
-  
+
     return <>{parse(updatedComment, options)}</>;
   };
   // const checkComment = (e) => {
@@ -143,7 +147,10 @@ import { countTime, getDate, getTime } from "../../function/getTime";
                 ))}
               </div>
             </div>
-            <div className="likedislike">
+            <div
+              className="likedislike center"
+              style={{ justifyContent: "flex-start" }}
+            >
               <Popover
                 content={
                   <p>
@@ -154,6 +161,9 @@ import { countTime, getDate, getTime } from "../../function/getTime";
               >
                 <span>{countTime(comment.create_at)}</span>
               </Popover>
+              <span className="likeButton replyButton" onClick={ReplyHandle}>
+                Phản hồi
+              </span>
               <span
                 className={
                   ComemntDetail &&
@@ -187,23 +197,22 @@ import { countTime, getDate, getTime } from "../../function/getTime";
                     ComemntDetail.filter((e) => e.DisLike)?.length}
                 </p>
               </span>
-
-              <span className="likeButton" onClick={ReplyHandle}>
-                Phản hồi
-              </span>
             </div>
           </div>
-        </div>{" "}
+        </div>
         {!isReply && ReplyOpen && (
-          <div className="MyReplyComment">
-            <MyComment
-              setRender={setClicked}
-              movieID={comment.movieID}
-              reply={comment.id}
-              user={User?.Name}
-            ></MyComment>
-            <div className="linearComment"></div>
-          </div>
+          <>
+            <div className="MyReplyComment CommentReply">
+              <MyComment
+                setRender={setClicked}
+                movieID={comment.movieID}
+                className={"notLastComment"}
+                style={{margin:0,padding:0}}
+                reply={comment.id}
+                user={User?.Name}
+              ></MyComment>
+            </div>
+          </>
         )}
         {CommentsRep && (
           <div className="CommentReply">
@@ -217,16 +226,18 @@ import { countTime, getDate, getTime } from "../../function/getTime";
               ) : (
                 <Comment
                   comment={e}
-                  className={"lastComment"}
+                  className={`lastComment`}
                   isReply={false}
                 ></Comment>
               )
             )}
+               
           </div>
         )}
+        
       </div>
     </div>
   );
 }
 
-export default memo(Comment)
+export default memo(Comment);

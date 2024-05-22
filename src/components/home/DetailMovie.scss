@@ -124,9 +124,7 @@ $font-Dieu: "Dancing Script", cursive;
 }
 .DetailMovie {
   width: 100vw;
-  height: auto;
   display: flex;
-  background: black;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -184,7 +182,6 @@ $font-Dieu: "Dancing Script", cursive;
 .BodyDetail {
   position: relative;
   width: 75vw;
-  height: 200vh;
 }
 .actorsMovie {
   display: flex;
@@ -254,6 +251,9 @@ $font-Dieu: "Dancing Script", cursive;
 
   flex-direction: column;
 }
+.replyButton:hover{
+  text-decoration: underline;
+}
 .allComment {
   border-radius: 1rem;
   padding: 3rem;
@@ -262,6 +262,11 @@ $font-Dieu: "Dancing Script", cursive;
 
 .likedislike {
   display: flex;
+  font-size: .8rem;
+}
+.likedislike span{
+  color: rgb(139, 137, 137);
+
 }
 .activeLike svg {
   fill: var(--textColor);
@@ -274,7 +279,7 @@ $font-Dieu: "Dancing Script", cursive;
 .inputDiv {
   display: flex;
 
-  margin: 1rem;
+  margin-left: .7rem;
   border-radius: 0.5rem;
   background-color: var(--themeColor);
   color: var(--textColor);
@@ -300,15 +305,14 @@ $font-Dieu: "Dancing Script", cursive;
   display: flex;
 }
 .bodyComment {
-  background-color: #d8e3e376;
-  margin:0 0rem 1rem 1rem;
+  max-width: 70%;
+  margin:0 0rem .4rem .4rem;
   border-radius: 1rem;
 }
 .NameAndContent {
-  border-radius: 1rem;
-  background-color: var(--themeColor);
-  padding: 1rem;
-  margin: 1rem;
+  border-radius: .5rem;
+  background-color: gray;
+  padding: .5rem;
 }
 .commentDiv p {
   width: 100%;
@@ -320,7 +324,7 @@ $font-Dieu: "Dancing Script", cursive;
   left: 1rem;
   z-index: 0;
   height: 50%;
-  width: 19rem;
+  
 }
 .spanComment {
   min-width: 1rem;
@@ -348,7 +352,7 @@ $font-Dieu: "Dancing Script", cursive;
   border-bottom: 0.1rem solid rgba(107, 107, 107, 0.649);
   border-bottom-left-radius: 0.5rem;
 }
-.CommentReply .notLastComment::before {
+.CommentReply .notLastComment::before{
   content: "";
   position: absolute;
   width: 2rem;
@@ -362,7 +366,11 @@ $font-Dieu: "Dancing Script", cursive;
 .CommentReply {
   margin-left: 3rem;
 }
+.contentComment span{
+  word-break: break-all;
+    white-space: normal;}
 .contentComment {
+  width: 100%;
   margin: 0.3rem 0 0.2rem 0;
 }
 
@@ -376,6 +384,6 @@ $font-Dieu: "Dancing Script", cursive;
   background-color: rgb(229, 243, 255);
 }
 .likeButton {
-  margin: 1rem;
+  margin:0 .3rem;
   cursor: pointer;
 }
