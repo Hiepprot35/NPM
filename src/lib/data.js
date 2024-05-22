@@ -1323,10 +1323,10 @@ export const header_Student = [
     hash: "/create",
     role: [1],
   },
-  {
-    name: "Friends",
-    hash: "/friends",
-    role: [1, 2],
-    return: <FiMessageCircle></FiMessageCircle>,
-  },
+  // {
+  //   name: "Friends",
+  //   hash: "/friends",
+  //   role: [1, 2],
+  //   return: <FiMessageCircle></FiMessageCircle>,
+  // },
 ];

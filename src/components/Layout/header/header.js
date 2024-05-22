@@ -27,6 +27,7 @@ import {
   FiSearch,
   FiSettings,
   FiSun,
+  FiUser,
 } from "react-icons/fi";
 import SettingComponent from "../../setting/SettingComponent";
 import { Button, Input, Popover } from "antd";
@@ -36,6 +37,9 @@ import { genresList } from "../../home/MovieFilms";
 import Search from "./Search";
 import _, { debounce } from "lodash";
 import { useOutsideClick } from "../../../hook/useOutsideClick";
+import { TextAnimetion } from "../../home/Slide";
+import { Span, Text } from "../../home/listPlay";
+import FriendList from "../../home/friend";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -280,14 +284,8 @@ function Header(props) {
     <>
       <div className="header_user center">
         <div className="header_container">
-          <div>
+          <div className="rightHeader" style={{ width: "30%" }}>
             <ul className="list">
-              <li>
-                <NavLink to="/">
-                  <p>TuanHiep</p>
-                </NavLink>
-              </li>
-
               <li>
                 <div className="center TempText">
                   <img
@@ -370,8 +368,23 @@ function Header(props) {
               </li>
             </ul>
           </div>
-          <div className="header_home_user">
-            <div className=" searchInput" ref={refSearchButton}>
+          <div className="center">
+            <NavLink to="/">
+              <motion.p
+                initial={{ opacity: 0, x: -200, transition: { duration: 1 } }}
+                animate={{ opacity: 1, x: 0, transition: { duration: 1 } }}
+                className="homeText"
+              >
+                TuanHiep
+              </motion.p>
+            </NavLink>
+          </div>
+          <div className="header_home_user" style={{ width: "30%" }}>
+            <div
+              className=" searchInput"
+              style={{ margin: "1rem" }}
+              ref={refSearchButton}
+            >
               <input
                 onChange={debouncedHandleSearch}
                 placeholder="Search everything"
@@ -387,7 +400,13 @@ function Header(props) {
                 </div>
               }
             </div>
+            <Popover trigger="click" title={<p>Users</p>} content={<FriendList></FriendList>}>
+              <div className="circleButton">
+                <FiUser></FiUser>
+              </div>
+            </Popover>
             <BellTable></BellTable>
+
             {isLoading ? (
               <IsLoading />
             ) : (

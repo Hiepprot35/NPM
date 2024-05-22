@@ -231,7 +231,7 @@ export default function FriendList(props) {
     }
   };
   return (
-    <Layout>
+    <>
       {/* <Layout></Layout> */}
       <div
         className={
@@ -244,11 +244,7 @@ export default function FriendList(props) {
           <List
             itemLayout="horizontal"
             className="usersInfomation"
-            header={
-              <div>
-                <h1>Danh sách người dùng</h1>
-              </div>
-            }
+         
             // <Content style={{ padding: 16, overflow: "auto" }}/>
 
             //   footer={<div>Sample FOOTER</div>}
@@ -331,6 +327,6 @@ export default function FriendList(props) {
         style={{ position: "fixed", left: 0, bottom: "0", zIndex: "99" }}
         icon={<FiX color="black"></FiX>}
       ></Button>
-    </Layout>
+    </>
   );
 }

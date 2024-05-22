@@ -167,7 +167,7 @@ export const Text = (props) => {
   };
   return (
     <motion.p
-      className="SeeMoreText"
+      className={`SeeMoreText ${props.className}`}
       onClick={seeMore ? handleNotSeeMoreClick : null}
       ref={ref}
     >

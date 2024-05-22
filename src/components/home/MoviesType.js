@@ -4,6 +4,8 @@ import { TheMovieApi } from "../../function/getApi";
 import { CardMovie, Slide } from "./listPlay";
 import "./TVMovie.scss";
 import Layout from "../Layout/layout";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+
 import { CardSlide } from "./CardSlide";
 import SlideMovie from "./Slide";
 export default function MoviesType(props) {
@@ -11,6 +13,7 @@ export default function MoviesType(props) {
   const type = queryParameters.get("type");
   const id = queryParameters.get("id");
   const page = queryParameters.get("page") || 1;
+  console.log(page)
   document.title = type;
   const [Movies, setMovies] = useState([]);
   const [Loading, setLoading] = useState();
@@ -122,8 +125,8 @@ export default function MoviesType(props) {
     <Layout>
       <div style={{ paddingTop: "10vh" }} className="containerMoviesType">
         <div style={{ display: "flex" }}>
-          <h1>Home</h1> <h1>---</h1>
-          <h1>Movies type: {type}</h1>
+          <h1>Home</h1> <h1><FiChevronRight/></h1>
+          <h1>{type}</h1>
         </div>
         {Loading ? (
           <div className="center" style={{ width: "100%", height: "100%" }}>
@@ -132,16 +135,7 @@ export default function MoviesType(props) {
         ) : (
           <>
             <div className="MoviesType center">
-              {/* {Movies.length > 0 &&
-                Movies.map((e, i) => (                 
-                    <CardSlide
-                      className={"CardType"}
-                      card={{width:15,height:20}}
-                      fontSize={.65}
-                      e={e}
-                      i={i}
-                    ></CardSlide>
-                ))} */}
+          
               {Movies.length > 0 && (
                 <div  style={{}}>
                   {[0, 1, 2, 3, 4].map(
@@ -169,7 +163,7 @@ export default function MoviesType(props) {
                         href={`${process.env.REACT_APP_CLIENT_URL}/films?id=${id}&type=${type}&page=${e}`}
                         key={index}
                       >
-                        <span className="circleButton">{e}</span>
+                        <span className="circleButton" style={parseInt(page)===e?{backgroundColor:"gray"}:{}}>{e}</span>
                       </a>
                     ) : (
                       <span>{e}</span>

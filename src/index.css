@@ -130,6 +130,7 @@ code {
   z-index: 999;
   left: 0;
   width: 100vw;
+  top: 7vh;
   height: 100vh;
   display: flex;
   justify-content: center;

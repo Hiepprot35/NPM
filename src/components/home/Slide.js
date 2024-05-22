@@ -12,7 +12,7 @@ import "./slide.css";
 import { Text } from "./listPlay";
 import useGenres from "../../hook/useGenres";
 import { CardSlide } from "./CardSlide";
-export const TextAnimetion = ({ children, isHover, style }) => {
+export const TextAnimetion = ({ children, isHover, style,className }) => {
   const variantsText = {
     open: {
       opacity: 1,
@@ -28,6 +28,7 @@ export const TextAnimetion = ({ children, isHover, style }) => {
   };
   return (
     <motion.p
+    className={className}
       variants={variantsText}
       style={style}
       animate={isHover ? "open" : "closed"}

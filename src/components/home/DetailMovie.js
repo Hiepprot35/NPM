@@ -1,10 +1,16 @@
 import { Popover, Rate } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { fetchApiRes, getStudentInfoByMSSV } from "../../function/getApi.js";
+import {
+  TheMovieApi,
+  fetchApiRes,
+  getStudentInfoByMSSV,
+} from "../../function/getApi.js";
 import useAuth from "../../hook/useAuth.js";
 import Layout from "../Layout/layout.js";
 import Comment from "./Comment.js";
 import "./DetailMovie.js";
+import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+
 import MyComment from "./MyComment.js";
 import { Image } from "./home.js";
 import { motion, useAnimation } from "framer-motion";
@@ -13,6 +19,7 @@ import { Text } from "./listPlay.js";
 import { useInView } from "react-intersection-observer";
 import { IsLoading } from "../Loading.js";
 import NotFoundFilms from "./NotFoundFilms.js";
+import ReactPlayer from "react-player";
 export function InViewAnimate({ children, variants }) {
   const { ref, inView } = useInView({ threshold: 0.5 });
   const controls = useAnimation();
@@ -20,10 +27,8 @@ export function InViewAnimate({ children, variants }) {
   useEffect(() => {
     if (inView) {
       controls.start("openSession");
-      console.log("Inview openSession", controls);
     } else {
       controls.start("closeSession");
-      console.log("Outview closeSession", controls);
     }
   }, [inView, controls]);
   return (
@@ -38,12 +43,47 @@ export default function DetailMovie(props) {
   const url = "https://image.tmdb.org/t/p/original";
   const [Actors, setActors] = useState();
   const [myComment, setMyComment] = useState();
+  const [Images,setImages]=useState()
   const [comments, setComment] = useState([]);
   const [me, setMe] = useState();
   const [Render, setRender] = useState(false);
-  const [OpenTag, setOpenTag] = useState(false);
-  const [FilterTag, setFilterTag] = useState([]);
+  const [VideosMovie, setVideosMovie] = useState();
+  const [CurrentVideo, setCurrentVideo] = useState(0);
+  const [CurrentImage,setCurrenImage]=useState(0)
   const [Loading, setLoading] = useState(true);
+  const getVideos = async (movie_id) => {
+    const res = await TheMovieApi(
+      `https://api.themoviedb.org/3/movie/${movie_id}/videos`
+    );
+    if (res.results) {
+      return res.results;
+    } else {
+      return null;
+    }
+  };
+  const getImages = async (movie_id) => {
+    const res = await TheMovieApi(
+      `https://api.themoviedb.org/3/movie/${movie_id}/images`
+    );
+    console.log(res,"okdaksdasd")
+    if (res.posters) {
+      return res.posters.slice(0,30);
+    } else {
+      return null;
+    }
+  };
+  useEffect(() => {
+    const getVideosUef = async () => {
+      const data = await getVideos(props.movieID);
+      const images=await getImages(props.movieID)
+      setImages(images)
+      setVideosMovie(data);
+    };
+    getVideosUef();
+  }, []);
+  useEffect(() => {
+    console.log("Images",Images)
+  }, [Images]);
   const getComment = async () => {
     const res = await fetchApiRes(
       `/gettAllCommentFilms/?movieID=${props.movieID}/`,
@@ -54,7 +94,6 @@ export default function DetailMovie(props) {
       const timeB = new Date(b.create_at).getTime();
       return -timeA + timeB;
     });
-    console.log(commentsRes, "comment");
     setComment(commentsRes);
     const data = await getStudentInfoByMSSV(auth.username);
     setMe(data);
@@ -71,6 +110,21 @@ export default function DetailMovie(props) {
       x: -2000,
       scale: 0,
       transition: { duration: 1 },
+    },
+  };
+  const variantOpacity = {
+    openSession: { opacity: 1, transition: { duration: 1 } },
+    closeSession: {
+      opacity: 0,
+      
+    },
+  };
+  const videoVariant = {
+    openSession: {
+      transition: { staggerChildren: 0.5, delayChildren: 0.1},
+    },
+    closeSession: {
+      transition: { staggerChildren: 0, staggerDirection: 1 },
     },
   };
   const variantSessionRight = {
@@ -90,6 +144,20 @@ export default function DetailMovie(props) {
       transition: { staggerChildren: 0.5, staggerDirection: -1 },
     },
   };
+  useEffect(() => {
+    if (videosSlideRef.current) {
+      videosSlideRef.current.style.transform = `translateX(${
+        -CurrentVideo * 40
+      }vw)`;
+    }
+  }, [CurrentVideo]);
+  useEffect(() => {
+    if (ImagesSlideRef.current) {
+      ImagesSlideRef.current.style.transform = `translateX(${
+        -CurrentImage * 15
+      }vw)`;
+    }
+  }, [CurrentImage]);
   const variants2 = {
     open: {
       y: 0,
@@ -122,20 +190,27 @@ export default function DetailMovie(props) {
       );
       const data = await res.json();
       if (data.id) {
-        
         setMovies(data);
-        setLoading(false)
-      }
-      else{
-        document.title="Not found movie"
+        setLoading(false);
+      } else {
+        document.title = "Not found movie";
       }
     } catch (error) {
     } finally {
       setLoading(false);
     }
   };
-
+  const videosSlideRef = useRef();
+  const ImagesSlideRef=useRef()
   useEffect(() => {
+    if (VideosMovie && videosSlideRef.current && Images&&ImagesSlideRef.current) {
+      videosSlideRef.current.style.width = VideosMovie.length * 40 + "vw";
+      ImagesSlideRef.current.style.width = Images.length * 15 + "vw";
+
+    }
+  }, [VideosMovie,Images]);
+  useEffect(() => {
+    console.log("Movies", Movies);
     if (Movies.title || Movies.name) {
       document.title = ` ${Movies.title || Movies.name}`;
     }
@@ -160,13 +235,10 @@ export default function DetailMovie(props) {
     } finally {
       setLoading(false);
     }
-
   };
   useEffect(() => {
-
-      data();
-      getActors();
-   
+    data();
+    getActors();
   }, []);
 
   const inputRef = useRef();
@@ -174,14 +246,7 @@ export default function DetailMovie(props) {
 
   const ref = useRef([]);
   const refTag = useRef();
-  const showActorHandle = () => {
-    setShowActor(true);
-    setshowComment(false);
-  };
-  const showCommentHandle = () => {
-    setShowActor(false);
-    setshowComment(true);
-  };
+
   const deltailMovieRef = useRef();
   const variantsMovie = {
     open: {
@@ -207,8 +272,7 @@ export default function DetailMovie(props) {
         <IsLoading />
       ) : (
         <Layout>
-          {
-            Movies.id ?
+          {Movies.id ? (
             <motion.div
               className="DetailMovie"
               variants={variants}
@@ -297,8 +361,18 @@ export default function DetailMovie(props) {
                       variants={variantSessionLeft}
                       className="sessionChild"
                     >
-                      <p style={{ fontSize: "2rem" }}>Actor&</p>
-                      <p style={{ fontSize: "2rem" }}>Crew</p>
+                      <p
+                        className="deltailMovieText"
+                        style={{ fontSize: "3rem" }}
+                      >
+                        Cast&
+                      </p>
+                      <p
+                        className="deltailMovieText"
+                        style={{ fontSize: "3rem" }}
+                      >
+                        Crew
+                      </p>
                     </motion.div>
                     {
                       <motion.div
@@ -323,9 +397,26 @@ export default function DetailMovie(props) {
                                   >
                                     <div
                                       className="hiddenText"
-                                      style={{ height: "3rem" }}
+                                      style={{ height: "8rem", width: "8rem" }}
                                     >
-                                      <p key={index}>{actor.name}</p>
+                                      <p
+                                        style={{
+                                          color: "gray",
+                                          fontSize: ".9rem",
+                                        }}
+                                      >
+                                        {actor.character}
+                                      </p>
+                                      <p
+                                        className="deltailMovieText"
+                                        style={{
+                                          fontSize: "1.5rem",
+                                          fontWeight: "500",
+                                        }}
+                                        key={index}
+                                      >
+                                        {actor.name}
+                                      </p>
                                     </div>
                                   </Popover>
                                 </div>
@@ -335,8 +426,103 @@ export default function DetailMovie(props) {
                     }
                   </motion.div>
                 </InViewAnimate>
-
-                {
+                <InViewAnimate>
+                    <div
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <p
+                        className="deltailMovieText"
+                        style={{ fontSize: "3rem" }}
+                      >
+                        Videos
+                      </p>
+                      <div className="center" style={{ height: "5rem", width: "4rem" }}>
+                        <span style={{fontSize:"2rem"}} onClick={() => setCurrentVideo((pre) => pre - 1)}>
+                          <FiArrowLeft/>{" "}
+                        </span>
+                        <span style={{fontSize:"2rem"}} onClick={() => setCurrentVideo((pre) => pre + 1)}>
+                          <FiArrowRight />{" "}
+                        </span>
+                      </div>
+                    </div>
+                    <motion.div
+                    variants={videoVariant}
+                      className="VideoSlide"
+                      ref={videosSlideRef}
+                    >
+                      {VideosMovie && VideosMovie.length > 0 ? (
+                        VideosMovie.map((video) => (
+                          <motion.div
+                            variants={variantOpacity}
+                            className="VideoMovie"
+                            key={video.id}
+                          >
+                            <ReactPlayer
+                              playing
+                              light={true}
+                              url={`https://www.youtube.com/watch?v=${video.key}`}
+                              width="40rem"
+                              height="25rem"
+                            />
+                          </motion.div>
+                        ))
+                      ) : (
+                        <p>No videos available</p>
+                      )}
+                  </motion.div>
+                </InViewAnimate>
+                <InViewAnimate>
+                    <div
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <p
+                        className="deltailMovieText"
+                        style={{ fontSize: "3rem" }}
+                      >
+                        Photos
+                      </p>
+                      <div className="center" style={{ height: "5rem", width: "4rem" }}>
+                        <span style={{fontSize:"2rem"}} onClick={() => setCurrenImage((pre) => pre - 1)}>
+                          <FiArrowLeft/>{" "}
+                        </span>
+                        <span style={{fontSize:"2rem"}} onClick={() => setCurrenImage((pre) => pre + 1)}>
+                          <FiArrowRight />{" "}
+                        </span>
+                      </div>
+                    </div>
+                    <motion.div
+                    variants={videoVariant}
+                      className="VideoSlide"
+                      ref={ImagesSlideRef}
+                    >
+                      {Images && Images.length > 0 ? (
+                        Images.map((image) => (
+                          <motion.div
+                            variants={variantOpacity}
+                            style={{width:"15vw",height:"30vh"}}
+                            key={image.id}
+                          >
+                            <img
+          style={{objectFit:"contain",width:"100%",height:"100%"}}
+                              src={`${url}/${image.file_path}`}
+                             
+                            />
+                          </motion.div>
+                        ))
+                      ) : (
+                        <p>No videos available</p>
+                      )}
+                  </motion.div>
+                </InViewAnimate>
+                {/* {
                   <InViewAnimate>
                     <motion.session className="">
                       <motion.div
@@ -396,10 +582,12 @@ export default function DetailMovie(props) {
                       </motion.div>
                     </motion.session>
                   </InViewAnimate>
-                }
+                } */}
               </motion.div>
-            </motion.div>:<NotFoundFilms></NotFoundFilms>
-          }
+            </motion.div>
+          ) : (
+            <NotFoundFilms></NotFoundFilms>
+          )}
         </Layout>
       )}
     </>

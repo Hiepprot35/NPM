@@ -78,7 +78,7 @@ function BellTable() {
        
       >
         <div className="countNoti">
-          <p>{users && users.length}</p>
+          <p>{users && users.length>0}</p>
         </div>
         <div className="">
         <span  onClick={() => {

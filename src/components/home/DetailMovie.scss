@@ -209,17 +209,39 @@ $font-Dieu: "Dancing Script", cursive;
 .sessionChild{
   width: 50%;
 }
+@import url('https://fonts.cdnfonts.com/css/lexend');
+.DetailMovie{
+  font-family: 'Lexend', sans-serif;
+}
 .Poster img {
   height:70%;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 .actorsMovie::-webkit-scrollbar {
-  height: 0.1rem;
-  border-radius: 1rem;
+  height: .3rem;
+  border-radius:1rem;
   color: gray;
 }
 .actorsMovie::-webkit-scrollbar-track {
-  color: rgb(210, 0, 0);
+  color: rgb(80, 72, 72);
+}
+.VideoMovie
+{
+  margin: 1rem;
+}
+.VideoSlide{
+  transition: 300ms linear;
+}
+.actorsMovie::-webkit-scrollbar-thumb
+{
+  background-color: black ;
+  width: 1rem;
+  height: 1rem;
+}
+.VideoSlide{
+  overflow: hidden;
+  display: flex;
+  width: 100vw;
 }
 .comment {
   position: relative;
