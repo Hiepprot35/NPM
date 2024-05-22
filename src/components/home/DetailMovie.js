@@ -32,6 +32,7 @@ export function InViewAnimate({ children, variants, setCurrent }) {
         setCurrent(0);
       }
       controls.start("closeSession");
+
     }
   }, [inView, controls]);
   return (
@@ -55,35 +56,46 @@ export default function DetailMovie(props) {
   const [CurrentImage, setCurrenImage] = useState(0);
   const [Loading, setLoading] = useState(true);
   const getVideos = async (movie_id) => {
-    const res = await TheMovieApi(
-      `https://api.themoviedb.org/3/movie/${movie_id}/videos`
-    );
-    if (res.results) {
-      return res.results;
-    } else {
-      return null;
+    try {
+      setLoading(true)
+      const res = await TheMovieApi(
+        `https://api.themoviedb.org/3/movie/${movie_id}/videos`
+      );
+      if (res.results) {
+        
+        return res.results;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      setLoading(false)
     }
+    finally{
+      setLoading(false)
+    }
+    
   };
   const getImages = async (movie_id) => {
-    const res = await TheMovieApi(
-      `https://api.themoviedb.org/3/movie/${movie_id}/images`
-    );
-    console.log(res, "okdaksdasd");
-    if (res.backdrops) {
-      return res.backdrops.slice(0, 30);
-    } else {
-      return null;
+    try {
+      setLoading(true)
+      const res = await TheMovieApi(
+        `https://api.themoviedb.org/3/movie/${movie_id}/images`
+      );
+      console.log(res, "okdaksdasd");
+      if (res.backdrops) {
+      
+        return res.backdrops.slice(0, 30);
+      } else {
+        return null;
+      }
+    } catch (error) {
+      
     }
+   finally{
+    setLoading(false)
+   }
   };
-  useEffect(() => {
-    const getVideosUef = async () => {
-      const data = await getVideos(props.movieID);
-      const images = await getImages(props.movieID);
-      setImages(images);
-      setVideosMovie(data);
-    };
-    getVideosUef();
-  }, []);
+
   useEffect(() => {
     console.log("Images", Images);
   }, [Images]);
@@ -118,7 +130,7 @@ export default function DetailMovie(props) {
   const variantOpacity = {
     openSession: { opacity: 1, transition: { duration: 1 } },
     closeSession: {
-      opacity: 0,
+      opacity: 0, transition: { duration: 1 }
     },
   };
   const videoVariant = {
@@ -246,7 +258,15 @@ export default function DetailMovie(props) {
     data();
     getActors();
   }, []);
-
+  useEffect(() => {
+    const getVideosUef = async () => {
+      const data = await getVideos(props.movieID);
+      const images = await getImages(props.movieID);
+      setImages(images);
+      setVideosMovie(data);
+    };
+    getVideosUef();
+  }, []);
   const inputRef = useRef();
   const [tagName, settagName] = useState();
 
@@ -440,12 +460,12 @@ export default function DetailMovie(props) {
                       justifyContent: "space-between",
                     }}
                   >
-                    <p
+                    <motion.p variants={variantSessionLeft}
                       className="deltailMovieText"
                       style={{ fontSize: "3rem" }}
                     >
                       Videos
-                    </p>
+                    </motion.p>
                     <div
                       className="center"
                       style={{ height: "5rem", width: "4rem" }}
@@ -465,6 +485,7 @@ export default function DetailMovie(props) {
                     </div>
                   </div>
                   <motion.div
+                 
                     variants={videoVariant}
                     className="VideoSlide"
                     ref={videosSlideRef}
@@ -486,7 +507,7 @@ export default function DetailMovie(props) {
                         </motion.div>
                       ))
                     ) : (
-                      <p>No videos available</p>
+                      <motion.div variants={variantOpacity}>No videos available</motion.div>
                     )}
                   </motion.div>
                 </InViewAnimate>
