@@ -17,14 +17,15 @@ import { fetchApiRes } from "../../function/getApi";
 import { useData } from "../../context/dataContext";
 import { getConversation } from "../conversation/getConversation";
 import { useSocket } from "../../context/socketContext";
+import { IsLoading } from "../Loading";
 const { Content, Footer } = Layout;
 
 export default function UserProfile(props) {
-  const socket=useSocket()
+  const socket = useSocket();
   const [isLoading, setIsLoading] = useState(false);
   const [Users, setUserInfo] = useState();
   const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
-  useData();
+    useData();
   const { auth } = useAuth();
   const host = process.env.REACT_APP_DB_HOST;
   const [myFriendList, setMyFriendList] = useState([]);
@@ -35,21 +36,18 @@ export default function UserProfile(props) {
     return newArray;
   };
   const addToConverArray = (array, prev, id) => {
-    console.log(array,prev,id)
+    console.log(array, prev, id);
     const newClicked = prev.filter((obj) => obj.id !== id);
     const con = array.find((e) => e.id === id);
-    if(con)
-      {
-
-        newClicked.unshift(con);
-      }
-    
+    if (con) {
+      newClicked.unshift(con);
+    }
 
     return newClicked;
   };
   const sendRequestFriend = async (id) => {
     const converFound = await foundConversation(id, auth.userID);
-    console.log(converFound)
+    console.log(converFound);
     setIsLoading(true);
     if (!converFound) {
       try {
@@ -101,25 +99,31 @@ export default function UserProfile(props) {
     AsyncGetCon();
   }, [clickNewCon]);
   const handleAddChat = async (id) => {
-    const converFound = await foundConversation(id, auth.userID);
-    if (!converFound) {
-      try {
-        const res = await fetchApiRes("conversations", "POST", {
-          user1: auth.userID,
-          user2: id,
-          created_at: Date.now(),
-        });
+    try {
+      setIsLoading(true)
+      const converFound = await foundConversation(id, auth.userID);
+      if (!converFound) {
+        try {
+          const res = await fetchApiRes("conversations", "POST", {
+            user1: auth.userID,
+            user2: id,
+            created_at: Date.now(),
+          });
 
-        const data = res?.result;
-        console.log(data, "ssss");
-        setClickNewCon(data);
-      } catch (error) {
-        console.log(error);
+          const data = res?.result;
+          console.log(data, "ssss");
+          setClickNewCon(data);
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        const data = addToConverArray(conversations, listWindow, converFound);
+        setListWindow(data);
+        setListHiddenBubble(removeElement(listHiddenBubble, converFound));
       }
-    } else {
-      const data = addToConverArray(conversations, listWindow, converFound);
-      setListWindow(data);
-      setListHiddenBubble(removeElement(listHiddenBubble, converFound));
+    } catch (error) {}
+    finally{
+      setIsLoading(false)
     }
   };
   useEffect(() => {
@@ -130,7 +134,7 @@ export default function UserProfile(props) {
       ].filter(Boolean);
 
       setListWindow(newClicked);
-      setListHiddenBubble(listHiddenBubble.filter(e=>e.id!==clickNewCon));
+      setListHiddenBubble(listHiddenBubble.filter((e) => e.id !== clickNewCon));
     }
   }, [conversations, clickNewCon]);
   const foundConversation = async (user1, user2) => {
@@ -160,9 +164,9 @@ export default function UserProfile(props) {
   useEffect(() => {
     if (myFriendList && userFriendList) {
       const generalFriends = userFriendList.filter((userFriend) => {
-        return  myFriendList.some(e=>e===userFriend);
+        return myFriendList.some((e) => e === userFriend);
       });
-      
+
       setgerenalFriend(generalFriends);
     }
   }, [myFriendList, userFriendList]);
@@ -196,6 +200,9 @@ export default function UserProfile(props) {
 
   return (
     <>
+    {
+      isLoading ?<IsLoading></IsLoading>:
+
       <div className="UserProfile" style={{ width: "100%" }}>
         <div className="">
           {Users && (
@@ -267,6 +274,7 @@ export default function UserProfile(props) {
           )}
         </div>
       </div>
+}
     </>
   );
 }
