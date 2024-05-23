@@ -16,11 +16,7 @@ export default function BubbleConver() {
             index={i}
           />
         ))} */}
-          <div className="newMessage center">
-        <span>
-          <FiEdit></FiEdit>
-        </span>
-      </div>
+        
     </>
   );
 }

@@ -68,7 +68,7 @@ export default function MessageMainLayout(props) {
                   (c, i) =>
                     c.Friend === 1 && (
                       <div
-                        key={i}
+                        key={c.id}
                         className="converrsation_chat center"
                         onClick={() => {
                           onClickConser(c.id);

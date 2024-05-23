@@ -13,13 +13,14 @@ import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 
 import MyComment from "./MyComment.js";
 import { Image } from "./home.js";
-import { motion, useAnimation } from "framer-motion";
+import { animate, motion, useAnimation } from "framer-motion";
 import { getDate, getNameMonth } from "../../function/getTime.js";
 import { Text } from "./listPlay.js";
 import { useInView } from "react-intersection-observer";
 import { IsLoading } from "../Loading.js";
 import NotFoundFilms from "./NotFoundFilms.js";
 import ReactPlayer from "react-player";
+import { delay } from "lodash";
 export function InViewAnimate({ children, variants, setCurrent }) {
   const { ref, inView } = useInView({ threshold: 0.5 });
   const controls = useAnimation();
@@ -32,7 +33,6 @@ export function InViewAnimate({ children, variants, setCurrent }) {
         setCurrent(0);
       }
       controls.start("closeSession");
-
     }
   }, [inView, controls]);
   return (
@@ -57,48 +57,38 @@ export default function DetailMovie(props) {
   const [Loading, setLoading] = useState(true);
   const getVideos = async (movie_id) => {
     try {
-      setLoading(true)
+      setLoading(true);
       const res = await TheMovieApi(
         `https://api.themoviedb.org/3/movie/${movie_id}/videos`
       );
       if (res.results) {
-        
         return res.results;
       } else {
         return null;
       }
     } catch (error) {
-      setLoading(false)
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
-    finally{
-      setLoading(false)
-    }
-    
   };
   const getImages = async (movie_id) => {
     try {
-      setLoading(true)
+      setLoading(true);
       const res = await TheMovieApi(
         `https://api.themoviedb.org/3/movie/${movie_id}/images`
       );
-      console.log(res, "okdaksdasd");
       if (res.backdrops) {
-      
         return res.backdrops.slice(0, 30);
       } else {
         return null;
       }
     } catch (error) {
-      
+    } finally {
+      setLoading(false);
     }
-   finally{
-    setLoading(false)
-   }
   };
 
-  useEffect(() => {
-    console.log("Images", Images);
-  }, [Images]);
   const getComment = async () => {
     const res = await fetchApiRes(
       `/gettAllCommentFilms/?movieID=${props.movieID}&replyID=-1/`,
@@ -130,7 +120,8 @@ export default function DetailMovie(props) {
   const variantOpacity = {
     openSession: { opacity: 1, transition: { duration: 1 } },
     closeSession: {
-      opacity: 0, transition: { duration: 1 }
+      opacity: 0,
+      transition: { duration: 1 },
     },
   };
   const videoVariant = {
@@ -188,6 +179,17 @@ export default function DetailMovie(props) {
       },
     },
   };
+  const variantClipath = {
+    open: {
+      clipPath: "polygon(100% 0, 100% 0, 0 100%, 0 100%)",
+      transition: { duration: 1 },
+    },
+    closed: {
+      clipPath: "polygon(100% 0, 0 0, 0 100%, 100% 100%)",
+      transition: { duration: 1 },
+    },
+  };
+
   const data = async () => {
     try {
       setLoading(true);
@@ -233,6 +235,17 @@ export default function DetailMovie(props) {
       document.title = ` ${Movies.title || Movies.name}`;
     }
   }, [Movies]);
+  const checkScore = (score) => {
+    if (score < 3.5) {
+      return "red";
+    } else if (score <= 5) {
+      return "orange";
+    } else if (score <= 7.5) {
+      return "blue";
+    } else {
+      return "#89FC05";
+    }
+  };
   const getActors = async () => {
     try {
       setLoading(true);
@@ -248,6 +261,7 @@ export default function DetailMovie(props) {
         }
       );
       const data = await res.json();
+      console.log(data);
       setActors(data);
     } catch (error) {
     } finally {
@@ -279,12 +293,12 @@ export default function DetailMovie(props) {
       opacity: 1,
 
       scale: 1,
-      transition: { duration: 1 }, // Duration in seconds
+      transition: { delayChildren: 1, staggerChildren: 0.5, duration: 1 },
     },
     closed: {
       opacity: 0,
       scale: 2,
-      transition: { duration: 1 }, // Duration in seconds
+      transition: { duration: 1 },
     },
   };
   const [isOpen, setIsOpen] = useState(false);
@@ -328,6 +342,37 @@ export default function DetailMovie(props) {
                           : ""
                       }`}
                     ></Image>
+                    <motion.div
+                      className=" ratingFilm center"
+                      style={{ flexDirection: "column" }}
+                    >
+                      <motion.div style={{ position: "relative" }}>
+                        <motion.div
+                          variants={variantClipath}
+                          style={{ position: "absolute" }}
+                        >
+                          <p
+                            style={{
+                              fontSize: "2rem",
+                            }}
+                          >
+                            {Movies.vote_average.toFixed(2)}
+                          </p>
+                        </motion.div>
+                        <div>
+                          <p
+                            style={{
+                              fontSize: "2rem",
+                              color: `${checkScore(Movies.vote_average)}`,
+                            }}
+                          >
+                            {Movies.vote_average.toFixed(2).replace(".", ",")}
+                            <span>/10</span>
+                          </p>
+                        </div>
+                      </motion.div>
+                      <p>Vote {Movies.vote_count}</p>
+                    </motion.div>
                   </motion.div>
                   <div
                     className="DetailNameMovie"
@@ -346,38 +391,37 @@ export default function DetailMovie(props) {
                             )
                           </span>
                         </p>
+                        <div style={{ marginLeft: "10rem" }}>
+                          <p style={{ margin: "2rem" }}>
+                            {
+                              <span className="miniText">
+                                {Movies?.runtime}m |{" "}
+                              </span>
+                            }
+                            {Movies?.genres &&
+                              Movies?.genres.map((e, i) => (
+                                <span className="miniText" key={i}>
+                                  {e.name}
+                                  {i < Movies.genres.length - 1 && ", "}
+                                </span>
+                              ))}
+                            <span className="miniText">
+                              {" "}
+                              |{" "}
+                              {Movies?.origin_country &&
+                                Movies?.origin_country.map((e) => e)}
+                            </span>
+                          </p>
+                          <p style={{ margin: "2rem" }}>
+                            {Movies.overview && (
+                              <Text
+                                text={Movies.overview}
+                                style={{ fontSize: "1rem" }}
+                              ></Text>
+                            )}
+                          </p>
+                        </div>
                       </motion.div>
-                    </div>
-                    <p style={{ marginLeft: "20%" }}>
-                      {<span className="miniText">{Movies?.runtime}m | </span>}
-                      {Movies?.genres &&
-                        Movies?.genres.map((e, i) => (
-                          <span className="miniText" key={i}>
-                            {e.name}
-                            {i < Movies.genres.length - 1 && ", "}
-                          </span>
-                        ))}
-                      <span className="miniText">
-                        {" "}
-                        |{" "}
-                        {Movies?.origin_country &&
-                          Movies?.origin_country.map((e) => e)}
-                      </span>
-                    </p>
-                    <div className=" ratingFilm">
-                      <Rate
-                        defaultValue={Math.floor(Movies.vote_average / 2)}
-                        // disabled
-                        // allowHalf
-                      ></Rate>
-                    </div>
-                    <div style={{ marginLeft: "15%" }}>
-                      {Movies.overview && (
-                        <Text
-                          text={Movies.overview}
-                          style={{ fontSize: "1rem" }}
-                        ></Text>
-                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -460,7 +504,8 @@ export default function DetailMovie(props) {
                       justifyContent: "space-between",
                     }}
                   >
-                    <motion.p variants={variantSessionLeft}
+                    <motion.p
+                      variants={variantSessionLeft}
                       className="deltailMovieText"
                       style={{ fontSize: "3rem" }}
                     >
@@ -485,7 +530,6 @@ export default function DetailMovie(props) {
                     </div>
                   </div>
                   <motion.div
-                 
                     variants={videoVariant}
                     className="VideoSlide"
                     ref={videosSlideRef}
@@ -507,7 +551,9 @@ export default function DetailMovie(props) {
                         </motion.div>
                       ))
                     ) : (
-                      <motion.div variants={variantOpacity}>No videos available</motion.div>
+                      <motion.div variants={variantOpacity}>
+                        No videos available
+                      </motion.div>
                     )}
                   </motion.div>
                 </InViewAnimate>
@@ -549,11 +595,11 @@ export default function DetailMovie(props) {
                     ref={ImagesSlideRef}
                   >
                     {Images && Images.length > 0 ? (
-                      Images.map((image) => (
+                      Images.map((image, i) => (
                         <motion.div
                           variants={variantOpacity}
                           style={{ width: "30vw", margin: "1rem" }}
-                          key={image.id}
+                          key={i}
                         >
                           <img
                             style={{ objectFit: "cover", width: "30vw" }}
@@ -568,10 +614,7 @@ export default function DetailMovie(props) {
                 </InViewAnimate>
                 {
                   <motion.session className="">
-                    <motion.div
-                      variants={variantSessionRight}
-                      className=" "
-                    >
+                    <motion.div variants={variantSessionRight} className=" ">
                       {" "}
                       <div style={{ display: "flex" }}>
                         <div style={{ margin: 0, position: "relative" }}>
@@ -601,27 +644,29 @@ export default function DetailMovie(props) {
                           ></MyComment>
                         </motion.div>
                       )}
-                      <div className="allComment">
-                        {comments.map((e, i) =>
-                          i < comments.length - 1 && e.replyID ? (
-                            <motion.div variants={variants2}>
-                              <Comment
-                                key={i}
-                                className={"notLastComment"}
-                                comment={e}
-                              />
-                            </motion.div>
-                          ) : (
-                            <motion.div variants={variants2}>
-                              <Comment
-                                key={i}
-                                className={"lastComment"}
-                                comment={e}
-                              />
-                            </motion.div>
-                          )
-                        )}
-                      </div>
+                      {comments && comments.length>0 && (
+                        <div className="allComment">
+                          {comments.map((e, i) =>
+                            i < comments.length - 1 && e.replyID ? (
+                              <motion.div variants={variants2}>
+                                <Comment
+                                  key={i}
+                                  className={"notLastComment"}
+                                  comment={e}
+                                />
+                              </motion.div>
+                            ) : (
+                              <motion.div variants={variants2}>
+                                <Comment
+                                  key={i}
+                                  className={"lastComment"}
+                                  comment={e}
+                                />
+                              </motion.div>
+                            )
+                          )}
+                        </div>
+                      )}
                     </motion.div>
                   </motion.session>
                 }

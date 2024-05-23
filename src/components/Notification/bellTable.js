@@ -77,9 +77,12 @@ function BellTable() {
         ref={notificationRef}
        
       >
-        <div className="countNoti">
-          <p>{users && users.length>0}</p>
+        {
+          users?.length>0 &&
+          <div className="countNoti">
+          <p>{ users.length}</p>
         </div>
+        }
         <div className="">
         <span  onClick={() => {
           setShowTable(!showTable);

@@ -13,6 +13,7 @@ import GerenalFriendComponent from "./gerenalFriendComponent";
 import Header from "../Layout/header/header";
 import Layout from "../Layout/layout";
 import { data } from "jquery";
+import UserProfile from "../UserProfile/userProfile";
 
 export default function FriendList(props) {
   const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
@@ -255,66 +256,8 @@ export default function FriendList(props) {
                 style={{ width: "100%", height: "100px" }}
                 className="ListItem"
               >
-                <div
-                  className="center"
-                  style={{ width: "100%", justifyContent: "space-between" }}
-                >
-                  <div>
-                    <NavLink
-                      to={`${process.env.REACT_APP_CLIENT_URL}/profile/${student.MSSV}`}
-                    >
-                      <img className="avatarImage" src={student.img} alt="" />
-                    </NavLink>
-                  </div>
-                  <div className="article-body" style={{ width: "50%" }}>
-                    <div className="hiddenEllipsis">
-                      <b className="">{student.Name}</b>
-                      <p>Có {gerenalFriend[index]?.length ?? 0} bạn chung</p>
-                      {gerenalFriend[index] && (
-                        <GerenalFriendComponent
-                          listGerenal={gerenalFriend[index]}
-                        ></GerenalFriendComponent>
-                      )}
-                    </div>
-                  </div>
-                  <div style={{ width: "40%" }}>
-                    <Button
-                      type="primary"
-                      size="large"
-                      className="sendButton"
-                      onClick={() => {
-                        handleAddChat(student.UserID);
-                      }}
-                      style={{ width: "3rem", margin: ".2rem" }}
-                      icon={
-                        <FiMessageCircle
-                          style={{ stroke: "blue" }}
-                        ></FiMessageCircle>
-                      }
-                    ></Button>
-                    {student.UserID !== auth.userID && (
-                      <>
-                        {" "}
-                        {myFriendList &&
-                          (!myFriendList.some((e) => e === student.UserID) ? (
-                            <Button
-                              size="large"
-                              style={{ width: "3rem", margin: ".2rem" }}
-                              onClick={() => sendRequestFriend(student.UserID)}
-                              icon={<FiUserPlus></FiUserPlus>}
-                            ></Button>
-                          ) : (
-                            <Button
-                              size="large"
-                              style={{ width: "3rem", margin: ".2rem" }}
-                              onClick={() => deleteFriend(student.UserID)}
-                              icon={<FiUserCheck></FiUserCheck>}
-                            ></Button>
-                          ))}
-                      </>
-                    )}
-                  </div>
-                </div>
+                <UserProfile MSSV={student.MSSV}></UserProfile>
+              
               </List.Item>
             )}
           />

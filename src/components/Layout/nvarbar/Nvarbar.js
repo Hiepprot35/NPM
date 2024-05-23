@@ -1,11 +1,6 @@
 import { Player } from "@lottiefiles/react-lottie-player";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  FiCoffee,
-  FiTag,
-  FiTrendingUp,
-  FiUsers
-} from "react-icons/fi";
+import { FiCoffee, FiEdit, FiTag, FiTrendingUp, FiUsers } from "react-icons/fi";
 import { useData } from "../../../context/dataContext";
 import { useSession } from "../../../context/sectionProvider";
 import { useSocket } from "../../../context/socketContext";
@@ -16,22 +11,21 @@ import Windowchat from "../../message/windowchat";
 import "./nvarbar.css";
 export default function Nvarbar(props) {
   const { session, setSession } = useSession();
-  const {socket}=useSocket()
-  const { listWindow,listHiddenBubble } = useData();
+  const { socket } = useSocket();
+  const { listWindow, listHiddenBubble } = useData();
   const [Conver, setConver] = useState(listHiddenBubble.concat(listWindow));
   useEffect(() => {
-    setConver(listHiddenBubble.concat(listWindow))
-  }, [listHiddenBubble,listWindow]);
-  const itemVariants={
+    setConver(listHiddenBubble.concat(listWindow));
+  }, [listHiddenBubble, listWindow]);
+  const itemVariants = {
     open: {
-    
       opacity: 1,
       y: 0,
-      transition: { type: "spring", stiffness: 300, damping: 24 }
+      transition: { type: "spring", stiffness: 300, damping: 24 },
     },
-    closed: { opacity: 0, y: 20, transition: { duration: 0.2 } }
+    closed: { opacity: 0, y: 20, transition: { duration: 0.2 } },
   };
-  
+
   const sidebar = {
     open: {
       clipPath: "inset(0% 0% 0% 0% round 1rem)",
@@ -39,18 +33,18 @@ export default function Nvarbar(props) {
         type: "spring",
         bounce: 0,
         duration: 0.1,
-        delayChildren: .3,
-        staggerChildren: 0.05
-      }
+        delayChildren: 0.3,
+        staggerChildren: 0.05,
+      },
     },
     closed: {
       clipPath: "inset(10% 50% 90% 50% round 1rem)",
       transition: {
         type: "spring",
         bounce: 0,
-        duration: 0.1
-      }
-    }
+        duration: 0.1,
+      },
+    },
   };
   const newFeed = [
     {
@@ -114,7 +108,11 @@ export default function Nvarbar(props) {
           style={{ height: "2rem", width: "2rem" }}
         />
       </div>
-      <motion.div animate={ShowNvaBar?"open":"closed"} variants={sidebar} className="leftHome">
+      <motion.div
+        animate={ShowNvaBar ? "open" : "closed"}
+        variants={sidebar}
+        className="leftHome"
+      >
         <div className="newFeed">
           <span>
             <p className="weightFont">New feed</p>
@@ -143,15 +141,14 @@ export default function Nvarbar(props) {
       <div className="windowchat_container">
         {Conver &&
           Conver.map((e, i) => (
-            <Windowchat
-              key={e.id}
-              count={e}
-              index={i}
-              isHidden={false}
-            />
+            <Windowchat key={e.id} count={e} index={i} isHidden={false} />
           ))}
       </div>
-      <BubbleConver></BubbleConver>
+      <div className="newMessage center">
+        <span>
+          <FiEdit></FiEdit>
+        </span>
+      </div>{" "}
     </div>
   );
 }

@@ -14,14 +14,77 @@ import GerenalFriendComponent from "../home/gerenalFriendComponent";
 import { FiMessageCircle, FiUserPlus } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
 import { fetchApiRes } from "../../function/getApi";
+import { useData } from "../../context/dataContext";
+import { getConversation } from "../conversation/getConversation";
+import { useSocket } from "../../context/socketContext";
 const { Content, Footer } = Layout;
 
 export default function UserProfile(props) {
+  const socket=useSocket()
+  const [isLoading, setIsLoading] = useState(false);
   const [Users, setUserInfo] = useState();
+  const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
+  useData();
   const { auth } = useAuth();
   const host = process.env.REACT_APP_DB_HOST;
   const [myFriendList, setMyFriendList] = useState([]);
+  const [conversations, setConversation] = useState();
+  const [clickNewCon, setClickNewCon] = useState();
+  const removeElement = (array, index) => {
+    const newArray = array.filter((obj) => obj?.id !== index);
+    return newArray;
+  };
+  const addToConverArray = (array, prev, id) => {
+    console.log(array,prev,id)
+    const newClicked = prev.filter((obj) => obj.id !== id);
+    const con = array.find((e) => e.id === id);
+    if(con)
+      {
 
+        newClicked.unshift(con);
+      }
+    
+
+    return newClicked;
+  };
+  const sendRequestFriend = async (id) => {
+    const converFound = await foundConversation(id, auth.userID);
+    console.log(converFound)
+    setIsLoading(true);
+    if (!converFound) {
+      try {
+        await fetchApiRes("conversations", "POST", {
+          user1: auth.userID,
+          user2: id,
+          Requesting: 1,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      try {
+        const data = await fetchApiRes("message/updateConversation", "POST", {
+          Requesting: true,
+          user1: auth.userID,
+          user2: id,
+          id: converFound,
+        });
+        if (data.result) {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        setIsLoading(false);
+
+        console.log(error);
+      }
+    }
+    if (socket) {
+      socket.emit("SendRequestFriend", {
+        sender: auth.userID,
+        receiver: id,
+      });
+    }
+  };
   const [gerenalFriend, setgerenalFriend] = useState([]);
   const getUserFriendList = async () => {
     const result = await fetchApiRes("message/getFriendList", "POST", {
@@ -30,10 +93,66 @@ export default function UserProfile(props) {
     const data = result.result.map((e) => checkID(e, Users?.UserID));
     setUserFriendList(data);
   };
-
   useEffect(() => {
-    console.log("MSSV", props?.MSSV);
-  }, [props.MSSV]);
+    async function AsyncGetCon() {
+      const convers = await getConversation(auth);
+      setConversation(convers);
+    }
+    AsyncGetCon();
+  }, [clickNewCon]);
+  const handleAddChat = async (id) => {
+    const converFound = await foundConversation(id, auth.userID);
+    if (!converFound) {
+      try {
+        const res = await fetchApiRes("conversations", "POST", {
+          user1: auth.userID,
+          user2: id,
+          created_at: Date.now(),
+        });
+
+        const data = res?.result;
+        console.log(data, "ssss");
+        setClickNewCon(data);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      const data = addToConverArray(conversations, listWindow, converFound);
+      setListWindow(data);
+      setListHiddenBubble(removeElement(listHiddenBubble, converFound));
+    }
+  };
+  useEffect(() => {
+    if (conversations && clickNewCon) {
+      const newClicked = [
+        conversations.find((e) => e.id === clickNewCon),
+        ...listWindow.filter((obj) => obj.id !== clickNewCon),
+      ].filter(Boolean);
+
+      setListWindow(newClicked);
+      setListHiddenBubble(listHiddenBubble.filter(e=>e.id!==clickNewCon));
+    }
+  }, [conversations, clickNewCon]);
+  const foundConversation = async (user1, user2) => {
+    const conversations = await Promise.all([
+      fetchApiRes("message/getConversation", "POST", {
+        user1: user1,
+        user2: user2,
+      }),
+      fetchApiRes("message/getConversation", "POST", {
+        user1: user2,
+        user2: user1,
+      }),
+    ]);
+    const result = conversations.reduce((acc, curr) => {
+      if (curr?.result?.length > 0) {
+        acc = curr.result[0].id;
+      }
+      return acc;
+    }, false);
+
+    return result;
+  };
   const [userFriendList, setUserFriendList] = useState([]);
   const checkID = (array, id) => {
     return array.user1 === id ? array.user2 : array.user1;
@@ -126,9 +245,9 @@ export default function UserProfile(props) {
                     type="primary"
                     size="large"
                     className="sendButton"
-                    // onClick={() => {
-                    //   handleAddChat(Users[0].UserID);
-                    // }}
+                    onClick={() => {
+                      handleAddChat(Users.UserID);
+                    }}
                     style={{ width: "3rem", margin: ".2rem" }}
                     icon={
                       <FiMessageCircle
@@ -139,7 +258,7 @@ export default function UserProfile(props) {
                   <Button
                     size="large"
                     style={{ width: "3rem", margin: ".2rem" }}
-                    // onClick={() => sendRequestFriend(Users[0].UserID)}
+                    onClick={() => sendRequestFriend(Users.UserID)}
                     icon={<FiUserPlus></FiUserPlus>}
                   ></Button>
                 </div>

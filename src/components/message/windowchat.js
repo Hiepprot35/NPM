@@ -19,6 +19,7 @@ import { Image } from "../home/home";
 import Message from "./Message";
 import "./windowchat.css";
 import { data } from "jquery";
+import { IsLoading } from "../Loading";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 
 export default memo(function WindowChat(props) {
@@ -26,6 +27,7 @@ export default memo(function WindowChat(props) {
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const socket = useSocket();
   const [inputMess, setInputmess] = useState("");
+  const [Loading, setLoading] = useState(false);
   const [userName, setUsername] = useState();
   const userConver =
     props.count?.user1 === auth.userID
@@ -60,9 +62,9 @@ export default memo(function WindowChat(props) {
     console.log(props.count.id);
   }, [props.count.id]);
   async function getMessages() {
-    console.log("Conver", props.count.id);
     if (props.count?.id) {
       try {
+        setLoading(true);
         const res = await fetch(
           `${process.env.REACT_APP_DB_HOST}/api/message/conversation/${props.count?.id}`,
           {
@@ -76,6 +78,8 @@ export default memo(function WindowChat(props) {
         setMessages(data);
       } catch (err) {
         console.log(err);
+      } finally {
+        setLoading(false);
       }
     }
   }
@@ -202,8 +206,15 @@ export default memo(function WindowChat(props) {
   useEffect(() => {
     async function fetchData() {
       if (userName) {
-        const data = await getStudentInfoByMSSV(userName.username);
-        setUserInfo(data);
+        try {
+          setLoading(true);
+          const data = await getStudentInfoByMSSV(userName.username);
+          setUserInfo(data);
+        } catch (error) {
+          setLoading(false);
+        } finally {
+          setLoading(false);
+        }
       }
     }
     fetchData();
@@ -361,7 +372,9 @@ export default memo(function WindowChat(props) {
   }, [socket, props.count.id]);
   return (
     <>
-      {
+      {Loading ? (
+        <IsLoading></IsLoading>
+      ) : (
         <>
           {(listWindow.some((e) => e.id === props?.count.id) ||
             props.chatApp) && (
@@ -604,7 +617,6 @@ export default memo(function WindowChat(props) {
                     <div>
                       <div
                         className="features_hover"
-                       
                         onClick={(e) => inputMess.length > 0 && handleSubmit(e)}
                         style={{ cursor: "pointer" }}
                       >
@@ -701,7 +713,7 @@ export default memo(function WindowChat(props) {
               </Popover>
             )}
         </>
-      }
+      )}
     </>
   );
 });
