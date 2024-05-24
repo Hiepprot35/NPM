@@ -75,15 +75,12 @@ export default function FriendList(props) {
     return result;
   };
   const addToConverArray = (array, prev, id) => {
-    console.log(array,prev,id)
+    console.log(array, prev, id);
     const newClicked = prev.filter((obj) => obj.id !== id);
     const con = array.find((e) => e.id === id);
-    if(con)
-      {
-
-        newClicked.unshift(con);
-      }
-    
+    if (con) {
+      newClicked.unshift(con);
+    }
 
     return newClicked;
   };
@@ -156,7 +153,7 @@ export default function FriendList(props) {
       setConversation(convers);
     }
     AsyncGetCon();
-  }, [clickNewCon]);
+  }, []);
   useEffect(() => {
     if (myFriendList && userFriendList) {
       const generalFriends = userFriendList.map((userFriend) =>
@@ -193,38 +190,7 @@ export default function FriendList(props) {
     return array.user1 === id ? array.user2 : array.user1;
   };
 
-  const handleAddChat = async (id) => {
-    const converFound = await foundConversation(id, auth.userID);
-    console.log("adddchat");
-    if (!converFound) {
-      try {
-        const res = await fetchApiRes("conversations", "POST", {
-          user1: auth.userID,
-          user2: id,
-          created_at:Date.now()
-        });
 
-        const data = res?.result;
-        console.log(data,"ssss")
-        setClickNewCon(data);
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      const data = addToConverArray(conversations, listWindow, converFound);
-      setListWindow(data);
-      setListHiddenBubble(removeElement(listHiddenBubble, converFound));
-    }
-  };
-  useEffect(() => {
-    if(conversations && clickNewCon)
-      {
-
-        const data = addToConverArray(conversations, listWindow, clickNewCon);
-        setListWindow(data);
-        setListHiddenBubble(removeElement(listHiddenBubble, clickNewCon));
-      }
-  }, [conversations,clickNewCon]);
   const refListFriend = useRef();
   const changeListDiv = (second) => {
     if (refListFriend.current) {
@@ -245,21 +211,18 @@ export default function FriendList(props) {
           <List
             itemLayout="horizontal"
             className="usersInfomation"
-         
-            // <Content style={{ padding: 16, overflow: "auto" }}/>
-
-            //   footer={<div>Sample FOOTER</div>}
             bordered
             dataSource={Object.values(Users)}
-            renderItem={(student, index) => (
-              <List.Item
-                style={{ width: "100%", height: "100px" }}
-                className="ListItem"
-              >
-                <UserProfile MSSV={student.MSSV}></UserProfile>
-              
-              </List.Item>
-            )}
+            renderItem={(student) =>
+              student?.MSSV && (
+                <List.Item
+                  style={{ width: "100%", height: "100px" }}
+                  className="ListItem"
+                >
+                  <UserProfile MSSV={student.MSSV} />
+                </List.Item>
+              ) 
+            }
           />
         )}
       </div>

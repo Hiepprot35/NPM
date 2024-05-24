@@ -19,14 +19,17 @@ function BellTable() {
     const res = await fetchApiRes("message/getRequestFriends", "POST", {
       user2: auth.userID,
     });
+    console.log(res)
     setNotification(res.result);
   };
   const getUsers = async () => {
     const promises = notification.map(async (element) => {
-      const MSSV = await getUserinfobyID(element.user1);
-      console.log(MSSV);
+      let user=element.user1!==auth.userID? element.user1:element.user2
+      console.log(user)
+      const MSSV = await getUserinfobyID(user);
+      console.log(MSSV)
       const data = await getStudentInfoByMSSV(MSSV.username);
-      return { ...element, name: data.Name, img: data.img };
+      return { ...element, name: data?.Name, img: data?.img };
     });
 
     const ListUsers = await Promise.all(promises);
@@ -39,6 +42,7 @@ function BellTable() {
   useEffect(() => {
     if (socket) {
       socket.on("receiveRequest", async (values) => {
+        console.log("reccc")
         document.title = `Một thông báo mới`;
         data();
       });

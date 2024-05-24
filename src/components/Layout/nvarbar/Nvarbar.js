@@ -148,7 +148,7 @@ export default function Nvarbar(props) {
         <span>
           <FiEdit></FiEdit>
         </span>
-      </div>{" "}
+      </div>
     </div>
   );
 }

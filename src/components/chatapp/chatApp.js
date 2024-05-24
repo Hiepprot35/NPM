@@ -16,7 +16,6 @@ const ChatApp = ({ messageId }) => {
   const { auth } = useAuth();
 
   const [MSSVReceived, setMSSVReceived] = useState();
-  const [data, setData] = useState([]);
   const [conversations, setConversation] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
   const [userSeenAt, setuserSeenAt] = useState();
@@ -81,15 +80,14 @@ const ChatApp = ({ messageId }) => {
     };
   }, [socket]);
 
+  const [sendMess, setsendMess] = useState(false);
   useEffect(() => {
     async function AsyncGetCon() {
       const convers = await getConversation(auth);
       setConversation(convers);
-      setData([convers]);
     }
     AsyncGetCon();
-  }, []);
-  const [sendMess, setsendMess] = useState(false);
+  }, [sendMess]);
   useEffect(() => {
     const receiverId = currentChat
       ? currentChat.user1 !== auth.userID
