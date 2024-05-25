@@ -1,5 +1,7 @@
 import { Popover, Rate } from "antd";
 import React, { useEffect, useRef, useState } from "react";
+import { HiArrowNarrowLeft, HiArrowNarrowRight } from "react-icons/hi";
+
 import {
   TheMovieApi,
   fetchApiRes,
@@ -9,7 +11,7 @@ import useAuth from "../../hook/useAuth.js";
 import Layout from "../Layout/layout.js";
 import Comment from "./Comment.js";
 import "./DetailMovie.js";
-import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight, FiShare, FiShare2 } from "react-icons/fi";
 
 import MyComment from "./MyComment.js";
 import { Image } from "./home.js";
@@ -24,7 +26,6 @@ import { delay } from "lodash";
 export function InViewAnimate({ children, variants, setCurrent }) {
   const { ref, inView } = useInView({ threshold: 0.5 });
   const controls = useAnimation();
-
   useEffect(() => {
     if (inView) {
       controls.start("openSession");
@@ -36,13 +37,15 @@ export function InViewAnimate({ children, variants, setCurrent }) {
     }
   }, [inView, controls]);
   return (
-    <motion.div animate={controls} style={{ marginTop: "8rem" }} ref={ref}>
+    <motion.div animate={controls} style={{ marginTop:"6rem",width:"100%",overflow:"hidden" }} ref={ref}>
       {children};
     </motion.div>
   );
 }
 export default function DetailMovie(props) {
   const { auth } = useAuth();
+  const videoWidth = 30;
+
   const [Movies, setMovies] = useState([]);
   const url = "https://image.tmdb.org/t/p/original";
   const [Actors, setActors] = useState();
@@ -132,6 +135,7 @@ export default function DetailMovie(props) {
       transition: { staggerChildren: 0, staggerDirection: 1 },
     },
   };
+
   const variantSessionRight = {
     openSession: { opacity: 1, x: 0, scale: 1, transition: { duration: 1 } },
     closeSession: {
@@ -225,10 +229,90 @@ export default function DetailMovie(props) {
       Images &&
       ImagesSlideRef.current
     ) {
-      videosSlideRef.current.style.width = VideosMovie.length * 40 + "vw";
+      videosSlideRef.current.style.width =
+        VideosMovie.length * (videoWidth + 2) + "rem";
       ImagesSlideRef.current.style.width = Images.length * 15 + "vw";
     }
   }, [VideosMovie, Images]);
+  const detailSession = (setCurrent, Current, Array, ref, IsVideo) => {
+    return (
+      <InViewAnimate setCurrent={setCurrent}>
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <motion.p
+            variants={variantSessionLeft}
+            className="deltailMovieText"
+            style={{ fontSize: "3rem" }}
+          >
+            {IsVideo ?"Videos":"Photos"}
+          </motion.p>
+          <motion.p
+          variants={variantSessionRight}
+            className="center"
+            style={{
+              flexDirection: "column",
+              height: "5rem",
+              width: "4rem",
+            }}
+          >
+            <span
+              className="slideButton"
+              style={Current > 0 ? {} : { color: "gray" }}
+              onClick={Current > 0 ? () => setCurrent((pre) => pre - 1) : null}
+            >
+              <HiArrowNarrowLeft stroke="gray" />
+            </span>
+            <span
+              className="slideButton"
+              style={Current <= Array.length - 4 ? {} : { color: "gray" }}
+              onClick={
+                Current <= Array.length - 4
+                  ? () => setCurrent((pre) => pre + 1)
+                  : null
+              }
+            >
+              <HiArrowNarrowRight />
+            </span>
+          </motion.p>{" "}
+        </div>
+        <motion.div variants={videoVariant} className="VideoSlide" ref={ref}>
+          {Array && Array.length > 0 ? (
+            Array.map((element) => (
+              <motion.div
+                variants={variantOpacity}
+                className="VideoMovie"
+                key={element.id}
+              >
+                {IsVideo ? (
+                  <ReactPlayer
+                    playing
+                    light={true}
+                    url={`https://www.youtube.com/watch?v=${element.key}`}
+                    width={`${videoWidth}rem`}
+                    height="25rem"
+                  />
+                ) : (
+                  <img
+                    style={{ objectFit: "cover", width: `${videoWidth}rem` }}
+                    src={`${url}/${element.file_path}`}
+                  />
+                )}
+              </motion.div>
+            ))
+          ) : (
+            <motion.div variants={variantOpacity}>
+              No videos available
+            </motion.div>
+          )}
+        </motion.div>
+      </InViewAnimate>
+    );
+  };
   useEffect(() => {
     console.log("Movies", Movies);
     if (Movies.title || Movies.name) {
@@ -369,9 +453,15 @@ export default function DetailMovie(props) {
                             {Movies.vote_average.toFixed(2).replace(".", ",")}
                             <span>/10</span>
                           </p>
+
                         </div>
                       </motion.div>
                       <p>Vote {Movies.vote_count}</p>
+                      <span className="circleButton">
+
+                      <FiShare2></FiShare2>
+                      </span>
+
                     </motion.div>
                   </motion.div>
                   <div
@@ -496,122 +586,22 @@ export default function DetailMovie(props) {
                     }
                   </motion.div>
                 </InViewAnimate>
-                <InViewAnimate setCurrent={setCurrentVideo}>
-                  <div
-                    style={{
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <motion.p
-                      variants={variantSessionLeft}
-                      className="deltailMovieText"
-                      style={{ fontSize: "3rem" }}
-                    >
-                      Videos
-                    </motion.p>
-                    <div
-                      className="center"
-                      style={{ height: "5rem", width: "4rem" }}
-                    >
-                      <span
-                        style={{ fontSize: "2rem" }}
-                        onClick={() => setCurrentVideo((pre) => pre - 1)}
-                      >
-                        <FiArrowLeft />{" "}
-                      </span>
-                      <span
-                        style={{ fontSize: "2rem" }}
-                        onClick={() => setCurrentVideo((pre) => pre + 1)}
-                      >
-                        <FiArrowRight />{" "}
-                      </span>
-                    </div>
-                  </div>
-                  <motion.div
-                    variants={videoVariant}
-                    className="VideoSlide"
-                    ref={videosSlideRef}
-                  >
-                    {VideosMovie && VideosMovie.length > 0 ? (
-                      VideosMovie.map((video) => (
-                        <motion.div
-                          variants={variantOpacity}
-                          className="VideoMovie"
-                          key={video.id}
-                        >
-                          <ReactPlayer
-                            playing
-                            light={true}
-                            url={`https://www.youtube.com/watch?v=${video.key}`}
-                            width="40rem"
-                            height="25rem"
-                          />
-                        </motion.div>
-                      ))
-                    ) : (
-                      <motion.div variants={variantOpacity}>
-                        No videos available
-                      </motion.div>
-                    )}
-                  </motion.div>
-                </InViewAnimate>
-                <InViewAnimate setCurrent={setCurrenImage}>
-                  <div
-                    style={{
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <p
-                      className="deltailMovieText"
-                      style={{ fontSize: "3rem" }}
-                    >
-                      Photos
-                    </p>
-                    <div
-                      className="center"
-                      style={{ height: "5rem", width: "4rem" }}
-                    >
-                      <span
-                        style={{ fontSize: "2rem" }}
-                        onClick={() => setCurrenImage((pre) => pre - 1)}
-                      >
-                        <FiArrowLeft />{" "}
-                      </span>
-                      <span
-                        style={{ fontSize: "2rem" }}
-                        onClick={() => setCurrenImage((pre) => pre + 1)}
-                      >
-                        <FiArrowRight />{" "}
-                      </span>
-                    </div>
-                  </div>
-                  <motion.div
-                    variants={videoVariant}
-                    className="VideoSlide"
-                    ref={ImagesSlideRef}
-                  >
-                    {Images && Images.length > 0 ? (
-                      Images.map((image, i) => (
-                        <motion.div
-                          variants={variantOpacity}
-                          style={{ width: "30vw", margin: "1rem" }}
-                          key={i}
-                        >
-                          <img
-                            style={{ objectFit: "cover", width: "30vw" }}
-                            src={`${url}/${image.file_path}`}
-                          />
-                        </motion.div>
-                      ))
-                    ) : (
-                      <p>No videos available</p>
-                    )}
-                  </motion.div>
-                </InViewAnimate>
+                {VideosMovie &&
+                  detailSession(
+                    setCurrentVideo,
+                    CurrentVideo,
+                    VideosMovie,
+                    videosSlideRef,
+                    true
+                  )}
+                {Images &&
+                  detailSession(
+                    setCurrenImage,
+                    CurrentImage,
+                    Images,
+                    ImagesSlideRef
+                  )}
+
                 {
                   <motion.session className="">
                     <motion.div variants={variantSessionRight} className=" ">
@@ -644,7 +634,7 @@ export default function DetailMovie(props) {
                           ></MyComment>
                         </motion.div>
                       )}
-                      {comments && comments.length>0 && (
+                      {comments && comments.length > 0 && (
                         <div className="allComment">
                           {comments.map((e, i) =>
                             i < comments.length - 1 && e.replyID ? (

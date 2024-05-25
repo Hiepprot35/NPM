@@ -61,10 +61,10 @@
   padding: 0 0.4rem 0 0.4rem;
   transition: 250ms linear;
 }
-.header_windowchat:hover {
+/* .header_windowchat:hover {
   border-radius: 0.7rem;
   background-color: rgb(201, 188, 188);
-}
+} */
 .button_windowchat {
   width: 40%;
   display: flex;

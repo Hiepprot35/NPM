@@ -20,6 +20,7 @@ import Message from "./Message";
 import "./windowchat.css";
 import { data } from "jquery";
 import { IsLoading } from "../Loading";
+import UserProfile from "../UserProfile/userProfile";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 
 export default memo(function WindowChat(props) {
@@ -29,7 +30,7 @@ export default memo(function WindowChat(props) {
   const [inputMess, setInputmess] = useState("");
   const [Loading, setLoading] = useState(false);
   const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
-  useData();
+    useData();
   const [userName, setUsername] = useState();
   const userConver =
     props.count?.user1 === auth.userID
@@ -184,10 +185,9 @@ export default memo(function WindowChat(props) {
 
       setMessages([...messages, MessageDataRes]);
       setEmtyImg();
-      if (props.chatApp===true) {
+      if (props.chatApp === true) {
         props.setsendMess((pre) => !pre);
       }
-      // props.cc(MessageDataRes);
     } catch (err) {
       console.log(err);
     }
@@ -238,9 +238,7 @@ export default memo(function WindowChat(props) {
     };
     getUsername();
   }, [props.count]);
-  useEffect(() => {
-    console.log("props");
-  }, [props]);
+
   useEffect(() => {
     if (windowchat.current) {
       if (props.index > 3) {
@@ -320,7 +318,6 @@ export default memo(function WindowChat(props) {
   useEffect(() => {
     console.log("render", props.count);
   }, []);
-  // console.log("render",props.count)
   useEffect(() => {
     getNewstMess(props?.count.id);
   }, [props?.count.id]);
@@ -377,45 +374,44 @@ export default memo(function WindowChat(props) {
             <div className="header_windowchat">
               {
                 <>
-                  <div className="header_online">
-                    <div className="Avatar_status">
-                      <Image
-                        className="avatarImage"
-                        alt="Avatar"
-                        src={userInfor?.img}
-                      ></Image>
-                      <span
-                        className={`dot ${
-                          onlineUser &&
-                          onlineUser.some(
-                            (online) => online.userId === userConver
-                          )
-                            ? "activeOnline"
-                            : {}
-                        }`}
-                      >
-                        {" "}
-                      </span>
-                    </div>
-                    <div className="header_text">
-                      <div
-                        style={{
-                          fontSize: "1rem",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {" "}
-                        <p className="hiddenEllipsis">{userInfor?.Name}</p>
+                  <div className="header_online" style={{ margin: ".3rem" }}>
+                    <Popover content={<p>{userInfor?.Name}</p>}>
+                      <div className="Avatar_status">
+                        <a
+                          href={`${process.env.REACT_APP_CLIENT_URL}/profile/${userInfor?.MSSV}`}
+                        >
+                          <Image
+                            className="avatarImage"
+                            alt="Avatar"
+                            src={userInfor?.img}
+                          ></Image>
+                        </a>
+
+                        <span
+                          className={`dot ${
+                            onlineUser &&
+                            onlineUser.some(
+                              (online) => online.userId === userConver
+                            )
+                              ? "activeOnline"
+                              : {}
+                          }`}
+                        >
+                          {" "}
+                        </span>
                       </div>
+                    </Popover>
+                    <div className="header_text">
+                      <p className="hiddenEllipsis">{userInfor?.Name}</p>
                       {
-                        <span>
+                        <p>
                           {onlineUser &&
                           onlineUser.some((e) => e.userId === userConver) ? (
                             <>Online</>
                           ) : (
                             <></>
                           )}
-                        </span>
+                        </p>
                       }
                     </div>
                   </div>

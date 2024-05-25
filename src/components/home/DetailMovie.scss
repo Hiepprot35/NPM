@@ -129,8 +129,9 @@ $font-Dieu: "Dancing Script", cursive;
   justify-content: center;
   align-items: center;
 }
+
 .HeaderDetail {
-  width: 75vw;
+  width: 100vw;
   height: 50vh;
   display: flex;
   justify-content: center;
@@ -154,7 +155,7 @@ $font-Dieu: "Dancing Script", cursive;
 .Poster {
   display: flex;
   height: 50vh;
-  width: 75vw;
+  width: 70vw;
   margin-top: -10%;
   position: relative;
   z-index: 5;
@@ -181,7 +182,12 @@ $font-Dieu: "Dancing Script", cursive;
 
 .BodyDetail {
   position: relative;
-  width: 75vw;
+  width: 85vw;
+  opacity: 1;
+  display: flex;
+  transform: none;
+  flex-direction: column;
+  align-items: center;
 }
 .actorsMovie {
   display: flex;
@@ -207,9 +213,10 @@ $font-Dieu: "Dancing Script", cursive;
   width: 50%;
 }
 @import url('https://fonts.cdnfonts.com/css/lexend');
-// .DetailMovie{
-//   font-family: 'Lexend', sans-serif;
-// }
+.DetailMovie{
+  background-color: var(--themeColor);
+  font-family: 'Lexend', sans-serif;
+}
 .Poster img {
   height:70%;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
@@ -385,5 +392,10 @@ $font-Dieu: "Dancing Script", cursive;
 }
 .likeButton {
   margin:0 .3rem;
+  cursor: pointer;
+}
+.slideButton
+{
+  font-size: 2rem;
   cursor: pointer;
 }

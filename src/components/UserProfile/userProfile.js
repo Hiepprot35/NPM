@@ -33,11 +33,11 @@ export default function UserProfile(props) {
     const newArray = array.filter((obj) => obj?.id !== index);
     return newArray;
   };
-  const addToConverArray = (array, prev, id, user) => {
+  const addToConverArray = (prev, id) => {
     const newClicked = prev.filter((obj) => obj.id !== id);
-    const con = array.find((e) => e.id === id);
+    const con = prev.find((e) => e.id === id);
     if (con) {
-      newClicked.unshift({ ...con, ...user });
+      newClicked.unshift(con);
     }
 
     return newClicked;
@@ -99,8 +99,20 @@ export default function UserProfile(props) {
           console.log(error);
         }
       } else {
-        setListWindow((pre) => [...pre, converFound]);
-        setListHiddenBubble(removeElement(listHiddenBubble, converFound));
+        setListWindow((pre) => {
+          const foundIndex = pre.findIndex((e) => e.id === converFound.id);
+          if (foundIndex === -1) {
+            // If converFound is not in the list, add it
+            return [...pre, converFound];
+          } else {
+            // If converFound is already in the list, move it to the beginning
+            const updatedList = pre.filter((e) => e.id !== converFound.id);
+            updatedList.unshift(converFound);
+            return updatedList;
+          }
+        });
+
+        setListHiddenBubble(removeElement(listHiddenBubble, converFound.id));
       }
     } catch (error) {}
   };
