@@ -350,6 +350,7 @@ function Header(props) {
                       {GenresList &&
                         GenresList.map((e, i) => (
                           <a
+                          key={i}
                             href={`${process.env.REACT_APP_CLIENT_URL}/films/?id=${e.id}&type=${e.name}`}
                             style={{ color: "white" }}
                           >

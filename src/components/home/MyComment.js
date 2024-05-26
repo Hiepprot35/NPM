@@ -95,6 +95,12 @@ export default function MyComment(props) {
       setCountTag(0);
     }
   };
+  useEffect(() => {
+    if(props.reply)
+      {
+        inputRef.current.focus()
+      }
+  }, [props.reply]);
   const [CountTag, setCountTag] = useState(0);
   useEffect(() => {
     if (inputRef.current && myComment) {
@@ -200,7 +206,6 @@ export default function MyComment(props) {
             <div className="featureComment">
               <div
                 className=""
-                style={{ margin: "1rem" }}
                 onClick={(e) => {
                   setOpenEmojiPicker(!openEmojiPicker);
                 }}
@@ -224,7 +229,7 @@ export default function MyComment(props) {
 
               {myComment && myComment !== "<br>" && (
                 <>
-                  <span className="circleButton" onClick={sendComment}>
+                  <span className="circleButton" style={{margin:"0"}} onClick={sendComment}>
                     <FiSend />
                   </span>
                 </>

@@ -56,15 +56,15 @@ export function countTime(data) {
 
   if (hour < 1) {
     if (minute >= 1) {
-      return `${minute} phút`;
+      return `${minute}m`;
     } else {
       return `vừa xong`;
     }
   } else if (hour < 24) {
-    return `${hour} giờ`;
+    return `${hour}h`;
   } else {
     const day = Math.floor(hour / 24);
-    return `${day} ngày`;
+    return `${day}d`;
   }
 }
 

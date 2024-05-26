@@ -7,7 +7,8 @@ export default function Layout({link, children,nvarbar }) {
     <>
       <Header hash={link} />
       {!nvarbar&&<Nvarbar></Nvarbar>}
-      <div className="container_main height_vh100">{children}</div>
+
+      {children}
     </>
   );
 }

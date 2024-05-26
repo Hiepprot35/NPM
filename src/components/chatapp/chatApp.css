@@ -61,7 +61,7 @@ input[type=text]:focus {
 .Container_ChatApp {
     /* top: 7vh; */
     padding-top: 7vh;
-    width: var(--widthContentHome);
+    width: 100vw;
     height: 100vh;
     display: flex;
     justify-content: flex-start;
@@ -75,10 +75,9 @@ input[type=text]:focus {
 }
 
 .Narbar_ChatApp {
-    overflow: hidden;
     padding-left: .5rem;
     padding-right: .5rem;
-    width: 25%;
+    width: 15%;
     background-color: var(--themeColor);
 
 }
@@ -107,7 +106,7 @@ input[type=text]:focus {
 }
 
 .Main_ChatApp {
-    width: 100%;
+    width: 80%;
     height: 100%;
     border-radius: 1rem;
     background-color: white;

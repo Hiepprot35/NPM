@@ -13,7 +13,11 @@ import {
 } from "react-icons/fi";
 import { useData } from "../../context/dataContext";
 import { useSocket } from "../../context/socketContext";
-import { getStudentInfoByMSSV, getUserinfobyID } from "../../function/getApi";
+import {
+  TheMovieApi,
+  getStudentInfoByMSSV,
+  getUserinfobyID,
+} from "../../function/getApi";
 import useAuth from "../../hook/useAuth";
 import { Image } from "../home/home";
 import Message from "./Message";
@@ -22,7 +26,16 @@ import { data } from "jquery";
 import { IsLoading } from "../Loading";
 import UserProfile from "../UserProfile/userProfile";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
-
+export const fetchVideoTitle = async (videoID) => {
+  const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoID}&key=${process.env.REACT_APP_YTB_KEY}&part=snippet`;
+  const response = await fetch(apiUrl);
+  const data = await response.json();
+  if (data.items && data.items.length > 0) {
+    return data.items[0].snippet.title;
+  } else {
+    return null;
+  }
+};
 export default memo(function WindowChat(props) {
   const { auth } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
@@ -58,6 +71,15 @@ export default memo(function WindowChat(props) {
       socket.on("sendUsers", (data) => {
         setOnlineUser(data);
       });
+      socket.on("getUsers", (data) => {
+        setOnlineUser(data);
+      });
+    }
+    return () => {
+      if (socket) {
+        socket.off("disconnect");
+      }
+    
     }
   }, [socket]);
   useEffect(() => {
@@ -132,6 +154,15 @@ export default memo(function WindowChat(props) {
     }
   }, [emoji]);
 
+  const movieApi = async (videoID) => {
+    const url = `https://api.themoviedb.org/3/movie/${videoID}`;
+    const data = await TheMovieApi(url);
+    if (data.id) {
+      return { img: data.backdrop_path, title: data.name || data.title };
+    } else {
+      return "cccc";
+    }
+  };
   async function handleSubmit(e) {
     e.preventDefault();
     setEmoji([]);
@@ -140,6 +171,7 @@ export default memo(function WindowChat(props) {
     inputValue.current.focus();
     try {
       const imgData = new FormData();
+      let content;
       imgData.append("sender_id", auth.userID);
       imgData.append("conversation_id", props.count.id);
       if (fileImg.length > 0 && inputMess?.length && emoji.length === 0) {
@@ -150,8 +182,26 @@ export default memo(function WindowChat(props) {
         imgData.append("created_at", Date.now());
       }
       if (fileImg.length === 0 && inputMess.length > 0) {
+        const youtubeRegex =
+          /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+        const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
+        if (youtubeRegex.test(inputMess)) {
+          const paramUrl = inputMess.split("v=")[1];
+          const videoId = paramUrl.split("&")[0];
+          const videoTitle = await fetchVideoTitle(videoId);
+          const videoUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+          const data = `<div className="columnFlex"><a href="${inputMess}">${inputMess}<div className="cardMess"><img className="imgMess" src=${videoUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a></div>`;
+          content = data;
+        } else if (movieFilmsRegex.test(inputMess)) {
+          const paramUrl = inputMess.split("movie/moviedetail/")[1];
+          const pics = await movieApi(paramUrl);
+          const data = `<div className="columnFlex"><a href="${inputMess}">${inputMess}<div className="cardMess"><img className="imgMess" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
+          content = data;
+        } else {
+          content = "cccc";
+        }
         imgData.append("isFile", 0);
-        imgData.append("content", inputMess);
+        imgData.append("content", content);
         imgData.append("created_at", Date.now());
       } else {
         let updatedInputMess = inputMess;
@@ -374,8 +424,8 @@ export default memo(function WindowChat(props) {
             <div className="header_windowchat">
               {
                 <>
-                  <div className="header_online" style={{ margin: ".3rem" }}>
-                    <Popover content={<p>{userInfor?.Name}</p>}>
+                  <Popover content={<p>{userInfor?.Name}</p>}>
+                    <div className="header_online" style={{ margin: ".3rem" }}>
                       <div className="Avatar_status">
                         <a
                           href={`${process.env.REACT_APP_CLIENT_URL}/profile/${userInfor?.MSSV}`}
@@ -385,36 +435,34 @@ export default memo(function WindowChat(props) {
                             alt="Avatar"
                             src={userInfor?.img}
                           ></Image>
-                        </a>
 
-                        <span
-                          className={`dot ${
-                            onlineUser &&
-                            onlineUser.some(
-                              (online) => online.userId === userConver
-                            )
-                              ? "activeOnline"
-                              : {}
-                          }`}
-                        >
-                          {" "}
-                        </span>
+                          <span
+                            className={`dot ${
+                              onlineUser &&
+                              onlineUser.some(
+                                (online) => online.userId === userConver
+                              )
+                                ? "activeOnline"
+                                : {}
+                            }`}
+                          ></span>
+                        </a>
                       </div>
-                    </Popover>
-                    <div className="header_text">
-                      <p className="hiddenEllipsis">{userInfor?.Name}</p>
-                      {
-                        <p>
-                          {onlineUser &&
-                          onlineUser.some((e) => e.userId === userConver) ? (
-                            <>Online</>
-                          ) : (
-                            <></>
-                          )}
-                        </p>
-                      }
+                      <div className="header_text">
+                        <p className="hiddenEllipsis" style={{fontWeight:"600"}}>{userInfor?.Name}</p>
+                        {
+                          <p style={{fontSize:".7rem"}}>
+                            {onlineUser &&
+                            onlineUser.some((e) => e.userId === userConver) ? (
+                              <>Online</>
+                            ) : (
+                              <></>
+                            )}
+                          </p>
+                        }
+                      </div>
                     </div>
-                  </div>
+                  </Popover>
                 </>
               }
             </div>
@@ -461,7 +509,7 @@ export default memo(function WindowChat(props) {
                 {" "}
                 {messages &&
                   messages.map((message, index) => (
-                    <div className="message_content" key={index}>
+                    <div className="message_content" key={message.id}>
                       <Message
                         i={index}
                         key={index}
@@ -552,18 +600,17 @@ export default memo(function WindowChat(props) {
                         src={`${process.env.REACT_APP_CLIENT_URL}/images/image.svg`}
                       ></img>
                     </div>
-                    {imgView.map((e) => (
-                      <>
-                        <img
-                          src={e}
-                          style={{
-                            width: "50px",
-                            height: "50px",
-                            margin: "1rem",
-                            borderRadius: "0.6rem",
-                          }}
-                        ></img>
-                      </>
+                    {imgView.map((e, i) => (
+                      <img
+                        src={e}
+                        key={i}
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          margin: "1rem",
+                          borderRadius: "0.6rem",
+                        }}
+                      ></img>
                     ))}
                   </div>
                 )}

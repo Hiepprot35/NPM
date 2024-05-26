@@ -80,8 +80,8 @@
   flex-direction: column;
 }
 .messageImg {
-  width: 32px;
-  height: 32px;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 10px;
@@ -134,7 +134,7 @@
   color: black;
 }
 .message.own .messageText {
-  background-color: rgba(36, 153, 149, 0.752);
+  background-color:#0084FF;
   border-radius: 1rem 0.5rem 0.5rem 1rem;
   color: rgb(255, 255, 255);
 }

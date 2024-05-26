@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, memo } from "react";
-import BlobtoBase64 from "../../function/BlobtoBase64";
+import parse from 'html-react-parser';
 import "./message.css";
 import * as timeUse from "../../function/getTime";
 import { IsLoading } from "../Loading";
@@ -91,14 +91,14 @@ export default memo(function Message({
               ) : (
                 e.length > 0 && (
                   <span style={{ marginBottom: ".4rem" }} key={index}>
-                    {e}
+                    {(e)}
                   </span>
                 )
               )
             )}
           </div>
         ) : (
-          <span>{message.content}</span>
+          <span>{parse(message.content)}</span>
         )}
       </>
     );

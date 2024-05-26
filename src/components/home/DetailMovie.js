@@ -23,23 +23,50 @@ import { IsLoading } from "../Loading.js";
 import NotFoundFilms from "./NotFoundFilms.js";
 import ReactPlayer from "react-player";
 import { delay } from "lodash";
+import { fetchVideoTitle } from "../message/windowchat.js";
+const TitleVideo = ({ videoID }) => {
+  const [Title, setTitle] = useState();
+  useEffect(() => {
+    const res = async () => {
+      const data = await fetchVideoTitle(videoID);
+      setTitle(data);
+    };
+    res();
+  }, []);
+  const videoUrl = `https://img.youtube.com/vi/${videoID}/hqdefault.jpg`;
+
+  return (
+    <div>
+      <img className="imgMess" src={videoUrl}></img>
+      <span>{Title}</span>
+    </div>
+  );
+};
 export function InViewAnimate({ children, variants, setCurrent }) {
-  const { ref, inView } = useInView({ threshold: 0.5 });
+  const { ref, inView } = useInView({ threshold: 0.2 });
   const controls = useAnimation();
   useEffect(() => {
     if (inView) {
-      controls.start("openSession");
+      controls.start("openSection");
     } else {
       if (setCurrent) {
         setCurrent(0);
       }
-      controls.start("closeSession");
+      controls.start("closeSection");
     }
   }, [inView, controls]);
   return (
-    <motion.div animate={controls} style={{ marginTop:"6rem",width:"100%",overflow:"hidden" }} ref={ref}>
-      {children};
-    </motion.div>
+    <>
+      <motion.div
+        animate={controls}
+        className="inviewElement"
+        style={{ margin: "10vh 0", width: "100%", overflow: "hidden" }}
+        ref={ref}
+      >
+        {children}
+      </motion.div>
+      <div className="linear"></div>
+    </>
   );
 }
 export default function DetailMovie(props) {
@@ -111,9 +138,9 @@ export default function DetailMovie(props) {
   }, [Render]);
   const [showComment, setshowComment] = useState(false);
   const [showActor, setShowActor] = useState(false);
-  const variantSessionLeft = {
-    openSession: { opacity: 1, x: 0, scale: 1, transition: { duration: 1 } },
-    closeSession: {
+  const variantSectionLeft = {
+    openSection: { opacity: 1, x: 0, scale: 1, transition: { duration: 1 } },
+    closeSection: {
       opacity: 0,
       x: -2000,
       scale: 0,
@@ -121,24 +148,24 @@ export default function DetailMovie(props) {
     },
   };
   const variantOpacity = {
-    openSession: { opacity: 1, transition: { duration: 1 } },
-    closeSession: {
+    openSection: { opacity: 1, transition: { duration: 1 } },
+    closeSection: {
       opacity: 0,
       transition: { duration: 1 },
     },
   };
   const videoVariant = {
-    openSession: {
+    openSection: {
       transition: { staggerChildren: 0.5, delayChildren: 0.1 },
     },
-    closeSession: {
+    closeSection: {
       transition: { staggerChildren: 0, staggerDirection: 1 },
     },
   };
 
-  const variantSessionRight = {
-    openSession: { opacity: 1, x: 0, scale: 1, transition: { duration: 1 } },
-    closeSession: {
+  const variantSectionRight = {
+    openSection: { opacity: 1, x: 0, scale: 1, transition: { duration: 1 } },
+    closeSection: {
       opacity: 0,
       x: 2000,
       scale: 0,
@@ -234,7 +261,7 @@ export default function DetailMovie(props) {
       ImagesSlideRef.current.style.width = Images.length * 15 + "vw";
     }
   }, [VideosMovie, Images]);
-  const detailSession = (setCurrent, Current, Array, ref, IsVideo) => {
+  const detailSection = (setCurrent, Current, Array, ref, IsVideo) => {
     return (
       <InViewAnimate setCurrent={setCurrent}>
         <div
@@ -245,14 +272,14 @@ export default function DetailMovie(props) {
           }}
         >
           <motion.p
-            variants={variantSessionLeft}
+            variants={variantSectionLeft}
             className="deltailMovieText"
             style={{ fontSize: "3rem" }}
           >
-            {IsVideo ?"Videos":"Photos"}
+            {IsVideo ? "Videos" : "Photos"}
           </motion.p>
           <motion.p
-          variants={variantSessionRight}
+            variants={variantSectionRight}
             className="center"
             style={{
               flexDirection: "column",
@@ -282,20 +309,25 @@ export default function DetailMovie(props) {
         </div>
         <motion.div variants={videoVariant} className="VideoSlide" ref={ref}>
           {Array && Array.length > 0 ? (
-            Array.map((element) => (
+            Array.map((element, index) => (
               <motion.div
                 variants={variantOpacity}
                 className="VideoMovie"
-                key={element.id}
+                key={index}
               >
                 {IsVideo ? (
-                  <ReactPlayer
+                  <>
+                    {/* <ReactPlayer
                     playing
                     light={true}
                     url={`https://www.youtube.com/watch?v=${element.key}`}
                     width={`${videoWidth}rem`}
-                    height="25rem"
-                  />
+              
+/> */}
+
+                    <TitleVideo videoID={element.key} />
+                    <h1>Trailer {index + 1}</h1>
+                  </>
                 ) : (
                   <img
                     style={{ objectFit: "cover", width: `${videoWidth}rem` }}
@@ -412,7 +444,11 @@ export default function DetailMovie(props) {
                   }}
                 ></motion.div>
               </motion.div>
-              <motion.div className="BodyDetail" variants={variants2}>
+              <motion.div
+                className="BodyDetail"
+                variants={variants2}
+                style={{ scrollMarginTop: 2000 }}
+              >
                 <motion.div className="Poster">
                   <motion.div
                     variants={variantsMovie}
@@ -453,15 +489,12 @@ export default function DetailMovie(props) {
                             {Movies.vote_average.toFixed(2).replace(".", ",")}
                             <span>/10</span>
                           </p>
-
                         </div>
                       </motion.div>
                       <p>Vote {Movies.vote_count}</p>
                       <span className="circleButton">
-
-                      <FiShare2></FiShare2>
+                        <FiShare2></FiShare2>
                       </span>
-
                     </motion.div>
                   </motion.div>
                   <div
@@ -516,10 +549,10 @@ export default function DetailMovie(props) {
                   </div>
                 </motion.div>
                 <InViewAnimate>
-                  <motion.div className="sessionDetail">
+                  <motion.div className="SectionDetail">
                     <motion.div
-                      variants={variantSessionLeft}
-                      className="sessionChild"
+                      variants={variantSectionLeft}
+                      className="SectionChild"
                     >
                       <p
                         className="deltailMovieText"
@@ -536,8 +569,8 @@ export default function DetailMovie(props) {
                     </motion.div>
                     {
                       <motion.div
-                        variants={variantSessionRight}
-                        className="actorsMovie sessionChild"
+                        variants={variantSectionRight}
+                        className="actorsMovie SectionChild"
                       >
                         {Actors?.cast &&
                           Actors?.cast.map(
@@ -587,7 +620,7 @@ export default function DetailMovie(props) {
                   </motion.div>
                 </InViewAnimate>
                 {VideosMovie &&
-                  detailSession(
+                  detailSection(
                     setCurrentVideo,
                     CurrentVideo,
                     VideosMovie,
@@ -595,7 +628,7 @@ export default function DetailMovie(props) {
                     true
                   )}
                 {Images &&
-                  detailSession(
+                  detailSection(
                     setCurrenImage,
                     CurrentImage,
                     Images,
@@ -603,10 +636,10 @@ export default function DetailMovie(props) {
                   )}
 
                 {
-                  <motion.session className="">
-                    <motion.div variants={variantSessionRight} className=" ">
+                  <motion.section className="inviewElement">
+                    <motion.div variants={variantSectionRight} className=" ">
                       {" "}
-                      <div style={{ display: "flex" }}>
+                      <div style={{ display: "flex", margin: "1rem" }}>
                         <div style={{ margin: 0, position: "relative" }}>
                           <h1 style={{ margin: 0 }}>Comment</h1>
                           <div
@@ -644,7 +677,10 @@ export default function DetailMovie(props) {
                                   className={"notLastComment"}
                                   comment={e}
                                 />
-                              </motion.div>
+   <div
+                                  className="linear"
+                                  style={{ margin: "1rem" }}
+                                ></div>                              </motion.div>
                             ) : (
                               <motion.div variants={variants2}>
                                 <Comment
@@ -652,13 +688,17 @@ export default function DetailMovie(props) {
                                   className={"lastComment"}
                                   comment={e}
                                 />
+                                <div
+                                  className="linear"
+                                  style={{ margin: "1rem" }}
+                                ></div>
                               </motion.div>
                             )
                           )}
                         </div>
                       )}
                     </motion.div>
-                  </motion.session>
+                  </motion.section>
                 }
               </motion.div>
             </motion.div>
