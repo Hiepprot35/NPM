@@ -105,7 +105,7 @@ function Comment({ comment, isReply, className }) {
                 <img className="avatarImage" src={`${User && User?.img}`}></img>
               </div>
             </Popover>
-            {(CommentsRep?.length > 0 || ReplyOpen)  && (
+            {((CommentsRep?.length > 0 && SeeMoreComment) || ReplyOpen)  && (
               <div className="linearComment"></div>
             )}
           </div>
