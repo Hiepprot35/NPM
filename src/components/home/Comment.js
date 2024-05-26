@@ -105,7 +105,7 @@ function Comment({ comment, isReply, className }) {
                 <img className="avatarImage" src={`${User && User?.img}`}></img>
               </div>
             </Popover>
-            {(CommentsRep?.length > 0 || ReplyOpen) && SeeMoreComment && (
+            {(CommentsRep?.length > 0 || ReplyOpen)  && (
               <div className="linearComment"></div>
             )}
           </div>
@@ -197,15 +197,7 @@ function Comment({ comment, isReply, className }) {
             )}
           </div>
         )}
-        { !SeeMoreComment && CommentsRep?.length>0 && (
-          <p
-            className="textUnderline"
-            style={{ margin: "0 0 2rem 4rem" }}
-            onClick={() => setSeeMoreComment(pre=>!pre)}
-          >
-            See more
-          </p>
-        )}
+      
         
         {!isReply && ReplyOpen && (
           <>
@@ -220,6 +212,15 @@ function Comment({ comment, isReply, className }) {
               ></MyComment>
             </div>
           </>
+        )}
+          { !SeeMoreComment && CommentsRep?.length>0 && (
+          <p
+            className="textUnderline"
+            style={{ margin: "0 0 2rem 4rem" }}
+            onClick={() => setSeeMoreComment(pre=>!pre)}
+          >
+            See more
+          </p>
         )}
       </div>
     </div>
