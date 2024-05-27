@@ -15,7 +15,13 @@ import { FiArrowLeft, FiArrowRight, FiShare, FiShare2 } from "react-icons/fi";
 
 import MyComment from "./MyComment.js";
 import { Image } from "./home.js";
-import { animate, motion, useAnimation } from "framer-motion";
+import {
+  animate,
+  motion,
+  useAnimation,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { getDate, getNameMonth } from "../../function/getTime.js";
 import { Text } from "./listPlay.js";
 import { useInView } from "react-intersection-observer";
@@ -24,8 +30,9 @@ import NotFoundFilms from "./NotFoundFilms.js";
 import ReactPlayer from "react-player";
 import { delay } from "lodash";
 import { fetchVideoTitle } from "../message/windowchat.js";
-const TitleVideo = ({ videoID }) => {
+const TitleVideo = ({ videoID, isCurrent }) => {
   const [Title, setTitle] = useState();
+  const [ClickVideo, setClickVideo] = useState();
   useEffect(() => {
     const res = async () => {
       const data = await fetchVideoTitle(videoID);
@@ -36,15 +43,35 @@ const TitleVideo = ({ videoID }) => {
   const videoUrl = `https://img.youtube.com/vi/${videoID}/hqdefault.jpg`;
 
   return (
-    <div>
-      <img className="imgMess" src={videoUrl}></img>
+    <div style={{ width: "30rem" }}>
+      <div
+        className="filter"
+        style={{
+          width: "30rem",
+          height: `${(30 * 9) / 16}rem`,
+          opacity: `${isCurrent ? 1 : 0.4}`,
+        }}
+      >
+        <ReactPlayer
+          playing
+          light={true}
+          controls
+          // style={{ aspectRatio: "16/9" }}
+          url={`https://www.youtube.com/watch?v=${videoID}`}
+          width={"100%"}
+          height={"100%"}
+        />
+      </div>
+      {}
+      {/* <img className="imgMess" src={videoUrl}></img> */}
       <span>{Title}</span>
     </div>
   );
 };
 export function InViewAnimate({ children, variants, setCurrent }) {
-  const { ref, inView } = useInView({ threshold: 0.2 });
   const controls = useAnimation();
+  const { ref, inView } = useInView({ threshold: 0.5 });
+
   useEffect(() => {
     if (inView) {
       controls.start("openSection");
@@ -60,7 +87,11 @@ export function InViewAnimate({ children, variants, setCurrent }) {
       <motion.div
         animate={controls}
         className="inviewElement"
-        style={{ margin: "10vh 0", width: "100%", overflow: "hidden" }}
+        style={{
+          margin: "10vh 0",
+          width: "100%",
+          overflow: "hidden",
+        }}
         ref={ref}
       >
         {children}
@@ -85,6 +116,11 @@ export default function DetailMovie(props) {
   const [CurrentVideo, setCurrentVideo] = useState(0);
   const [CurrentImage, setCurrenImage] = useState(0);
   const [Loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (comments) {
+      console.log(comments);
+    }
+  }, [comments]);
   const getVideos = async (movie_id) => {
     try {
       setLoading(true);
@@ -159,17 +195,23 @@ export default function DetailMovie(props) {
       transition: { staggerChildren: 0.5, delayChildren: 0.1 },
     },
     closeSection: {
-      transition: { staggerChildren: 0, staggerDirection: 1 },
+      transition: { staggerChildren: 0, staggerDirection: 0 },
     },
   };
 
   const variantSectionRight = {
-    openSection: { opacity: 1, x: 0, scale: 1, transition: { duration: 1 } },
+    openSection: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      type: "spring",
+      transition: { duration: 0.5 },
+    },
     closeSection: {
       opacity: 0,
-      x: 2000,
+      y: 100,
       scale: 0,
-      transition: { duration: 1 },
+      transition: { duration: 1, type: "spring" },
     },
   };
   const variants = {
@@ -183,14 +225,14 @@ export default function DetailMovie(props) {
   useEffect(() => {
     if (videosSlideRef.current) {
       videosSlideRef.current.style.transform = `translateX(${
-        -CurrentVideo * 40
+        -CurrentVideo * (videoWidth - 3)
       }vw)`;
     }
   }, [CurrentVideo]);
   useEffect(() => {
     if (ImagesSlideRef.current) {
       ImagesSlideRef.current.style.transform = `translateX(${
-        -CurrentImage * 15
+        -CurrentImage * videoWidth
       }vw)`;
     }
   }, [CurrentImage]);
@@ -258,7 +300,8 @@ export default function DetailMovie(props) {
     ) {
       videosSlideRef.current.style.width =
         VideosMovie.length * (videoWidth + 2) + "rem";
-      ImagesSlideRef.current.style.width = Images.length * 15 + "vw";
+      ImagesSlideRef.current.style.width =
+        Images.length * (videoWidth + 2) + "rem";
     }
   }, [VideosMovie, Images]);
   const detailSection = (setCurrent, Current, Array, ref, IsVideo) => {
@@ -296,9 +339,9 @@ export default function DetailMovie(props) {
             </span>
             <span
               className="slideButton"
-              style={Current <= Array.length - 4 ? {} : { color: "gray" }}
+              style={Current <= Array.length - 2 ? {} : { color: "gray" }}
               onClick={
-                Current <= Array.length - 4
+                Current <= Array.length - 2
                   ? () => setCurrent((pre) => pre + 1)
                   : null
               }
@@ -317,15 +360,10 @@ export default function DetailMovie(props) {
               >
                 {IsVideo ? (
                   <>
-                    {/* <ReactPlayer
-                    playing
-                    light={true}
-                    url={`https://www.youtube.com/watch?v=${element.key}`}
-                    width={`${videoWidth}rem`}
-              
-/> */}
-
-                    <TitleVideo videoID={element.key} />
+                    <TitleVideo
+                      videoID={element.key}
+                      isCurrent={index === Current}
+                    />
                     <h1>Trailer {index + 1}</h1>
                   </>
                 ) : (
@@ -362,6 +400,19 @@ export default function DetailMovie(props) {
       return "#89FC05";
     }
   };
+  const [sortCommentLastest, setsortCommentLastest] = useState();
+  useEffect(() => {
+    if (comments && comments.length > 0) {
+      const sortedComments = [...comments]; // Create a copy to avoid mutating the original state
+      if (sortCommentLastest) {
+        sortedComments.sort((a, b) => parseInt(b.create_at) - parseInt(a.create_at));
+      } else {
+        sortedComments.sort((a, b) => b.like_count - a.like_count);
+      }
+      setComment(sortedComments);
+    }
+  }, [sortCommentLastest]); // Add comments to dependency array to trigger effect when comments change
+  
   const getActors = async () => {
     try {
       setLoading(true);
@@ -407,7 +458,6 @@ export default function DetailMovie(props) {
   const variantsMovie = {
     open: {
       opacity: 1,
-
       scale: 1,
       transition: { delayChildren: 1, staggerChildren: 0.5, duration: 1 },
     },
@@ -492,7 +542,14 @@ export default function DetailMovie(props) {
                         </div>
                       </motion.div>
                       <p>Vote {Movies.vote_count}</p>
-                      <span className="circleButton">
+                      <span
+                        className="circleButton"
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            `${process.env.REACT_APP_CLIENT_URL}/movie/moviedetail/${props.movieID}`
+                          );
+                        }}
+                      >
                         <FiShare2></FiShare2>
                       </span>
                     </motion.div>
@@ -568,15 +625,13 @@ export default function DetailMovie(props) {
                       </p>
                     </motion.div>
                     {
-                      <motion.div
-                        variants={variantSectionRight}
-                        className="actorsMovie SectionChild"
-                      >
+                      <motion.div className="actorsMovie SectionChild">
                         {Actors?.cast &&
                           Actors?.cast.map(
                             (actor, index) =>
                               actor?.profile_path && (
-                                <div
+                                <motion.div
+                                  variants={variantSectionRight}
                                   key={index}
                                   className="center actor hiddenText"
                                 >
@@ -612,7 +667,7 @@ export default function DetailMovie(props) {
                                       </p>
                                     </div>
                                   </Popover>
-                                </div>
+                                </motion.div>
                               )
                           )}
                       </motion.div>
@@ -639,7 +694,13 @@ export default function DetailMovie(props) {
                   <motion.section className="inviewElement">
                     <motion.div variants={variantSectionRight} className=" ">
                       {" "}
-                      <div style={{ display: "flex", margin: "1rem" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          margin: "1rem",
+                          justifyContent: "space-between",
+                        }}
+                      >
                         <div style={{ margin: 0, position: "relative" }}>
                           <h1 style={{ margin: 0 }}>Comment</h1>
                           <div
@@ -658,6 +719,22 @@ export default function DetailMovie(props) {
                             <p>{comments.length}</p>
                           </div>
                         </div>
+                        <div style={{ display: "flex" }}>
+                          <p
+                            className="hover"
+                            style={{ padding: ".3rem" }}
+                            onClick={() => setsortCommentLastest(true)}
+                          >
+                            Lastest
+                          </p>
+                          <p
+                            className="hover"
+                            style={{ padding: ".3rem" }}
+                            onClick={() => setsortCommentLastest(false)}
+                          >
+                            Popular
+                          </p>
+                        </div>
                       </div>
                       {auth.userID && (
                         <motion.div variants={variants2}>
@@ -669,32 +746,22 @@ export default function DetailMovie(props) {
                       )}
                       {comments && comments.length > 0 && (
                         <div className="allComment">
-                          {comments.map((e, i) =>
-                            i < comments.length - 1 && e.replyID ? (
-                              <motion.div variants={variants2}>
-                                <Comment
-                                  key={i}
-                                  className={"notLastComment"}
-                                  comment={e}
-                                />
-   <div
-                                  className="linear"
-                                  style={{ margin: "1rem" }}
-                                ></div>                              </motion.div>
-                            ) : (
-                              <motion.div variants={variants2}>
-                                <Comment
-                                  key={i}
-                                  className={"lastComment"}
-                                  comment={e}
-                                />
-                                <div
-                                  className="linear"
-                                  style={{ margin: "1rem" }}
-                                ></div>
-                              </motion.div>
-                            )
-                          )}
+                          {comments.map((e, i) => (
+                            <motion.div key={i} variants={variants2}>
+                              <Comment
+                                className={
+                                  i < comments.length - 1 && e.replyID
+                                    ? "notLastComment"
+                                    : "lastComment"
+                                }
+                                comment={e}
+                              />
+                              <div
+                                className="linear"
+                                style={{ margin: "1rem" }}
+                              ></div>
+                            </motion.div>
+                          ))}
                         </div>
                       )}
                     </motion.div>

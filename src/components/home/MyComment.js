@@ -6,6 +6,7 @@ import useAuth from "../../hook/useAuth.js";
 import EmojiPicker from "emoji-picker-react";
 import { each } from "jquery";
 import { IsLoading } from "../Loading.js";
+import { fetchVideoTitle, movieApi } from "../message/windowchat.js";
 export default function MyComment(props) {
   const refTag = useRef();
   const inputRef = useRef();
@@ -66,7 +67,10 @@ export default function MyComment(props) {
         }
       } else {
         // Nếu vượt quá 200 ký tự, giữ nguyên giá trị hiện tại
-        inputRef.current.innerHTML = inputRef.current.innerHTML.substring(0, 200);
+        inputRef.current.innerHTML = inputRef.current.innerHTML.substring(
+          0,
+          200
+        );
       }
     } else {
     }
@@ -96,10 +100,9 @@ export default function MyComment(props) {
     }
   };
   useEffect(() => {
-    if(props.reply)
-      {
-        inputRef.current.focus()
-      }
+    if (props.reply) {
+      inputRef.current.focus();
+    }
   }, [props.reply]);
   const [CountTag, setCountTag] = useState(0);
   useEffect(() => {
@@ -141,8 +144,22 @@ export default function MyComment(props) {
             ))
         );
       }
-      console.log("send", updateContent);
-      
+      const youtubeRegex =
+        /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+      const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
+      if (youtubeRegex.test(myComment)) {
+        const paramUrl = myComment.split("v=")[1];
+        const videoId = paramUrl.split("&")[0];
+        const videoTitle = await fetchVideoTitle(videoId);
+        const videoUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        const data = `<div className="columnFlex"><a href="${myComment}">${myComment}<div className="cardMess"><img className="commentImg" src=${videoUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a></div>`;
+        updateContent = data;
+      } else if (movieFilmsRegex.test(myComment)) {
+        const paramUrl = myComment.split("movie/moviedetail/")[1];
+        const pics = await movieApi(paramUrl);
+        const data = `<div className="columnFlex"><a href="${myComment}">${myComment}<div className="cardMess"><img className="commentImg" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
+        updateContent = data;
+      } 
       const res = await fetchApiRes("insertComment", "POST", {
         userID: auth.username,
         content: updateContent,
@@ -177,14 +194,20 @@ export default function MyComment(props) {
   return (
     <>
       {
-        <div className={` myCommentComponent ${props.className}`} style={props.style}>
+        <div
+          className={` myCommentComponent ${props.className}`}
+          style={props.style}
+        >
           <div className="AvatarComment">
             <div className="AvatarComment2">
-              <img className="avatarImage"  src={`${auth.avtUrl}`}></img>
+              <img className="avatarImage" src={`${auth.avtUrl}`}></img>
             </div>
           </div>
 
-          <div className="inputDiv center" style={{width:"90%",flexDirection:"column"}}>
+          <div
+            className="inputDiv center"
+            style={{ width: "90%", flexDirection: "column" }}
+          >
             <div
               className="commentDiv"
               ref={inputRef}
@@ -193,6 +216,7 @@ export default function MyComment(props) {
               onClick={getPreviousCharacter}
               suppressContentEditableWarning={true}
             ></div>
+            <div className="linear" style={{width:"100%"}} ></div>
             {(myComment === "<br>" || !myComment) && (
               <div className="placehoder">
                 <p>
@@ -201,11 +225,11 @@ export default function MyComment(props) {
                     : "Write a comment"}
                 </p>
               </div>
-              
             )}
             <div className="featureComment">
               <div
                 className=""
+                style={{padding:".3rem"}}
                 onClick={(e) => {
                   setOpenEmojiPicker(!openEmojiPicker);
                 }}
@@ -222,14 +246,26 @@ export default function MyComment(props) {
                     emojiStyle="facebook"
                   />
                 </div>
-                <span style={{color:`rgb(${255*countText/200},${255-255*countText/200},${255-255*countText/200}`,marginLeft:"1rem"}}>
-                  { `${countText}/200`} {countText===200 &&` vượt quá kí tự quy định`}
+                <span
+                  style={{
+                    color: `rgb(${(255 * countText) / 200},${
+                      255 - (255 * countText) / 200
+                    },${255 - (255 * countText) / 200}`,
+                    marginLeft: "1rem",
+                  }}
+                >
+                  {`${countText}/200`}{" "}
+                  {countText === 200 && ` vượt quá kí tự quy định`}
                 </span>
               </div>
 
               {myComment && myComment !== "<br>" && (
                 <>
-                  <span className="circleButton" style={{margin:"0"}} onClick={sendComment}>
+                  <span
+                    className="circleButton"
+                    style={{ margin: "0" }}
+                    onClick={sendComment}
+                  >
                     <FiSend />
                   </span>
                 </>

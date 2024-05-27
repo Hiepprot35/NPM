@@ -26,6 +26,15 @@ import { data } from "jquery";
 import { IsLoading } from "../Loading";
 import UserProfile from "../UserProfile/userProfile";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
+export const movieApi = async (videoID) => {
+  const url = `https://api.themoviedb.org/3/movie/${videoID}`;
+  const data = await TheMovieApi(url);
+  if (data.id) {
+    return { img: data.backdrop_path, title: data.name || data.title };
+  } else {
+    return "cccc";
+  }
+};
 export const fetchVideoTitle = async (videoID) => {
   const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoID}&key=${process.env.REACT_APP_YTB_KEY}&part=snippet`;
   const response = await fetch(apiUrl);
@@ -154,15 +163,7 @@ export default memo(function WindowChat(props) {
     }
   }, [emoji]);
 
-  const movieApi = async (videoID) => {
-    const url = `https://api.themoviedb.org/3/movie/${videoID}`;
-    const data = await TheMovieApi(url);
-    if (data.id) {
-      return { img: data.backdrop_path, title: data.name || data.title };
-    } else {
-      return "cccc";
-    }
-  };
+ 
   async function handleSubmit(e) {
     e.preventDefault();
     setEmoji([]);
@@ -198,7 +199,7 @@ export default memo(function WindowChat(props) {
           const data = `<div className="columnFlex"><a href="${inputMess}">${inputMess}<div className="cardMess"><img className="imgMess" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
           content = data;
         } else {
-          content = "cccc";
+          content = inputMess;
         }
         imgData.append("isFile", 0);
         imgData.append("content", content);

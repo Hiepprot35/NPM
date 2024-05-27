@@ -213,13 +213,13 @@ function Comment({ comment, isReply, className }) {
             </div>
           </>
         )}
-          { !SeeMoreComment && CommentsRep?.length>0 && (
+          { CommentsRep?.length>0 && (
           <p
             className="textUnderline"
             style={{ margin: "0 0 2rem 4rem" }}
             onClick={() => setSeeMoreComment(pre=>!pre)}
           >
-            See more
+            {!SeeMoreComment ?"See more":"Hidden"}
           </p>
         )}
       </div>
