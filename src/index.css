@@ -24,6 +24,18 @@ h3,
 span {
   color: var(--textColor);
 }
+.minirp p, .minirp svg{
+  stroke: var(--themeColor);
+  color: var(--themeColor);
+}
+.minirp
+{
+  transition:500ms linear;
+  border-radius: 1rem;
+  background-color: var(--textColor);
+  padding:.5rem 2rem;
+}
+
 .hiddenNvaBar svg {
   fill: var(--textColor);
 }

@@ -7,6 +7,8 @@ import { Popover } from "antd";
 import UserProfile from "../UserProfile/userProfile";
 import MyComment from "./MyComment";
 import { countTime, getDate, getTime } from "../../function/getTime";
+import { fetchVideoTitle, movieApi } from "../message/windowchat";
+import parseUrl from "parse-url";
 function Comment({ comment, isReply, className }) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState();
@@ -44,29 +46,61 @@ function Comment({ comment, isReply, className }) {
     });
     setClicked(!Clicked);
   };
-  const checkComment = (e) => {
+  const checkComment =async (e) => {
     let updatedComment = e;
-    const options = {
-      replace: ({ name, attribs, children }) => {
-        if (name === "span" && attribs && attribs.class === "tagNameHref") {
-          const data = attribs["data-lexical-text"];
-          return (
-            <Popover content={<UserProfile MSSV={data} />}>
-              <a
-                href={`${process.env.REACT_APP_CLIENT_URL}/profile/${data}`}
-                className="tagNameHref"
-                data-lexical-text={data}
-              >
-                {domToReact(children)}
-              </a>
-            </Popover>
-          );
-        }
-      },
+    const youtubeRegex = /(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+    const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
+    if (youtubeRegex.test(e)) {
+        const url = e.match(youtubeRegex);
+        const videoId=parseUrl(url[0]).query.v||parseUrl(url[0]).pathname.replace("/","")
+        const videoTitle = await fetchVideoTitle(videoId);
+        const imgUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        const newUrl=`<a href="${"https://youtube.com/watch?v="+videoId}">${"https://youtube.com/watch?v="+videoId}<div className="cardMess"><img className="commentImg" src=${imgUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a>`
+        console.log(e,"-----------",url)
+        const result=e.replaceAll(url[0].split(" ")[0],newUrl)
+        console.log(result)
+        const data = `<div className="columnFlex">${result}</div>`;
+        updatedComment = data;
+      } else if (movieFilmsRegex.test(e)) {
+        const paramUrl = e.split("movie/moviedetail/")[1];
+        const pics = await movieApi(paramUrl);
+        const data = `<div className="columnFlex"><a href="${e}">${e}<div className="cardMess"><img className="commentImg" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
+        updatedComment = data;
+      }
+      return updatedComment
+  };
+
+  const options = {
+    replace: ({ name, attribs, children }) => {
+      if (name === "span" && attribs && attribs.class === "tagNameHref") {
+        const data = attribs["data-lexical-text"];
+        return (
+          <Popover content={<UserProfile MSSV={data} />}>
+            <a
+              href={`${process.env.REACT_APP_CLIENT_URL}/profile/${data}`}
+              className="tagNameHref"
+              data-lexical-text={data}
+            >
+              {domToReact(children)}
+            </a>
+          </Popover>
+        );
+      }
+    },
+  };
+
+  const [processedComment, setProcessedComment] = useState('');
+
+  useEffect(() => {
+    const processComment = async () => {
+      const result = await checkComment(comment.content);
+      setProcessedComment(result);
     };
 
-    return <>{parse(updatedComment, options)}</>;
-  };
+    processComment();
+  }, [comment.content]);
+  
+
 
   const disLikeHandle = async (e) => {
     const res = await fetchApiRes("insertLike", "PUT", {
@@ -105,7 +139,7 @@ function Comment({ comment, isReply, className }) {
                 <img className="avatarImage" src={`${User && User?.img}`}></img>
               </div>
             </Popover>
-            {((CommentsRep?.length > 0 && SeeMoreComment) || ReplyOpen)  && (
+            {((CommentsRep?.length > 0 && SeeMoreComment) || ReplyOpen) && (
               <div className="linearComment"></div>
             )}
           </div>
@@ -121,8 +155,8 @@ function Comment({ comment, isReply, className }) {
                 </Popover>
               </div>
               <div className="contentComment">
-                {comment.content.split("_").map((e) => (
-                  <span>{checkComment(e)}</span>
+                {[comment.content].map((e) => (
+                 <span>{parse(processedComment, options)}</span>
                 ))}
               </div>
             </div>
@@ -197,8 +231,7 @@ function Comment({ comment, isReply, className }) {
             )}
           </div>
         )}
-      
-        
+
         {!isReply && ReplyOpen && (
           <>
             <div className="MyReplyComment CommentReply">
@@ -213,13 +246,13 @@ function Comment({ comment, isReply, className }) {
             </div>
           </>
         )}
-          { CommentsRep?.length>0 && (
+        {CommentsRep?.length > 0 && (
           <p
             className="textUnderline"
             style={{ margin: "0 0 2rem 4rem" }}
-            onClick={() => setSeeMoreComment(pre=>!pre)}
+            onClick={() => setSeeMoreComment((pre) => !pre)}
           >
-            {!SeeMoreComment ?"See more":"Hidden"}
+            {!SeeMoreComment ? "See more" : "Hidden"}
           </p>
         )}
       </div>

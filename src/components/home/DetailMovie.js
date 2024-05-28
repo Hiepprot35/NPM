@@ -11,7 +11,7 @@ import useAuth from "../../hook/useAuth.js";
 import Layout from "../Layout/layout.js";
 import Comment from "./Comment.js";
 import "./DetailMovie.js";
-import { FiArrowLeft, FiArrowRight, FiShare, FiShare2 } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight, FiCheck, FiShare, FiShare2 } from "react-icons/fi";
 
 import MyComment from "./MyComment.js";
 import { Image } from "./home.js";
@@ -30,6 +30,7 @@ import NotFoundFilms from "./NotFoundFilms.js";
 import ReactPlayer from "react-player";
 import { delay } from "lodash";
 import { fetchVideoTitle } from "../message/windowchat.js";
+import MiniRp from "./MiniRp.js";
 const TitleVideo = ({ videoID, isCurrent }) => {
   const [Title, setTitle] = useState();
   const [ClickVideo, setClickVideo] = useState();
@@ -96,7 +97,6 @@ export function InViewAnimate({ children, variants, setCurrent }) {
       >
         {children}
       </motion.div>
-      <div className="linear"></div>
     </>
   );
 }
@@ -116,11 +116,7 @@ export default function DetailMovie(props) {
   const [CurrentVideo, setCurrentVideo] = useState(0);
   const [CurrentImage, setCurrenImage] = useState(0);
   const [Loading, setLoading] = useState(true);
-  useEffect(() => {
-    if (comments) {
-      console.log(comments);
-    }
-  }, [comments]);
+
   const getVideos = async (movie_id) => {
     try {
       setLoading(true);
@@ -175,10 +171,10 @@ export default function DetailMovie(props) {
   const [showComment, setshowComment] = useState(false);
   const [showActor, setShowActor] = useState(false);
   const variantSectionLeft = {
-    openSection: { opacity: 1, x: 0, scale: 1, transition: { duration: 1 } },
+    openSection: { opacity: 1, y: 0, scale: 1, transition: { duration: 1 } },
     closeSection: {
       opacity: 0,
-      x: -2000,
+      y: 200,
       scale: 0,
       transition: { duration: 1 },
     },
@@ -216,7 +212,7 @@ export default function DetailMovie(props) {
   };
   const variants = {
     open: {
-      transition: { staggerChildren: 0.5, delayChildren: 1 },
+      transition: { staggerChildren: 0.5, delayChildren: 1.5 },
     },
     closed: {
       transition: { staggerChildren: 0.5, staggerDirection: -1 },
@@ -241,11 +237,11 @@ export default function DetailMovie(props) {
       y: 0,
       opacity: 1,
       transition: {
-        y: { stiffness: 1000, velocity: -100 },
+        y: { stiffness: 1000, duration: 1 },
       },
     },
     closed: {
-      y: 50,
+      y: "100%",
       opacity: 0,
       transition: {
         y: { stiffness: 1000 },
@@ -311,6 +307,7 @@ export default function DetailMovie(props) {
           style={{
             width: "100%",
             display: "flex",
+            overflow: "hidden",
             justifyContent: "space-between",
           }}
         >
@@ -384,7 +381,6 @@ export default function DetailMovie(props) {
     );
   };
   useEffect(() => {
-    console.log("Movies", Movies);
     if (Movies.title || Movies.name) {
       document.title = ` ${Movies.title || Movies.name}`;
     }
@@ -395,7 +391,7 @@ export default function DetailMovie(props) {
     } else if (score <= 5) {
       return "orange";
     } else if (score <= 7.5) {
-      return "blue";
+      return "#FFE800";
     } else {
       return "#89FC05";
     }
@@ -405,14 +401,29 @@ export default function DetailMovie(props) {
     if (comments && comments.length > 0) {
       const sortedComments = [...comments]; // Create a copy to avoid mutating the original state
       if (sortCommentLastest) {
-        sortedComments.sort((a, b) => parseInt(b.create_at) - parseInt(a.create_at));
+        sortedComments.sort(
+          (a, b) => parseInt(b.create_at) - parseInt(a.create_at)
+        );
       } else {
         sortedComments.sort((a, b) => b.like_count - a.like_count);
       }
       setComment(sortedComments);
     }
   }, [sortCommentLastest]); // Add comments to dependency array to trigger effect when comments change
-  
+  const [ShowMiniRp, setShowMiniRp] = useState(false);
+  const copyURLHandle=()=>
+    {
+      navigator.clipboard.writeText(
+        `${process.env.REACT_APP_CLIENT_URL}/movie/moviedetail/${props.movieID}`
+      );
+      setShowMiniRp(true)
+    }
+    useEffect(() => {
+      if(ShowMiniRp)
+        {
+          setTimeout(()=>{setShowMiniRp(false)},2000)
+        }
+    }, [ShowMiniRp]);
   const getActors = async () => {
     try {
       setLoading(true);
@@ -496,7 +507,7 @@ export default function DetailMovie(props) {
               </motion.div>
               <motion.div
                 className="BodyDetail"
-                variants={variants2}
+                variants={{}}
                 style={{ scrollMarginTop: 2000 }}
               >
                 <motion.div className="Poster">
@@ -545,9 +556,7 @@ export default function DetailMovie(props) {
                       <span
                         className="circleButton"
                         onClick={() => {
-                          navigator.clipboard.writeText(
-                            `${process.env.REACT_APP_CLIENT_URL}/movie/moviedetail/${props.movieID}`
-                          );
+                          copyURLHandle()
                         }}
                       >
                         <FiShare2></FiShare2>
@@ -558,21 +567,33 @@ export default function DetailMovie(props) {
                     className="DetailNameMovie"
                     style={{ width: "70%", height: "100%", marginTop: "20%" }}
                   >
-                    <div style={{ display: "flex", overflow: "hidden" }}>
-                      <motion.div className="" variants={variants2}>
-                        <p>
-                          <span style={{ fontSize: "3rem", fontWeight: "600" }}>
-                            {Movies.name || Movies.title}{" "}
-                          </span>
-                          <span style={{ fontSize: "1.78rem" }}>
-                            ({" "}
-                            {Movies.release_date &&
-                              Movies.release_date.split("-")[0]}{" "}
-                            )
-                          </span>
-                        </p>
-                        <div style={{ marginLeft: "10rem" }}>
-                          <p style={{ margin: "2rem" }}>
+                    <div style={{ display: "flex" }}>
+                      <motion.div>
+                        <motion.div
+                          style={{
+                            overflow: "hidden",
+                            display: "inline-block",
+                          }}
+                        >
+                          <motion.p variants={variants2}>
+                            <span
+                              style={{ fontSize: "3rem", fontWeight: "600" }}
+                            >
+                              {Movies.name || Movies.title}{" "}
+                            </span>
+                            <span style={{ fontSize: "1.78rem" }}>
+                              ({" "}
+                              {Movies.release_date &&
+                                Movies.release_date.split("-")[0]}{" "}
+                              )
+                            </span>
+                          </motion.p>
+                        </motion.div>
+                        <motion.div
+                          variants={variants2}
+                          style={{ padding: "3rem 5rem", overflow: "hidden" }}
+                        >
+                          <motion.p style={{ marginBottom: "2rem" }}>
                             {
                               <span className="miniText">
                                 {Movies?.runtime}m |{" "}
@@ -591,16 +612,17 @@ export default function DetailMovie(props) {
                               {Movies?.origin_country &&
                                 Movies?.origin_country.map((e) => e)}
                             </span>
-                          </p>
-                          <p style={{ margin: "2rem" }}>
+                          </motion.p>
+                          <motion.p>
                             {Movies.overview && (
                               <Text
                                 text={Movies.overview}
-                                style={{ fontSize: "1rem" }}
+                                style={{ fontSize: "1.2rem" }}
                               ></Text>
                             )}
-                          </p>
-                        </div>
+                          </motion.p>
+                        </motion.div>
+                        <p>ADD TO WATCHLIST</p>={" "}
                       </motion.div>
                     </div>
                   </div>
@@ -719,17 +741,44 @@ export default function DetailMovie(props) {
                             <p>{comments.length}</p>
                           </div>
                         </div>
-                        <div style={{ display: "flex" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            position: "relative",
+                            borderRadius: ".4rem",
+                          }}
+                        >
+                          <div
+                            className="commentSort"
+                            style={{
+                              width: "50%",
+                              height: "100%",
+                              position: "absolute",
+                              background: "#dada",
+                              zIndex: "0",
+                              transform: `translateX(${
+                                sortCommentLastest ? 0 : 100
+                              }%)`,
+                            }}
+                          ></div>
                           <p
-                            className="hover"
-                            style={{ padding: ".3rem" }}
+                            className="hover commentSort"
+                            style={{
+                              width: "50%",
+                              padding: ".3rem",
+                              zIndex: "1",
+                            }}
                             onClick={() => setsortCommentLastest(true)}
                           >
                             Lastest
                           </p>
                           <p
-                            className="hover"
-                            style={{ padding: ".3rem" }}
+                            className="hover commentSort"
+                            style={{
+                              width: "50%",
+                              padding: ".3rem",
+                              zIndex: "1",
+                            }}
                             onClick={() => setsortCommentLastest(false)}
                           >
                             Popular
@@ -737,7 +786,7 @@ export default function DetailMovie(props) {
                         </div>
                       </div>
                       {auth.userID && (
-                        <motion.div variants={variants2}>
+                        <motion.div style={{zIndex:"2"}}>
                           <MyComment
                             setRender={setRender}
                             movieID={props.movieID}
@@ -772,6 +821,10 @@ export default function DetailMovie(props) {
           ) : (
             <NotFoundFilms></NotFoundFilms>
           )}
+          {
+
+ShowMiniRp && <MiniRp><FiCheck></FiCheck> Coypied URL</MiniRp>
+          }
         </Layout>
       )}
     </>

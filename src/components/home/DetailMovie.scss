@@ -76,11 +76,11 @@ $font-Dieu: "Dancing Script", cursive;
   height: 100%;
   background-color: var(--themeColor);
 }
-* {
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
+// * {
+//   scroll-snap-type: y mandatory;
+//   scroll-behavior: smooth;
 
-}
+// }
 .detailMovieCard p {
   color: rgb(149, 141, 141);
   font-weight: 600;
@@ -135,11 +135,11 @@ $font-Dieu: "Dancing Script", cursive;
   justify-content: center;
   align-items: center;
 }
-.inviewElement,
-.HeaderDetail {
-  scroll-snap-align: start;
-  scroll-margin-top: 20vh;
-}
+// .inviewElement,
+// .HeaderDetail {
+//   scroll-snap-align: start;
+//   scroll-margin-top: 20vh;
+// }
 .HeaderDetail {
   width: 100vw;
   height: 50vh;
@@ -170,7 +170,6 @@ $font-Dieu: "Dancing Script", cursive;
   align-items: center;
   justify-content: space-around;
 
-  overflow: hidden; /* Đảm bảo rằng phần còn lại của hình tam giác không bị hiển thị */
 }
 .HeaderDetail {
   -webkit-mask-image: -webkit-gradient(
@@ -398,4 +397,9 @@ $font-Dieu: "Dancing Script", cursive;
 .slideButton {
   font-size: 2rem;
   cursor: pointer;
+}
+.commentSort
+{
+  border-radius: .5rem;
+  transition: 400ms linear;
 }
