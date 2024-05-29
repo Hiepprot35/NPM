@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, memo } from "react";
-import parse from 'html-react-parser';
+import parse from "html-react-parser";
 import "./message.css";
 import * as timeUse from "../../function/getTime";
 import { IsLoading } from "../Loading";
@@ -15,19 +15,21 @@ export default memo(function Message({
   listSeen,
   messages,
   userID,
-  checkMess,
+  setImgMess,setShowImgMess,
+  updateMess,
 }) {
   const time = useRef(null);
   const { auth } = useAuth();
-  const [OnlineUser, setOnlineUser] = useState();
-  const socket = useSocket();
   const seen_text = useRef(null);
   const messageRef = useRef(null);
   const [listAnh, setListAnh] = useState();
-
+  useEffect(() => {
+    console.log(message.content);
+  }, [message.content]);
   useEffect(() => {
     if (message.isFile === 1) {
       const data = message.content.split(",");
+      setImgMess(pre=>[...pre,...data])
       setListAnh(data);
     }
   }, []);
@@ -91,7 +93,7 @@ export default memo(function Message({
               ) : (
                 e.length > 0 && (
                   <span style={{ marginBottom: ".4rem" }} key={index}>
-                    {(e)}
+                    {e}
                   </span>
                 )
               )
@@ -137,41 +139,46 @@ export default memo(function Message({
                   </>
                 )}
                 {message.content != null && (
-                    <Popover
-                      placement={own ? "left" : "right"}
-                      overlayStyle={{padding:0}}
-                      content={
-                        <p style={{ padding: 0 }} ref={time}>
-                          {timeUse.getTime(message.created_at)}
-                        </p>
-                      }
-                    >
-                      <div className={`Mess_seen_text  `}>
-                        {message.isFile ? (
-                          <>
-                            {listAnh &&
-                              listAnh.map((e) => (
-                                <img
-                                  className={
-                                    listAnh.length > 1 ? "listImg" : ""
-                                  }
-                                  style={
-                                    e.includes("emoji")
-                                      ? { width: "1rem ", height: "1rem " }
-                                      : {}
-                                  }
-                                  src={e}
-                                ></img>
-                              ))}
-                          </>
-                        ) : (
-                          <div className="messageText">{ccc()}</div>
-                        )}
-                      </div>
-                    </Popover>
+                  <Popover
+                    placement={own ? "left" : "right"}
+                    overlayStyle={{ padding: 0 }}
+                    content={
+                      <p style={{ padding: 0 }} ref={time}>
+                        {timeUse.getTime(message.created_at)}
+                      </p>
+                    }
+                  >
+                    <div className={`Mess_seen_text  `}>
+                      {message.isFile ? (
+                        <>
+                          {listAnh &&
+                            listAnh.map((e, i) => (
+                              <img
+                                key={i}
+                                onClick={()=>setShowImgMess(e)}
+
+                                className="listImg"
+                                style={
+                                  e.includes("emoji")
+                                    ? { width: "1rem ", height: "1rem " }
+                                    : {}
+                                }
+                                src={e}
+                              ></img>
+                            ))}
+                        </>
+                      ) : (
+                        <div className="messageText">{ccc()}</div>
+                      )}
+                    </div>
+                  </Popover>
                 )}
               </div>
-              {student && message?.id === listSeen?.id && listSeen && (
+
+              {student &&
+              parseInt(message?.created_at) ===
+                parseInt(listSeen?.created_at) &&
+              listSeen ? (
                 <div className="Seen_field">
                   <img
                     className="avatarImage"
@@ -186,6 +193,18 @@ export default memo(function Message({
                     Seen at {timeUse.getTime(listSeen?.Seen_at)}
                   </p>
                 </div>
+              ) : (
+                messages.indexOf(message) === messages.length - 1 &&
+                own && (
+                  <div className="Seen_field">
+                    <span
+                      ref={seen_text}
+                      style={{ fontSize: "0.9rem", color: "gray" }}
+                    >
+                      {updateMess ? "Đang gửi" : "Đã gửi"}
+                    </span>
+                  </div>
+                )
               )}
             </div>
           </div>

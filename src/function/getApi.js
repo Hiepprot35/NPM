@@ -30,7 +30,7 @@ export async function fetchApiRes(url, method, body) {
     let requestOptions = {
       method: method,
       headers: { "Content-type": "application/json" },
-      body: JSON.stringify(body),
+      body: body instanceof FormData ? body : JSON.stringify(body),
     };
 
     // Kiểm tra nếu method là "GET" thì không cần truyền body

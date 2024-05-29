@@ -16,10 +16,11 @@
 }
 
 .stokeTheme svg {
-    height: 1.1rem;
-    width: 1.1rem;
-  fill: var(--textColor) !important;
-  stroke: var(--themeColor) !important;
+    height:1.5rem;
+    width: 1.5rem;
+
+  fill: var(--themeColor) !important;
+  stroke: var(--textColor) !important;
 }
 .features_hover svg {
   stroke: var(--textColor);
@@ -133,6 +134,7 @@ aspect-ratio: 16/9;
   background-color: transparent;
   width: 100%;
   border: none !important;
+  padding: .3rem;
 
   font-size: 1.02rem;
   font-weight: 300;
@@ -169,6 +171,7 @@ aspect-ratio: 16/9;
   height: 100%;
   transition: 250ms linear;
   align-items: center;
+  flex-direction: column;
 }
 .main_windowchat {
   overflow: hidden;
@@ -182,6 +185,9 @@ aspect-ratio: 16/9;
 }
 .multiFile_layout {
   display: flex;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  width: 100%;
   align-items: center;
 }
 .windowchat .Mess_seen_text img {
@@ -193,11 +199,14 @@ aspect-ratio: 16/9;
 {
   background-color: rgba(34, 26, 26, 0.442);
 }
-.windowchat .Mess_seen_text .listImg {
-  height: 4rem ;
-  width: 4rem;
-  border-radius: 1rem;
-  margin-left: 1rem;
+
+.windowchat .Mess_seen_text .listImg,#send_window_input img {
+  height: 5rem ;
+  cursor: pointer;
+  width: 5rem;
+  object-fit: cover;
+  border-radius: .3rem;
+  margin-left: .2rem;
 }
 .closeButton {
   position: absolute;

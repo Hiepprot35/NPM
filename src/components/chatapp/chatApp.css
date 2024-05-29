@@ -121,7 +121,9 @@ input[type=text]:focus {
 .Main_ChatApp .Mess_seen_text .listImg
 {
     width: 7rem;
-    height: 9rem ;
+    height: 7rem ;
+    cursor: pointer;
+    object-fit: cover;
 }
 .Body_mainChatApp .Body_Chatpp .main_windowchat
 {
@@ -129,7 +131,7 @@ input[type=text]:focus {
 }
 .Body_Chatpp .inputValue{
     height: auto;
-    max-height: 15vh;
+    max-height: 20vh;
     width: 100%;
 }
 .Header_ChatApp .header_online h3 {
@@ -162,7 +164,7 @@ input[type=text]:focus {
 }
 
 .chatbox_res {
-    height: 800px;
+    height: 65rem;
     font-size: 2rem;
     color: rgba(255, 255, 255, 0.733);
     display: flex;

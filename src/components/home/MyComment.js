@@ -70,7 +70,7 @@ export default function MyComment(props) {
       setTagName((pre) => [...pre, e.Name]);
       inputRef.current.innerHTML = inputText.replace(
         "@",
-        `<span class="tagNameHref"  data-lexical-text=${e.MSSV} >${e.Name}</span><span class="spanComment"> </span>`
+        `<span class="tagNameHref"  data-lexical-text=${e.MSSV} >${e.Name}</span> `
       );
       handleInputChange();
       setOpenTag(false);
@@ -114,32 +114,32 @@ export default function MyComment(props) {
       if (Emoji) {
         Emoji.map(
           (e) =>
-            (updateContent = content.replace(
+            (updateContent = content.replaceAll(
               e.emoji,
               `<img className="emoji" src="${e.imageUrl}"> <img/>`
             ))
         );
       }
-      // const youtubeRegex =/(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
-      // console.log("Test",youtubeRegex.test(myComment))
-      // const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
-      // if (youtubeRegex.test(myComment)) {
-      //   const url = myComment.match(youtubeRegex);
-      //   const videoId=parseUrl(url[0]).query.v||parseUrl(url[0]).pathname.replace("/","")
-      //   const videoTitle = await fetchVideoTitle(videoId);
-      //   const imgUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-      //   const newUrl=`<a href="${"https://youtube.com/watch?v="+videoId}">${"https://youtube.com/watch?v="+videoId}<div className="cardMess"><img className="commentImg" src=${imgUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a>`
-      //   console.log(url[0])
-      //   const result=myComment.replace(url[0],newUrl)
-      //   console.log(result)
-      //   const data = `<div className="columnFlex">${result}</div>`;
-      //   updateContent = data;
-      // } else if (movieFilmsRegex.test(myComment)) {
-      //   const paramUrl = myComment.split("movie/moviedetail/")[1];
-      //   const pics = await movieApi(paramUrl);
-      //   const data = `<div className="columnFlex"><a href="${myComment}">${myComment}<div className="cardMess"><img className="commentImg" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
-      //   updateContent = data;
-      // }
+      const youtubeRegex =/(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+      console.log("Test",youtubeRegex.test(myComment))
+      const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
+      if (youtubeRegex.test(myComment)) {
+        const url = myComment.match(youtubeRegex);
+        const videoId=parseUrl(url[0]).query.v||parseUrl(url[0]).pathname.replace("/","")
+        const videoTitle = await fetchVideoTitle(videoId);
+        const imgUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        const newUrl=`<a href="${"https://youtube.com/watch?v="+videoId}">${"https://youtube.com/watch?v="+videoId}<div className="cardMess"><img className="commentImg" src=${imgUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a>`
+        console.log(url[0])
+        const result=myComment.replace(url[0],newUrl)
+        console.log(result)
+        const data = `<div className="columnFlex">${result}</div>`;
+        updateContent = data;
+      } else if (movieFilmsRegex.test(myComment)) {
+        const paramUrl = myComment.split("movie/moviedetail/")[1];
+        const pics = await movieApi(paramUrl);
+        const data = `<div className="columnFlex"><a href="${myComment}">${myComment}<div className="cardMess"><img className="commentImg" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
+        updateContent = data;
+      }
       const res = await fetchApiRes("insertComment", "POST", {
         userID: auth.username,
         content: updateContent,

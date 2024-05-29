@@ -1,5 +1,7 @@
 import { Popover } from "antd";
 import EmojiPicker from "emoji-picker-react";
+import { LuSticker } from "react-icons/lu";
+
 import { memo, useEffect, useRef, useState } from "react";
 import {
   FiImage,
@@ -25,6 +27,7 @@ import "./windowchat.css";
 import { data } from "jquery";
 import { IsLoading } from "../Loading";
 import UserProfile from "../UserProfile/userProfile";
+import ShowImgDialog from "./windowchat/ShowImgMess";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 export const movieApi = async (videoID) => {
   const url = `https://api.themoviedb.org/3/movie/${videoID}`;
@@ -48,6 +51,7 @@ export const fetchVideoTitle = async (videoID) => {
 export default memo(function WindowChat(props) {
   const { auth } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [UpdateMess, setUpdateMess] = useState();
   const socket = useSocket();
   const [inputMess, setInputmess] = useState("");
   const [Loading, setLoading] = useState(false);
@@ -88,12 +92,10 @@ export default memo(function WindowChat(props) {
       if (socket) {
         socket.off("disconnect");
       }
-    
-    }
+    };
   }, [socket]);
-  useEffect(() => {
-    console.log(props.count.id);
-  }, [props.count.id]);
+  const [Sending, setSending] = useState(false);
+  const [ShowImgMess, setShowImgMess] = useState();
   async function getMessages() {
     if (props.count?.id) {
       try {
@@ -152,95 +154,192 @@ export default memo(function WindowChat(props) {
       ...prev,
       { id: inputMess.length, emoji: e.emoji, imageUrl: e.imageUrl },
     ]);
-    setFileImg((pre) => [...pre, e.imageUrl]);
+    if (inputValue.current) {
+      inputValue.current.innerHTML =
+        inputValue.current.innerHTML + " " + e.emoji;
+      inputChange();
+    }
   }
+  useEffect(() => {
+    console.log(imgView);
+  }, [imgView]);
+  let isSetting = false;
+
+  const socketSend = async (data) => {
+    try {
+      if (socket && !isSetting) {
+        isSetting = true;
+
+        socket.emit("sendMessage", {
+          conversation_id: props.count.id,
+          sender_id: data.sender_id,
+          receiverId: userConver,
+          content: data.content,
+          isFile: data.isFile,
+        });
+      }
+      console.log(data);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      isSetting = false;
+    }
+  };
 
   useEffect(() => {
-    if (emoji.length > 0 && emoji[emoji.length - 1].emoji !== undefined) {
-      setInputmess(
-        (prevInputMess) => prevInputMess + emoji[emoji.length - 1].emoji
-      );
-    }
+    console.log(emoji);
   }, [emoji]);
-
- 
+  const checkUrl = async (data) => {
+    const youtubeRegex =
+      /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+    const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
+    if (youtubeRegex.test(data)) {
+      const paramUrl = data.split("v=")[1];
+      const videoId = paramUrl.split("&")[0];
+      const videoTitle = await fetchVideoTitle(videoId);
+      const videoUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      const data = `<div className="columnFlex"><a href="${data}">${data}<div className="cardMess"><img className="imgMess" src=${videoUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a></div>`;
+      return data;
+    } else if (movieFilmsRegex.test(data)) {
+      const paramUrl = data.split("movie/moviedetail/")[1];
+      const pics = await movieApi(paramUrl);
+      const data = `<div className="columnFlex"><a href="${data}">${data}<div className="cardMess"><img className="imgMess" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
+      return data;
+    } else {
+      return data;
+    }
+  };
+  const sendFastHandle = async () => {
+    const data = new FormData();
+    const messObj = {
+      sender_id: auth.userID,
+      created_at: Date.now(),
+      conversation_id: props.count.id,
+    };
+    const content =
+      "emojiLinkhttps://cdn.jsdelivr.net/npm/emoji-datasource-facebook/img/facebook/64/1f606.pngemojiLink";
+    setMessages((pre) => [...pre, { ...messObj, content: content, isFile: 0 }]);
+    data.set("isFile", 0);
+    data.set("sender_id", auth.userID);
+    data.set("conversation_id", props.count.id);
+    data.set("created_at", Date.now());
+    data.set("content", content);
+    const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
+      method: "POST",
+      body: data,
+    });
+    const result = await res.json();
+    socketSend(result);
+  };
+  const [ImgMess, setImgMess] = useState([]);
   async function handleSubmit(e) {
     e.preventDefault();
-    setEmoji([]);
-    setFileImg([]);
-    setInputmess("");
     inputValue.current.focus();
     try {
-      const imgData = new FormData();
-      let content;
-      imgData.append("sender_id", auth.userID);
-      imgData.append("conversation_id", props.count.id);
-      if (fileImg.length > 0 && inputMess?.length && emoji.length === 0) {
-        for (const file of fileImg) {
-          imgData.append("content", file);
-        }
-        imgData.append("isFile", 1);
-        imgData.append("created_at", Date.now());
+      const messagesText = inputMess;
+      const emojiText = emoji;
+      const ImageFile = fileImg;
+      const viewImg = imgView;
+      let socketMess = [];
+      const messObj = {
+        sender_id: auth.userID,
+        created_at: Date.now(),
+        conversation_id: props.count.id,
+      };
+      const update = [...messages];
+      if (ImageFile.length > 0) {
+        update.push({
+          ...messObj,
+          content: viewImg.toString(),
+          isFile: 1,
+        });
       }
-      if (fileImg.length === 0 && inputMess.length > 0) {
-        const youtubeRegex =
-          /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
-        const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
-        if (youtubeRegex.test(inputMess)) {
-          const paramUrl = inputMess.split("v=")[1];
-          const videoId = paramUrl.split("&")[0];
-          const videoTitle = await fetchVideoTitle(videoId);
-          const videoUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-          const data = `<div className="columnFlex"><a href="${inputMess}">${inputMess}<div className="cardMess"><img className="imgMess" src=${videoUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a></div>`;
-          content = data;
-        } else if (movieFilmsRegex.test(inputMess)) {
-          const paramUrl = inputMess.split("movie/moviedetail/")[1];
-          const pics = await movieApi(paramUrl);
-          const data = `<div className="columnFlex"><a href="${inputMess}">${inputMess}<div className="cardMess"><img className="imgMess" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
-          content = data;
-        } else {
-          content = inputMess;
-        }
-        imgData.append("isFile", 0);
-        imgData.append("content", content);
-        imgData.append("created_at", Date.now());
-      } else {
-        let updatedInputMess = inputMess;
-        emoji.forEach((e, i) => {
-          updatedInputMess = updatedInputMess.replace(
+      if (messagesText.length > 0 && emojiText.length === 0) {
+        update.push({
+          ...messObj,
+          content: messagesText,
+          isFile: 0,
+        });
+      }
+      let updatedInputMess;
+      if (emojiText.length > 0) {
+        emojiText.forEach((e, i) => {
+          updatedInputMess = messagesText.replaceAll(
             e.emoji,
             "emojiLink" + e.imageUrl + "emojiLink"
           );
         });
-        imgData.append("isFile", 0);
-        imgData.append("content", updatedInputMess);
-        imgData.append("created_at", Date.now());
-      }
-
-      const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
-        method: "POST",
-        body: imgData,
-      });
-      const MessageDataRes = await res.json();
-      if (socket) {
-        socket.emit("sendMessage", {
-          conversation_id: props.count.id,
-          sender_id: MessageDataRes.sender_id,
-          receiverId: userConver,
-          content: MessageDataRes.content,
-          isFile: MessageDataRes.isFile,
+        update.push({
+          ...messObj,
+          content: updatedInputMess,
+          isFile: 0,
         });
-      } else {
-        console.log("không có socket");
+      }
+      setMessages(update);
+      setSending(true);
+      setEmtyImg();
+      setEmoji([]);
+      setInputmess("");
+      inputValue.current.innerHTML = "";
+      const promises = [];
+      const imgData = new FormData();
+      let content;
+      imgData.append("sender_id", auth.userID);
+      imgData.append("conversation_id", props.count.id);
+      imgData.append("created_at", Date.now());
+      if (ImageFile.length > 0) {
+        for (const file of ImageFile) {
+          imgData.append("content", file);
+        }
+        imgData.set("isFile", 1);
+        const res = await fetch(
+          `${process.env.REACT_APP_DB_HOST}/api/message`,
+          {
+            method: "POST",
+            body: imgData,
+          }
+        );
+        const newMessage = await res.json();
+        socketSend(newMessage);
+      }
+      if (messagesText.length > 0 && emojiText.length === 0) {
+        content = await checkUrl(messagesText);
+        imgData.set("isFile", 0);
+        imgData.set("content", content);
+        const res = await fetch(
+          `${process.env.REACT_APP_DB_HOST}/api/message`,
+          {
+            method: "POST",
+            body: imgData,
+          }
+        );
+        const newMessage = await res.json();
+        socketSend(newMessage);
+      }
+      if (emojiText.length > 0) {
+        imgData.set("isFile", 0);
+        imgData.set("content", updatedInputMess);
+        const res = await fetch(
+          `${process.env.REACT_APP_DB_HOST}/api/message`,
+          {
+            method: "POST",
+            body: imgData,
+          }
+        );
+        const newMessage = await res.json();
+        promises.push(newMessage);
+        socketSend(newMessage);
       }
 
-      setMessages([...messages, MessageDataRes]);
-      setEmtyImg();
+      // setMessages(prevMessages => [...prevMessages, ...promises]);
+
       if (props.chatApp === true) {
         props.setsendMess((pre) => !pre);
       }
     } catch (err) {
-      console.log(err);
+      setSending(true);
+    } finally {
+      setSending(false);
     }
   }
   function setEmtyImg() {
@@ -249,7 +348,13 @@ export default memo(function WindowChat(props) {
   }
 
   function inputChange(e) {
-    setInputmess(e.target.value);
+    if (inputValue.current) {
+      if (inputValue.current.innerHTML.length >= 0) {
+        setInputmess(inputValue.current.innerHTML);
+      }
+    } else {
+      console.log(inputMess);
+    }
   }
 
   useEffect(() => {
@@ -369,22 +474,22 @@ export default memo(function WindowChat(props) {
   useEffect(() => {
     console.log("render", props.count);
   }, []);
-  useEffect(() => {
-    getNewstMess(props?.count.id);
-  }, [props?.count.id]);
+  // useEffect(() => {
+  //   getNewstMess(props?.count.id);
+  // }, [props?.count.id]);
 
   useEffect(() => {
     if (socket) {
       const handleUpdateNewSend = (data) => {
         getMessages();
-        // if (props.chatApp===true) {
-        //   props.setsendMess((pre) => !pre);
-        // }
+        if (props.chatApp === true) {
+          props.setsendMess((pre) => !pre);
+        }
       };
       const updateMess = (data) => {
-        // if (props.chatApp===true) {
-        //   props.setsendMess((pre) => !pre);
-        // }
+        if (props.chatApp === true) {
+          props.setsendMess((pre) => !pre);
+        }
         setArrivalMessage({
           sender_id: data.sender_id,
           content: data.content,
@@ -411,7 +516,10 @@ export default memo(function WindowChat(props) {
         socket.off("updateNewSend", handleUpdateNewSend);
       };
     }
-  }, [socket, props.count.id]);
+  }, [socket]);
+  useEffect(() => {
+    console.log(ShowImgMess);
+  }, [ShowImgMess]);
   return (
     <>
       {(listWindow.some((e) => e.id === props?.count.id) || props.chatApp) && (
@@ -450,9 +558,14 @@ export default memo(function WindowChat(props) {
                         </a>
                       </div>
                       <div className="header_text">
-                        <p className="hiddenEllipsis" style={{fontWeight:"600"}}>{userInfor?.Name}</p>
+                        <p
+                          className="hiddenEllipsis"
+                          style={{ fontWeight: "600" }}
+                        >
+                          {userInfor?.Name}
+                        </p>
                         {
-                          <p style={{fontSize:".7rem"}}>
+                          <p style={{ fontSize: ".7rem" }}>
                             {onlineUser &&
                             onlineUser.some((e) => e.userId === userConver) ? (
                               <>Online</>
@@ -515,13 +628,15 @@ export default memo(function WindowChat(props) {
                         i={index}
                         key={index}
                         message={message}
-                        my={auth.userID}
+                        updateMess={Sending}
                         own={message.sender_id === auth.userID}
                         student={userInfor}
                         messages={messages}
                         userID={userConver}
                         listSeen={userSeenAt}
                         Online={onlineUser}
+                        setImgMess={setImgMess}
+                        setShowImgMess={setShowImgMess}
                       ></Message>
                     </div>
                   ))}
@@ -565,7 +680,7 @@ export default memo(function WindowChat(props) {
                           : { opacity: 1 }
                       }
                     >
-                      <img src={`${ClientURL}/images/sticker.svg`}></img>
+                      <LuSticker></LuSticker>
                     </li>
                     <li
                       className="features_hover stokeTheme"
@@ -615,39 +730,52 @@ export default memo(function WindowChat(props) {
                     ))}
                   </div>
                 )}
-                <textarea
-                  cols="20"
-                  rows={rowCount || 1}
-                  style={{ resize: "none", paddingLeft: ".8rem" }}
-                  id="send_window_input"
-                  onClick={() =>
-                    clickConversation({
-                      conver: props?.count,
-                      name: userInfor?.Name,
-                    })
-                  }
-                  onChange={inputChange}
-                  placeholder="Aa"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      inputMess.length > 0 && handleSubmit(e);
-                    }
-                  }}
-                  value={inputMess}
-                  ref={inputValue}
-                />
-              </div>
-              <div>
-                <div>
+                <div style={{ position: "relative", width: "100%" }}>
                   <div
-                    className="features_hover"
-                    onClick={(e) => inputMess.length > 0 && handleSubmit(e)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <FiSend></FiSend>
-                  </div>
+                    style={{ resize: "none", paddingLeft: ".8rem" }}
+                    id="send_window_input"
+                    ref={inputValue}
+                    contentEditable="true"
+                    onInput={(e) => inputChange(e)}
+                    onClick={() =>
+                      clickConversation({
+                        conver: props?.count,
+                        name: userInfor?.Name,
+                      })
+                    }
+                    suppressContentEditableWarning={true}
+                  ></div>
+                  {!inputMess && (
+                    <div
+                      className="placehoder"
+                      style={{ top: ".4rem", left: "1rem" }}
+                    >
+                      <p>Aa</p>
+                    </div>
+                  )}
                 </div>
               </div>
+              {inputMess.length > 0 || fileImg.length > 0 ? (
+                <div>
+                  <div>
+                    <div
+                      className="features_hover"
+                      onClick={(e) => handleSubmit(e)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <FiSend></FiSend>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="features_hover"
+                  onClick={(e) => sendFastHandle(e)}
+                  style={{ cursor: "pointer" }}
+                >
+                  😆
+                </div>
+              )}
             </div>
           </div>
           <div className="emojipick">
@@ -736,6 +864,13 @@ export default memo(function WindowChat(props) {
             </div>
           </Popover>
         )}
+      {ImgMess.length > 0 && ShowImgMess && (
+        <ShowImgDialog
+          listImg={ImgMess}
+          current={ShowImgMess}
+          setShowImgMess={setShowImgMess}
+        ></ShowImgDialog>
+      )}
     </>
   );
 });

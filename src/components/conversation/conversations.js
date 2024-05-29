@@ -87,6 +87,7 @@ export default memo(function Conversation({
   };
 
   useEffect(() => {
+    console.log("asdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     getNewestMess();
   }, [sendMess]);
   return (
