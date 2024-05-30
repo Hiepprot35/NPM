@@ -14,7 +14,30 @@
   bottom: 2rem;
   z-index: 10;
 }
-
+.listImgDiv:hover .buttonImgView{
+  opacity: 1 !important;
+}
+/* [contenteditable] {
+  -webkit-user-modify: read-write-plaintext-only;
+} */
+.buttonImgView{
+  opacity: 0;
+  width: 1rem;
+  margin: 0;
+  font-size: .5rem;
+  position: absolute;
+  top: .5rem;
+  right: 0;
+}
+.listImgMess
+{
+  height: 4rem;
+  cursor: pointer;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: .3rem;
+  margin: .6rem .3rem;
+}
 .stokeTheme svg {
     height:1.5rem;
     width: 1.5rem;

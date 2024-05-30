@@ -136,10 +136,10 @@ const countReactionHeight=2.5
     processComment();
   }, [comment.content]);
   const commentReactHandle = async (e, data) => {
-    console.log(data);
+    setmyReaction(data)
     const obj = {
       commentID: e,
-      ...data,
+      [data.action]:true,
       userID: auth.username,
     };
     const res = await fetchApiRes("insertLike", "PUT", obj);
@@ -240,9 +240,8 @@ const countReactionHeight=2.5
                             style={{background:myReaction?.action===e.action?"gray":"none"}}
                             className="reactionComment circleButton"
                             onClick={() =>
-                              commentReactHandle(comment.id, {
-                                [e.action]: true,
-                              })
+                              commentReactHandle(comment.id, e
+                             )
                             }
                           >
                             {e.icon}

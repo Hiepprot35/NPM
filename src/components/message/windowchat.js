@@ -115,7 +115,21 @@ export default memo(function WindowChat(props) {
       }
     }
   }
+  function pasteImg(e) {
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const items = clipboardData.items;
+    
 
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].kind === "file" && items[i].type.startsWith("image/")) {
+        e.preventDefault();
+        const file = items[i].getAsFile();
+        setFileImg((pre) => [...pre, file]);
+        setImgView((pre) => [...pre, URL.createObjectURL(file)]);
+        // Bạn có thể xử lý thêm tệp hình ảnh ở đây, chẳng hạn như hiển thị hoặc tải lên máy chủ
+      }
+    }
+  }
   function closeHiddenWindow(e) {
     setListHiddenBubble((pre) => {
       const newData = pre.filter((obj) => obj.id !== e.id);
@@ -138,17 +152,23 @@ export default memo(function WindowChat(props) {
   function pick_imageMess(e) {
     const imgMessFile = e.target.files;
     for (let i = 0; i < imgMessFile.length; i++) {
-      setFileImg((pre) =>
-        Array.isArray(pre) ? [...pre, imgMessFile[i]] : [imgMessFile[i]]
-      );
-      setImgView((pre) =>
-        Array.isArray(pre)
-          ? [...pre, URL.createObjectURL(imgMessFile[i])]
-          : [URL.createObjectURL(imgMessFile[i])]
-      );
+      setFileImg((pre) => [...pre, imgMessFile[i]]);
+      setImgView((pre) => [...pre, URL.createObjectURL(imgMessFile[i])]);
     }
   }
+  function remove_imageMess(e) {
+    const data = [...imgView];
+    const data2 = [...fileImg];
+    const index = data.findIndex((v) => v.toString() === e.toString());
 
+    if (index !== -1) {
+      data.splice(index, 1); // Xóa phần tử tại chỉ số index trong mảng data
+      data2.splice(index, 1); // Xóa phần tử tương ứng tại chỉ số index trong mảng data2
+
+      setImgView(data); // Cập nhật trạng thái imgView với mảng đã thay đổi
+      setFileImg(data2); // Cập nhật trạng thái fileImg với mảng đã thay đổi
+    }
+  }
   function onClickEmoji(e) {
     setEmoji((prev) => [
       ...prev,
@@ -552,7 +572,7 @@ export default memo(function WindowChat(props) {
                                 (online) => online.userId === userConver
                               )
                                 ? "activeOnline"
-                                : {}
+                                : ""
                             }`}
                           ></span>
                         </a>
@@ -620,7 +640,6 @@ export default memo(function WindowChat(props) {
           <div className="Body_Chatpp">
             <div className="main_windowchat" ref={main_windowchat}>
               <div className="messages" ref={messagesRef}>
-                {" "}
                 {messages &&
                   messages.map((message, index) => (
                     <div className="message_content" key={message.id}>
@@ -644,6 +663,15 @@ export default memo(function WindowChat(props) {
             </div>
             <div className="inputValue windowchat_feature center">
               <div className="feature_left center">
+                <input
+                  onChange={(e) => {
+                    pick_imageMess(e);
+                  }}
+                  type="file"
+                  ref={image_message}
+                  multiple
+                  hidden
+                ></input>
                 {imgView.length > 0 ? (
                   <>
                     <div onClick={setEmtyImg} className="features_hover">
@@ -656,15 +684,6 @@ export default memo(function WindowChat(props) {
                 ) : (
                   <ul style={{ display: "flex", padding: "0", margin: "0" }}>
                     <li className="features_hover stokeTheme">
-                      <input
-                        onChange={(e) => {
-                          pick_imageMess(e);
-                        }}
-                        type="file"
-                        ref={image_message}
-                        multiple
-                        hidden
-                      ></input>
                       <FiImage
                         onClick={() => {
                           image_message.current.click();
@@ -702,31 +721,32 @@ export default memo(function WindowChat(props) {
 
               <div
                 className=" windowchat_input "
-                style={inputMess?.length > 0 ? { width: "75%" } : {}}
+                style={imgView?.length > 0 ? { width: "75%" } : {}}
                 ref={windowchat_input}
               >
                 {imgView.length > 0 && (
                   <div className="multiFile_layout ">
-                    <input type="file" hidden ref={multiFile} multiFile></input>
-                    <div className="features_hover">
-                      <img
+                    <div className="circleButton">
+                      <FiImage
+                        style={{ fontSize: "1.3rem" }}
                         onClick={() => {
-                          multiFile.current.click();
+                          image_message.current.click();
                         }}
-                        src={`${process.env.REACT_APP_CLIENT_URL}/images/image.svg`}
-                      ></img>
+                      />
                     </div>
                     {imgView.map((e, i) => (
-                      <img
-                        src={e}
-                        key={i}
-                        style={{
-                          width: "50px",
-                          height: "50px",
-                          margin: "1rem",
-                          borderRadius: "0.6rem",
-                        }}
-                      ></img>
+                      <div
+                        className="listImgDiv"
+                        style={{ position: "relative" }}
+                      >
+                        <img src={e} key={i} className="listImgMess"></img>
+                        <div
+                          onClick={() => remove_imageMess(e)}
+                          className="circleButton buttonImgView"
+                        >
+                          X
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -736,6 +756,7 @@ export default memo(function WindowChat(props) {
                     id="send_window_input"
                     ref={inputValue}
                     contentEditable="true"
+                    onPaste={pasteImg}
                     onInput={(e) => inputChange(e)}
                     onClick={() =>
                       clickConversation({

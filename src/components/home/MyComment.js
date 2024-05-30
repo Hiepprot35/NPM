@@ -77,6 +77,24 @@ export default function MyComment(props) {
       setFilterTag();
     }
   };
+  const [ImgView, setImgView] = useState([]);
+      const pastImg=(e)=>
+        {
+          const clipboardData = e.clipboardData || window.clipboardData;
+          const items = clipboardData.items;
+          
+          console.log(clipboardData)
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].kind === "file" && items[i].type.startsWith("image/")) {
+              e.preventDefault();
+              const file = items[i].getAsFile();
+              // setMyComment(pre=>[p])
+              setImgView(pre=>[...pre,URL.createObjectURL(file)])
+              // Bạn có thể xử lý thêm tệp hình ảnh ở đây, chẳng hạn như hiển thị hoặc tải lên máy chủ
+            }
+        }
+      
+    }
   useEffect(() => {
     if (props.reply) {
       inputRef.current.focus();
@@ -189,6 +207,7 @@ export default function MyComment(props) {
             <div
               className="commentDiv"
               ref={inputRef}
+              onPaste={pastImg}
               contentEditable="true"
               onInput={(e) => handleInputChange(e)}
               onClick={getPreviousCharacter}
@@ -250,6 +269,7 @@ export default function MyComment(props) {
               )}
             </div>
           </div>
+        
           {FilterTag && OpenTag && (
             <div className="tagList">
               {FilterTag.map((e) => (
@@ -264,8 +284,13 @@ export default function MyComment(props) {
               ))}
             </div>
           )}
+          
         </div>
+
       }
+        {
+            ImgView && ImgView.map(e=><img style={{width:"10rem",aspectRatio:1}} src={e}></img>)
+          }
     </>
   );
 }
