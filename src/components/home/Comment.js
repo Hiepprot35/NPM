@@ -13,6 +13,8 @@ function Comment({ comment, isReply, className }) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState();
   const [ComemntDetail, setComemntDetail] = useState([]);
+  const [myReaction, setmyReaction] = useState();
+const countReactionHeight=2.5
   const [Clicked, setClicked] = useState(false);
   const getCommentReply = async () => {
     const res = await fetchApiRes(
@@ -22,18 +24,48 @@ function Comment({ comment, isReply, className }) {
       setCommentsRep(res.result);
     }
   };
+  const findTrueProperties = (obj) => {
+    const prop = ReactComment.find((e) => {
+      if (obj[e.action] === 1) {
+        return e.action;
+      }
+    });
+    return prop
+  };
+  
   const getComment = async () => {
     if (comment) {
       try {
         const res = await fetchApiRes(`getLike/${comment.id}`);
         if (res.result) {
-          setComemntDetail(res.result);
+          const data = ReactComment.map((e) => ({
+            action: e.action,
+            count: 0,
+            users: [],
+          }));
+
+          res.result.forEach((reaction) => {
+           const prop=findTrueProperties(reaction)
+            if (prop) {
+              const item = data.find((d) => d.action === prop.action);
+              console.log(reaction,auth)
+              if(parseInt(reaction.userID)===parseInt(auth.username)){setmyReaction(prop)}
+              if (item) {
+                item.count += 1;
+                item.users.push(reaction.userID);
+              }
+            }
+          });
+          setCountReaction(data.sort((a,b)=>b.count-a.count));
         }
       } catch (error) {
-        console.log("ero");
+        console.log("ero", error);
       }
     }
   };
+  useEffect(() => {
+    console.log(myReaction)
+  }, [myReaction]);
   useEffect(() => {
     getComment();
   }, [comment, Clicked]);
@@ -46,28 +78,30 @@ function Comment({ comment, isReply, className }) {
     });
     setClicked(!Clicked);
   };
-  const checkComment =async (e) => {
+
+  const checkComment = async (e) => {
     let updatedComment = e;
     const youtubeRegex = /(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
     const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
     if (youtubeRegex.test(e)) {
-        const url = e.match(youtubeRegex);
-        const videoId=parseUrl(url[0]).query.v||parseUrl(url[0]).pathname.replace("/","")
-        const videoTitle = await fetchVideoTitle(videoId);
-        const imgUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-        const newUrl=`<a href="${"https://youtube.com/watch?v="+videoId}">${"https://youtube.com/watch?v="+videoId}<div className="cardMess"><img className="commentImg" src=${imgUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a>`
-        console.log(e,"-----------",url)
-        const result=e.replaceAll(url[0].split(" ")[0],newUrl)
-        console.log(result)
-        const data = `<div className="columnFlex">${result}</div>`;
-        updatedComment = data;
-      } else if (movieFilmsRegex.test(e)) {
-        const paramUrl = e.split("movie/moviedetail/")[1];
-        const pics = await movieApi(paramUrl);
-        const data = `<div className="columnFlex"><a href="${e}">${e}<div className="cardMess"><img className="commentImg" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
-        updatedComment = data;
-      }
-      return updatedComment
+      const url = e.match(youtubeRegex);
+      const videoId =
+        parseUrl(url[0]).query.v || parseUrl(url[0]).pathname.replace("/", "");
+      const videoTitle = await fetchVideoTitle(videoId);
+      const imgUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      const newUrl = `<a href="${"https://youtube.com/watch?v=" + videoId}">${
+        "https://youtube.com/watch?v=" + videoId
+      }<div className="cardMess"><img className="commentImg" src=${imgUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a>`;
+      const result = e.replaceAll(url[0].split(" ")[0], newUrl);
+      const data = `<div className="columnFlex">${result}</div>`;
+      updatedComment = data;
+    } else if (movieFilmsRegex.test(e)) {
+      const paramUrl = e.split("movie/moviedetail/")[1];
+      const pics = await movieApi(paramUrl);
+      const data = `<div className="columnFlex"><a href="${e}">${e}<div className="cardMess"><img className="commentImg" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
+      updatedComment = data;
+    }
+    return updatedComment;
   };
 
   const options = {
@@ -89,34 +123,45 @@ function Comment({ comment, isReply, className }) {
     },
   };
 
-  const [processedComment, setProcessedComment] = useState('');
-
+  const [processedComment, setProcessedComment] = useState("");
+  const [hoverReaction, setHoverReaction] = useState(false);
   useEffect(() => {
     const processComment = async () => {
-      const result = await checkComment(comment.content);
-      setProcessedComment(result);
+      try {
+        const result = await checkComment(comment.content);
+        setProcessedComment(result);
+      } catch (error) {}
     };
 
     processComment();
   }, [comment.content]);
-  
-
-
-  const disLikeHandle = async (e) => {
-    const res = await fetchApiRes("insertLike", "PUT", {
+  const commentReactHandle = async (e, data) => {
+    console.log(data);
+    const obj = {
       commentID: e,
-      Like: false,
-      disLike: true,
+      ...data,
       userID: auth.username,
-    });
+    };
+    const res = await fetchApiRes("insertLike", "PUT", obj);
     setClicked(!Clicked);
+
   };
+  const ReactComment = [
+    { action: "Like", icon: "👍", isLike: true, name: "Like" },
+    { action: "isFavorite", icon: "❤️", isFavorite: true, name: "Favorite" },
+    { action: "isHaha", icon: "😂", isHaha: true, name: "Haha" },
+    { action: "isSad", icon: "😔", isSad: true, name: "Sad" },
+    { action: "DisLike", icon: "👎", DisLike: true, name: "DisLike" },
+  ];
+
   const [ReplyOpen, setReplyOpen] = useState(false);
   const ReplyHandle = () => {
     setReplyOpen(!ReplyOpen);
   };
   const [SeeMoreComment, setSeeMoreComment] = useState(false);
+  const [CountReaction, setCountReaction] = useState();
   const [User, setUser] = useState();
+
   useEffect(() => {
     if (comment) {
       const fetchData = async () => {
@@ -156,64 +201,95 @@ function Comment({ comment, isReply, className }) {
               </div>
               <div className="contentComment">
                 {[comment.content].map((e) => (
-                 <span>{parse(processedComment, options)}</span>
+                  <span>{parse(processedComment, options)}</span>
                 ))}
               </div>
             </div>
             <div
               className="likedislike center"
-              style={{ justifyContent: "flex-start" }}
+              style={{ justifyContent: "space-around" }}
             >
-              <Popover
-                content={
-                  <p>
-                    {getDate(comment.create_at)} lúc{" "}
-                    {getTime(comment.create_at)}
-                  </p>
-                }
+              <div>
+                <Popover
+                  content={
+                    <p>
+                      {getDate(comment.create_at)} lúc{" "}
+                      {getTime(comment.create_at)}
+                    </p>
+                  }
+                >
+                  <span>{countTime(comment.create_at)}</span>
+                </Popover>
+                <span
+                  className="likeButton replyButton"
+                  style={{ margin: "0 1rem" }}
+                  onClick={ReplyHandle}
+                >
+                  Reply to
+                </span>
+                <Popover
+                  content={
+                    <div
+                      className="center"
+                      style={{ display: "flex", listStyleType: "none" }}
+                    >
+                      {ReactComment.map((e, i) => (
+                        <Popover content={e.name}>
+                          <span
+                            key={i}
+                            style={{background:myReaction?.action===e.action?"gray":"none"}}
+                            className="reactionComment circleButton"
+                            onClick={() =>
+                              commentReactHandle(comment.id, {
+                                [e.action]: true,
+                              })
+                            }
+                          >
+                            {e.icon}
+                          </span>
+                        </Popover>
+                      ))}
+                    </div>
+                  }
+                >
+                  <span
+                  className=""
+                    style={{ fontSize: "1.1rem",borderRadius:"50%",padding:".5rem",background:myReaction?"gray":"none"}}
+                    onClick={() =>myReaction? likeHandle(comment.id):null}
+                  >
+                    {myReaction?.icon||'👍'}
+                  </span>
+                </Popover>
+              </div>
+
+              <div
+                className="reactionCountComment"
+                style={{ display: "flex" }}
+                onMouseEnter={() => setHoverReaction(true)}
+                onMouseLeave={() => setHoverReaction(false)}
               >
-                <span>{countTime(comment.create_at)}</span>
-              </Popover>
-              <span
-                className="likeButton replyButton"
-                style={{ margin: "0 1rem" }}
-                onClick={ReplyHandle}
-              >
-                Reply to
-              </span>
-              <span
-                className={
-                  ComemntDetail &&
-                  ComemntDetail.some(
-                    (e) => e.Like && e.userID === auth.username
-                  )
-                    ? "likeButton activeLike"
-                    : "likeButton"
-                }
-                onClick={() => likeHandle(comment.id)}
-              >
-                <FiThumbsUp />
-                <p>
-                  {ComemntDetail && ComemntDetail.filter((e) => e.Like)?.length}
-                </p>
-              </span>
-              <span
-                className={
-                  ComemntDetail &&
-                  ComemntDetail.some(
-                    (e) => e.DisLike && e.userID === auth.username
-                  )
-                    ? "likeButton activeLike"
-                    : "likeButton"
-                }
-                onClick={() => disLikeHandle(comment.id)}
-              >
-                <FiThumbsDown />
-                <p>
-                  {ComemntDetail &&
-                    ComemntDetail.filter((e) => e.DisLike)?.length}
-                </p>
-              </span>
+                {CountReaction && CountReaction.map((e, i) => {
+                  return (
+                    e.count>0&&
+                    <div
+                      className=" countReaction"
+                      style={{
+                        position: "absolute",
+                        left: hoverReaction ? `${i * countReactionHeight+0.5}rem` : `${i * countReactionHeight/2}rem`,
+                        zIndex: `${5 - i}`,
+                      }}
+                    >
+                      <span style={{ fontSize: "1.1rem" }}>{ReactComment.find(v=>v.action===e.action).icon}</span>
+
+                      {hoverReaction && (
+                        <span style={{ color: "black" }}>
+                          {e.count}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}{" "}
+              </div>
             </div>
           </div>
         </div>

@@ -93,7 +93,7 @@
 .imgDialog{
     position: fixed;
     inset: 0;
-    z-index: 992;
+    z-index: 4;
     height: 100vh;
 }
 .container_Title {

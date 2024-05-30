@@ -622,7 +622,7 @@ export default function DetailMovie(props) {
                             )}
                           </motion.p>
                         </motion.div>
-                        <p>ADD TO WATCHLIST</p>={" "}
+                        <p>ADD TO WATCHLIST</p>
                       </motion.div>
                     </div>
                   </div>
@@ -726,17 +726,8 @@ export default function DetailMovie(props) {
                         <div style={{ margin: 0, position: "relative" }}>
                           <h1 style={{ margin: 0 }}>Comment</h1>
                           <div
-                            className="center"
-                            style={{
-                              position: "absolute",
-                              right: "-1.7rem",
-                              top: "0",
-                              width: "1.4rem",
-                              height: "1.4rem",
-                              fontSize: ".8rem",
-                              backgroundColor: "gray",
-                              borderRadius: "50%",
-                            }}
+                            className="center countText"
+                           
                           >
                             <p>{comments.length}</p>
                           </div>

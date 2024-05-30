@@ -87,7 +87,7 @@ export default function ShowImgDialog(props) {
           <div className="container_Title">
             <div
               className="circleButton"
-              style={{position:"absolute",top:"2rem",left:"2rem"}}
+              style={{position:"absolute",top:"2rem",left:"2rem",zIndex:"3"}}
               onClick={() => hiddenImgDialog()}
             >
               <span>X</span>
@@ -107,7 +107,6 @@ export default function ShowImgDialog(props) {
                       key={i}
                       className="title_text"
                       onClick={() => clickImg(i)}
-                      style={{ cursor: "pointer", marginLeft: "0.3rem" }}
                     >
                       <img
                         src={`${e}`}
