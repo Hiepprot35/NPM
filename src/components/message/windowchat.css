@@ -17,9 +17,9 @@
 .listImgDiv:hover .buttonImgView{
   opacity: 1 !important;
 }
-/* [contenteditable] {
+[contenteditable] {
   -webkit-user-modify: read-write-plaintext-only;
-} */
+}
 .buttonImgView{
   opacity: 0;
   width: 1rem;

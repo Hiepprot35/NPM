@@ -1,3 +1,4 @@
+import { Exception } from "sass";
 
 export const getUserinfobyID = async (data) => {
   try {
@@ -42,7 +43,7 @@ export async function fetchApiRes(url, method, body) {
     const data = await res.json();
     return data;
   } catch (error) {
-    console.log(error);
+    return null
   }
 }
 export async function TheMovieApi(url,method,body)
@@ -61,8 +62,9 @@ export async function TheMovieApi(url,method,body)
     );
     const data = await res.json();
     return data
+    throw Exception
   } catch (error) {
-    return 
+    return  null
   }
 };
 

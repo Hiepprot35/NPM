@@ -303,7 +303,6 @@ export default memo(function WindowChat(props) {
       inputValue.current.innerHTML = "";
       const promises = [];
       const imgData = new FormData();
-      let content;
       imgData.append("sender_id", auth.userID);
       imgData.append("conversation_id", props.count.id);
       imgData.append("created_at", Date.now());
@@ -323,9 +322,8 @@ export default memo(function WindowChat(props) {
         socketSend(newMessage);
       }
       if (messagesText.length > 0 && emojiText.length === 0) {
-        content = await checkUrl(messagesText);
         imgData.set("isFile", 0);
-        imgData.set("content", content);
+        imgData.set("content", messagesText);
         const res = await fetch(
           `${process.env.REACT_APP_DB_HOST}/api/message`,
           {
