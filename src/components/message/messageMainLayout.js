@@ -4,6 +4,7 @@ import { useSocket } from "../../context/socketContext";
 import useAuth from "../../hook/useAuth";
 import Conversation from "../conversation/conversations";
 import { getConversation } from "../conversation/getConversation";
+import { useRealTime } from "../../context/useRealTime";
 
 export default function MessageMainLayout(props) {
   const [onlineUser, setOnlineUser] = useState();
@@ -44,18 +45,8 @@ export default function MessageMainLayout(props) {
       return data;
     });
   };
-  useEffect(() => {
-    if (socket) {
-      socket.on("getUsers", (data) => {
-        setOnlineUser(data);
-      });
-    }
-    return () => {
-      if (socket) {
-        socket.off("disconnect");
-      }
-    };
-  }, [socket]);
+  const {Onlines}=useRealTime()
+
   return (
     <>
       <div className="main_layout25 linearBefore">
@@ -78,7 +69,7 @@ export default function MessageMainLayout(props) {
                           count={props.counter}
                           conversation={c}
                           notSeen_field={true}
-                          Online={onlineUser}
+                          Online={Onlines}
                         ></Conversation>
                       </div>
                     )

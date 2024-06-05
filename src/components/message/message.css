@@ -112,6 +112,11 @@
   align-items: center;
   max-width: 80%;
 }
+.columnFlex a
+{
+
+  color: white;
+}
 .message_content{
   margin-left: .5rem;
   margin-right: .5rem;

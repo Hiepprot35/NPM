@@ -30,16 +30,14 @@
 .commentDiv:focus + .linear{
   border-radius: 1px black solid;
 }
-.AvatarComment2{
-  width: 10%;
-}
+
 // .tagNameHref{
 //   margin-right: 1rem;
 // }
 // .spanComment{
 //   padding: 1rem;
 // }
-span,p,div{
+.myCommentComponent span,.myCommentComponent p{
     white-space-collapse: preserve; 
 
 }

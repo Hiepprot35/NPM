@@ -19,6 +19,7 @@ import FriendList from "./components/home/friend";
 import Layout from "./components/Layout/layout";
 import { IsLoading } from "./components/Loading";
 import MoviesType from "./components/home/MoviesType";
+import VideoPlayer from "./components/chatapp/VideoPlayer";
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   // const socket=useSocket();
@@ -76,7 +77,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/friends" element={<FriendList />} />
             <Route path="/films" element={<MoviesType />} />
-
+            <Route path="/videocall" element={<VideoCall/>}></Route>
             <Route path="/message" element={<ChatApp />} />
             <Route path="*" element={<Home />} />
             <Route path="/message/:messageId" element={<MessageRoute />} />
@@ -111,7 +112,11 @@ function ProfileRoutes() {
 
   return <UserProfile MSSV={MSSV} />;
 }
+function VideoCall() {
+  const { userID } = useParams();
 
+  return <VideoPlayer userID={userID} />;
+}
 function DeltailMovieFilms() {
   const { id } = useParams();
 

@@ -39,15 +39,7 @@ export function InViewComponent({ href, children, style }) {
 export default function Home(props) {
   const { listWindow, listHiddenBubble } = useData();
   const { AccessToken } = UseToken();
-  useEffect(() => {
-    if (listWindow) {
-      localStorage.setItem("counter", JSON.stringify(listWindow));
-    }
-  }, [listWindow]);
-  useEffect(() => {
-    if (listHiddenBubble)
-      localStorage.setItem("hiddenCounter", JSON.stringify(listHiddenBubble));
-  }, [listHiddenBubble]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
   const getData = async () => {

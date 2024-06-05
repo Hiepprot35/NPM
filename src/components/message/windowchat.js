@@ -28,6 +28,8 @@ import { data } from "jquery";
 import { IsLoading } from "../Loading";
 import UserProfile from "../UserProfile/userProfile";
 import ShowImgDialog from "./windowchat/ShowImgMess";
+import { useRealTime } from "../../context/useRealTime";
+import VideoPlayer from "../chatapp/VideoPlayer";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 export const movieApi = async (videoID) => {
   const url = `https://api.themoviedb.org/3/movie/${videoID}`;
@@ -48,7 +50,7 @@ export const fetchVideoTitle = async (videoID) => {
     return null;
   }
 };
-export default memo(function WindowChat(props) {
+export default (function WindowChat(props) {
   const { auth } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [UpdateMess, setUpdateMess] = useState();
@@ -77,23 +79,23 @@ export default memo(function WindowChat(props) {
   const [messages, setMessages] = useState(props.messages);
 
   const [onlineUser, setOnlineUser] = useState();
-
-  useEffect(() => {
-    if (socket) {
-      socket.emit("getUsers");
-      socket.on("sendUsers", (data) => {
-        setOnlineUser(data);
-      });
-      socket.on("getUsers", (data) => {
-        setOnlineUser(data);
-      });
-    }
-    return () => {
-      if (socket) {
-        socket.off("disconnect");
-      }
-    };
-  }, [socket]);
+  const { Onlines,CallComing,setCallComing } = useRealTime();
+  // useEffect(() => {
+  //   if (socket) {
+  //     socket.emit("getUsers");
+  //     socket.on("sendUsers", (data) => {
+  //       setOnlineUser(data);
+  //     });
+  //     socket.on("getUsers", (data) => {
+  //       setOnlineUser(data);
+  //     });
+  //   }
+  //   return () => {
+  //     if (socket) {
+  //       socket.off("disconnect");
+  //     }
+  //   };
+  // }, [socket]);
   const [Sending, setSending] = useState(false);
   const [ShowImgMess, setShowImgMess] = useState();
   async function getMessages() {
@@ -118,7 +120,6 @@ export default memo(function WindowChat(props) {
   function pasteImg(e) {
     const clipboardData = e.clipboardData || window.clipboardData;
     const items = clipboardData.items;
-    
 
     for (let i = 0; i < items.length; i++) {
       if (items[i].kind === "file" && items[i].type.startsWith("image/")) {
@@ -138,6 +139,7 @@ export default memo(function WindowChat(props) {
   }
 
   const showHiddenConver = (e) => {
+    console.log(e);
     setListWindow((pre) => {
       const data = [...pre];
       data.push(e);
@@ -146,6 +148,8 @@ export default memo(function WindowChat(props) {
     closeHiddenWindow(e);
   };
   function hiddenWindowHandle(c) {
+    console.log("hiden");
+    console.log(c);
     setListHiddenBubble((pre) => [...pre, c]);
     closeWindow();
   }
@@ -209,26 +213,7 @@ export default memo(function WindowChat(props) {
   useEffect(() => {
     console.log(emoji);
   }, [emoji]);
-  const checkUrl = async (data) => {
-    const youtubeRegex =
-      /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
-    const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
-    if (youtubeRegex.test(data)) {
-      const paramUrl = data.split("v=")[1];
-      const videoId = paramUrl.split("&")[0];
-      const videoTitle = await fetchVideoTitle(videoId);
-      const videoUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-      const data = `<div className="columnFlex"><a href="${data}">${data}<div className="cardMess"><img className="imgMess" src=${videoUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a></div>`;
-      return data;
-    } else if (movieFilmsRegex.test(data)) {
-      const paramUrl = data.split("movie/moviedetail/")[1];
-      const pics = await movieApi(paramUrl);
-      const data = `<div className="columnFlex"><a href="${data}">${data}<div className="cardMess"><img className="imgMess" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
-      return data;
-    } else {
-      return data;
-    }
-  };
+
   const sendFastHandle = async () => {
     const data = new FormData();
     const messObj = {
@@ -535,9 +520,16 @@ export default memo(function WindowChat(props) {
       };
     }
   }, [socket]);
-  useEffect(() => {
-    console.log(ShowImgMess);
-  }, [ShowImgMess]);
+  const handleVideoCall = () => {
+    setCallComing({calling:true,userID:userInfor?.UserID,converID:props.count.id})
+
+  };
+  // useEffect(() => {
+  //   console.log(CallComing,"coming")
+  //   if (CallComing) {
+  //     handleVideoCall();
+  //   }
+  // }, [CallComing, setCallComing]);
   return (
     <>
       {(listWindow.some((e) => e.id === props?.count.id) || props.chatApp) && (
@@ -565,8 +557,8 @@ export default memo(function WindowChat(props) {
 
                           <span
                             className={`dot ${
-                              onlineUser &&
-                              onlineUser.some(
+                              Onlines &&
+                              Onlines.some(
                                 (online) => online.userId === userConver
                               )
                                 ? "activeOnline"
@@ -584,8 +576,8 @@ export default memo(function WindowChat(props) {
                         </p>
                         {
                           <p style={{ fontSize: ".7rem" }}>
-                            {onlineUser &&
-                            onlineUser.some((e) => e.userId === userConver) ? (
+                            {Onlines &&
+                            Onlines.some((e) => e.userId === userConver) ? (
                               <>Online</>
                             ) : (
                               <></>
@@ -619,16 +611,14 @@ export default memo(function WindowChat(props) {
               </div>
               <div
                 className="features_hover"
-                onClick={() => {
-                  setCall(!call);
-                }}
+                onClick={handleVideoCall}
               >
                 <FiVideo></FiVideo>
               </div>
               <div
                 className="features_hover"
                 onClick={() => {
-                  setCall(!call);
+                  setCall((pre) => !pre);
                 }}
               >
                 <FiPhone></FiPhone>
@@ -651,7 +641,7 @@ export default memo(function WindowChat(props) {
                         messages={messages}
                         userID={userConver}
                         listSeen={userSeenAt}
-                        Online={onlineUser}
+                        Online={Onlines}
                         setImgMess={setImgMess}
                         setShowImgMess={setShowImgMess}
                       ></Message>
@@ -868,17 +858,14 @@ export default memo(function WindowChat(props) {
                   alt="Avatar"
                   loading="lazy"
                   src={userInfor?.img}
-                ></Image>{" "}
+                ></Image>
                 <span
                   className={`dot ${
-                    onlineUser &&
-                    onlineUser.some((e) => e.userId === userConver)
+                    Onlines && Onlines.some((e) => e.userId === userConver)
                       ? "activeOnline"
                       : {}
                   }`}
-                >
-                  {" "}
-                </span>
+                ></span>
               </div>
             </div>
           </Popover>
@@ -890,6 +877,7 @@ export default memo(function WindowChat(props) {
           setShowImgMess={setShowImgMess}
         ></ShowImgDialog>
       )}
+      {}
     </>
   );
 });

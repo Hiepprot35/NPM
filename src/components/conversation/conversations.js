@@ -1,20 +1,21 @@
 import { memo, useEffect, useState } from "react";
 import * as timeUse from "../../function/getTime";
+import parse from "html-react-parser";
+
 import useAuth from "../../hook/useAuth";
 import "./conversation.css";
 import { useSocket } from "../../context/socketContext";
 import { fetchApiRes } from "../../function/getApi";
 export const getMess = async (conversation) => {
   try {
- 
     const res = await fetch(
       `${process.env.REACT_APP_DB_HOST}/api/message/newest/${conversation.id}`
     );
     const data2 = await res.json();
-    
-    return data2
+
+    return data2;
   } catch (err) {
-    console.log(err)
+    console.log(err);
     console.log("Không có giá trí");
   }
 };
@@ -36,7 +37,7 @@ export default memo(function Conversation({
   const ListusersOnline = (Online && Online.map((item) => item.userId)) || [];
   useEffect(() => {
     if (socket) {
-      socket.on("getUserSeen",async (data) => {
+      socket.on("getUserSeen", async (data) => {
         if (data) {
           await getNewestMess();
         }
@@ -79,15 +80,20 @@ export default memo(function Conversation({
     studentInfo();
   }, [username]);
   useEffect(() => {
-    console.log("render conver")
+    console.log("render conver");
   }, []);
   const getNewestMess = async () => {
-   const data= await getMess(conversation)
-   setNewestMesst(data)
+    const data = await getMess(conversation);
+    setNewestMesst(data);
   };
-
   useEffect(() => {
-    console.log("asdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    if(NewestMess)
+      {
+
+        console.log(parse(NewestMess.content))
+      }
+  }, [NewestMess]);
+  useEffect(() => {
     getNewestMess();
   }, [sendMess]);
   return (
@@ -109,7 +115,10 @@ export default memo(function Conversation({
                 {" "}
               </span>
             </div>
-            <div className="text_conversation hiddenEllipsis" style={{width:"100%"}}>
+            <div
+              className="text_conversation hiddenEllipsis"
+              style={{ width: "100%" }}
+            >
               <span className="conversationName">{user.Name}</span>
               {notSeen_field ? (
                 <></>
@@ -122,25 +131,19 @@ export default memo(function Conversation({
                           {" "}
                           {NewestMess.content && (
                             <div>
-                              {NewestMess.sender_id === auth.userID ? (
-                                <>
-                                  <span>
-                                    {NewestMess?.content.startsWith(
+                              <span>
+                                {NewestMess.sender_id === auth.userID
+                                  ? NewestMess.content.startsWith(
                                       "https://res.cloudinary.com"
                                     )
-                                      ? "Bạn đã gửi một ảnh"
-                                      : `Bạn: ${NewestMess?.content}`}
-                                  </span>
-                                </>
-                              ) : (
-                                <span>
-                                  {NewestMess?.content.startsWith(
-                                    "https://res.cloudinary.com"
-                                  )
-                                    ? "Đã gửi một ảnh"
-                                    : `  ${NewestMess?.content}`}
-                                </span>
-                              )}
+                                    ? "Bạn đã gửi một ảnh"
+                                    : parse(NewestMess.content)
+                                  : NewestMess.content.startsWith(
+                                      "https://res.cloudinary.com"
+                                    )
+                                  ? "Đã gửi một ảnh"
+                                  : parse(NewestMess.content)}
+                              </span>
                               <span>
                                 {timeUse.countTime(NewestMess.created_at)}
                               </span>

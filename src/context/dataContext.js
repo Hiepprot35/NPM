@@ -6,6 +6,15 @@ export const DataProvider = ({ children }) => {
   const [listWindow, setListWindow] = useState([]);
   const [listHiddenBubble, setListHiddenBubble] = useState([]);
   useEffect(() => {
+    if (listWindow) {
+      localStorage.setItem("counter", JSON.stringify(listWindow));
+    }
+  }, [listWindow]);
+  useEffect(() => {
+    if (listHiddenBubble)
+      localStorage.setItem("hiddenCounter", JSON.stringify(listHiddenBubble));
+  }, [listHiddenBubble]);
+  useEffect(() => {
     const data = JSON.parse(localStorage.getItem("hiddenCounter"));
     if (data !== null) {
       setListHiddenBubble(data);

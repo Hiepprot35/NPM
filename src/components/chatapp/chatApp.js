@@ -9,6 +9,7 @@ import { getConversation } from "../conversation/getConversation";
 import WindowChat from "../message/windowchat";
 import "./chatApp.css";
 import Layout from "../Layout/layout";
+import { useRealTime } from "../../context/useRealTime";
 const ChatApp = ({ messageId }) => {
   document.title = "Message";
   const messageScroll = useRef(null);
@@ -46,7 +47,7 @@ const ChatApp = ({ messageId }) => {
       senApi();
     }
   }, []);
-
+  const { Onlines } = useRealTime();
   const socket = useSocket();
   let isCancel = false;
   // const ListusersOnline = onlineUser && onlineUser.map(item => item.userId) || [];
@@ -67,19 +68,8 @@ const ChatApp = ({ messageId }) => {
     }
   }, [socket]);
 
-  useEffect(() => {
-    if (socket) {
-      socket.on("getUsers", (data) => {
-        setOnlineUser(data);
-      });
-    }
-    return () => {
-      if (socket) {
-        socket.off("disconnect");
-      }
-    };
-  }, [socket]);
-  
+
+
   const [sendMess, setsendMess] = useState(false);
   useEffect(() => {
     async function AsyncGetCon() {
@@ -142,7 +132,7 @@ const ChatApp = ({ messageId }) => {
     }
   }, [searchTerm]);
   useEffect(() => {
-    console.log("ccurnechat",currentChat)
+    console.log("ccurnechat", currentChat);
   }, [currentChat]);
   return (
     <>
@@ -203,7 +193,7 @@ const ChatApp = ({ messageId }) => {
                           conversation={c}
                           currentUser={auth.userID}
                           sendMess={sendMess}
-                          Online={onlineUser}
+                          Online={Onlines}
                           listSeen={isSeen}
                         />
                       </div>
@@ -233,7 +223,7 @@ const ChatApp = ({ messageId }) => {
                             Seen={userSeenAt}
                             chatApp={true}
                             setsendMess={setsendMess}
-                            ListusersOnline={onlineUser}
+                            ListusersOnline={Onlines}
                           ></WindowChat>
                         </div>
                       </div>

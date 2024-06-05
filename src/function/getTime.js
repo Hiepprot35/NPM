@@ -7,6 +7,27 @@ export function getTime(data) {
 
   return `${currentHours}:${formatMinutes}`;
 }
+export function cauculatorTime(data)
+{
+  const int=parseInt(data)
+  const m=Math.floor(int/60)
+  const h=Math.floor(m/60)
+
+  if(int<60)
+    {
+      return `0:${data}s`
+    }
+  else{
+    if(m<60)
+      {
+        return `${m}m:${int-m*60}s`
+      }
+      if(h>0)
+        {
+          return `${h}h:${m-h*60}m:${int-h*60*60-m*60}`
+        }
+  }
+}
 export function timeFilm(data)
 {
   const hours=Math.floor(data/60)

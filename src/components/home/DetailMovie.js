@@ -488,7 +488,7 @@ export default function DetailMovie(props) {
       {Loading ? (
         <IsLoading />
       ) : (
-        <Layout>
+        <Layout link={"/home"}>
           {Movies.id ? (
             <motion.div
               className="DetailMovie"

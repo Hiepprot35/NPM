@@ -206,8 +206,7 @@ export default function MyComment(props) {
             )}
             <div className="featureComment">
               <div
-                className=""
-                style={{ padding: ".3rem" }}
+                className="flex items-center		"
                 onClick={(e) => {
                   setOpenEmojiPicker(!openEmojiPicker);
                 }}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, memo } from "react";
-import parse from "html-react-parser";
+import parse, { domToReact } from "html-react-parser";
 import "./message.css";
 import * as timeUse from "../../function/getTime";
 import { IsLoading } from "../Loading";
@@ -8,6 +8,7 @@ import { useSocket } from "../../context/socketContext";
 import { Popover } from "antd";
 import parseUrl from "parse-url";
 import { fetchVideoTitle, movieApi } from "./windowchat";
+import { FiCamera, FiVideo } from "react-icons/fi";
 export default memo(function Message({
   message,
   i,
@@ -26,9 +27,7 @@ export default memo(function Message({
   const seen_text = useRef(null);
   const messageRef = useRef(null);
   const [listAnh, setListAnh] = useState();
-  useEffect(() => {
-    console.log(message.content);
-  }, [message.content]);
+
   useEffect(() => {
     if (message.isFile === 1) {
       const data = message.content.split(",");
@@ -73,91 +72,95 @@ export default memo(function Message({
     }
   }
 
-  const checkComment = async(e) => {
+  const checkComment = async (e) => {
+    let updatedComment = e;
+    const youtubeRegex =
+      /http(?:s)?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w\-]{11})(?:&[\w;=]*)*/;
 
-        let updatedComment = e;
-        const youtubeRegex =
-          /(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
-        const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
-        if (youtubeRegex.test(e)) {
-          const url = e.match(youtubeRegex);
-          const videoId =
-            parseUrl(url[0]).query.v ||
-            parseUrl(url[0]).pathname.replace("/", "");
-          const videoTitle = await fetchVideoTitle(videoId);
-          const imgUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-          const newUrl = `<a href="${"https://youtube.com/watch?v=" + videoId}">${
-            "https://youtube.com/watch?v=" + videoId
-          }<div className="cardMess"><img className="commentImg" src=${imgUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a>`;
-          const result = e.replaceAll(url[0].split(" ")[0], newUrl);
-          const data = `<div className="columnFlex">${result}</div>`;
-          console.log(data,"daaaaaaaaaaaaa")
-           updatedComment = data;
-        } else if (movieFilmsRegex.test(e)) {
-          const paramUrl = e.split("movie/moviedetail/")[1];
-          const pics = await movieApi(paramUrl);
-          const data = `<div className="columnFlex"><a href="${e}">${e}<div className="cardMess"><img className="commentImg" src=https://image.tmdb.org/t/p/original/${pics.img}></img><div className="titleMess"><p className="hiddenText">${pics.title}</p></div></div></a></div>`;
-           updatedComment = data;
-        } 
-          return updatedComment;
-        
-      
-    
+    const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
+    if (youtubeRegex.test(e)) {
+      const url = e.match(youtubeRegex);
+      const videoId = url[1];
+      const videoTitle = await fetchVideoTitle(videoId);
+      const imgUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      const newUrl = `
+        <a href=${url[0]}">
+        <p className="text-white underline py-3">
+        ${url[0]}
+        </p>
+          <div className="cardMess">
+            <img className="w-full aspect-[16/9] rounded object-cover" src="${imgUrl}"></img>
+            <div className="titleMess">
+              <p className="hiddenText font-bold text-lg hover:underline">${videoTitle}</p>
+            </div>
+          </div>
+        </a>`;
+      const result = e.replaceAll(url[0], ``);
+      updatedComment = `
+      <div className="flex-column">
+      <div className="flex">
+      ${result}
+      </div>
+      ${newUrl}
+      </div>
+      `;
+    } else if (movieFilmsRegex.test(e)) {
+      const paramUrl = e.split("movie/moviedetail/")[1];
+      const pics = await movieApi(paramUrl);
+      const data = `
+        <div className="columnFlex">
+          <a href="${e}">
+          <p className="white">
+          ${e}
+          </p>
+            <div className="cardMess">
+              <img className="commentImg" src="https://image.tmdb.org/t/p/original/${pics.img}"></img>
+              <div className="titleMess">
+                <p className="hiddenText">${pics.title}</p>
+              </div>
+            </div>
+          </a>
+        </div>`;
+      updatedComment = data;
+    }
+    return updatedComment;
   };
   const [processedComment, setProcessedComment] = useState("");
-  useEffect(() => {
-    console.log(processedComment)
-  }, [processedComment]);
+  const options = {
+    replace: ({ name, attribs, children }) => {
+      console.log(children);
+      if (name === "div" && attribs && attribs.classname === "callMess") {
+        return <div className="callMess bg-gray pr-4 flex center">
+          <div className="circleButton center">
+
+          <FiVideo></FiVideo>
+          </div>
+          {domToReact(children)}</div>;
+      }
+    },
+  };
+
   useEffect(() => {
     const processComment = async () => {
-       if(message.content)
-          {
+      if (message.content) {
+        const data = message.content.split("emojiLink");
 
-            const result = await checkComment(message.content);
-            console.log(result,"asdasdaaaaaaaaaaaaaaaaaaaaa")
-            setProcessedComment(result);
-          }
-      } 
-    
+        const processedData = await Promise.all(
+          data.map(async (e) => {
+            if (e.includes("https://cdn.jsdelivr.net")) {
+              return `<span><img alt="icon" style="width: 1rem; height: 1rem; margin: .1rem;" src="${e}"/></span>`;
+            }
+            return e; // Trả về phần tử gốc nếu không phải là URL cần kiểm tra
+          })
+        );
+
+        // Hợp nhất kết quả thành một chuỗi
+        setProcessedComment(await checkComment(processedData.join("")));
+      }
+    };
 
     processComment();
-  }, []);
-  const ccc = () => {
-    return (
-      <>
-        {message?.content.includes("https://cdn.jsdelivr.net") ? (
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              marginTop: ".4rem",
-            }}
-          >
-            {message.content.split("emojiLink").map((e, index) =>
-              e.includes("https://cdn.jsdelivr.net") ? (
-                <span key={index}>
-                  <img
-                    alt="icon"
-                    style={{ width: "1rem", height: "1rem", margin: ".1rem" }}
-                    src={`${e}`}
-                  />
-                </span>
-              ) : (
-                e.length > 0 && (
-                  <span style={{ marginBottom: ".4rem" }} key={index}>
-                    {e}
-                  </span>
-                )
-              )
-            )}
-          </div>
-        ) : (
-           <span>{parse(processedComment)}</span>
-        )}
-      </>
-    );
-  };
+  }, [message.content]);
 
   return (
     <>
@@ -220,7 +223,9 @@ export default memo(function Message({
                             ))}
                         </>
                       ) : (
-                        <div className="messageText">{ccc()}</div>
+                        <div className="messageText center">
+                          {parse(processedComment, options)}
+                        </div>
                       )}
                     </div>
                   </Popover>

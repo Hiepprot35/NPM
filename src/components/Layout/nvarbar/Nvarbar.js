@@ -15,8 +15,13 @@ export default function Nvarbar(props) {
   const { listWindow, listHiddenBubble } = useData();
   const [Conver, setConver] = useState(listHiddenBubble.concat(listWindow));
   useEffect(() => {
+    console.log("ok")
     setConver(listHiddenBubble.concat(listWindow));
+    return()=>{
+      setConver()
+    }
   }, [listHiddenBubble, listWindow]);
+  
   const itemVariants = {
     open: {
       opacity: 1,
