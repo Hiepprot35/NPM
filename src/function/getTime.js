@@ -15,16 +15,16 @@ export function cauculatorTime(data)
 
   if(int<60)
     {
-      return `0:${data}s`
+      return `0 : ${data}s`
     }
   else{
     if(m<60)
       {
-        return `${m}m:${int-m*60}s`
+        return `${m}m : ${int-m*60}s`
       }
       if(h>0)
         {
-          return `${h}h:${m-h*60}m:${int-h*60*60-m*60}`
+          return `${h}h:${m-h*60}m : ${int-h*60*60-m*60}`
         }
   }
 }

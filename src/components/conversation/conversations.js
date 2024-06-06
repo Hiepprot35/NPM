@@ -99,6 +99,7 @@ export default memo(function Conversation({
               <img
                 src={user.img ? `${user?.img}` : ""}
                 className={`avatarImage`}
+                style={{ width: "4rem" }}
                 alt="uer avatar"
               ></img>
               <span
@@ -137,7 +138,9 @@ export default memo(function Conversation({
                                     )
                                   ? "Đã gửi một ảnh"
                                   : parse(NewestMess.content)}
+                                
                               </span>
+                              
                               <span>
                                 {timeUse.countTime(NewestMess.created_at)}
                               </span>

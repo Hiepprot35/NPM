@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { TheMovieApi } from "../../function/getApi";
 import "./TVMovie.scss";
 import useLoading from "../../hook/useLoading";
@@ -8,8 +8,8 @@ const Session=({title,body})=>
   {
     return(
       <div  className="sessionTV">
-      <div>
-        <h1>{title}</h1>
+      <div className=" m-8 font-semibold">
+        <h1 className="text-5xl text-x">{title}</h1>
       </div>
       <div
         className="center"
@@ -25,7 +25,7 @@ const Session=({title,body})=>
     </div>
     )
   }
-export default function TVMovie() {
+ function TVMovie(props) {
   const [ListTV, setListTV] = useState();
   const [ListMovies, setListMovies] = useState();
   const url = "https://image.tmdb.org/t/p/original";
@@ -99,10 +99,10 @@ export default function TVMovie() {
             style={{
               height: "100%",
               width: "100%",
-              // backgroundImage: `url(/vg2.jpg)`,
+              backgroundImage: `${props.Img}`,
             }}
           >
-          <Session title={"Populor"} body={ListTV}/>
+          <Session title={"Popular Movies"} body={ListTV}/>
           <Session title={"Movies Treding"} body={ListMovies}/>
             
           </div>
@@ -111,3 +111,4 @@ export default function TVMovie() {
     </>
   );
 }
+export default memo(TVMovie)

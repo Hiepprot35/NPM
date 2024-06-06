@@ -1,4 +1,4 @@
-import { Popover } from "antd";
+import { Modal, Popover } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { LuSticker } from "react-icons/lu";
 
@@ -30,6 +30,8 @@ import UserProfile from "../UserProfile/userProfile";
 import ShowImgDialog from "./windowchat/ShowImgMess";
 import { useRealTime } from "../../context/useRealTime";
 import VideoPlayer from "../chatapp/VideoPlayer";
+import UseToken from "../../hook/useToken";
+import UseRfLocal from "../../hook/useRFLocal";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 export const movieApi = async (videoID) => {
   const url = `https://api.themoviedb.org/3/movie/${videoID}`;
@@ -97,7 +99,11 @@ export default (function WindowChat(props) {
   //   };
   // }, [socket]);
   const [Sending, setSending] = useState(false);
+  const [ErrorMess, setErrorMess] = useState();
   const [ShowImgMess, setShowImgMess] = useState();
+  const { AccessToken, setAccessToken } = UseToken();
+  const { RefreshToken } = UseRfLocal();
+
   async function getMessages() {
     if (props.count?.id) {
       try {
@@ -106,15 +112,22 @@ export default (function WindowChat(props) {
           {
             method: "POST",
             headers: {
+              Authorization: `Bearer ${AccessToken}`,
               "Content-Type": "application/json",
+              RefreshToken: RefreshToken,
+
             },
+          
           }
         );
         const data = await res.json();
-        setMessages(data);
-      } catch (err) {
-        console.log(err);
-      }
+        if (data.error) {
+          setErrorMess("Vui lòng đăng nhập để thực hiện");
+          setListHiddenBubble([]);setListWindow([])
+        } else {
+          setMessages(data);
+        }
+      } catch (err) {}
     }
   }
   function pasteImg(e) {
@@ -139,7 +152,6 @@ export default (function WindowChat(props) {
   }
 
   const showHiddenConver = (e) => {
-    console.log(e);
     setListWindow((pre) => {
       const data = [...pre];
       data.push(e);
@@ -148,8 +160,6 @@ export default (function WindowChat(props) {
     closeHiddenWindow(e);
   };
   function hiddenWindowHandle(c) {
-    console.log("hiden");
-    console.log(c);
     setListHiddenBubble((pre) => [...pre, c]);
     closeWindow();
   }
@@ -522,7 +532,7 @@ export default (function WindowChat(props) {
   }, [socket]);
   const handleVideoCall = () => {
     const width = 800; // Chiều rộng của cửa sổ tab nhỏ
-    const height = 800*9/16; // Chiều cao của cửa sổ tab nhỏ
+    const height = (800 * 9) / 16; // Chiều cao của cửa sổ tab nhỏ
 
     const left = (window.innerWidth - width) / 2;
     const top = (window.innerHeight - height) / 2;
@@ -535,349 +545,362 @@ export default (function WindowChat(props) {
 
   return (
     <>
-      {(listWindow.some((e) => e.id === props?.count.id) || props.chatApp) && (
-        <div className={`windowchat ${props.count.id}`} ref={windowchat}>
-          <div
-            className={`top_windowchat ${
-              props?.count.id === arrivalMessage?.conversation_id &&
-              "arrviedMess"
-            }`}
-          >
-            <div className="header_windowchat">
-              {
-                <>
-                  <Popover content={<p>{userInfor?.Name}</p>}>
-                    <div className="header_online" style={{ margin: ".3rem" }}>
-                      <div className="Avatar_status">
-                        <a
-                          href={`${process.env.REACT_APP_CLIENT_URL}/profile/${userInfor?.MSSV}`}
-                        >
-                          <Image
-                            className="avatarImage"
-                            alt="Avatar"
-                            src={userInfor?.img}
-                          ></Image>
-
-                          <span
-                            className={`dot ${
-                              Onlines &&
-                              Onlines.some(
-                                (online) => online.userId === userConver
-                              )
-                                ? "activeOnline"
-                                : ""
-                            }`}
-                          ></span>
-                        </a>
-                      </div>
-                      <div className="header_text">
-                        <p
-                          className="hiddenEllipsis"
-                          style={{ fontWeight: "600" }}
-                        >
-                          {userInfor?.Name}
-                        </p>
-                        {
-                          <p style={{ fontSize: ".7rem" }}>
-                            {Onlines &&
-                            Onlines.some((e) => e.userId === userConver) ? (
-                              <>Online</>
-                            ) : (
-                              <></>
-                            )}
-                          </p>
-                        }
-                      </div>
-                    </div>
-                  </Popover>
-                </>
-              }
-            </div>
-            <div className="button_windowchat">
+      {!ErrorMess && auth.userID ? (
+        <>
+          {(listWindow.some((e) => e.id === props?.count.id) ||
+            props.chatApp) && (
+            <div className={`windowchat ${props.count.id}`} ref={windowchat}>
               <div
-                className="features_hover"
-                style={props.ChatApp ? { display: "none" } : {}}
-                onClick={() => {
-                  closeWindow();
-                }}
+                className={`top_windowchat ${
+                  props?.count.id === arrivalMessage?.conversation_id &&
+                  "arrviedMess"
+                }`}
               >
-                <FiX></FiX>
-              </div>
-              <div
-                className="features_hover"
-                style={props.ChatApp ? { display: "none" } : {}}
-                onClick={() => {
-                  hiddenWindowHandle(props.count);
-                }}
-              >
-                <FiMinus></FiMinus>
-              </div>
-              <div className="features_hover" onClick={handleVideoCall}>
-                <FiVideo></FiVideo>
-              </div>
-              <div
-                className="features_hover"
-                onClick={() => {
-                  setCall((pre) => !pre);
-                }}
-              >
-                <FiPhone></FiPhone>
-              </div>
-            </div>
-          </div>
-          <div className="Body_Chatpp">
-            <div className="main_windowchat" ref={main_windowchat}>
-              <div className="messages" ref={messagesRef}>
-                {messages &&
-                  messages.map((message, index) => (
-                    <div className="message_content" key={message.id}>
-                      <Message
-                        i={index}
-                        key={index}
-                        message={message}
-                        updateMess={Sending}
-                        own={message.sender_id === auth.userID}
-                        student={userInfor}
-                        messages={messages}
-                        userID={userConver}
-                        listSeen={userSeenAt}
-                        Online={Onlines}
-                        setImgMess={setImgMess}
-                        setShowImgMess={setShowImgMess}
-                      ></Message>
-                    </div>
-                  ))}
-              </div>
-            </div>
-            <div className="inputValue windowchat_feature center">
-              <div className="feature_left center">
-                <input
-                  onChange={(e) => {
-                    pick_imageMess(e);
-                  }}
-                  type="file"
-                  ref={image_message}
-                  multiple
-                  hidden
-                ></input>
-                {imgView.length > 0 ? (
-                  <>
-                    <div onClick={setEmtyImg} className="features_hover">
-                      <img
-                        src={`${ClientURL}/images/arrow-left.svg`}
-                        style={{ width: "1.5rem", height: "1.5rem" }}
-                      ></img>
-                    </div>
-                  </>
-                ) : (
-                  <ul style={{ display: "flex", padding: "0", margin: "0" }}>
-                    <li className="features_hover stokeTheme">
-                      <FiImage
-                        onClick={() => {
-                          image_message.current.click();
-                        }}
-                      />
-                    </li>
-
-                    <li
-                      className="features_hover stokeTheme"
-                      style={
-                        inputMess?.length > 0
-                          ? { display: "none" }
-                          : { opacity: 1 }
-                      }
-                    >
-                      <LuSticker></LuSticker>
-                    </li>
-                    <li
-                      className="features_hover stokeTheme"
-                      // style={
-                      //   inputMess?.length > 0
-                      //     ? { display: "none" }
-                      //     : { opacity: 1 }
-                      // }
-                    >
-                      <FiSmile
-                        onClick={(e) => {
-                          setOpenEmojiPicker(!openEmojiPicker);
-                        }}
-                      ></FiSmile>
-                    </li>
-                  </ul>
-                )}
-              </div>
-
-              <div
-                className=" windowchat_input "
-                style={imgView?.length > 0 ? { width: "75%" } : {}}
-                ref={windowchat_input}
-              >
-                {imgView.length > 0 && (
-                  <div className="multiFile_layout ">
-                    <div className="circleButton">
-                      <FiImage
-                        style={{ fontSize: "1.3rem" }}
-                        onClick={() => {
-                          image_message.current.click();
-                        }}
-                      />
-                    </div>
-                    {imgView.map((e, i) => (
-                      <div
-                        className="listImgDiv"
-                        style={{ position: "relative" }}
-                      >
-                        <img src={e} key={i} className="listImgMess"></img>
+                <div className="header_windowchat">
+                  {
+                    <>
+                      <Popover content={<p>{userInfor?.Name}</p>}>
                         <div
-                          onClick={() => remove_imageMess(e)}
-                          className="circleButton buttonImgView"
+                          className="header_online"
+                          style={{ margin: ".3rem" }}
                         >
-                          X
+                          <div className="Avatar_status">
+                            <a
+                              href={`${process.env.REACT_APP_CLIENT_URL}/profile/${userInfor?.MSSV}`}
+                            >
+                              <Image
+                                className="avatarImage"
+                                alt="Avatar"
+                                src={userInfor?.img}
+                              ></Image>
+
+                              <span
+                                className={`dot ${
+                                  Onlines &&
+                                  Onlines.some(
+                                    (online) => online.userId === userConver
+                                  )
+                                    ? "activeOnline"
+                                    : ""
+                                }`}
+                              ></span>
+                            </a>
+                          </div>
+                          <div className="header_text">
+                            <p
+                              className="hiddenEllipsis"
+                              style={{ fontWeight: "600" }}
+                            >
+                              {userInfor?.Name}
+                            </p>
+                            {
+                              <p style={{ fontSize: ".7rem" }}>
+                                {Onlines &&
+                                Onlines.some((e) => e.userId === userConver) ? (
+                                  <>Online</>
+                                ) : (
+                                  <></>
+                                )}
+                              </p>
+                            }
+                          </div>
+                        </div>
+                      </Popover>
+                    </>
+                  }
+                </div>
+                <div className="button_windowchat">
+                  <div
+                    className="features_hover"
+                    style={props.ChatApp ? { display: "none" } : {}}
+                    onClick={() => {
+                      closeWindow();
+                    }}
+                  >
+                    <FiX></FiX>
+                  </div>
+                  <div
+                    className="features_hover"
+                    style={props.ChatApp ? { display: "none" } : {}}
+                    onClick={() => {
+                      hiddenWindowHandle(props.count);
+                    }}
+                  >
+                    <FiMinus></FiMinus>
+                  </div>
+                  <div className="features_hover" onClick={handleVideoCall}>
+                    <FiVideo></FiVideo>
+                  </div>
+                  <div
+                    className="features_hover"
+                    onClick={() => {
+                      setCall((pre) => !pre);
+                    }}
+                  >
+                    <FiPhone></FiPhone>
+                  </div>
+                </div>
+              </div>
+              <div className="Body_Chatpp">
+                <div className="main_windowchat" ref={main_windowchat}>
+                  <div className="messages" ref={messagesRef}>
+                    {messages &&
+                      messages.map((message, index) => (
+                        <div className="message_content" key={message.id}>
+                          <Message
+                            i={index}
+                            key={index}
+                            message={message}
+                            updateMess={Sending}
+                            own={message.sender_id === auth.userID}
+                            student={userInfor}
+                            messages={messages}
+                            userID={userConver}
+                            listSeen={userSeenAt}
+                            Online={Onlines}
+                            setImgMess={setImgMess}
+                            setShowImgMess={setShowImgMess}
+                          ></Message>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+                <div className="inputValue windowchat_feature center">
+                  <div className="feature_left center">
+                    <input
+                      onChange={(e) => {
+                        pick_imageMess(e);
+                      }}
+                      type="file"
+                      ref={image_message}
+                      multiple
+                      hidden
+                    ></input>
+                    {imgView.length > 0 ? (
+                      <>
+                        <div onClick={setEmtyImg} className="features_hover">
+                          <img
+                            src={`${ClientURL}/images/arrow-left.svg`}
+                            style={{ width: "1.5rem", height: "1.5rem" }}
+                          ></img>
+                        </div>
+                      </>
+                    ) : (
+                      <ul
+                        style={{ display: "flex", padding: "0", margin: "0" }}
+                      >
+                        <li className="features_hover stokeTheme">
+                          <FiImage
+                            onClick={() => {
+                              image_message.current.click();
+                            }}
+                          />
+                        </li>
+
+                        <li
+                          className="features_hover stokeTheme"
+                          style={
+                            inputMess?.length > 0
+                              ? { display: "none" }
+                              : { opacity: 1 }
+                          }
+                        >
+                          <LuSticker></LuSticker>
+                        </li>
+                        <li
+                          className="features_hover stokeTheme"
+                          // style={
+                          //   inputMess?.length > 0
+                          //     ? { display: "none" }
+                          //     : { opacity: 1 }
+                          // }
+                        >
+                          <FiSmile
+                            onClick={(e) => {
+                              setOpenEmojiPicker(!openEmojiPicker);
+                            }}
+                          ></FiSmile>
+                        </li>
+                      </ul>
+                    )}
+                  </div>
+
+                  <div
+                    className=" windowchat_input "
+                    style={imgView?.length > 0 ? { width: "75%" } : {}}
+                    ref={windowchat_input}
+                  >
+                    {imgView.length > 0 && (
+                      <div className="multiFile_layout ">
+                        <div className="circleButton">
+                          <FiImage
+                            style={{ fontSize: "1.3rem" }}
+                            onClick={() => {
+                              image_message.current.click();
+                            }}
+                          />
+                        </div>
+                        {imgView.map((e, i) => (
+                          <div
+                            className="listImgDiv"
+                            style={{ position: "relative" }}
+                          >
+                            <img src={e} key={i} className="listImgMess"></img>
+                            <div
+                              onClick={() => remove_imageMess(e)}
+                              className="circleButton buttonImgView"
+                            >
+                              X
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div style={{ position: "relative", width: "100%" }}>
+                      <div
+                        style={{ resize: "none", paddingLeft: ".8rem" }}
+                        id="send_window_input"
+                        ref={inputValue}
+                        contentEditable="true"
+                        onPaste={pasteImg}
+                        onInput={(e) => inputChange(e)}
+                        onClick={() =>
+                          clickConversation({
+                            conver: props?.count,
+                            name: userInfor?.Name,
+                          })
+                        }
+                        suppressContentEditableWarning={true}
+                      ></div>
+                      {!inputMess && (
+                        <div
+                          className="placehoder"
+                          style={{ top: ".4rem", left: "1rem" }}
+                        >
+                          <p>Aa</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {inputMess.length > 0 || fileImg.length > 0 ? (
+                    <div>
+                      <div>
+                        <div
+                          className="features_hover"
+                          onClick={(e) => handleSubmit(e)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <FiSend></FiSend>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-                <div style={{ position: "relative", width: "100%" }}>
-                  <div
-                    style={{ resize: "none", paddingLeft: ".8rem" }}
-                    id="send_window_input"
-                    ref={inputValue}
-                    contentEditable="true"
-                    onPaste={pasteImg}
-                    onInput={(e) => inputChange(e)}
-                    onClick={() =>
-                      clickConversation({
-                        conver: props?.count,
-                        name: userInfor?.Name,
-                      })
-                    }
-                    suppressContentEditableWarning={true}
-                  ></div>
-                  {!inputMess && (
+                    </div>
+                  ) : (
                     <div
-                      className="placehoder"
-                      style={{ top: ".4rem", left: "1rem" }}
+                      className="features_hover"
+                      onClick={(e) => sendFastHandle(e)}
+                      style={{ cursor: "pointer" }}
                     >
-                      <p>Aa</p>
+                      😆
                     </div>
                   )}
                 </div>
               </div>
-              {inputMess.length > 0 || fileImg.length > 0 ? (
-                <div>
-                  <div>
-                    <div
-                      className="features_hover"
-                      onClick={(e) => handleSubmit(e)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <FiSend></FiSend>
-                    </div>
+              <div className="emojipick">
+                <EmojiPicker
+                  width={350}
+                  height={450}
+                  open={openEmojiPicker}
+                  onEmojiClick={(e, i) => {
+                    onClickEmoji(e);
+                  }}
+                  emojiStyle="facebook"
+                />
+              </div>
+            </div>
+          )}
+          {listHiddenBubble.some((e) => e.id === props?.count.id) &&
+            !props.chatApp && (
+              <Popover
+                placement="left"
+                title={
+                  <div
+                    style={{
+                      overflow: "hidden",
+                      whiteSpace: "wrap",
+                      textOverflow: "ellipsis",
+                      maxWidth: "10rem",
+                      // height: "1rem",
+                    }}
+                  >
+                    <p>{userInfor?.Name}</p>
+                  </div>
+                }
+                content={
+                  <div
+                    className="hiddenText"
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "wrap",
+                      maxWidth: "10rem",
+                      maxHeight: "3rem",
+                    }}
+                  >
+                    <p style={{ color: "gray" }}>
+                      {messages?.length > 1 &&
+                        messages[messages?.length - 1]?.sender_id ===
+                          auth?.userID &&
+                        "Bạn: "}{" "}
+                      {messages && messages[messages.length - 1]?.content}{" "}
+                    </p>
+                  </div>
+                }
+              >
+                <div
+                  className="hiddenBubble"
+                  style={{ bottom: `${4.4 + 3.2 * props.index}rem` }}
+                >
+                  <div
+                    className="closeButton"
+                    onClick={() => closeHiddenWindow(props.count)}
+                  >
+                    <FiXCircle></FiXCircle>
+                  </div>
+                  <div
+                    style={{ position: "relative" }}
+                    onClick={() => showHiddenConver(props.count)}
+                  >
+                    <Image
+                      style={{ width: "3rem" }}
+                      className="avatarImage"
+                      alt="Avatar"
+                      loading="lazy"
+                      src={userInfor?.img}
+                    ></Image>
+                    <span
+                      className={`dot ${
+                        Onlines && Onlines.some((e) => e.userId === userConver)
+                          ? "activeOnline"
+                          : {}
+                      }`}
+                    ></span>
                   </div>
                 </div>
-              ) : (
-                <div
-                  className="features_hover"
-                  onClick={(e) => sendFastHandle(e)}
-                  style={{ cursor: "pointer" }}
-                >
-                  😆
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="emojipick">
-            <EmojiPicker
-              width={350}
-              height={450}
-              open={openEmojiPicker}
-              onEmojiClick={(e, i) => {
-                onClickEmoji(e);
-              }}
-              emojiStyle="facebook"
-            />
-          </div>
-        </div>
+              </Popover>
+            )}
+          {ImgMess.length > 0 && ShowImgMess && (
+            <ShowImgDialog
+              listImg={ImgMess}
+              current={ShowImgMess}
+              setShowImgMess={setShowImgMess}
+            ></ShowImgDialog>
+          )}
+        </>
+      ) : (
+        <Modal open={ErrorMess ? true : false}>
+          {ErrorMess}
+        </Modal>
       )}
-      {listHiddenBubble.some((e) => e.id === props?.count.id) &&
-        !props.chatApp && (
-          <Popover
-            placement="left"
-            title={
-              <div
-                style={{
-                  overflow: "hidden",
-                  whiteSpace: "wrap",
-                  textOverflow: "ellipsis",
-                  maxWidth: "10rem",
-                  // height: "1rem",
-                }}
-              >
-                <p>{userInfor?.Name}</p>
-              </div>
-            }
-            content={
-              <div
-                className="hiddenText"
-                style={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "wrap",
-                  maxWidth: "10rem",
-                  maxHeight: "3rem",
-                }}
-              >
-                <p style={{ color: "gray" }}>
-                  {messages?.length > 1 &&
-                    messages[messages?.length - 1]?.sender_id ===
-                      auth?.userID &&
-                    "Bạn: "}{" "}
-                  {messages && messages[messages.length - 1]?.content}{" "}
-                </p>
-              </div>
-            }
-          >
-            <div
-              className="hiddenBubble"
-              style={{ bottom: `${4.4 + 3.2 * props.index}rem` }}
-            >
-              <div
-                className="closeButton"
-                onClick={() => closeHiddenWindow(props.count)}
-              >
-                <FiXCircle></FiXCircle>
-              </div>
-              <div
-                style={{ position: "relative" }}
-                onClick={() => showHiddenConver(props.count)}
-              >
-                <Image
-                  style={{ width: "3rem" }}
-                  className="avatarImage"
-                  alt="Avatar"
-                  loading="lazy"
-                  src={userInfor?.img}
-                ></Image>
-                <span
-                  className={`dot ${
-                    Onlines && Onlines.some((e) => e.userId === userConver)
-                      ? "activeOnline"
-                      : {}
-                  }`}
-                ></span>
-              </div>
-            </div>
-          </Popover>
-        )}
-      {ImgMess.length > 0 && ShowImgMess && (
-        <ShowImgDialog
-          listImg={ImgMess}
-          current={ShowImgMess}
-          setShowImgMess={setShowImgMess}
-        ></ShowImgDialog>
-      )}
-      {}
     </>
   );
 });

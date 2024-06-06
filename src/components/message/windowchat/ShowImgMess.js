@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import "./showImgMess.css";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight, FiDownload } from "react-icons/fi";
+import FileSaver, { saveAs } from "file-saver";
 export default function ShowImgDialog(props) {
   const nagative = useNavigate();
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function ShowImgDialog(props) {
   const clickSlideLeft = () => {
     if (currentSlide > 0) {
       if (currentSlide < 8) {
-        slideBottom.current.style.left = `${((4 - currentSlide) *5)}rem`;
+        slideBottom.current.style.left = `${(4 - currentSlide) * 5}rem`;
       }
       setCurrentSlide(currentSlide - 1);
     }
@@ -80,17 +81,35 @@ export default function ShowImgDialog(props) {
       }
     }
   }, [currentSlide]);
+  const saveImage = async () => {
+    let imageUrl =props.isMovies? `https://image.tmdb.org/t/p/original${props.current.file_path}`:props.current;
+    FileSaver.saveAs(imageUrl,props.current.file_path, "image.jpg");
+  };
+
   return (
-    <div className="imgDialog">
+    <div className="imgDialog z-9999">
       {
         <>
           <div className="container_Title">
             <div
-              className="circleButton"
-              style={{position:"absolute",top:"2rem",left:"2rem",zIndex:"3"}}
-              onClick={() => hiddenImgDialog()}
+              style={{
+                position: "absolute",
+                top: "2rem",
+                left: "2rem",
+                zIndex: "3",
+              }}
             >
-              <span>X</span>
+              <span className="circleButton" onClick={() => hiddenImgDialog()}>
+                X
+              </span>
+              <span
+                className="circleButton"
+                onClick={(e) => {
+                  saveImage();
+                }}
+              >
+                <FiDownload />
+              </span>
             </div>
             {currentSlide > 0 && (
               <div className="buttonSlide" onClick={() => clickSlideLeft()}>
@@ -109,7 +128,11 @@ export default function ShowImgDialog(props) {
                       onClick={() => clickImg(i)}
                     >
                       <img
-                        src={`${e}`}
+                        src={
+                          props.isMovies
+                            ? `https://image.tmdb.org/t/p/original/${e.file_path}`
+                            : `${e}`
+                        }
                         style={{
                           opacity: `${i == currentSlide ? "1" : "0.2"}`,
                           borderRadius: "1rem",
@@ -121,38 +144,44 @@ export default function ShowImgDialog(props) {
               </div>
             </div>
             {props.listImg && currentSlide < props.listImg.length - 1 && (
-              <div className="buttonSlide" style={{marginRight:"2rem"}} onClick={() => clickSlideRight()}>
-              <span className="">
+              <div
+                className="buttonSlide"
+                style={{ marginRight: "2rem" }}
+                onClick={() => clickSlideRight()}
+              >
+                <span className="">
                   <FiArrowRight></FiArrowRight>
                 </span>
               </div>
             )}
           </div>
           <div className="bottomTitleImg">
-            <div style={{width:"58rem"}}>
-
-            <div className="slideBottom" ref={slideBottom}>
-              {props.listImg &&
-                props.listImg.map((e, i) => (
-                  <div
-                    key={i}
-                    className="imgBottomSingle"
-                    onClick={() => clickImg(i)}
-                    style={{ cursor: "pointer", marginLeft: "0.3rem" }}
-                  >
-                    <img
-                      src={`${e}`}
-                      style={{
-                        opacity: `${i == currentSlide ? "1" : "0.2"}`,
-                        borderRadius: "1rem",
-                        transition: "opacity 500ms linear",
-                      }}
-                    ></img>
-                  </div>
-                ))}
+            <div style={{ width: "58rem" }}>
+              <div className="slideBottom" ref={slideBottom}>
+                {props.listImg &&
+                  props.listImg.map((e, i) => (
+                    <div
+                      key={i}
+                      className="imgBottomSingle"
+                      onClick={() => clickImg(i)}
+                      style={{ cursor: "pointer", marginLeft: "0.3rem" }}
+                    >
+                      <img
+                        src={
+                          props.isMovies
+                            ? `https://image.tmdb.org/t/p/original/${e.file_path}`
+                            : `${e}`
+                        }
+                        style={{
+                          opacity: `${i == currentSlide ? "1" : "0.2"}`,
+                          borderRadius: "1rem",
+                          transition: "opacity 500ms linear",
+                        }}
+                      ></img>
+                    </div>
+                  ))}
+              </div>
             </div>
-            </div>
-
           </div>
         </>
       }

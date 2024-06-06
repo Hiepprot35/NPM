@@ -236,7 +236,13 @@ export default function UserProfile(props) {
                       size="large"
                       className="sendButton"
                       onClick={() => {
-                        handleAddChat(Users.UserID);
+                        if (auth.userID) {
+                          handleAddChat(Users.UserID);
+                        }
+                        else{
+                          window.open(`${process.env.REACT_APP_CLIENT_URL}/login`,"_blank");
+
+                        }
                       }}
                       style={{ width: "3rem", margin: ".2rem" }}
                       icon={

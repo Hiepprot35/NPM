@@ -1,31 +1,36 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
+// Tạo context
 export const DataContext = createContext();
 
+// DataProvider component
 export const DataProvider = ({ children }) => {
   const [listWindow, setListWindow] = useState([]);
   const [listHiddenBubble, setListHiddenBubble] = useState([]);
+
+  // Lấy dữ liệu từ localStorage khi component mount
   useEffect(() => {
-    if (listWindow) {
-      localStorage.setItem("counter", JSON.stringify(listWindow));
+    const storedHiddenBubble = JSON.parse(localStorage.getItem("hiddenCounter"));
+    if (storedHiddenBubble) {
+      setListHiddenBubble(storedHiddenBubble);
     }
+
+    const storedWindow = JSON.parse(localStorage.getItem("counter"));
+    if (storedWindow) {
+      setListWindow(storedWindow);
+    }
+  }, []);
+
+  // Lưu dữ liệu vào localStorage khi listWindow thay đổi
+  useEffect(() => {
+    localStorage.setItem("counter", JSON.stringify(listWindow));
   }, [listWindow]);
+
+  // Lưu dữ liệu vào localStorage khi listHiddenBubble thay đổi
   useEffect(() => {
-    if (listHiddenBubble)
-      localStorage.setItem("hiddenCounter", JSON.stringify(listHiddenBubble));
+    localStorage.setItem("hiddenCounter", JSON.stringify(listHiddenBubble));
   }, [listHiddenBubble]);
-  useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("hiddenCounter"));
-    if (data !== null) {
-      setListHiddenBubble(data);
-    }
-  }, []);
-  useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("counter"));
-    if (data !== null) {
-      setListWindow(data);
-    }
-  }, []);
+
   return (
     <DataContext.Provider value={{ listWindow, setListWindow, listHiddenBubble, setListHiddenBubble }}>
       {children}
@@ -33,6 +38,7 @@ export const DataProvider = ({ children }) => {
   );
 };
 
+// Custom hook để sử dụng DataContext
 export function useData() {
   return useContext(DataContext);
 }

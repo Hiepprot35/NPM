@@ -27,6 +27,7 @@ import {
   FiSearch,
   FiSettings,
   FiSun,
+  FiSunrise,
   FiUser,
 } from "react-icons/fi";
 import SettingComponent from "../../setting/SettingComponent";
@@ -350,7 +351,7 @@ function Header(props) {
                       {GenresList &&
                         GenresList.map((e, i) => (
                           <a
-                          key={i}
+                            key={i}
                             href={`${process.env.REACT_APP_CLIENT_URL}/films/?id=${e.id}&type=${e.name}`}
                             style={{ color: "white" }}
                           >
@@ -401,7 +402,38 @@ function Header(props) {
                 </div>
               }
             </div>
-            <Popover trigger="click" title={<p>Users</p>} content={<FriendList></FriendList>}>
+            {
+              <div className="h-8 w-8 overflow-hidden">
+                <div
+                  className="h-32 transition-all ease-linear duration-300"
+                  style={
+                    primaryColor
+                      ? { transform: "translateY(-2rem)" }
+                      : { transform: "translateY(0)" }
+                  }
+                >
+                  <span
+                    className="circleButton transition-all ease-linear duration-300 m-0"
+                    style={primaryColor ? { opacity: 0 } : { opacity: 1 }}
+                    onClick={ChangeColorTheme}
+                  >
+                    <FiSunrise></FiSunrise>
+                  </span>
+                  <span
+                    className="circleButton transition-all ease-linear duration-300 m-0"
+                    style={primaryColor ? { opacity: 1 } : { opacity: 0 }}
+                    onClick={ChangeColorTheme}
+                  >
+                    <FiMoon></FiMoon>
+                  </span>
+                </div>
+              </div>
+            }
+            <Popover
+              trigger="click"
+              title={<p>Users</p>}
+              content={<FriendList></FriendList>}
+            >
               <div className="circleButton">
                 <FiUser></FiUser>
               </div>
@@ -437,10 +469,10 @@ function Header(props) {
                         <IoLogoGoogle />
                       </span>
                     </LoginGoolge>
-                    Or
+                    <p>OR</p>
                     <span> </span>
                     <NavLink style={{ padding: "1rem" }} to="/login">
-                      Login
+                      <p>Login</p>
                     </NavLink>
                   </>
                 )}

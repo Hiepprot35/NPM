@@ -279,12 +279,10 @@ const VideoPlayer = (props) => {
       }
       setCallEnded(true)
       turnOfCam();
-      // Reset call state
     } catch (error) {
       console.error("Error leaving the call:", error);
     }
   };
-  document.title = "Videoo call";
 
   return (
     <>
@@ -336,7 +334,7 @@ const VideoPlayer = (props) => {
             <div id="videoContainer"></div>
           </>
           <div className="px-8 py-2 rounded-lg bg-white absolute right-10 top-10">
-            <h1 className="text-black ">{timeStart}</h1>
+            <h1 className="text-black ">{cauculatorTime(timeStart)}</h1>
           </div>
         </div>
       }

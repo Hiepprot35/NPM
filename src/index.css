@@ -151,7 +151,7 @@ code {
   display: flex;
   justify-content: center;
   align-items: center; /* 100% viewport height */
-  background-color: rgb(0, 0, 0);
+  background-color: var(--themeColor);
 }
 
 .Loading {

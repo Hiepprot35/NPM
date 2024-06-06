@@ -41,6 +41,7 @@ export default function Home(props) {
   const { AccessToken } = UseToken();
 
   const [isLoading, setIsLoading] = useState(true);
+  const [Img, setImg] = useState();
   const [posts, setPosts] = useState([]);
   const getData = async () => {
     const URL = `${process.env.REACT_APP_DB_HOST}/api/getallstudent`;
@@ -92,20 +93,21 @@ export default function Home(props) {
                 style={{ height: "100vh" }}
                 href={`${process.env.REACT_APP_CLIENT_URL}/home#trending`}
               >
-                <MovieFilms />
+                <MovieFilms setImg={setImg} />
               </InViewComponent>
               <InViewComponent
                 style={{ height: "100vh" }}
                 href={`${process.env.REACT_APP_CLIENT_URL}/home#tvseries`}
               >
-                <TVMovie></TVMovie>
+                <TVMovie Img={Img}/>
               </InViewComponent>
+
               {auth?.userID && (
                 <InViewComponent
                   style={{ height: "200vh" }}
                   href={`${process.env.REACT_APP_CLIENT_URL}/home#playlist`}
                 >
-                  <ListPlay></ListPlay>
+                  <ListPlay Img={Img}/>
                 </InViewComponent>
               )}
             </div>

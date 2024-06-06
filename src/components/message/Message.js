@@ -128,7 +128,6 @@ export default memo(function Message({
   const [processedComment, setProcessedComment] = useState("");
   const options = {
     replace: ({ name, attribs, children }) => {
-      console.log(children);
       if (name === "div" && attribs && attribs.classname === "callMess") {
         return <div className="callMess bg-gray pr-4 flex center">
           <div className="circleButton center">

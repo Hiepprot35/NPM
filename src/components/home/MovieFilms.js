@@ -79,7 +79,7 @@ export default function MovieFilms(props) {
       refMovieFilms.current.style.width = `${Movies.length * 100}%`;
       refSmallSlide.current.style.width = `${Movies.length * 100}%`;
     }
-  }, [Movies,Loading]);
+  }, [Movies, Loading]);
 
   const miniImage = useRef([]);
   const clickNextMovie = () => {
@@ -126,12 +126,15 @@ export default function MovieFilms(props) {
         setBackImg(
           `url(https://image.tmdb.org/t/p/original/${Movies[CurrentMovie]?.backdrop_path})`
         );
+        props.setImg(
+          `url(https://image.tmdb.org/t/p/original/${Movies[CurrentMovie]?.backdrop_path})`
+        );
       }
       return () => {
         ref?.current?.removeEventListener("keydown", handleKeyPress);
       };
     }
-  }, [CurrentMovie, Movies,Loading]);
+  }, [CurrentMovie, Movies, Loading]);
 
   const [MovieLink, setMovieLink] = useState([]);
   const [Report, setReport] = useState(false);
@@ -483,9 +486,7 @@ export default function MovieFilms(props) {
             </div>
           </div>
         </motion.div>
-        
       )}
-     
     </>
   );
 }

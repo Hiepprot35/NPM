@@ -5,7 +5,7 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { TheMovieApi, fetchApiRes } from "../../function/getApi";
 import { timeFilm } from "../../function/getTime";
 import useAuth from "../../hook/useAuth";
@@ -205,7 +205,7 @@ export const Text = (props) => {
   );
 };
 
-export default function ListPlay() {
+ function ListPlay(props) {
   const { auth } = useAuth();
   const [ListFilm, setListFilm] = useState([]);
   const [MovieLink, setMovieLink] = useState();
@@ -268,7 +268,7 @@ export default function ListPlay() {
         className="userMovie"
         id="playlist"
         ref={playlistRef}
-        style={{ opacity: opacity, backgroundImage: `url(/vg2.jpg)` }}
+        style={{ opacity: opacity, backgroundImage: `${props.Img}` }}
       >
         <motion.div className="sunanimation" style={{ rotate: rotate }}>
           <motion.h1 style={{ fontSize: "5rem" }}>⭐</motion.h1>
@@ -345,3 +345,4 @@ export default function ListPlay() {
     </>
   );
 }
+export default memo(ListPlay)

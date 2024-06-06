@@ -77,7 +77,7 @@ input[type=text]:focus {
 .Narbar_ChatApp {
     padding-left: .5rem;
     padding-right: .5rem;
-    width: 15%;
+    width: 25%;
     background-color: var(--themeColor);
 
 }

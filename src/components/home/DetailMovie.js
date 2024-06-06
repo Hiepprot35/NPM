@@ -11,7 +11,13 @@ import useAuth from "../../hook/useAuth.js";
 import Layout from "../Layout/layout.js";
 import Comment from "./Comment.js";
 import "./DetailMovie.js";
-import { FiArrowLeft, FiArrowRight, FiCheck, FiShare, FiShare2 } from "react-icons/fi";
+import {
+  FiArrowLeft,
+  FiArrowRight,
+  FiCheck,
+  FiShare,
+  FiShare2,
+} from "react-icons/fi";
 
 import MyComment from "./MyComment.js";
 import { Image } from "./home.js";
@@ -31,6 +37,7 @@ import ReactPlayer from "react-player";
 import { delay } from "lodash";
 import { fetchVideoTitle } from "../message/windowchat.js";
 import MiniRp from "./MiniRp.js";
+import ShowImgDialog from "../message/windowchat/ShowImgMess.js";
 const TitleVideo = ({ videoID, isCurrent }) => {
   const [Title, setTitle] = useState();
   const [ClickVideo, setClickVideo] = useState();
@@ -156,14 +163,16 @@ export default function DetailMovie(props) {
       `/gettAllCommentFilms/?movieID=${props.movieID}&replyID=-1/`,
       "GET"
     );
-    const commentsRes = res?.result.sort((a, b) => {
-      const timeA = new Date(a.create_at).getTime();
-      const timeB = new Date(b.create_at).getTime();
-      return -timeA + timeB;
-    });
-    setComment(commentsRes);
-    const data = await getStudentInfoByMSSV(auth.username);
-    setMe(data);
+    if (res?.result.length>0) {
+      const commentsRes = res?.result.sort((a, b) => {
+        const timeA = new Date(a.create_at).getTime();
+        const timeB = new Date(b.create_at).getTime();
+        return -timeA + timeB;
+      });
+      setComment(commentsRes);
+      const data = await getStudentInfoByMSSV(auth.username);
+      setMe(data);
+    }
   };
   useEffect(() => {
     getComment();
@@ -300,7 +309,14 @@ export default function DetailMovie(props) {
         Images.length * (videoWidth + 2) + "rem";
     }
   }, [VideosMovie, Images]);
-  const detailSection = (setCurrent, Current, Array, ref, IsVideo) => {
+  const detailSection = (
+    setCurrent,
+    Current,
+    Array,
+    ref,
+    IsVideo,
+    setShowImg
+  ) => {
     return (
       <InViewAnimate setCurrent={setCurrent}>
         <div
@@ -365,7 +381,12 @@ export default function DetailMovie(props) {
                   </>
                 ) : (
                   <img
-                    style={{ objectFit: "cover", width: `${videoWidth}rem` }}
+                    onClick={() => setShowImg(element)}
+                    style={{
+                      objectFit: "cover",
+                      width: `${videoWidth}rem`,
+                      cursor: "pointer",
+                    }}
                     src={`${url}/${element.file_path}`}
                   />
                 )}
@@ -385,6 +406,7 @@ export default function DetailMovie(props) {
       document.title = ` ${Movies.title || Movies.name}`;
     }
   }, [Movies]);
+  const [ShowImg, setShowImg] = useState();
   const checkScore = (score) => {
     if (score < 3.5) {
       return "red";
@@ -398,7 +420,7 @@ export default function DetailMovie(props) {
   };
   const [sortCommentLastest, setsortCommentLastest] = useState();
   useEffect(() => {
-    if (comments && comments.length > 0) {
+    if (comments && comments?.length > 0) {
       const sortedComments = [...comments]; // Create a copy to avoid mutating the original state
       if (sortCommentLastest) {
         sortedComments.sort(
@@ -411,19 +433,22 @@ export default function DetailMovie(props) {
     }
   }, [sortCommentLastest]); // Add comments to dependency array to trigger effect when comments change
   const [ShowMiniRp, setShowMiniRp] = useState(false);
-  const copyURLHandle=()=>
-    {
-      navigator.clipboard.writeText(
-        `${process.env.REACT_APP_CLIENT_URL}/movie/moviedetail/${props.movieID}`
-      );
-      setShowMiniRp(true)
+  const copyURLHandle = () => {
+    navigator.clipboard.writeText(
+      `${process.env.REACT_APP_CLIENT_URL}/movie/moviedetail/${props.movieID}`
+    );
+    setShowMiniRp(true);
+  };
+  useEffect(() => {
+    if (ShowMiniRp) {
+      setTimeout(() => {
+        setShowMiniRp(false);
+      }, 2000);
     }
-    useEffect(() => {
-      if(ShowMiniRp)
-        {
-          setTimeout(()=>{setShowMiniRp(false)},2000)
-        }
-    }, [ShowMiniRp]);
+  }, [ShowMiniRp]);
+  useEffect(() => {
+    console.log((comments),"aaaaaaaaaaaaaaaaaaaaa")
+  }, [comments]);
   const getActors = async () => {
     try {
       setLoading(true);
@@ -556,7 +581,7 @@ export default function DetailMovie(props) {
                       <span
                         className="circleButton"
                         onClick={() => {
-                          copyURLHandle()
+                          copyURLHandle();
                         }}
                       >
                         <FiShare2></FiShare2>
@@ -709,7 +734,9 @@ export default function DetailMovie(props) {
                     setCurrenImage,
                     CurrentImage,
                     Images,
-                    ImagesSlideRef
+                    ImagesSlideRef,
+                    false,
+                    setShowImg
                   )}
 
                 {
@@ -725,10 +752,7 @@ export default function DetailMovie(props) {
                       >
                         <div style={{ margin: 0, position: "relative" }}>
                           <h1 style={{ margin: 0 }}>Comment</h1>
-                          <div
-                            className="center countText"
-                           
-                          >
+                          <div className="center countText">
                             <p>{comments.length}</p>
                           </div>
                         </div>
@@ -777,7 +801,7 @@ export default function DetailMovie(props) {
                         </div>
                       </div>
                       {auth.userID && (
-                        <motion.div style={{zIndex:"2"}}>
+                        <motion.div style={{ zIndex: "2" }}>
                           <MyComment
                             setRender={setRender}
                             movieID={props.movieID}
@@ -808,14 +832,23 @@ export default function DetailMovie(props) {
                   </motion.section>
                 }
               </motion.div>
+              {Images.length > 0 && ShowImg && (
+                <ShowImgDialog
+                  listImg={Images}
+                  current={ShowImg}
+                  setShowImgMess={setShowImg}
+                  isMovies={true}
+                ></ShowImgDialog>
+              )}
             </motion.div>
           ) : (
             <NotFoundFilms></NotFoundFilms>
           )}
-          {
-
-ShowMiniRp && <MiniRp><FiCheck></FiCheck> Coypied URL</MiniRp>
-          }
+          {ShowMiniRp && (
+            <MiniRp>
+              <FiCheck></FiCheck> Coypied URL
+            </MiniRp>
+          )}
         </Layout>
       )}
     </>

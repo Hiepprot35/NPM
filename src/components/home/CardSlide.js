@@ -212,7 +212,7 @@ export const CardSlide = ({ e, i, card, className }) => {
         </div>
         <div
           className="hiddenText"
-          style={{ width: `${card.width}vw`, height: "2rem" }}
+          style={{ width: `${card.width}vw`, height: "2rem", margin: `${card.width / 15}vw`, }}
         >
           <p>{e.title || e.original_name}</p>
         </div>
