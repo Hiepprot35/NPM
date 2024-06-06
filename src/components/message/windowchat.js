@@ -79,7 +79,7 @@ export default (function WindowChat(props) {
   const [messages, setMessages] = useState(props.messages);
 
   const [onlineUser, setOnlineUser] = useState();
-  const { Onlines,CallComing,setCallComing } = useRealTime();
+  const { Onlines, CallComing, setCallComing } = useRealTime();
   // useEffect(() => {
   //   if (socket) {
   //     socket.emit("getUsers");
@@ -521,15 +521,18 @@ export default (function WindowChat(props) {
     }
   }, [socket]);
   const handleVideoCall = () => {
-    setCallComing({calling:true,userID:userInfor?.UserID,converID:props.count.id})
+    const width = 800; // Chiều rộng của cửa sổ tab nhỏ
+    const height = 800*9/16; // Chiều cao của cửa sổ tab nhỏ
 
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
+
+    // Các thuộc tính của cửa sổ mới
+    const windowFeatures = `width=${width},height=${height},top=${top},left=${left}`;
+    const url = `${process.env.REACT_APP_CLIENT_URL}/videocall/?userID=${userInfor?.UserID}&converID=${props.count.id}`;
+    window.open(url, "Call Video", windowFeatures);
   };
-  // useEffect(() => {
-  //   console.log(CallComing,"coming")
-  //   if (CallComing) {
-  //     handleVideoCall();
-  //   }
-  // }, [CallComing, setCallComing]);
+
   return (
     <>
       {(listWindow.some((e) => e.id === props?.count.id) || props.chatApp) && (
@@ -609,10 +612,7 @@ export default (function WindowChat(props) {
               >
                 <FiMinus></FiMinus>
               </div>
-              <div
-                className="features_hover"
-                onClick={handleVideoCall}
-              >
+              <div className="features_hover" onClick={handleVideoCall}>
                 <FiVideo></FiVideo>
               </div>
               <div

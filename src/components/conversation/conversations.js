@@ -86,13 +86,7 @@ export default memo(function Conversation({
     const data = await getMess(conversation);
     setNewestMesst(data);
   };
-  useEffect(() => {
-    if(NewestMess)
-      {
 
-        console.log(parse(NewestMess.content))
-      }
-  }, [NewestMess]);
   useEffect(() => {
     getNewestMess();
   }, [sendMess]);
