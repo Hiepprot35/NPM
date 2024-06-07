@@ -115,15 +115,14 @@ export default (function WindowChat(props) {
               Authorization: `Bearer ${AccessToken}`,
               "Content-Type": "application/json",
               RefreshToken: RefreshToken,
-
             },
-          
           }
         );
         const data = await res.json();
         if (data.error) {
           setErrorMess("Vui lòng đăng nhập để thực hiện");
-          setListHiddenBubble([]);setListWindow([])
+          setListHiddenBubble([]);
+          setListWindow([]);
         } else {
           setMessages(data);
         }
@@ -571,7 +570,7 @@ export default (function WindowChat(props) {
                               <Image
                                 className="avatarImage"
                                 alt="Avatar"
-                                src={userInfor?.img}
+                                src={props.count.img}
                               ></Image>
 
                               <span
@@ -591,7 +590,9 @@ export default (function WindowChat(props) {
                               className="hiddenEllipsis"
                               style={{ fontWeight: "600" }}
                             >
-                              {userInfor?.Name}
+                              {(props.count.user1 === auth.userID
+                                ? props.count.user2_mask
+                                : props.count.user1_mask) || userInfor?.Name}
                             </p>
                             {
                               <p style={{ fontSize: ".7rem" }}>
@@ -644,7 +645,7 @@ export default (function WindowChat(props) {
               <div className="Body_Chatpp">
                 <div className="main_windowchat" ref={main_windowchat}>
                   <div className="messages" ref={messagesRef}>
-                    {messages &&
+                    {messages ?
                       messages.map((message, index) => (
                         <div className="message_content" key={message.id}>
                           <Message
@@ -662,7 +663,7 @@ export default (function WindowChat(props) {
                             setShowImgMess={setShowImgMess}
                           ></Message>
                         </div>
-                      ))}
+                      )):<div className="loader"></div>}
                   </div>
                 </div>
                 <div className="inputValue windowchat_feature center">
@@ -897,9 +898,7 @@ export default (function WindowChat(props) {
           )}
         </>
       ) : (
-        <Modal open={ErrorMess ? true : false}>
-          {ErrorMess}
-        </Modal>
+        <Modal open={ErrorMess ? true : false}>{ErrorMess}</Modal>
       )}
     </>
   );

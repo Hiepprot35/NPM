@@ -13,7 +13,7 @@ import { Button, Layout, Popover } from "antd";
 import GerenalFriendComponent from "../home/gerenalFriendComponent";
 import { FiMessageCircle, FiUserPlus } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
-import { fetchApiRes } from "../../function/getApi";
+import { fetchApiRes, getStudentInfoByMSSV, getUserinfobyID } from "../../function/getApi";
 import { useData } from "../../context/dataContext";
 import { getConversation } from "../conversation/getConversation";
 import { useSocket } from "../../context/socketContext";
@@ -33,6 +33,22 @@ export default function UserProfile(props) {
     const newArray = array.filter((obj) => obj?.id !== index);
     return newArray;
   };
+  const AddConver = async (id, request) => {
+    try {
+      const authName = await getStudentInfoByMSSV(auth.username);
+      const res = await fetchApiRes("conversations", "POST", {
+        user1: auth.userID,
+        user2: id,
+        user1_mask: authName.Name,
+        user2_mask: Users.Name,
+        created_at: Date.now(),
+      });
+      return res?.result;
+    } catch (error) {
+      console.log(error)
+    }
+  
+  };
   const addToConverArray = (prev, id) => {
     const newClicked = prev.filter((obj) => obj.id !== id);
     const con = prev.find((e) => e.id === id);
@@ -46,12 +62,7 @@ export default function UserProfile(props) {
     const converFound = await foundConversation(id, auth.userID);
     console.log(converFound);
     if (!converFound) {
-      const data = await fetchApiRes("conversations", "POST", {
-        user1: auth.userID,
-        user2: id,
-        Requesting: 1,
-      });
-      console.log(data);
+      await AddConver(id, true);
     } else {
       const data = await fetchApiRes("message/updateConversation", "POST", {
         Requesting: 1,
@@ -79,21 +90,17 @@ export default function UserProfile(props) {
 
   const handleAddChat = async (id) => {
     try {
-      // setIsLoading(true)
+      console.log("add chat")
       const converFound = await foundConversation(id, auth.userID);
+      console.log(converFound)
       if (!converFound) {
         try {
-          const res = await fetchApiRes("conversations", "POST", {
-            user1: auth.userID,
-            user2: id,
-            created_at: Date.now(),
-          });
+          console.log("Adđ")
+          const data = await AddConver(id);
 
-          const data = res?.result;
-          console.log(data, "ssss");
           setListWindow((pre) => [
             ...pre,
-            { id: data, user1: auth.userID, user2: id, created_at: Date.now() },
+            { id: data, user1: auth.userID, user2: id, created_at: Date.now(),img:Users.img },
           ]);
         } catch (error) {
           console.log(error);
@@ -102,10 +109,8 @@ export default function UserProfile(props) {
         setListWindow((pre) => {
           const foundIndex = pre.findIndex((e) => e.id === converFound.id);
           if (foundIndex === -1) {
-            // If converFound is not in the list, add it
-            return [...pre, converFound];
+            return [...pre, {...converFound,img:Users.img}];
           } else {
-            // If converFound is already in the list, move it to the beginning
             const updatedList = pre.filter((e) => e.id !== converFound.id);
             updatedList.unshift(converFound);
             return updatedList;
@@ -128,14 +133,12 @@ export default function UserProfile(props) {
         user2: user1,
       }),
     ]);
-    console.log("Côf,", conversations);
     const result = conversations.reduce((acc, curr) => {
       if (curr?.result?.length > 0) {
         acc = curr.result[0];
       }
       return acc;
     }, false);
-
     return result;
   };
   const [userFriendList, setUserFriendList] = useState([]);
@@ -238,10 +241,11 @@ export default function UserProfile(props) {
                       onClick={() => {
                         if (auth.userID) {
                           handleAddChat(Users.UserID);
-                        }
-                        else{
-                          window.open(`${process.env.REACT_APP_CLIENT_URL}/login`,"_blank");
-
+                        } else {
+                          window.open(
+                            `${process.env.REACT_APP_CLIENT_URL}/login`,
+                            "_blank"
+                          );
                         }
                       }}
                       style={{ width: "3rem", margin: ".2rem" }}
