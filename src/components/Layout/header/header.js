@@ -41,6 +41,12 @@ import { useOutsideClick } from "../../../hook/useOutsideClick";
 import { TextAnimetion } from "../../home/Slide";
 import { Span, Text } from "../../home/listPlay";
 import FriendList from "../../home/friend";
+import {
+  Month,
+  getDate,
+  getNameMonth,
+  getTime,
+} from "../../../function/getTime";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -99,7 +105,7 @@ function Header(props) {
     };
   }, [socket, auth]);
   const updateTitle = async (id) => {
-    console.log("id")
+    console.log("id");
     const username = await getUserinfobyID(parseInt(id));
     const nameSV = await getStudentInfoByMSSV(username?.username);
     document.title = `${nameSV?.Name} gửi tin nhắn`;
@@ -280,7 +286,21 @@ function Header(props) {
       `${!primaryColor ? "rgb(24,25,26)" : "white"}`
     );
   }, [primaryColor]);
-
+  const [Clock, setClock] = useState();
+  useEffect(() => {
+    const intel = setInterval(() => {
+      const showTime = new Date();
+      const day = showTime.getDate();
+      const month = showTime.getMonth();
+      const h = showTime.getHours().toString().padStart(2, "0");
+      const m = showTime.getMinutes().toString().padStart(2, "0");
+      const s = showTime.getSeconds().toString().padStart(2, "0");
+      setClock({ month: month + 1, day: day, h: h, m: m, s: s });
+    }, [1000]);
+    return () => {
+      clearInterval(intel);
+    };
+  }, []);
   const typeMoviesRef = useOutsideClick(() => setShowGenres(false));
   return (
     <>
@@ -289,14 +309,36 @@ function Header(props) {
           <div className="rightHeader" style={{ width: "30%" }}>
             <ul className="list">
               <li>
-                <div className="center TempText">
-                  <img
-                    style={{ width: "2rem", height: "2rem" }}
-                    src={`${weather.icon}`}
-                    alt={weather.weather}
-                  />
-                  <p className="City citytemp"> {weather.temp}°C</p>
-                </div>
+                {Clock && city && (
+                  <div className="inline-flex TempText p-0 h-12 w-32 overflow-hidden">
+                    <div className="w-64 center animationTemp">
+
+                    <div className=" center w-32">
+                      <div>
+                        <p className="text-xs">
+                          {Clock?.day + "," + Month(Clock?.month)}
+                        </p>
+                        <p className="uppercase font-semibold text-xs">
+                          {city}
+                        </p>
+                      </div>
+                      <div className=" h-full px-2">
+                        <p>{Clock?.h + ":" + Clock?.m}</p>
+                      </div>
+                    </div>
+                    <div className="center w-32">
+                      <p className="City citytemp"> {weather.temp}°C</p>
+                      <div className="w-8 h-8">
+                        <img
+                          className="w-full"
+                          src={`${weather.icon}`}
+                          alt={weather.weather}
+                        />
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                )}
               </li>
               {header_Student
                 .filter(

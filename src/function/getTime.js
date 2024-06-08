@@ -88,7 +88,48 @@ export function countTime(data) {
     return `${day}d`;
   }
 }
-
+export const Month=(time)=>{
+  let nameMonth;
+  switch (parseInt(time)) {
+    case 1:
+      nameMonth = "Jan";
+      break;
+    case 2:
+      nameMonth = "Feb";
+      break;
+    case 3:
+      nameMonth = "Mar";
+      break;
+    case 4:
+      nameMonth = "Apr";
+      break;
+    case 5:
+      nameMonth = "May";
+      break;
+    case 6:
+      nameMonth = "Jun";
+      break;
+    case 7:
+      nameMonth = "Jul";
+      break;
+    case 8:
+      nameMonth = "Aug";
+      break;
+    case 9:
+      nameMonth = "Sep";
+      break;
+    case 10:
+      nameMonth = "Oct";
+      break;
+    case 11:
+      nameMonth = "Nov";
+      break;
+    case 12:
+      nameMonth = "Dec";
+      break;
+  }
+  return nameMonth
+}
 export const getNameMonth = (time) => {
   if (time) {
         

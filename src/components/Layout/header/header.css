@@ -339,3 +339,26 @@ hr {
   display: flex;
   flex-direction: column;
 }
+.animationTemp {
+  animation: translateXAnimation 8s infinite;
+  /* animation: [tên animation] [tổng thời gian] [vô hạn] */
+}
+
+.animationTemp {
+  animation: translateXAnimation 8s infinite;
+}
+
+@keyframes translateXAnimation {
+  0%, 25% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-50%);
+  }
+  75% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
