@@ -99,9 +99,10 @@ function Header(props) {
     };
   }, [socket, auth]);
   const updateTitle = async (id) => {
+    console.log("id")
     const username = await getUserinfobyID(parseInt(id));
     const nameSV = await getStudentInfoByMSSV(username?.username);
-    document.title = `${nameSV.Name} gửi tin nhắn`;
+    document.title = `${nameSV?.Name} gửi tin nhắn`;
   };
 
   const itemVariants = {

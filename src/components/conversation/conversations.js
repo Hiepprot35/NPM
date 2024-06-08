@@ -24,15 +24,21 @@ export default memo(function Conversation({
   Online,
   notSeen_field,
   sendMess,
+  setCurrentUser,
+  currentChat,
 }) {
   const [user, setUser] = useState();
   const { auth } = useAuth();
   const socket = useSocket();
   const [isLoading, setIsLoading] = useState(true);
   const [username, setUsername] = useState();
-  const [NewestMess, setNewestMesst] = useState();
+  const [NewestMess, setNewestMesst] = useState(conversation);
   const data = [conversation.user1, conversation.user2];
-
+  useEffect(() => {
+    if (conversation) {
+      console.log(conversation);
+    }
+  }, [conversation]);
   const setOnlineUser = data.find((m) => m !== auth.userID);
   const ListusersOnline = (Online && Online.map((item) => item.userId)) || [];
   useEffect(() => {
@@ -80,19 +86,27 @@ export default memo(function Conversation({
     studentInfo();
   }, [username]);
   useEffect(() => {
-    console.log("render conver");
-  }, []);
+    if (currentChat) {
+      console.log(currentChat, "con");
+      setCurrentUser(user);
+    }
+  }, [currentChat]);
   const getNewestMess = async () => {
     const data = await getMess(conversation);
     setNewestMesst(data);
   };
 
   useEffect(() => {
-    getNewestMess();
+    if (sendMess) {
+      if (sendMess.conversation_id === conversation.id) {
+        console.log(sendMess);
+        setNewestMesst(sendMess);
+      }
+    }
   }, [sendMess]);
   return (
     <>
-      {user && (
+      {user ? (
         <>
           <div className="conversation">
             <div className="Avatar_status">
@@ -138,9 +152,8 @@ export default memo(function Conversation({
                                     )
                                   ? "Đã gửi một ảnh"
                                   : parse(NewestMess.content)}
-                                
                               </span>
-                              
+
                               <span>
                                 {timeUse.countTime(NewestMess.created_at)}
                               </span>
@@ -167,6 +180,10 @@ export default memo(function Conversation({
             </div>
           </div>
         </>
+      ) : (
+        <div className="conversation">
+          <div className="loader"></div>
+        </div>
       )}
     </>
   );

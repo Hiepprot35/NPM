@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useSocket } from "../../context/socketContext";
-import { getUserinfobyID } from "../../function/getApi";
+import { getStudentInfoByMSSV, getUserinfobyID } from "../../function/getApi";
 import useAuth from "../../hook/useAuth";
 import Header from "../Layout/header/header";
 import Conversation from "../conversation/conversations";
@@ -39,7 +39,10 @@ const ChatApp = ({ messageId }) => {
             }
           );
           const data = await res.json();
-          setCurrentChat(data);
+          const userID = auth.userID === data.user2 ? data.user1 : data.user2;
+          const username = await getUserinfobyID(userID);
+          const avt = await getStudentInfoByMSSV(username.username);
+          setCurrentChat({ ...data, img: avt.img });
         } catch (err) {
           console.log(err);
         }
@@ -51,12 +54,18 @@ const ChatApp = ({ messageId }) => {
   const socket = useSocket();
   let isCancel = false;
   // const ListusersOnline = onlineUser && onlineUser.map(item => item.userId) || [];
+  const navigate = useNavigate();
+
   const ClickChat = (data) => {
     setCurrentChat(data);
+    navigate(
+      `/message/${data.user1 === auth.userID ? data.user2 : data.user1}`,
+      { replace: true }
+    );
   };
-  useEffect(() => {
-    inputMess.current && inputMess.current.focus();
-  }, [currentChat]);
+  // useEffect(() => {
+  //   inputMess.current && inputMess.current.focus();
+  // }, [currentChat]);
   useEffect(() => {
     if (socket) {
       socket.on("getUserSeen", (data) => {
@@ -68,16 +77,15 @@ const ChatApp = ({ messageId }) => {
     }
   }, [socket]);
 
-
-
   const [sendMess, setsendMess] = useState(false);
   useEffect(() => {
+    console.log("getconversation");
     async function AsyncGetCon() {
       const convers = await getConversation(auth);
       setConversation(convers);
     }
     AsyncGetCon();
-  }, [sendMess]);
+  }, []);
   useEffect(() => {
     const receiverId = currentChat
       ? currentChat.user1 !== auth.userID
@@ -131,8 +139,9 @@ const ChatApp = ({ messageId }) => {
       setSearchResults(result);
     }
   }, [searchTerm]);
+  const [CurrentUser, setCurrentUser] = useState();
   useEffect(() => {
-    console.log("ccurnechat", currentChat);
+    console.log(currentChat);
   }, [currentChat]);
   return (
     <>
@@ -146,59 +155,36 @@ const ChatApp = ({ messageId }) => {
                 className="chatMenuInput"
                 onChange={(e) => handleSearch(e)}
               />
-              {clicked
-                ? searchResults.map((c, index) => (
-                    <div
-                      onClick={() => {
-                        ClickChat(c);
-                      }}
-                      key={index}
-                      className="converrsation_chat"
-                      style={
-                        currentChat === c
-                          ? { backgroundColor: "rgb(245, 243, 243)" }
-                          : {}
-                      }
-                    >
-                      <Conversation
-                        conversation={c}
-                        currentUser={auth.userID}
-                        sendMess={sendMess}
-                        Online={onlineUser}
-                        listSeen={isSeen}
-                      />
-                    </div>
-                  ))
-                : conversations &&
-                  conversations.map((c, index) => (
-                    <Link
-                      key={c.id}
-                      to={`/message/${
-                        c.user1 === auth.userID ? c.user2 : c.user1
-                      }`}
-                    >
-                      <div
-                        onClick={() => {
-                          ClickChat(c);
-                        }}
-                        key={index}
-                        className="converrsation_chat"
-                        style={
-                          currentChat && currentChat?.id === c.id
-                            ? { backgroundColor: "rgb(245, 243, 243)" }
-                            : {}
-                        }
-                      >
-                        <Conversation
-                          conversation={c}
-                          currentUser={auth.userID}
-                          sendMess={sendMess}
-                          Online={Onlines}
-                          listSeen={isSeen}
-                        />
-                      </div>
-                    </Link>
-                  ))}
+              {conversations.length > 0 ? (
+                conversations.map((c, index) => (
+                  <div
+                    onClick={() => {
+                      ClickChat(c);
+                    }}
+                    key={c.id}
+                    className="converrsation_chat"
+                    style={
+                      currentChat && currentChat?.id === c.id
+                        ? { backgroundColor: "rgb(245, 243, 243)" }
+                        : {}
+                    }
+                  >
+                    <Conversation
+                      conversation={c}
+                      currentUser={auth.userID}
+                      sendMess={sendMess}
+                      currentChat={currentChat?.id === c?.id}
+                      setCurrentUser={setCurrentUser}
+                      Online={Onlines}
+                      listSeen={isSeen}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="converrsation_chat">
+                  <div className="loader"></div>
+                </div>
+              )}
             </div>
             <div className="Main_ChatApp">
               {conversations.length === 0 ? (
@@ -219,7 +205,10 @@ const ChatApp = ({ messageId }) => {
                       <div className="Body_mainChatApp">
                         <div className="ChatApp">
                           <WindowChat
-                            count={currentChat}
+                            count={{
+                              ...currentChat,
+                              img: currentChat.img || CurrentUser?.img,
+                            }}
                             Seen={userSeenAt}
                             chatApp={true}
                             setsendMess={setsendMess}

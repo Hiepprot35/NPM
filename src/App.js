@@ -78,8 +78,9 @@ function App() {
             <Route path="/friends" element={<FriendList />} />
             <Route path="/films" element={<MoviesType />} />
             <Route path="/videocall" element={<VideoCall/>}></Route>
-            <Route path="/message" element={<ChatApp />} />
+            <Route path="/message" element={<MessageRoute />} />
             <Route path="*" element={<Home />} />
+
             <Route path="/message/:messageId" element={<MessageRoute />} />
             <Route path="/lichhoc" element={<ViewTimetable />} />
             <Route path="/setting" element={<SettingAccount />} />

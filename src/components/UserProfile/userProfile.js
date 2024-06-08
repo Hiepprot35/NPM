@@ -13,7 +13,11 @@ import { Button, Layout, Popover } from "antd";
 import GerenalFriendComponent from "../home/gerenalFriendComponent";
 import { FiMessageCircle, FiUserPlus } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
-import { fetchApiRes, getStudentInfoByMSSV, getUserinfobyID } from "../../function/getApi";
+import {
+  fetchApiRes,
+  getStudentInfoByMSSV,
+  getUserinfobyID,
+} from "../../function/getApi";
 import { useData } from "../../context/dataContext";
 import { getConversation } from "../conversation/getConversation";
 import { useSocket } from "../../context/socketContext";
@@ -43,11 +47,11 @@ export default function UserProfile(props) {
         user2_mask: Users.Name,
         created_at: Date.now(),
       });
-      return res?.result;
+      console.log(res)
+      return res.result;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  
   };
   const addToConverArray = (prev, id) => {
     const newClicked = prev.filter((obj) => obj.id !== id);
@@ -87,59 +91,82 @@ export default function UserProfile(props) {
     const data = result.result.map((e) => checkID(e, Users?.UserID));
     setUserFriendList(data);
   };
-
+  const replaceCover = (pre, data) => {
+    return pre.map((e) =>
+      (e.user1 === data.user1 && e.user2 === data.user2) ||
+      (e.user2 === data.user1 && e.user1 === data.user2)
+        ? data
+        : e
+    );
+  };
   const handleAddChat = async (id) => {
     try {
-      console.log("add chat")
+      const conver = {
+        user1: auth.userID,
+        user2: id,
+        user2_mask: Users?.Name,
+        created_at: Date.now(),
+        img: Users.img,
+      };
+
+      const foundIndex = listWindow.findIndex(
+        (e) =>
+          (e.user1 === conver.user1 && e.user2 === conver.user2) ||
+          (e.user2 === conver.user1 && e.user1 === conver.user2)
+      );
+      const inHiddent = listHiddenBubble.find(
+        (e) =>
+          (e.user1 === conver.user1 && e.user2 === conver.user2) ||
+          (e.user2 === conver.user1 && e.user1 === conver.user2)
+      );
+      if (foundIndex === -1 && !inHiddent) {
+        setListWindow((pre) => [...pre, conver]);
+      } else {
+        let updatedList = [...listWindow];
+        if (inHiddent) {
+          setListHiddenBubble((pre) => pre.filter((e) => e !== inHiddent));
+          updatedList.unshift(inHiddent);
+        }
+        if (foundIndex) {
+          const element = updatedList.splice(foundIndex, 1)[0];
+          updatedList.unshift(element);
+        }
+
+        setListWindow(updatedList);
+      }
+
       const converFound = await foundConversation(id, auth.userID);
-      console.log(converFound)
+
       if (!converFound) {
         try {
-          console.log("Adđ")
           const data = await AddConver(id);
-
-          setListWindow((pre) => [
-            ...pre,
-            { id: data, user1: auth.userID, user2: id, created_at: Date.now(),img:Users.img },
-          ]);
+          console.log(data)
+          setListWindow((prev) =>
+            replaceCover(prev, { id: data, ...conver })
+          );
         } catch (error) {
           console.log(error);
         }
       } else {
-        setListWindow((pre) => {
-          const foundIndex = pre.findIndex((e) => e.id === converFound.id);
-          if (foundIndex === -1) {
-            return [...pre, {...converFound,img:Users.img}];
-          } else {
-            const updatedList = pre.filter((e) => e.id !== converFound.id);
-            updatedList.unshift(converFound);
-            return updatedList;
-          }
-        });
-
-        setListHiddenBubble(removeElement(listHiddenBubble, converFound.id));
+        setListWindow((prev) =>
+          replaceCover(prev, { id: converFound.id, ...conver })
+        );
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const foundConversation = async (user1, user2) => {
-    const conversations = await Promise.all([
-      fetchApiRes("message/getConversation", "POST", {
-        user1: user1,
-        user2: user2,
-      }),
-      fetchApiRes("message/getConversation", "POST", {
-        user1: user2,
-        user2: user1,
-      }),
-    ]);
-    const result = conversations.reduce((acc, curr) => {
-      if (curr?.result?.length > 0) {
-        acc = curr.result[0];
-      }
-      return acc;
-    }, false);
-    return result;
+    const conversations = await fetchApiRes("message/getConversation", "POST", {
+      user1: user1,
+      user2: user2,
+    });
+    if (conversations.result.length > 0) {
+      return conversations.result[0];
+    } else {
+      return false;
+    }
   };
   const [userFriendList, setUserFriendList] = useState([]);
   const checkID = (array, id) => {

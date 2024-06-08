@@ -52,7 +52,7 @@ export const fetchVideoTitle = async (videoID) => {
     return null;
   }
 };
-export default (function WindowChat(props) {
+export default memo(function WindowChat(props) {
   const { auth } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [UpdateMess, setUpdateMess] = useState();
@@ -80,29 +80,14 @@ export default (function WindowChat(props) {
   const [userInfor, setUserInfo] = useState();
   const [messages, setMessages] = useState(props.messages);
 
-  const [onlineUser, setOnlineUser] = useState();
   const { Onlines, CallComing, setCallComing } = useRealTime();
-  // useEffect(() => {
-  //   if (socket) {
-  //     socket.emit("getUsers");
-  //     socket.on("sendUsers", (data) => {
-  //       setOnlineUser(data);
-  //     });
-  //     socket.on("getUsers", (data) => {
-  //       setOnlineUser(data);
-  //     });
-  //   }
-  //   return () => {
-  //     if (socket) {
-  //       socket.off("disconnect");
-  //     }
-  //   };
-  // }, [socket]);
+
   const [Sending, setSending] = useState(false);
   const [ErrorMess, setErrorMess] = useState();
   const [ShowImgMess, setShowImgMess] = useState();
   const { AccessToken, setAccessToken } = UseToken();
   const { RefreshToken } = UseRfLocal();
+  const channel = new BroadcastChannel("message_channel");
 
   async function getMessages() {
     if (props.count?.id) {
@@ -197,19 +182,37 @@ export default (function WindowChat(props) {
     console.log(imgView);
   }, [imgView]);
   let isSetting = false;
+  useEffect(() => {
+    // Lắng nghe thông điệp từ các tab khác
+    channel.onmessage = (event) => {
+      if (event.data.conversation_id === props.count.id) {
+        setArrivalMessage(event.data)
+      }
+    };
+
+    return () => {
+      channel.close();
+    };
+  }, [props.count]);
 
   const socketSend = async (data) => {
     try {
       if (socket && !isSetting) {
         isSetting = true;
-
-        socket.emit("sendMessage", {
+        const mess = {
           conversation_id: props.count.id,
           sender_id: data.sender_id,
           receiverId: userConver,
           content: data.content,
           isFile: data.isFile,
-        });
+          created_at: Date.now(),
+        };
+        // channel.postMessage(mess);
+
+        socket.emit("sendMessage", mess);
+        if (props.chatApp === true) {
+          props.setsendMess(mess);
+        }
       }
       console.log(data);
     } catch (error) {
@@ -232,12 +235,12 @@ export default (function WindowChat(props) {
     };
     const content =
       "emojiLinkhttps://cdn.jsdelivr.net/npm/emoji-datasource-facebook/img/facebook/64/1f606.pngemojiLink";
-    setMessages((pre) => [...pre, { ...messObj, content: content, isFile: 0 }]);
     data.set("isFile", 0);
     data.set("sender_id", auth.userID);
     data.set("conversation_id", props.count.id);
     data.set("created_at", Date.now());
     data.set("content", content);
+    channel.postMessage({ ...messObj, content: content, isFile: 0 });
     const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
       method: "POST",
       body: data,
@@ -262,6 +265,11 @@ export default (function WindowChat(props) {
       };
       const update = [...messages];
       if (ImageFile.length > 0) {
+        channel.postMessage({
+          ...messObj,
+          content: viewImg.toString(),
+          isFile: 1,
+        });
         update.push({
           ...messObj,
           content: viewImg.toString(),
@@ -269,6 +277,11 @@ export default (function WindowChat(props) {
         });
       }
       if (messagesText.length > 0 && emojiText.length === 0) {
+        channel.postMessage({
+          ...messObj,
+          content: messagesText,
+          isFile: 0,
+        });
         update.push({
           ...messObj,
           content: messagesText,
@@ -283,13 +296,19 @@ export default (function WindowChat(props) {
             "emojiLink" + e.imageUrl + "emojiLink"
           );
         });
+        channel.postMessage({
+          ...messObj,
+          content: updatedInputMess,
+          isFile: 0,
+        });
+
         update.push({
           ...messObj,
           content: updatedInputMess,
           isFile: 0,
         });
       }
-      setMessages(update);
+      // setMessages(update);
       setSending(true);
       setEmtyImg();
       setEmoji([]);
@@ -344,10 +363,6 @@ export default (function WindowChat(props) {
       }
 
       // setMessages(prevMessages => [...prevMessages, ...promises]);
-
-      if (props.chatApp === true) {
-        props.setsendMess((pre) => !pre);
-      }
     } catch (err) {
       setSending(true);
     } finally {
@@ -382,6 +397,7 @@ export default (function WindowChat(props) {
     if (arrivalMessage) {
       const data = [props.count?.user1, props.count?.user2];
       data.includes(arrivalMessage.sender_id) &&
+        parseInt(arrivalMessage.conversation_id) === props.count.id &&
         setMessages((prev) => [...prev, arrivalMessage]);
     }
   }, [arrivalMessage]);
@@ -415,6 +431,7 @@ export default (function WindowChat(props) {
     }
   }, [props.count?.id]);
   useEffect(() => {
+    setMessages();
     getMessages();
   }, [props.count?.id]);
   const messagesRef = useRef();
@@ -484,34 +501,25 @@ export default (function WindowChat(props) {
     }
   };
   useEffect(() => {
-    console.log("render", props.count);
-  }, []);
-  // useEffect(() => {
-  //   getNewstMess(props?.count.id);
-  // }, [props?.count.id]);
-
+    console.log(props.count);
+  }, [props.count]);
   useEffect(() => {
     if (socket) {
       const handleUpdateNewSend = (data) => {
-        getMessages();
         if (props.chatApp === true) {
-          props.setsendMess((pre) => !pre);
+          props.setsendMess({ ...data, created_at: Date.now() });
         }
+        setArrivalMessage({ ...data, created_at: Date.now() });
       };
       const updateMess = (data) => {
         if (props.chatApp === true) {
-          props.setsendMess((pre) => !pre);
+          props.setsendMess({ ...data, created_at: Date.now() });
         }
-        setArrivalMessage({
-          sender_id: data.sender_id,
-          content: data.content,
-          isFile: parseInt(data.isFile),
-          created_at: Date.now(),
-          conversation_id: data.conversation_id,
-        });
+
+        setArrivalMessage({ ...data, created_at: Date.now() });
       };
       socket.on("getMessage", (data) => updateMess(data));
-      socket.on("updateNewSend", handleUpdateNewSend);
+      // socket.on("updateNewSend", handleUpdateNewSend);
       socket.on("getUserSeen", (data) => {
         if (data) {
           getNewstMess(data.converid);
@@ -528,7 +536,7 @@ export default (function WindowChat(props) {
         socket.off("updateNewSend", handleUpdateNewSend);
       };
     }
-  }, [socket]);
+  }, [socket, props.count]);
   const handleVideoCall = () => {
     const width = 800; // Chiều rộng của cửa sổ tab nhỏ
     const height = (800 * 9) / 16; // Chiều cao của cửa sổ tab nhỏ
@@ -551,7 +559,9 @@ export default (function WindowChat(props) {
             <div className={`windowchat ${props.count.id}`} ref={windowchat}>
               <div
                 className={`top_windowchat ${
+                  arrivalMessage &&
                   props?.count.id === arrivalMessage?.conversation_id &&
+                  arrivalMessage?.sender_id !== auth.userID &&
                   "arrviedMess"
                 }`}
               >
@@ -590,9 +600,9 @@ export default (function WindowChat(props) {
                               className="hiddenEllipsis"
                               style={{ fontWeight: "600" }}
                             >
-                              {(props.count.user1 === auth.userID
+                              {props.count.user1 === auth.userID
                                 ? props.count.user2_mask
-                                : props.count.user1_mask) || userInfor?.Name}
+                                : props.count.user1_mask}
                             </p>
                             {
                               <p style={{ fontSize: ".7rem" }}>
@@ -642,19 +652,19 @@ export default (function WindowChat(props) {
                   </div>
                 </div>
               </div>
-              <div className="Body_Chatpp">
+              <div className="Body_Chatpp relative">
                 <div className="main_windowchat" ref={main_windowchat}>
-                  <div className="messages" ref={messagesRef}>
-                    {messages ?
-                      messages.map((message, index) => (
+                  {messages ? (
+                    <div className="messages" ref={messagesRef}>
+                      {messages.map((message, index) => (
                         <div className="message_content" key={message.id}>
                           <Message
                             i={index}
-                            key={index}
+                            key={message.id}
                             message={message}
                             updateMess={Sending}
                             own={message.sender_id === auth.userID}
-                            student={userInfor}
+                            student={{ img: props.count.img }}
                             messages={messages}
                             userID={userConver}
                             listSeen={userSeenAt}
@@ -663,8 +673,13 @@ export default (function WindowChat(props) {
                             setShowImgMess={setShowImgMess}
                           ></Message>
                         </div>
-                      )):<div className="loader"></div>}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="w-full h-full center">
+                      <div className="loader"></div>
+                    </div>
+                  )}
                 </div>
                 <div className="inputValue windowchat_feature center">
                   <div className="feature_left center">
@@ -708,20 +723,22 @@ export default (function WindowChat(props) {
                         >
                           <LuSticker></LuSticker>
                         </li>
-                        <li
-                          className="features_hover stokeTheme"
-                          // style={
-                          //   inputMess?.length > 0
-                          //     ? { display: "none" }
-                          //     : { opacity: 1 }
-                          // }
+                        <Popover
+                          content={
+                              <EmojiPicker
+                                width={350}
+                                height={450}
+                                onEmojiClick={(e, i) => {
+                                  onClickEmoji(e);
+                                }}
+                                emojiStyle="facebook"
+                              />
+                          }
                         >
-                          <FiSmile
-                            onClick={(e) => {
-                              setOpenEmojiPicker(!openEmojiPicker);
-                            }}
-                          ></FiSmile>
-                        </li>
+                          <li className="features_hover stokeTheme">
+                            <FiSmile></FiSmile>
+                          </li>
+                        </Popover>
                       </ul>
                     )}
                   </div>
@@ -732,7 +749,7 @@ export default (function WindowChat(props) {
                     ref={windowchat_input}
                   >
                     {imgView.length > 0 && (
-                      <div className="multiFile_layout ">
+                      <div className={`multiFile_layout`}>
                         <div className="circleButton">
                           <FiImage
                             style={{ fontSize: "1.3rem" }}
@@ -741,20 +758,28 @@ export default (function WindowChat(props) {
                             }}
                           />
                         </div>
-                        {imgView.map((e, i) => (
-                          <div
-                            className="listImgDiv"
-                            style={{ position: "relative" }}
-                          >
-                            <img src={e} key={i} className="listImgMess"></img>
+                        <div
+                          className={`flex ${
+                            imgView.length >= 3 && "overflow-x-scroll overflow-y-hidden"
+                          }`}
+                        >
+                          {imgView.map((e, i) => (
                             <div
-                              onClick={() => remove_imageMess(e)}
-                              className="circleButton buttonImgView"
+                              className="listImgDiv mx-2"
+                              style={{ position: "relative" }}
                             >
-                              X
+                              <div key={i} className="listImgMess w-16">
+                                <img className="rounded-xl  w-16" src={e}></img>
+                              </div>
+                              <div
+                                onClick={() => remove_imageMess(e)}
+                                className="circleButton buttonImgView"
+                              >
+                                X
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     )}
                     <div style={{ position: "relative", width: "100%" }}>
@@ -805,17 +830,6 @@ export default (function WindowChat(props) {
                     </div>
                   )}
                 </div>
-              </div>
-              <div className="emojipick">
-                <EmojiPicker
-                  width={350}
-                  height={450}
-                  open={openEmojiPicker}
-                  onEmojiClick={(e, i) => {
-                    onClickEmoji(e);
-                  }}
-                  emojiStyle="facebook"
-                />
               </div>
             </div>
           )}

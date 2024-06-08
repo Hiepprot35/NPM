@@ -35,7 +35,7 @@
 
 }
 .own_endMessage .messageText{
-  border-radius: 2rem 0.3rem 2rem 2rem !important;
+  border-radius: 1.5rem 0.3rem 2rem 1.5rem !important;
 
 }
 .firstMessage .messageText {
@@ -104,13 +104,7 @@
 }
 .Mess_seen_text,
 .forget_pass {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  column-gap: .2rem;
-  row-gap: .2rem;
-  position: relative;
-  align-items: center;
-  max-width: 80%;
+
 }
 .columnFlex a
 {

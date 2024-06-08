@@ -203,7 +203,7 @@ export default memo(function Message({
                       </p>
                     }
                   >
-                    <div className={`Mess_seen_text  `}>
+                    <div className={`Mess_seen_text flex ${listAnh?.length>1 && "grid grid-cols-3"}  `}>
                       {message.isFile ? (
                         <>
                           {listAnh &&
@@ -211,7 +211,7 @@ export default memo(function Message({
                               <img
                                 key={i}
                                 onClick={() => setShowImgMess(e)}
-                                className="listImg"
+                                className={`cursor-pointer ${listAnh?.length>1 && "listImg"}`}
                                 style={
                                   e.includes("emoji")
                                     ? { width: "1rem ", height: "1rem " }
@@ -222,7 +222,7 @@ export default memo(function Message({
                             ))}
                         </>
                       ) : (
-                        <div className="messageText center">
+                        <div className="messageText center text-wrap break-all px-4 py-2">
                           {parse(processedComment, options)}
                         </div>
                       )}
@@ -238,7 +238,7 @@ export default memo(function Message({
                 <div className="Seen_field">
                   <img
                     className="avatarImage"
-                    style={{ width: "20px", height: "20px" }}
+                    style={{ width: "1.5rem", height: "1.5rem" }}
                     src={student.img ? `${student?.img}` : ""}
                     alt="sender"
                   />

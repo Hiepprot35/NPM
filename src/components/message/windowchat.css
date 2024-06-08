@@ -208,8 +208,6 @@ aspect-ratio: 16/9;
 }
 .multiFile_layout {
   display: flex;
-  overflow-x: scroll;
-  overflow-y: hidden;
   width: 100%;
   align-items: center;
 }
