@@ -4,28 +4,19 @@ import "./TVMovie.scss";
 import useLoading from "../../hook/useLoading";
 import { IsLoading } from "../Loading";
 import SlideMovie from "./Slide";
-const Session=({title,body})=>
-  {
-    return(
-      <div  className="sessionTV">
+const Session = ({ title, body }) => {
+  return (
+    <div className="sessionTV">
       <div className=" m-8 font-semibold">
         <h1 className="text-5xl text-x">{title}</h1>
       </div>
-      <div
-        className="center"
-        style={{ marginTop: "2rem", width: "100%" }}
-      >
-        {body && (
-          <SlideMovie
-            list={body}
-            perPage={5}
-          ></SlideMovie>
-        )}
+      <div className="center" style={{ marginTop: "2rem", width: "100%" }}>
+        {body && <SlideMovie list={body} perPage={5}></SlideMovie>}
       </div>
     </div>
-    )
-  }
- function TVMovie(props) {
+  );
+};
+function TVMovie(props) {
   const [ListTV, setListTV] = useState();
   const [ListMovies, setListMovies] = useState();
   const url = "https://image.tmdb.org/t/p/original";
@@ -89,9 +80,7 @@ const Session=({title,body})=>
   }, []);
   return (
     <>
-      {Loading ? (
-        <IsLoading />
-      ) : (
+      {
         <div className="TVMovieClass" id="tvseries">
           <div
             ref={ref}
@@ -102,13 +91,12 @@ const Session=({title,body})=>
               backgroundImage: `${props.Img}`,
             }}
           >
-          <Session title={"Popular Movies"} body={ListTV}/>
-          <Session title={"Movies Treding"} body={ListMovies}/>
-            
+            <Session title={"Popular Movies"} body={ListTV} />
+            <Session title={"Movies Treding"} body={ListMovies} />
           </div>
         </div>
-      )}
+      }
     </>
   );
 }
-export default memo(TVMovie)
+export default memo(TVMovie);

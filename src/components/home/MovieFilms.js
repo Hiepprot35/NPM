@@ -198,295 +198,304 @@ export default function MovieFilms(props) {
 
   return (
     <>
-      {Loading ? (
-        <IsLoading />
-      ) : (
-        <motion.div
-          id="trending"
-          className="MovieContainer"
-          ref={ref}
-
-          // style={{ opacity: opacity }}
-        >
-          <div
-            className="circleShadow"
-            style={{
-              backgroundImage: `${BackImg}`,
-            }}
-          ></div>
-          <div className="MovieFilms" ref={refMovieFilms}>
-            <AnimatePresence>
-              {Movies &&
-                Movies.map((e, i) => (
-                  <motion.div
-                    key={i}
-                    className={`MovieCard ${
-                      i === CurrentMovie ? "activeFilm" : ""
-                    }`}
-                  >
-                    <motion.div
-                      {...animeSlideFilm(i)}
-                      className="leftMovieFilm center"
-                      style={{ overflow: "hidden" }}
-                      ref={(ref) => (refleftMovie.current[i] = ref)}
-                    >
-                      <motion.div className="leftContentMovie">
-                        <div
-                          className="center"
-                          style={{ justifyContent: "space-between" }}
+      {
+        <motion.div id="trending" className="MovieContainer" ref={ref}>
+          {Loading ? (
+            <IsLoading />
+          ) : (
+            <>
+              <div
+                className="circleShadow"
+                style={{
+                  transition:"500ms linear",
+                  opacity:`${BackImg?1:0}`,
+                  backgroundImage: `${BackImg?BackImg:""}`,
+                }}
+              ></div>
+              <div className="MovieFilms" ref={refMovieFilms}>
+                <AnimatePresence>
+                  {Movies &&
+                    Movies.map((e, i) => (
+                      <motion.div
+                        key={i}
+                        className={`MovieCard ${
+                          i === CurrentMovie ? "activeFilm" : ""
+                        }`}
+                      >
+                        <motion.div
+                          {...animeSlideFilm(i)}
+                          className="leftMovieFilm center"
+                          style={{ overflow: "hidden" }}
+                          ref={(ref) => (refleftMovie.current[i] = ref)}
                         >
-                          <div className="" style={{ width: "40vw" }}>
+                          <motion.div className="leftContentMovie">
                             <div
                               className="center"
-                              style={{ overflow: "hidden" }}
+                              style={{ justifyContent: "space-between" }}
                             >
-                              <motion.div {...animeText(i)}>
-                                <i>
-                                  <motion.p
-                                    style={{
-                                      fontSize: "1.4rem",
-                                      fontWeight: "600",
-                                    }}
+                              <div className="" style={{ width: "40vw" }}>
+                                <div
+                                  className="center"
+                                  style={{ overflow: "hidden" }}
+                                >
+                                  <motion.div {...animeText(i)}>
+                                    <i>
+                                      <motion.p
+                                        style={{
+                                          fontSize: "1.4rem",
+                                          fontWeight: "600",
+                                        }}
+                                      >
+                                        {getNameMonth(e.release_date)}
+                                      </motion.p>
+                                    </i>
+                                  </motion.div>
+                                  <div
+                                    className="linear"
+                                    style={{ width: "100%" }}
+                                  ></div>
+                                </div>
+                                <div
+                                  style={{
+                                    position: "relative",
+                                    margin: "2rem",
+                                    overflow: "hidden",
+                                  }}
+                                >
+                                  <motion.h1
+                                    style={{ margin: 0 }}
+                                    {...animeText(i)}
                                   >
-                                    {getNameMonth(e.release_date)}
-                                  </motion.p>
-                                </i>
-                              </motion.div>
+                                    {e.name || e.title}
+                                  </motion.h1>
+                                </div>
+                                <div className="linear"></div>
+                                <div
+                                  className="center"
+                                  style={{ margin: "1rem" }}
+                                >
+                                  {e?.runtime && (
+                                    <Text
+                                      text={`${timeFilm(e?.runtime)} | `}
+                                    ></Text>
+                                  )}
+
+                                  <Text
+                                    text={`${e?.origin_country.map(
+                                      (country) => {
+                                        const data = countries.find(
+                                          (ac) => ac.iso_3166_1 === country
+                                        );
+                                        return data
+                                          ? data.english_name
+                                          : country;
+                                      }
+                                    )} | `}
+                                  />
+
+                                  {GenresList && e.genre_ids && (
+                                    <Text
+                                      style={{ fontSize: "1rem" }}
+                                      text={`${e.genre_ids.map(
+                                        (e) =>
+                                          GenresList.find(
+                                            (values) => values.id === e
+                                          )?.name
+                                      )}`}
+                                    />
+                                  )}
+                                  {e.genres && (
+                                    <Text
+                                      style={{ fontSize: "1rem" }}
+                                      text={`${e.genres.map((e) => e.name)}`}
+                                    />
+                                  )}
+                                </div>
+                              </div>
                               <div
-                                className="linear"
-                                style={{ width: "100%" }}
-                              ></div>
+                                className="center"
+                                style={{ flexDirection: "column" }}
+                              >
+                                <div className="">Play</div>
+
+                                <Image
+                                  style={{ width: "6rem" }}
+                                  src={
+                                    e.poster_path &&
+                                    `https://image.tmdb.org/t/p/original/${e.poster_path}`
+                                  }
+                                ></Image>
+                                <div
+                                  className="scoreFilm center"
+                                  style={{ margin: ".3rem" }}
+                                >
+                                  <span>
+                                    <img
+                                      style={{
+                                        width: "2rem",
+                                        marginRight: ".6rem",
+                                      }}
+                                      src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg"
+                                    ></img>
+                                  </span>
+                                  <p style={{ fontWeight: "600" }}>
+                                    {e.vote_average}/10
+                                  </p>
+                                </div>
+                                <div className="center ratingFilm">
+                                  <Rate
+                                    defaultValue={e.vote_average / 2}
+                                    disabled
+                                    allowHalf
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="overViewText">
+                              <div>
+                                <Text hiddenText={true} text={e.overview} />
+                              </div>
                             </div>
                             <div
                               style={{
-                                position: "relative",
-                                margin: "2rem",
-                                overflow: "hidden",
+                                margin: "1rem",
+                                justifyContent: "space-around",
                               }}
+                              className="center filmHandle"
                             >
-                              <motion.h1
-                                style={{ margin: 0 }}
-                                {...animeText(i)}
+                              <div>
+                                <WatchFilms
+                                  id={e.id}
+                                  background={e.backdrop_path}
+                                  setBackImg={setBackImg}
+                                  setMovieLink={setMovieLink}
+                                ></WatchFilms>
+                              </div>
+                              <Popover
+                                trigger="click"
+                                className="popover"
+                                content={
+                                  <div>
+                                    <div
+                                      className="center"
+                                      style={{ margin: ".5rem" }}
+                                    >
+                                      <NavLink to={`movie/moviedetail/${e.id}`}>
+                                        <FiInfo></FiInfo>
+                                        <span>More detail</span>
+                                      </NavLink>
+                                    </div>
+                                    <div
+                                      className="linear"
+                                      style={{ width: "100%" }}
+                                    ></div>
+                                    <div
+                                      className="center"
+                                      style={{ margin: ".5rem" }}
+                                    >
+                                      <Button
+                                        onClick={() => addListFilmHandle(e.id)}
+                                        type="text"
+                                        icon={<FiHeart color="black"></FiHeart>}
+                                      >
+                                        <span>Add to Playlist</span>
+                                      </Button>
+                                    </div>
+                                  </div>
+                                }
                               >
-                                {e.name || e.title}
-                              </motion.h1>
-                            </div>
-                            <div className="linear"></div>
-                            <div className="center" style={{ margin: "1rem" }}>
-                              {e?.runtime && (
-                                <Text
-                                  text={`${timeFilm(e?.runtime)} | `}
-                                ></Text>
-                              )}
+                                <Button
+                                  className=" buttonFilmHandle buttonFilm2"
+                                  icon={<FiMoreHorizontal></FiMoreHorizontal>}
+                                >
+                                  <span>More information</span>
+                                </Button>
+                              </Popover>
+                            </div>{" "}
+                          </motion.div>
 
-                              <Text
-                                text={`${e?.origin_country.map((country) => {
-                                  const data = countries.find(
-                                    (ac) => ac.iso_3166_1 === country
-                                  );
-                                  return data ? data.english_name : country;
-                                })} | `}
-                              />
-
-                              {GenresList && e.genre_ids && (
-                                <Text
-                                  style={{ fontSize: "1rem" }}
-                                  text={`${e.genre_ids.map(
-                                    (e) =>
-                                      GenresList.find(
-                                        (values) => values.id === e
-                                      )?.name
-                                  )}`}
-                                />
-                              )}
-                              {e.genres && (
-                                <Text
-                                  style={{ fontSize: "1rem" }}
-                                  text={`${e.genres.map((e) => e.name)}`}
-                                />
-                              )}
-                            </div>
-                          </div>
+                          {/* </NavLink> */}
+                        </motion.div>
+                      </motion.div>
+                    ))}
+                </AnimatePresence>
+              </div>
+              <div
+                className="center"
+                style={{
+                  width: "100%",
+                  height: "15%",
+                  position: "absolute",
+                  bottom: "0",
+                }}
+              >
+                <div className="slideScrollMovie " ref={RefScrollImage}>
+                  <div className="MovieFilms" ref={refSmallSlide}>
+                    {Movies &&
+                      Movies.map((e, i) => (
+                        <div
+                          className={`MovieFilms2 center  ${
+                            CurrentMovie === i
+                              ? "ActiveImage"
+                              : "notActiveImage"
+                          } `}
+                          key={i}
+                        >
                           <div
-                            className="center"
-                            style={{ flexDirection: "column" }}
+                            onClick={() => setCurrentMovie(i)}
+                            className={`imageSlide  center `}
                           >
-                            <div className="">Play</div>
-
                             <Image
-                              style={{ width: "6rem" }}
                               src={
                                 e.poster_path &&
                                 `https://image.tmdb.org/t/p/original/${e.poster_path}`
                               }
                             ></Image>
-                            <div
-                              className="scoreFilm center"
-                              style={{ margin: ".3rem" }}
-                            >
-                              <span>
-                                <img
-                                  style={{
-                                    width: "2rem",
-                                    marginRight: ".6rem",
-                                  }}
-                                  src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg"
-                                ></img>
-                              </span>
-                              <p style={{ fontWeight: "600" }}>
-                                {e.vote_average}/10
-                              </p>
-                            </div>
-                            <div className="center ratingFilm">
-                              <Rate
-                                defaultValue={e.vote_average / 2}
-                                disabled
-                                allowHalf
-                              />
-                            </div>
                           </div>
-                        </div>
-                        <div className="overViewText">
-                          <div>
-                            <Text hiddenText={true} text={e.overview} />
-                          </div>
-                        </div>
-                        <div
-                          style={{
-                            margin: "1rem",
-                            justifyContent: "space-around",
-                          }}
-                          className="center filmHandle"
-                        >
-                          <div>
-                            <WatchFilms
-                              id={e.id}
-                              background={e.backdrop_path}
-                              setBackImg={setBackImg}
-                              setMovieLink={setMovieLink}
-                            ></WatchFilms>
-                          </div>
-                          <Popover
-                            trigger="click"
-                            className="popover"
-                            content={
-                              <div>
-                                <div
-                                  className="center"
-                                  style={{ margin: ".5rem" }}
-                                >
-                                  <NavLink to={`movie/moviedetail/${e.id}`}>
-                                    <FiInfo></FiInfo>
-                                    <span>More detail</span>
-                                  </NavLink>
-                                </div>
-                                <div
-                                  className="linear"
-                                  style={{ width: "100%" }}
-                                ></div>
-                                <div
-                                  className="center"
-                                  style={{ margin: ".5rem" }}
-                                >
-                                  <Button
-                                    onClick={() => addListFilmHandle(e.id)}
-                                    type="text"
-                                    icon={<FiHeart color="black"></FiHeart>}
-                                  >
-                                    <span>Add to Playlist</span>
-                                  </Button>
-                                </div>
-                              </div>
-                            }
+                          <div
+                            className="textImageSlide"
+                            style={{
+                              flexDirection: "column",
+                              width: "50%",
+                              transition: "500ms ease",
+                            }}
                           >
-                            <Button
-                              className=" buttonFilmHandle buttonFilm2"
-                              icon={<FiMoreHorizontal></FiMoreHorizontal>}
-                            >
-                              <span>More information</span>
-                            </Button>
-                          </Popover>
-                        </div>{" "}
-                      </motion.div>
-
-                      {/* </NavLink> */}
-                    </motion.div>
-                  </motion.div>
-                ))}
-            </AnimatePresence>
-          </div>
-          <div
-            className="center"
-            style={{
-              width: "100%",
-              height: "15%",
-              position: "absolute",
-              bottom: "0",
-            }}
-          >
-            <div className="slideScrollMovie " ref={RefScrollImage}>
-              <div className="MovieFilms" ref={refSmallSlide}>
-                {Movies &&
-                  Movies.map((e, i) => (
-                    <div
-                      className={`MovieFilms2 center  ${
-                        CurrentMovie === i ? "ActiveImage" : "notActiveImage"
-                      } `}
-                      key={i}
-                    >
-                      <div
-                        onClick={() => setCurrentMovie(i)}
-                        className={`imageSlide  center `}
-                      >
-                        <Image
-                          src={
-                            e.poster_path &&
-                            `https://image.tmdb.org/t/p/original/${e.poster_path}`
-                          }
-                        ></Image>
-                      </div>
-                      <div
-                        className="textImageSlide"
-                        style={{
-                          flexDirection: "column",
-                          width: "50%",
-                          transition: "500ms ease",
-                        }}
-                      >
-                        <Text
-                          style={{ fontSize: "1rem", color: "white" }}
-                          text={`${e?.title || e?.name}`}
-                        ></Text>
-                        {e?.runtime && (
-                          <Text
-                            style={{ fontSize: ".6rem", color: "white" }}
-                            text={`Time: ${e.runtime}m`}
-                          ></Text>
-                        )}
-                        {GenresList && e.genre_ids && (
-                          <Text
-                            style={{ fontSize: ".6rem", color: "gray" }}
-                            text={`${e.genre_ids.map(
-                              (e) =>
-                                GenresList.find((values) => values.id === e)
-                                  ?.name
-                            )}`}
-                          />
-                        )}
-                        {e.genres && (
-                          <Text
-                            style={{ fontSize: ".6rem", color: "gray" }}
-                            text={`${e.genres.map((e) => e.name)}`}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                            <Text
+                              style={{ fontSize: "1rem", color: "white" }}
+                              text={`${e?.title || e?.name}`}
+                            ></Text>
+                            {e?.runtime && (
+                              <Text
+                                style={{ fontSize: ".6rem", color: "white" }}
+                                text={`Time: ${e.runtime}m`}
+                              ></Text>
+                            )}
+                            {GenresList && e.genre_ids && (
+                              <Text
+                                style={{ fontSize: ".6rem", color: "gray" }}
+                                text={`${e.genre_ids.map(
+                                  (e) =>
+                                    GenresList.find((values) => values.id === e)
+                                      ?.name
+                                )}`}
+                              />
+                            )}
+                            {e.genres && (
+                              <Text
+                                style={{ fontSize: ".6rem", color: "gray" }}
+                                text={`${e.genres.map((e) => e.name)}`}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </motion.div>
-      )}
+      }
     </>
   );
 }
