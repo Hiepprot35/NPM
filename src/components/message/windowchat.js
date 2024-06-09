@@ -580,7 +580,7 @@ export default memo(function WindowChat(props) {
                               <Image
                                 className="avatarImage"
                                 alt="Avatar"
-                                src={props.count.img}
+                                src={props.count.img||userInfor?.img}
                               ></Image>
 
                               <span
@@ -600,9 +600,9 @@ export default memo(function WindowChat(props) {
                               className="hiddenEllipsis"
                               style={{ fontWeight: "600" }}
                             >
-                              {props.count.user1 === auth.userID
+                              {(props.count.user1 === auth.userID
                                 ? props.count.user2_mask
-                                : props.count.user1_mask}
+                                : props.count.user1_mask)||userInfor?.Name}
                             </p>
                             {
                               <p style={{ fontSize: ".7rem" }}>
@@ -664,7 +664,7 @@ export default memo(function WindowChat(props) {
                             message={message}
                             updateMess={Sending}
                             own={message.sender_id === auth.userID}
-                            student={{ img: props.count.img }}
+                            student={{img: props.count.img||userInfor?.img }}
                             messages={messages}
                             userID={userConver}
                             listSeen={userSeenAt}

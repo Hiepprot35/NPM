@@ -23,6 +23,16 @@ import { getConversation } from "../conversation/getConversation";
 import { useSocket } from "../../context/socketContext";
 import { IsLoading } from "../Loading";
 const { Content, Footer } = Layout;
+const getFriendList = async (userID) => {
+  const checkID = (array, id) => {
+    return array.user1 === id ? array.user2 : array.user1;
+  };
+  const result = await fetchApiRes("message/getFriendList", "POST", {
+    userID: userID,
+  });
+  const data = result.result.map((e) => checkID(e, userID));
+  return data;
+};
 
 export default function UserProfile(props) {
   const socket = useSocket();
@@ -32,7 +42,6 @@ export default function UserProfile(props) {
     useData();
   const { auth } = useAuth();
   const host = process.env.REACT_APP_DB_HOST;
-  const [myFriendList, setMyFriendList] = useState([]);
   const removeElement = (array, index) => {
     const newArray = array.filter((obj) => obj?.id !== index);
     return newArray;
@@ -45,9 +54,10 @@ export default function UserProfile(props) {
         user2: id,
         user1_mask: authName.Name,
         user2_mask: Users.Name,
+        Requesting:request?1:0,
         created_at: Date.now(),
       });
-      console.log(res)
+      console.log(res);
       return res.result;
     } catch (error) {
       console.log(error);
@@ -83,14 +93,7 @@ export default function UserProfile(props) {
       });
     }
   };
-  const [gerenalFriend, setgerenalFriend] = useState([]);
-  const getUserFriendList = async () => {
-    const result = await fetchApiRes("message/getFriendList", "POST", {
-      userID: Users?.UserID,
-    });
-    const data = result.result.map((e) => checkID(e, Users?.UserID));
-    setUserFriendList(data);
-  };
+
   const replaceCover = (pre, data) => {
     return pre.map((e) =>
       (e.user1 === data.user1 && e.user2 === data.user2) ||
@@ -140,10 +143,8 @@ export default function UserProfile(props) {
       if (!converFound) {
         try {
           const data = await AddConver(id);
-          console.log(data)
-          setListWindow((prev) =>
-            replaceCover(prev, { id: data, ...conver })
-          );
+          console.log(data);
+          setListWindow((prev) => replaceCover(prev, { id: data, ...conver }));
         } catch (error) {
           console.log(error);
         }
@@ -168,33 +169,39 @@ export default function UserProfile(props) {
       return false;
     }
   };
-  const [userFriendList, setUserFriendList] = useState([]);
   const checkID = (array, id) => {
     return array.user1 === id ? array.user2 : array.user1;
   };
-  useEffect(() => {
-    if (myFriendList && userFriendList) {
-      const generalFriends = userFriendList.filter((userFriend) => {
-        return myFriendList.some((e) => e === userFriend);
-      });
 
-      setgerenalFriend(generalFriends);
-    }
-  }, [myFriendList, userFriendList]);
+  const [userFriendList, setUserFriendList] = useState([]);
+  const [myFriendList, setMyFriendList] = useState([]);
+
+  const [gerenalFriend, setgerenalFriend] = useState([]);
 
   useEffect(() => {
     if (Users) {
-      getFriendList();
-      getUserFriendList();
+      const getUserFriend = async () => {
+        const dataMyFriend = await getFriendList(auth?.userID);
+        const dataUserFriend = await getFriendList(Users?.UserID);
+        const generalFriends = dataUserFriend.filter((userFriend) => {
+          return dataMyFriend.some((e) => e === userFriend);
+        });
+        setgerenalFriend(generalFriends);
+
+      
+      };
+      getUserFriend();
     }
   }, [Users]);
-  const getFriendList = async () => {
-    const result = await fetchApiRes("message/getFriendList", "POST", {
-      userID: auth.userID,
-    });
-    const data = result.result.map((e) => checkID(e, auth.userID));
-    setMyFriendList(data);
-  };
+  // useEffect(() => {
+  //   if (myFriendList && userFriendList) {
+  //     const generalFriends = userFriendList.filter((userFriend) => {
+  //       return myFriendList.some((e) => e === userFriend);
+  //     });
+
+  //     setgerenalFriend(generalFriends);
+  //   }
+  // }, [myFriendList, userFriendList]);
   useEffect(() => {
     const getData = async () => {
       try {

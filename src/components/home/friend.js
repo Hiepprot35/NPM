@@ -210,7 +210,7 @@ export default function FriendList(props) {
         {!props.profile && (
           <List
             itemLayout="horizontal"
-            className="usersInfomation"
+            className="usersInfomation overflow-scroll"
             bordered
             dataSource={Object.values(Users)}
             renderItem={(student) =>
