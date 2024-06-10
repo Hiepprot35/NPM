@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { NavLink } from "react-router-dom";
 import { useSocket } from "../../../context/socketContext";
-import { getStudentInfoByMSSV } from "../../../function/getApi";
+import { fetchApiRes, getStudentInfoByMSSV } from "../../../function/getApi";
 import { IoLogoGoogle } from "react-icons/io";
 
 import { getUserinfobyID } from "../../../function/getApi";
@@ -56,7 +56,7 @@ function Header(props) {
     icon: "",
     country: "",
   });
-  const { setListWindow } = useData();
+  const { setListWindow, setListHiddenBubble } = useData();
   const Menu_profile_header = useRef();
   const [city, setCity] = useState("hanoi");
   const { auth, setAuth } = useAuth();
@@ -106,9 +106,7 @@ function Header(props) {
   }, [socket, auth]);
   const updateTitle = async (id) => {
     console.log("id");
-    const username = await getUserinfobyID(parseInt(id));
-    const nameSV = await getStudentInfoByMSSV(username?.username);
-    document.title = `${nameSV?.Name} gửi tin nhắn`;
+    document.title = `${id} gửi tin nhắn`;
   };
 
   const itemVariants = {
@@ -120,31 +118,36 @@ function Header(props) {
     },
     closed: { zIndex: 0, opacity: 0, y: 20, transition: { duration: 0.2 } },
   };
-
+  const foundConversation = async (user1, user2) => {
+    const conversations = await fetchApiRes("message/getConversation", "POST", {
+      user1: user1,
+      user2: user2,
+    });
+    if (conversations.result.length > 0) {
+      return conversations.result[0];
+    }
+  };
   useEffect(() => {
     let isMounted = true;
     if (socket && isMounted) {
-      socket.on("getMessage", (data) => {
+      socket.on("getMessage", async (data) => {
         if (data.sender_id !== auth.userID) {
+          updateTitle(data.nameUser);
+          const conver = await foundConversation(auth.userID, data.sender_id);
+          setListHiddenBubble((pre) =>
+            pre.filter((e) => e.id !== data.conversation_id)
+          );
           setListWindow((prev) => {
-            const exists = prev.some(
+            const conversationExists = prev.find(
               (item) => item.id === data.conversation_id
             );
 
-            if (!exists) {
-              return [
-                ...prev,
-                {
-                  id: data.conversation_id,
-                  user1: data.sender_id,
-                  user2: data.receiverId,
-                },
-              ];
+            if (!conversationExists) {
+              return [...prev, { ...conver }];
             }
+
             return prev;
           });
-
-          updateTitle(data.sender_id);
         }
       });
     }
@@ -312,30 +315,29 @@ function Header(props) {
                 {Clock && city && (
                   <div className="inline-flex TempText p-0 h-12 w-32 overflow-hidden">
                     <div className="w-64 center animationTemp">
-
-                    <div className=" center w-32">
-                      <div>
-                        <p className="text-xs">
-                          {Clock?.day + "," + Month(Clock?.month)}
-                        </p>
-                        <p className="uppercase font-semibold text-xs">
-                          {city}
-                        </p>
+                      <div className=" center w-32">
+                        <div>
+                          <p className="text-xs">
+                            {Clock?.day + "," + Month(Clock?.month)}
+                          </p>
+                          <p className="uppercase font-semibold text-xs">
+                            {city}
+                          </p>
+                        </div>
+                        <div className=" h-full px-2">
+                          <p>{Clock?.h + ":" + Clock?.m}</p>
+                        </div>
                       </div>
-                      <div className=" h-full px-2">
-                        <p>{Clock?.h + ":" + Clock?.m}</p>
+                      <div className="center w-32">
+                        <p className="City citytemp"> {weather.temp}°C</p>
+                        <div className="w-8 h-8">
+                          <img
+                            className="w-full"
+                            src={`${weather.icon}`}
+                            alt={weather.weather}
+                          />
+                        </div>
                       </div>
-                    </div>
-                    <div className="center w-32">
-                      <p className="City citytemp"> {weather.temp}°C</p>
-                      <div className="w-8 h-8">
-                        <img
-                          className="w-full"
-                          src={`${weather.icon}`}
-                          alt={weather.weather}
-                        />
-                      </div>
-                    </div>
                     </div>
                   </div>
                 )}

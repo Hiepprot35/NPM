@@ -8,6 +8,7 @@ import {
   getStudentInfoByMSSV,
   getUserinfobyID,
 } from "../../function/getApi";
+import { Popover } from "antd";
 function BellTable() {
   const socket = useSocket();
   const notificationRef = useRef();
@@ -19,15 +20,15 @@ function BellTable() {
     const res = await fetchApiRes("message/getRequestFriends", "POST", {
       user2: auth.userID,
     });
-    console.log(res)
+    console.log(res);
     setNotification(res.result);
   };
   const getUsers = async () => {
     const promises = notification.map(async (element) => {
-      let user=element.user1!==auth.userID? element.user1:element.user2
-      console.log(user)
+      let user = element.user1 !== auth.userID ? element.user1 : element.user2;
+      console.log(user);
       const MSSV = await getUserinfobyID(user);
-      console.log(MSSV)
+      console.log(MSSV);
       const data = await getStudentInfoByMSSV(MSSV.username);
       return { ...element, name: data?.Name, img: data?.img };
     });
@@ -42,7 +43,7 @@ function BellTable() {
   useEffect(() => {
     if (socket) {
       socket.on("receiveRequest", async (values) => {
-        console.log("reccc")
+        console.log("reccc");
         document.title = `Một thông báo mới`;
         data();
       });
@@ -54,7 +55,7 @@ function BellTable() {
 
   const [showTable, setShowTable] = useState(false);
   const acceptHandle = async (id) => {
-    setClicked(!Clicked)
+    setClicked(!Clicked);
     const newUsers = users.filter((e) => e.id !== id);
     setUsers(newUsers);
     await fetchApiRes("message/updateConversation", "POST", {
@@ -65,7 +66,7 @@ function BellTable() {
     });
   };
   const deleteHandle = async (id) => {
-    setClicked(!Clicked)
+    setClicked(!Clicked);
 
     const newUsers = users.filter((e) => e.id !== id);
     setUsers(newUsers);
@@ -79,31 +80,29 @@ function BellTable() {
       <div
         className="circleButton notification"
         ref={notificationRef}
-       
+        onMouseLeave={() => {
+          setShowTable(false);
+        }}
+        onClick={() => {
+          setShowTable(true);
+        }}
       >
-        {
-          users?.length>0 &&
+        {users?.length > 0 && (
           <div className="countNoti">
-          <p>{ users.length}</p>
-        </div>
-        }
-        <div className="">
-        <span  onClick={() => {
-          setShowTable(!showTable);
-        }}>
+            <p>{users.length}</p>
+          </div>
+        )}
+        <span>
           <FiBell></FiBell>
         </span>
-          </div>
         {showTable && (
           <div className="tableNotification">
             <div>
-              {users.length>0 ?
+              {users.length > 0 ? (
                 users.map((e, i) => (
                   <div className="infoNofi center">
-                    <div
-                      className="divCenterdiv"
-                    >
-                      <div style={{margin:".5rem"}}>
+                    <div className="divCenterdiv">
+                      <div style={{ margin: ".5rem" }}>
                         <img src={`${e.img}`}></img>
                       </div>
                       <div>
@@ -121,19 +120,18 @@ function BellTable() {
                             className="button"
                             onClick={() => deleteHandle(e.id)}
                           >
-                            <p style={{color:"black"}}>Từ chối</p>
+                            <p style={{ color: "black" }}>Từ chối</p>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 ))
-                :
-                <div className="infoNofi center"style={{height:"4rem"}}>
-
-                <p>Hiện tại không có thông báo mới</p>
+              ) : (
+                <div className="infoNofi center" style={{ height: "4rem" }}>
+                  <p>Hiện tại không có thông báo mới</p>
                 </div>
-              }
+              )}
             </div>
           </div>
         )}

@@ -78,10 +78,15 @@ export default function UserProfile(props) {
     if (!converFound) {
       await AddConver(id, true);
     } else {
+      const user1_mask= converFound.user1===auth.userID?converFound.user1_mask:converFound.user2_mask
+      const user2_mask= converFound.user1===auth.userID?converFound.user2_mask:converFound.user1_mask
+
       const data = await fetchApiRes("message/updateConversation", "POST", {
         Requesting: 1,
         user1: auth.userID,
         user2: id,
+        user1_mask:user1_mask,
+        user2_mask:user2_mask,
         id: converFound.id,
       });
       console.log(data);
@@ -107,7 +112,6 @@ export default function UserProfile(props) {
       const conver = {
         user1: auth.userID,
         user2: id,
-        user2_mask: Users?.Name,
         created_at: Date.now(),
         img: Users.img,
       };
@@ -150,7 +154,7 @@ export default function UserProfile(props) {
         }
       } else {
         setListWindow((prev) =>
-          replaceCover(prev, { id: converFound.id, ...conver })
+          replaceCover(prev, { ...converFound, ...conver })
         );
       }
     } catch (error) {

@@ -24,20 +24,15 @@ export default function MessageMainLayout(props) {
 
   const onClickConser = (c) => {
     setListWindow((prev) => {
-      const newClicked = [...prev];
-      const existingIndex = newClicked.findIndex((obj) => obj.id === c);
-      if (existingIndex !== -1) {
-        newClicked.splice(existingIndex, 1);
-      }
+      const newClicked = prev.filter(obj => obj.id !== c);
+    
       if (conversations) {
-        const con = [];
-        for (const e of conversations) {
-          if (e?.id === c) {
-            con.push(e);
-          }
+        const conversation = conversations.find(e => e?.id === c);
+        if (conversation) {
+          newClicked.unshift(conversation);
         }
-        newClicked.unshift(con[0]);
       }
+    
       return newClicked;
     });
     setListHiddenBubble((pre) => {

@@ -5,7 +5,11 @@ import parse from "html-react-parser";
 import useAuth from "../../hook/useAuth";
 import "./conversation.css";
 import { useSocket } from "../../context/socketContext";
-import { fetchApiRes } from "../../function/getApi";
+import {
+  fetchApiRes,
+  getStudentInfoByMSSV,
+  getUserinfobyID,
+} from "../../function/getApi";
 export const getMess = async (conversation) => {
   try {
     const res = await fetch(
@@ -31,7 +35,6 @@ export default memo(function Conversation({
   const { auth } = useAuth();
   const socket = useSocket();
   const [isLoading, setIsLoading] = useState(true);
-  const [username, setUsername] = useState();
   const [NewestMess, setNewestMesst] = useState(conversation);
   const data = [conversation.user1, conversation.user2];
   useEffect(() => {
@@ -50,41 +53,21 @@ export default memo(function Conversation({
       });
     }
   }, [socket]);
-  useEffect(() => {
-    const getUsername = () => {
-      const userID =
-        conversation.user1 === auth.userID
-          ? conversation.user2
-          : conversation.user1;
-      const getUser = async () => {
-        try {
-          const res = await fetchApiRes("username", "POST", { UserID: userID });
-          setUsername(res);
-        } catch (error) {
-          console.log("Không có giá trí");
-        }
-      };
-      getUser();
-    };
-    getUsername();
-  }, [conversation]);
+  const userID =
+    conversation.user1 === auth.userID
+      ? conversation.user2
+      : conversation.user1;
+
 
   useEffect(() => {
     const studentInfo = async () => {
-      if (username) {
-        const URL2 = `${process.env.REACT_APP_DB_HOST}/api/getStudentbyID/${username[0]?.username} `;
-        try {
-          const studentApi = await fetch(URL2);
-          const student = await studentApi.json();
-          setUser(student);
-        } catch (error) {
-          console.error(error);
-        }
-      }
+      const username = await getUserinfobyID(userID);
+      const data = await getStudentInfoByMSSV(username?.username);
+      setUser(data);
     };
 
     studentInfo();
-  }, [username]);
+  }, [conversation]);
   useEffect(() => {
     if (currentChat) {
       console.log(currentChat, "con");
@@ -128,7 +111,11 @@ export default memo(function Conversation({
               className="text_conversation hiddenEllipsis"
               style={{ width: "100%" }}
             >
-              <span className="conversationName">{user.Name}</span>
+              <span className="conversationName">
+                {conversation.user1 === userID
+                  ? conversation.user1_mask
+                  : conversation.user2_mask}
+              </span>
               {notSeen_field ? (
                 <></>
               ) : (
