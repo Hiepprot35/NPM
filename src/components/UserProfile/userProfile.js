@@ -177,8 +177,6 @@ export default function UserProfile(props) {
     return array.user1 === id ? array.user2 : array.user1;
   };
 
-  const [userFriendList, setUserFriendList] = useState([]);
-  const [myFriendList, setMyFriendList] = useState([]);
 
   const [gerenalFriend, setgerenalFriend] = useState([]);
 
@@ -271,7 +269,7 @@ export default function UserProfile(props) {
                       )}
                     </div>
                   </div>
-                  <div style={{ width: "40%" }}>
+                  <div >
                     <Button
                       type="primary"
                       size="large"

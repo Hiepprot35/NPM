@@ -24,7 +24,8 @@ export default function SettingAccount() {
                 const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/getStudentbyID/${auth.username}`);
 
                 const resJson = await res.json()
-                setUserInfo(resJson)
+                const {MSSV,Name,Address,SDT,Birthday,Sex,img,introduce}=resJson
+                setUserInfo({MSSV,Name,Address,SDT,Birthday,Sex,img,introduce})
             } catch (error) {
 
                 console.error('Error occurred:', error);

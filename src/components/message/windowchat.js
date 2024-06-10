@@ -74,8 +74,8 @@ export default memo(function WindowChat(props) {
       if (mask1 || mask2) {
         const obj =
           conversation.user1 === auth.userID
-            ? { id: conversation.id, user1_mask: mask1, user2_mask: mask2 }
-            : { id: conversation.id, user1_mask: mask2, user2_mask: mask1 };
+            ? { id: conversation.id, user1_mask: mask1||conversation.user1_mask, user2_mask: mask2 ||conversation.user2_mask}
+            : { id: conversation.id, user1_mask: mask2||conversation.user1_mask, user2_mask: mask1||conversation.user2_mask };
         setListWindow((pre) =>
           pre.map((e) =>
             e.id === conversation.id ? { ...e, ...obj } : { ...e }
@@ -90,7 +90,7 @@ export default memo(function WindowChat(props) {
         if (mask1) {
           const Mes = {
             conversation_id: conversation.id,
-            content: `${host.Name} đã đổi biệt danh thành ${mask1}`,
+            content: `<div className="maskUserChange">${host.Name} đã đổi biệt danh thành ${mask1}</div>`,
             sender_id: auth.userID,
             created_at: Date.now(),
             isFile: 0,
@@ -100,7 +100,7 @@ export default memo(function WindowChat(props) {
         if (mask2) {
           const Mes2 = {
             conversation_id: conversation.id,
-            content: `${host.Name}đã đổi biệt danh của bạn thành ${mask2}`,
+            content: `<div className="maskUserChange">${host.Name} đã đổi biệt danh thành ${mask2}</div>`,
             sender_id: auth.userID,
             created_at: Date.now(),
             isFile: 0,
@@ -321,6 +321,7 @@ export default memo(function WindowChat(props) {
       setImgView((pre) => [...pre, URL.createObjectURL(imgMessFile[i])]);
     }
   }
+
   function remove_imageMess(e) {
     const data = [...imgView];
     const data2 = [...fileImg];
@@ -345,6 +346,14 @@ export default memo(function WindowChat(props) {
       inputChange();
     }
   }
+  useEffect(() => {
+    if (socket) {
+      socket.emit("isTyping", {
+        isTyping: inputMess ? true : false,
+        receiverId: userConver,
+      });
+    }
+  }, [inputMess]);
   const [detailConver, setdetailConver] = useState();
   let isSetting = false;
   useEffect(() => {
@@ -354,7 +363,6 @@ export default memo(function WindowChat(props) {
         setArrivalMessage(event.data);
       }
     };
-
 
     return () => {
       channel.close();
@@ -650,9 +658,8 @@ export default memo(function WindowChat(props) {
       console.log(error);
     }
   };
-  useEffect(() => {
-    console.log(conversation);
-  }, [conversation]);
+  const [IsTyping, setIsTyping] = useState(false);
+
   useEffect(() => {
     if (socket) {
       const handleUpdateNewSend = (data) => {
@@ -668,6 +675,9 @@ export default memo(function WindowChat(props) {
 
         setArrivalMessage({ ...data, created_at: Date.now() });
       };
+      socket.on("isTyping", (data) => {
+        setIsTyping(data.isTyping);
+      });
       socket.on("getMessage", (data) => updateMess(data));
       // socket.on("updateNewSend", handleUpdateNewSend);
       socket.on("getUserSeen", (data) => {
@@ -718,68 +728,77 @@ export default memo(function WindowChat(props) {
                 <div className="header_windowchat">
                   {
                     <>
-                      <Popover content={<p>{userInfor?.Name}</p>}>
-                        <div
-                          className="header_online"
-                          style={{ margin: ".3rem" }}
-                        >
-                          <div className="Avatar_status">
-                            <a
-                              href={`${process.env.REACT_APP_CLIENT_URL}/profile/${userInfor?.MSSV}`}
-                            >
-                              <Image
-                                className="avatarImage"
-                                alt="Avatar"
-                                src={conversation.img || userInfor?.img}
-                              ></Image>
+                      <div
+                        className="header_online"
+                        // style={{ margin: ".3rem" }}
+                      >
+                        <Popover content={<p>{userInfor?.Name}</p>}>
+                          <div className=" p-2 hover:bg-gray-200 rounded-xl">
+                            <div className="Avatar_status">
+                              <a
+                                href={`${process.env.REACT_APP_CLIENT_URL}/profile/${userInfor?.MSSV}`}
+                              >
+                                <Image
+                                  className="avatarImage"
+                                  alt="Avatar"
+                                  src={conversation.img || userInfor?.img}
+                                ></Image>
 
-                              <span
-                                className={`dot ${
-                                  Onlines &&
-                                  Onlines.some(
-                                    (online) => online.userId === userConver
-                                  )
-                                    ? "activeOnline"
-                                    : ""
-                                }`}
-                              ></span>
-                            </a>
+                                <span
+                                  className={`dot ${
+                                    Onlines &&
+                                    Onlines.some(
+                                      (online) => online.userId === userConver
+                                    )
+                                      ? "activeOnline"
+                                      : ""
+                                  }`}
+                                ></span>
+                              </a>
+                            </div>
                           </div>
-                          <div className="header_text">
-                            <p
-                              className="hiddenEllipsis"
-                              style={{ fontWeight: "600" }}
-                            >
-                              {userMask}
-                            </p>
-                            {
-                              <p style={{ fontSize: ".7rem" }}>
-                                {Onlines &&
-                                Onlines.some((e) => e.userId === userConver) ? (
-                                  <>Online</>
-                                ) : (
-                                  <></>
-                                )}
+                        </Popover>
+                        <Popover content={<p>Cài đặt đoạn chat</p>}>
+                        <Popover
+                          title={"Cài đặt đoạn chat"}
+                          placement="left"
+                          content={
+                            <SettingConversation
+                              user={userInfor}
+                              conversation={conversation}
+                            />
+                          }
+                          trigger={"click"}
+                        >
+                          <div className="flex center py-4 hover:bg-gray-200 rounded-xl">
+                            <div className="header_text ">
+                              <p
+                                className="hiddenEllipsis"
+                                style={{ fontWeight: "600" }}
+                              >
+                                {userMask}
+                                <span>{IsTyping && " is typing...."}</span>
                               </p>
-                            }
-                          </div>
-                          <div className="settingHeader">
-                            <Popover
-                              title={"Cài đặt đoạn chat"}
-                              placement="left"
-                              content={
-                                <SettingConversation
-                                  user={userInfor}
-                                  conversation={conversation}
-                                />
+                              {
+                                <p style={{ fontSize: ".7rem" }}>
+                                  {Onlines &&
+                                  Onlines.some(
+                                    (e) => e.userId === userConver
+                                  ) ? (
+                                    <>Online</>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </p>
                               }
-                              trigger={"click"}
-                            >
+                            </div>
+                            <div className="settingHeader">
                               <FiArrowDown></FiArrowDown>
-                            </Popover>
+                            </div>
                           </div>
-                        </div>
-                      </Popover>
+                        </Popover>
+                        </Popover>
+                      </div>
                     </>
                   }
                 </div>

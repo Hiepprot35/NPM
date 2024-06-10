@@ -97,7 +97,15 @@
   width: 100%; /* Thay đổi max-width thành width hoặc loại bỏ nếu không cần thiết */
   margin: 0;
 }
-
+.maskUserChange
+{
+  display: flex;
+padding:.8rem;
+  justify-content: center;
+  width: 100%;
+  align-items: center;
+  color: gray;
+}
 .messageText span {
   display: block;
   word-wrap: break-word;

@@ -119,10 +119,6 @@ aspect-ratio: 16/9;
   line-height: 1.2rem;
   overflow: hidden;
 }
-.header_windowchat:hover {
-  border-radius: 0.7rem;
-  background-color: rgb(201, 188, 188);
-}
 
 .button_windowchat {
   width: 40%;

@@ -190,7 +190,6 @@ export default function FriendList(props) {
     return array.user1 === id ? array.user2 : array.user1;
   };
 
-
   const refListFriend = useRef();
   const changeListDiv = (second) => {
     if (refListFriend.current) {
@@ -202,29 +201,14 @@ export default function FriendList(props) {
       {/* <Layout></Layout> */}
       <div
         className={
-          props.className ? props.className : `friendListDiv linearBefore`
+          props.className ? props.className : `friendListDiv linearBefore overflow-scroll h-80`
         }
         ref={refListFriend}
         style={{ display: "flex" }}
       >
-        {!props.profile && (
-          <List
-            itemLayout="horizontal"
-            className="usersInfomation overflow-scroll"
-            bordered
-            dataSource={Object.values(Users)}
-            renderItem={(student) =>
-              student?.MSSV && (
-                <List.Item
-                  style={{ width: "100%", height: "100px" }}
-                  className="ListItem"
-                >
-                  <UserProfile MSSV={student.MSSV} />
-                </List.Item>
-              ) 
-            }
-          />
-        )}
+          {!props.profile &&
+            Users &&
+            Users.map((e) => <UserProfile MSSV={e.MSSV} />)}
       </div>
       <Button
         shape="circle"

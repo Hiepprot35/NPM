@@ -80,7 +80,7 @@ function BellTable() {
       <div
         className="circleButton notification"
         ref={notificationRef}
-        onMouseLeave={() => {
+        onMouseOver={() => {
           setShowTable(false);
         }}
         onClick={() => {

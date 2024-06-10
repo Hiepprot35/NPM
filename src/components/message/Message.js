@@ -129,12 +129,14 @@ export default memo(function Message({
   const options = {
     replace: ({ name, attribs, children }) => {
       if (name === "div" && attribs && attribs.classname === "callMess") {
-        return <div className="callMess bg-gray pr-4 flex center">
-          <div className="circleButton center">
-
-          <FiVideo></FiVideo>
+        return (
+          <div className="callMess bg-gray pr-4 flex center">
+            <div className="circleButton center">
+              <FiVideo></FiVideo>
+            </div>
+            {domToReact(children)}
           </div>
-          {domToReact(children)}</div>;
+        );
       }
     },
   };
@@ -203,7 +205,12 @@ export default memo(function Message({
                       </p>
                     }
                   >
-                    <div className={`Mess_seen_text flex ${listAnh?.length>1 && "grid grid-cols-3"}  `}>
+                    <div
+                      className={`Mess_seen_text flex ${
+                        listAnh?.length > 1 && "grid grid-cols-3"
+                      }  `}
+                      style={message.content.includes(`className="maskUserChange"`)?{width:"100%"}:{}}
+                    >
                       {message.isFile ? (
                         <>
                           {listAnh &&
@@ -211,7 +218,9 @@ export default memo(function Message({
                               <img
                                 key={i}
                                 onClick={() => setShowImgMess(e)}
-                                className={`cursor-pointer ${listAnh?.length>1 && "listImg"}`}
+                                className={`cursor-pointer ${
+                                  listAnh?.length > 1 && "listImg"
+                                }`}
                                 style={
                                   e.includes("emoji")
                                     ? { width: "1rem ", height: "1rem " }
@@ -221,6 +230,8 @@ export default memo(function Message({
                               ></img>
                             ))}
                         </>
+                      ) : message.content.includes(`className="maskUserChange"`) ? (
+                        parse(message.content)
                       ) : (
                         <div className="messageText center text-wrap break-all px-4 py-2">
                           {parse(processedComment, options)}
@@ -257,7 +268,7 @@ export default memo(function Message({
                       ref={seen_text}
                       style={{ fontSize: "0.9rem", color: "gray" }}
                     >
-                      {updateMess ? "Đang gửi" : "Đã gửi"}
+                      {!message.content.includes(`className="maskUserChange"`) &&(updateMess  ? "Đang gửi" : "Đã gửi")}
                     </span>
                   </div>
                 )

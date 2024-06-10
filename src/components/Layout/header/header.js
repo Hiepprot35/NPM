@@ -427,6 +427,8 @@ function Header(props) {
             </NavLink>
           </div>
           <div className="header_home_user" style={{ width: "30%" }}>
+          <Popover content={<p >Search Films/Movies</p>}>
+
             <div
               className=" searchInput"
               style={{ margin: "1rem" }}
@@ -447,7 +449,10 @@ function Header(props) {
                 </div>
               }
             </div>
+            </Popover>
+
             {
+              <Popover content={primaryColor?<p className="text-white">Light</p>:<p className="text-black">Dark</p>}>
               <div className="h-8 w-8 overflow-hidden">
                 <div
                   className="h-32 transition-all ease-linear duration-300"
@@ -473,15 +478,21 @@ function Header(props) {
                   </span>
                 </div>
               </div>
+              </Popover>
             }
+            <Popover
+              content={<p>All Users</p>}
+            >
+
             <Popover
               trigger="click"
               title={<p>Users</p>}
               content={<FriendList></FriendList>}
-            >
+              >
               <div className="circleButton">
                 <FiUser></FiUser>
               </div>
+              </Popover>
             </Popover>
             <BellTable></BellTable>
 

@@ -20,6 +20,7 @@ import Layout from "./components/Layout/layout";
 import { IsLoading } from "./components/Loading";
 import MoviesType from "./components/home/MoviesType";
 import VideoPlayer from "./components/chatapp/VideoPlayer";
+import Profile from "./components/UserProfile/Profile";
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   // const socket=useSocket();
@@ -70,7 +71,7 @@ function App() {
         return (
           <Routes>
             <Route path="/dangkilop" element={<DangKiLopHoc />} />
-            <Route path="/profile/:MSSV" element={<ProfileRoutes />} />
+            <Route path="/profile/:MSSV" element={<Profile />} />
             <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
             <Route path="/movie/moviedetail/:id" element={<DeltailMovieFilms />} />
             {/* <Route path="/" element={<Dashboard />} /> */}
