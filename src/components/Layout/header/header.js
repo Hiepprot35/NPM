@@ -134,6 +134,7 @@ function Header(props) {
         if (data.sender_id !== auth.userID) {
           updateTitle(data.nameUser);
           const conver = await foundConversation(auth.userID, data.sender_id);
+          console.log(conver,"header conver found")
           setListHiddenBubble((pre) =>
             pre.filter((e) => e.id !== data.conversation_id)
           );
@@ -144,9 +145,9 @@ function Header(props) {
 
             if (!conversationExists) {
               return [...prev, { ...conver }];
+            } else {
+              return prev;
             }
-
-            return prev;
           });
         }
       });
@@ -427,71 +428,75 @@ function Header(props) {
             </NavLink>
           </div>
           <div className="header_home_user" style={{ width: "30%" }}>
-          <Popover content={<p >Search Films/Movies</p>}>
-
-            <div
-              className=" searchInput"
-              style={{ margin: "1rem" }}
-              ref={refSearchButton}
-            >
-              <input
-                onChange={debouncedHandleSearch}
-                placeholder="Search everything"
-              ></input>
-              <div onClick={searchHandle} className="circleButton">
-                <FiSearch></FiSearch>
-              </div>
-              {
-                <div
-                  style={{ position: "absolute", top: "100%", left: "1rem" }}
-                >
-                  <Search query={SearchQuery}></Search>
+            <Popover content={<p>Search Films/Movies</p>}>
+              <div
+                className=" searchInput"
+                style={{ margin: "1rem" }}
+                ref={refSearchButton}
+              >
+                <input
+                  onChange={debouncedHandleSearch}
+                  placeholder="Search everything"
+                ></input>
+                <div onClick={searchHandle} className="circleButton">
+                  <FiSearch></FiSearch>
                 </div>
-              }
-            </div>
+                {
+                  <div
+                    style={{ position: "absolute", top: "100%", left: "1rem" }}
+                  >
+                    <Search query={SearchQuery}></Search>
+                  </div>
+                }
+              </div>
             </Popover>
 
             {
-              <Popover content={primaryColor?<p className="text-white">Light</p>:<p className="text-black">Dark</p>}>
-              <div className="h-8 w-8 overflow-hidden">
-                <div
-                  className="h-32 transition-all ease-linear duration-300"
-                  style={
-                    primaryColor
-                      ? { transform: "translateY(-2rem)" }
-                      : { transform: "translateY(0)" }
-                  }
-                >
-                  <span
-                    className="circleButton transition-all ease-linear duration-300 m-0"
-                    style={primaryColor ? { opacity: 0 } : { opacity: 1 }}
-                    onClick={ChangeColorTheme}
+              <Popover
+                content={
+                  primaryColor ? (
+                    <p className="text-white">Light</p>
+                  ) : (
+                    <p className="text-black">Dark</p>
+                  )
+                }
+              >
+                <div className="h-8 w-8 overflow-hidden">
+                  <div
+                    className="h-32 transition-all ease-linear duration-300"
+                    style={
+                      primaryColor
+                        ? { transform: "translateY(-2rem)" }
+                        : { transform: "translateY(0)" }
+                    }
                   >
-                    <FiSunrise></FiSunrise>
-                  </span>
-                  <span
-                    className="circleButton transition-all ease-linear duration-300 m-0"
-                    style={primaryColor ? { opacity: 1 } : { opacity: 0 }}
-                    onClick={ChangeColorTheme}
-                  >
-                    <FiMoon></FiMoon>
-                  </span>
+                    <span
+                      className="circleButton transition-all ease-linear duration-300 m-0"
+                      style={primaryColor ? { opacity: 0 } : { opacity: 1 }}
+                      onClick={ChangeColorTheme}
+                    >
+                      <FiSunrise></FiSunrise>
+                    </span>
+                    <span
+                      className="circleButton transition-all ease-linear duration-300 m-0"
+                      style={primaryColor ? { opacity: 1 } : { opacity: 0 }}
+                      onClick={ChangeColorTheme}
+                    >
+                      <FiMoon></FiMoon>
+                    </span>
+                  </div>
                 </div>
-              </div>
               </Popover>
             }
-            <Popover
-              content={<p>All Users</p>}
-            >
-
-            <Popover
-              trigger="click"
-              title={<p>Users</p>}
-              content={<FriendList></FriendList>}
+            <Popover content={<p>All Users</p>}>
+              <Popover
+                trigger="click"
+                title={<p>Users</p>}
+                content={<FriendList></FriendList>}
               >
-              <div className="circleButton">
-                <FiUser></FiUser>
-              </div>
+                <div className="circleButton">
+                  <FiUser></FiUser>
+                </div>
               </Popover>
             </Popover>
             <BellTable></BellTable>

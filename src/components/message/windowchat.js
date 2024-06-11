@@ -268,6 +268,7 @@ export default memo(function WindowChat(props) {
               "Content-Type": "application/json",
               RefreshToken: RefreshToken,
             },
+            body:JSON.stringify({userID:auth.userID})
           }
         );
         const data = await res.json();
