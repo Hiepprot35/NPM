@@ -230,7 +230,7 @@ export default memo(function Message({
                               ></img>
                             ))}
                         </>
-                      ) : message.content.includes(`className="maskUserChange"`) ? (
+                      ) :( message.content&& message.content.includes(`className="maskUserChange"`)) ? (
                         parse(message.content)
                       ) : (
                         <div className="messageText center text-wrap break-all px-4 py-2">
@@ -268,7 +268,7 @@ export default memo(function Message({
                       ref={seen_text}
                       style={{ fontSize: "0.9rem", color: "gray" }}
                     >
-                      {!message.content.includes(`className="maskUserChange"`) &&(updateMess  ? "Đang gửi" : "Đã gửi")}
+                      { message.content &&!message.content.includes(`className="maskUserChange"`) &&(updateMess  ? "Đang gửi" : "Đã gửi")}
                     </span>
                   </div>
                 )
