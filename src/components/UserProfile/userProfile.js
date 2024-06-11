@@ -57,7 +57,7 @@ export default function UserProfile(props) {
         created_at: Date.now(),
       }
       const authName = await getStudentInfoByMSSV(auth.username);
-      const res = await fetchApiRes("conversations", "POST", );
+      const res = await fetchApiRes("conversations", "POST", {...obj});
       console.log(res);
       if(res.result){
         return {
