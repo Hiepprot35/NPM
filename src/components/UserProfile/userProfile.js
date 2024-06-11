@@ -48,17 +48,22 @@ export default function UserProfile(props) {
   };
   const AddConver = async (id, request) => {
     try {
-      const authName = await getStudentInfoByMSSV(auth.username);
-      const res = await fetchApiRes("conversations", "POST", {
+      const obj={
         user1: auth.userID,
         user2: id,
         user1_mask: authName.Name,
         user2_mask: Users.Name,
         Requesting:request?1:0,
         created_at: Date.now(),
-      });
+      }
+      const authName = await getStudentInfoByMSSV(auth.username);
+      const res = await fetchApiRes("conversations", "POST", );
       console.log(res);
-      return res.result;
+      if(res.result){
+        return {
+          id:res.result,...obj
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -114,6 +119,7 @@ export default function UserProfile(props) {
         user2: id,
         created_at: Date.now(),
         img: Users.img,
+        
       };
 
       const foundIndex = listWindow.findIndex(
@@ -147,8 +153,7 @@ export default function UserProfile(props) {
       if (!converFound) {
         try {
           const data = await AddConver(id);
-          console.log(data);
-          setListWindow((prev) => replaceCover(prev, { id: data, ...conver }));
+          setListWindow((prev) => replaceCover(prev, { ...data }));
         } catch (error) {
           console.log(error);
         }
