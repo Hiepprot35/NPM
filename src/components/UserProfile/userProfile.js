@@ -164,8 +164,8 @@ export default function UserProfile(props) {
             user2_mask: Users.Name,
             created_at: Date.now(),
           };
-          setListWindow((prev) => replaceCover(prev, { ...obj }));
           const data = await AddConver(id);
+          setListWindow((prev) => replaceCover(prev, { ...data }));
 
         } catch (error) {
           console.log(error);
