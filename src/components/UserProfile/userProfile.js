@@ -48,21 +48,22 @@ export default function UserProfile(props) {
   };
   const AddConver = async (id, request) => {
     try {
-      const obj={
+      const authName = await getStudentInfoByMSSV(auth.username);
+      const obj = {
         user1: auth.userID,
         user2: id,
         user1_mask: authName.Name,
         user2_mask: Users.Name,
-        Requesting:request?1:0,
+        Requesting: request ? 1 : 0,
         created_at: Date.now(),
-      }
-      const authName = await getStudentInfoByMSSV(auth.username);
-      const res = await fetchApiRes("conversations", "POST", {...obj});
+      };
+      const res = await fetchApiRes("conversations", "POST", { ...obj });
       console.log(res);
-      if(res.result){
+      if (res.result) {
         return {
-          id:res.result,...obj
-        }
+          id: res.result,
+          ...obj,
+        };
       }
     } catch (error) {
       console.log(error);
@@ -83,15 +84,21 @@ export default function UserProfile(props) {
     if (!converFound) {
       await AddConver(id, true);
     } else {
-      const user1_mask= converFound.user1===auth.userID?converFound.user1_mask:converFound.user2_mask
-      const user2_mask= converFound.user1===auth.userID?converFound.user2_mask:converFound.user1_mask
+      const user1_mask =
+        converFound.user1 === auth.userID
+          ? converFound.user1_mask
+          : converFound.user2_mask;
+      const user2_mask =
+        converFound.user1 === auth.userID
+          ? converFound.user2_mask
+          : converFound.user1_mask;
 
       const data = await fetchApiRes("message/updateConversation", "POST", {
         Requesting: 1,
         user1: auth.userID,
         user2: id,
-        user1_mask:user1_mask,
-        user2_mask:user2_mask,
+        user1_mask: user1_mask,
+        user2_mask: user2_mask,
         id: converFound.id,
       });
       console.log(data);
@@ -119,7 +126,6 @@ export default function UserProfile(props) {
         user2: id,
         created_at: Date.now(),
         img: Users.img,
-        
       };
 
       const foundIndex = listWindow.findIndex(
@@ -182,7 +188,6 @@ export default function UserProfile(props) {
     return array.user1 === id ? array.user2 : array.user1;
   };
 
-
   const [gerenalFriend, setgerenalFriend] = useState([]);
 
   useEffect(() => {
@@ -194,8 +199,6 @@ export default function UserProfile(props) {
           return dataMyFriend.some((e) => e === userFriend);
         });
         setgerenalFriend(generalFriends);
-
-      
       };
       getUserFriend();
     }
@@ -274,7 +277,7 @@ export default function UserProfile(props) {
                       )}
                     </div>
                   </div>
-                  <div >
+                  <div>
                     <Button
                       type="primary"
                       size="large"
