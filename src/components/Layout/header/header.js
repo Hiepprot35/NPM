@@ -95,7 +95,7 @@ function Header(props) {
     },
   };
   useEffect(() => {
-    if (socket) {
+    if (socket &&auth?.userID) {
       socket.emit("addUser", auth?.userID);
     }
     return () => {
@@ -233,7 +233,9 @@ function Header(props) {
     debounce(searchQueryHandle, 500),
     []
   );
-
+    useEffect(() => {
+      console.log(auth,"auth")
+    }, [auth]);
   const content = () => {
     return (
       <div className="Menu_profile_header " ref={Menu_profile_header}>
@@ -244,7 +246,7 @@ function Header(props) {
           >
             <div className="avatar_name hover">
               <img
-                src={`${auth.avtUrl}`}
+                src={`${auth?.avtUrl}`}
                 alt="User Avatar"
                 className="avatarImage"
               />

@@ -9,17 +9,19 @@ import MyComment from "./MyComment";
 import { countTime, getDate, getTime } from "../../function/getTime";
 import { fetchVideoTitle, movieApi } from "../message/windowchat";
 import parseUrl from "parse-url";
-function Comment({ comment, isReply, className }) {
+function Comment({ comment, isReply, className,users }) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState();
   const [ComemntDetail, setComemntDetail] = useState([]);
   const [myReaction, setmyReaction] = useState();
-const countReactionHeight=2.5
+  const countReactionHeight = 2.5;
   const [Clicked, setClicked] = useState(false);
   const getCommentReply = async () => {
-    const res = await fetchApiRes(
-      `/gettAllCommentFilms/?movieID=${comment.movieID}&replyID=${comment.id}`
-    );
+    const url =
+      comment.movieID > 0
+        ? `/gettAllCommentFilms/?movieID=${comment.movieID}&replyID=${comment.id}`
+        : `/getAllCommentPost/?replyID=${comment.id}`;
+    const res = await fetchApiRes(url);
     if (res?.result.length > 0) {
       setCommentsRep(res.result);
     }
@@ -30,9 +32,9 @@ const countReactionHeight=2.5
         return e.action;
       }
     });
-    return prop
+    return prop;
   };
-  
+
   const getComment = async () => {
     if (comment) {
       try {
@@ -45,27 +47,26 @@ const countReactionHeight=2.5
           }));
 
           res.result.forEach((reaction) => {
-           const prop=findTrueProperties(reaction)
+            const prop = findTrueProperties(reaction);
             if (prop) {
               const item = data.find((d) => d.action === prop.action);
-              console.log(reaction,auth)
-              if(parseInt(reaction.userID)===parseInt(auth.username)){setmyReaction(prop)}
+              if (parseInt(reaction.userID) === parseInt(auth.username)) {
+                setmyReaction(prop);
+              }
               if (item) {
                 item.count += 1;
                 item.users.push(reaction.userID);
               }
             }
           });
-          setCountReaction(data.sort((a,b)=>b.count-a.count));
+          setCountReaction(data.sort((a, b) => b.count - a.count));
         }
       } catch (error) {
         console.log("ero", error);
       }
     }
   };
-  useEffect(() => {
-    console.log(myReaction)
-  }, [myReaction]);
+
   useEffect(() => {
     getComment();
   }, [comment, Clicked]);
@@ -83,6 +84,11 @@ const countReactionHeight=2.5
     let updatedComment = e;
     const youtubeRegex = /(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
     const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
+    const data = e.split("imgSplitLink");
+    if (data.length > 1) {
+      updatedComment = data[0] + ` <img atl="comment" className="w-full h-full rounded-xl" src="${data[1]}" />`;
+    }
+
     if (youtubeRegex.test(e)) {
       const url = e.match(youtubeRegex);
       const videoId =
@@ -92,7 +98,7 @@ const countReactionHeight=2.5
       const newUrl = `<a href="${"https://youtube.com/watch?v=" + videoId}">${
         "https://youtube.com/watch?v=" + videoId
       }<div className="cardMess"><img className="commentImg" src=${imgUrl}></img><div className="titleMess"><p className="hiddenText">${videoTitle}</p></div></div></a>`;
-      const result = e.replaceAll(url[0].split(" ")[0], newUrl);
+      const result = updatedComment.replaceAll(url[0].split(" ")[0], newUrl);
       const data = `<div className="columnFlex">${result}</div>`;
       updatedComment = data;
     } else if (movieFilmsRegex.test(e)) {
@@ -136,15 +142,14 @@ const countReactionHeight=2.5
     processComment();
   }, [comment.content]);
   const commentReactHandle = async (e, data) => {
-    setmyReaction(data)
+    setmyReaction(data);
     const obj = {
       commentID: e,
-      [data.action]:true,
+      [data.action]: true,
       userID: auth.username,
     };
     const res = await fetchApiRes("insertLike", "PUT", obj);
     setClicked(!Clicked);
-
   };
   const ReactComment = [
     { action: "Like", icon: "👍", isLike: true, name: "Like" },
@@ -165,15 +170,20 @@ const countReactionHeight=2.5
   useEffect(() => {
     if (comment) {
       const fetchData = async () => {
-        const userPromises = await getStudentInfoByMSSV(comment.userID);
+    if(users)
+        {setUser(users)}
+        else{
 
-        setUser(userPromises);
+          const userPromises = await getStudentInfoByMSSV(comment.userID);
+          setUser(userPromises);
+        }
       };
-
+    
       fetchData();
       getCommentReply();
     }
   }, [comment]);
+
   return (
     <div className={`comment ${className}`}>
       <div className="containerComment">
@@ -181,7 +191,14 @@ const countReactionHeight=2.5
           <div className="AvatarComment">
             <Popover content={<UserProfile MSSV={User?.MSSV}></UserProfile>}>
               <div className="AvatarComment2">
-                <img className="avatarImage" src={`${User && User?.img}`}></img>
+                {
+                  !User?<div className="loader w-1/2 h-1/2"></div>:
+                <img
+                  className="avatarImage shadow-lg"
+                  style={{maxWidth:"unset"}}
+                  src={`${(User && User?.cutImg) || User?.img}`}
+                  ></img>
+                }
               </div>
             </Popover>
             {((CommentsRep?.length > 0 && SeeMoreComment) || ReplyOpen) && (
@@ -237,12 +254,14 @@ const countReactionHeight=2.5
                         <Popover content={e.name}>
                           <span
                             key={i}
-                            style={{background:myReaction?.action===e.action?"gray":"none"}}
+                            style={{
+                              background:
+                                myReaction?.action === e.action
+                                  ? "gray"
+                                  : "none",
+                            }}
                             className="reactionComment circleButton"
-                            onClick={() =>
-                              commentReactHandle(comment.id, e
-                             )
-                            }
+                            onClick={() => commentReactHandle(comment.id, e)}
                           >
                             {e.icon}
                           </span>
@@ -252,11 +271,16 @@ const countReactionHeight=2.5
                   }
                 >
                   <span
-                  className=""
-                    style={{ fontSize: "1.1rem",borderRadius:"50%",padding:".5rem",background:myReaction?"gray":"none"}}
-                    onClick={() =>myReaction? likeHandle(comment.id):null}
+                    className=""
+                    style={{
+                      fontSize: "1.1rem",
+                      borderRadius: "50%",
+                      padding: ".5rem",
+                      background: myReaction ? "gray" : "none",
+                    }}
+                    onClick={() => (myReaction ? likeHandle(comment.id) : null)}
                   >
-                    {myReaction?.icon||'👍'}
+                    {myReaction?.icon || "👍"}
                   </span>
                 </Popover>
               </div>
@@ -267,27 +291,34 @@ const countReactionHeight=2.5
                 onMouseEnter={() => setHoverReaction(true)}
                 onMouseLeave={() => setHoverReaction(false)}
               >
-                {CountReaction && CountReaction.map((e, i) => {
-                  return (
-                    e.count>0&&
-                    <div
-                      className=" countReaction"
-                      style={{
-                        position: "absolute",
-                        left: hoverReaction ? `${i * countReactionHeight+0.5}rem` : `${i * countReactionHeight/2}rem`,
-                        zIndex: `${5 - i}`,
-                      }}
-                    >
-                      <span style={{ fontSize: "1.1rem" }}>{ReactComment.find(v=>v.action===e.action).icon}</span>
+                {CountReaction &&
+                  CountReaction.map((e, i) => {
+                    return (
+                      e.count > 0 && (
+                        <div
+                          className=" countReaction"
+                          style={{
+                            position: "absolute",
+                            left: hoverReaction
+                              ? `${i * countReactionHeight + 0.5}rem`
+                              : `${(i * countReactionHeight) / 2}rem`,
+                            zIndex: `${5 - i}`,
+                          }}
+                        >
+                          <span style={{ fontSize: "1.1rem" }}>
+                            {
+                              ReactComment.find((v) => v.action === e.action)
+                                .icon
+                            }
+                          </span>
 
-                      {hoverReaction && (
-                        <span style={{ color: "black" }}>
-                          {e.count}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}{" "}
+                          {hoverReaction && (
+                            <span style={{ color: "black" }}>{e.count}</span>
+                          )}
+                        </div>
+                      )
+                    );
+                  })}{" "}
               </div>
             </div>
           </div>
@@ -327,7 +358,14 @@ const countReactionHeight=2.5
             style={{ margin: "0 0 2rem 4rem" }}
             onClick={() => setSeeMoreComment((pre) => !pre)}
           >
-            {!SeeMoreComment ? "See more" : "Hidden"}
+            
+            <p className="font-semibold text-teal-300	">
+{
+
+!SeeMoreComment ?`Total ${CommentsRep.length} comments. Show all`:`Hidden`
+}
+            </p>
+             
           </p>
         )}
       </div>

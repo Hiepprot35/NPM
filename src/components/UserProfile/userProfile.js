@@ -125,7 +125,7 @@ export default function UserProfile(props) {
         user1: auth.userID,
         user2: id,
         created_at: Date.now(),
-        img: Users.img,
+        img:Users?.cutImg|| Users?.img,
       };
 
       const foundIndex = listWindow.findIndex(
@@ -164,6 +164,7 @@ export default function UserProfile(props) {
             user2_mask: Users.Name,
             created_at: Date.now(),
           };
+          setListWindow((prev) => replaceCover(prev, { ...obj }));
           const data = await AddConver(id);
           setListWindow((prev) => replaceCover(prev, { ...data }));
 
@@ -259,16 +260,16 @@ export default function UserProfile(props) {
                         ></UserProfile>
                       }
                     >
-                      <NavLink
-                        to={`${process.env.REACT_APP_CLIENT_URL}/profile/${Users.MSSV}`}
+                      <a
+                        href={`${process.env.REACT_APP_CLIENT_URL}/profile/${Users.MSSV}`}
                       >
                         <img
                           className="avatarImage"
                           // style={{ width: "168px" }}
-                          src={Users.img}
+                          src={Users?.cutImg ||Users?.img}
                           alt=""
                         />
-                      </NavLink>
+                      </a>
                     </Popover>
                   </div>
                   <div

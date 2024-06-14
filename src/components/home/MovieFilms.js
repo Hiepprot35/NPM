@@ -275,12 +275,12 @@ export default function MovieFilms(props) {
                                   style={{ margin: "1rem" }}
                                 >
                                   {e?.runtime && (
-                                    <Text
+                                    <Text className={`font-semibold`}
                                       text={`${timeFilm(e?.runtime)} | `}
                                     ></Text>
                                   )}
 
-                                  <Text
+                                  <Text className={`font-semibold`}
                                     text={`${e?.origin_country.map(
                                       (country) => {
                                         const data = countries.find(
@@ -294,7 +294,7 @@ export default function MovieFilms(props) {
                                   />
 
                                   {GenresList && e.genre_ids && (
-                                    <Text
+                                    <Text className={`font-semibold`}
                                       style={{ fontSize: "1rem" }}
                                       text={`${e.genre_ids.map(
                                         (e) =>
@@ -305,7 +305,7 @@ export default function MovieFilms(props) {
                                     />
                                   )}
                                   {e.genres && (
-                                    <Text
+                                    <Text className={`font-semibold`}
                                       style={{ fontSize: "1rem" }}
                                       text={`${e.genres.map((e) => e.name)}`}
                                     />

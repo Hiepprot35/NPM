@@ -31,7 +31,7 @@ span {
   background-color: var(--themeColor);
 }
 .content{
-  padding-top: 10vh;
+  padding-top: 7vh;
   width: var(--widthContentHome);
 }
 .minirp p, .minirp svg{

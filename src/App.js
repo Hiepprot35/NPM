@@ -21,6 +21,8 @@ import { IsLoading } from "./components/Loading";
 import MoviesType from "./components/home/MoviesType";
 import VideoPlayer from "./components/chatapp/VideoPlayer";
 import Profile from "./components/UserProfile/Profile";
+import Header from "./components/Layout/header/header";
+import PhotoPost from "./components/UserProfile/PhotoPost";
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   // const socket=useSocket();
@@ -32,7 +34,11 @@ function App() {
   useEffect(() => {
     setIsLoading(false);
   }, [AccessToken]);
-
+  useEffect(() => {
+    if (AccessToken && !RefreshToken) {
+      checkAccessToken();
+    }
+  }, []);
   const refreshAccessToken = useRefresh();
   useEffect(() => {
     if (RefreshToken) {
@@ -73,14 +79,18 @@ function App() {
             <Route path="/dangkilop" element={<DangKiLopHoc />} />
             <Route path="/profile/:MSSV" element={<Profile />} />
             <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
-            <Route path="/movie/moviedetail/:id" element={<DeltailMovieFilms />} />
+            <Route
+              path="/movie/moviedetail/:id"
+              element={<DeltailMovieFilms />}
+            />
             {/* <Route path="/" element={<Dashboard />} /> */}
             <Route path="/" element={<Home />} />
             <Route path="/friends" element={<FriendList />} />
             <Route path="/films" element={<MoviesType />} />
-            <Route path="/videocall" element={<VideoCall/>}></Route>
+            <Route path="/videocall" element={<VideoCall />}></Route>
             <Route path="/message" element={<MessageRoute />} />
             <Route path="*" element={<Home />} />
+            <Route path="/photo" element={<Profile/>} />
 
             <Route path="/message/:messageId" element={<MessageRoute />} />
             <Route path="/lichhoc" element={<ViewTimetable />} />
@@ -95,17 +105,18 @@ function App() {
           {/* <Route path="*" element={<IsLoading />} /> */}
           <Route path="/login" element={<Login />} />
           <Route path="/create" element={<CreateStudent />} />
-          <Route path="*" element={<Home />} />
-          <Route path="/movie/moviedetail/:id" element={<DeltailMovieFilms />} />
+          <Route path="*" element={<Login />} />
+          <Route path="/" element={<Home />} />
 
-         
+          <Route
+            path="/movie/moviedetail/:id"
+            element={<DeltailMovieFilms />}
+          />
         </Routes>
       );
     }
-  }
-  else
-  {
-    return (<IsLoading></IsLoading>)
+  } else {
+    return <IsLoading></IsLoading>;
   }
 }
 

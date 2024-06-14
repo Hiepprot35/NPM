@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import UseRfLocal from "./useRFLocal";
 import { useNavigate } from "react-router-dom";
 export const useRefresh = () => {
-  const { auth, setAuth } = useAuth();
+  const { auth, setAuth ,setMyInfor} = useAuth();
   const { AccessToken, setAccessToken } = UseToken();
   const { RefreshToken } = UseRfLocal();
   const host = process.env.REACT_APP_DB_HOST;
@@ -33,13 +33,9 @@ export const useRefresh = () => {
           const data = await response.json();
           console.log(data,"data")
           const { Role, UserID, Username, avtUrl } = data;
+     
           setAccessToken(data.AccessToken);
-          setAuth({
-            role: Role,
-            userID: UserID,
-            username: Username,
-            avtUrl: avtUrl,
-          });
+         
         }
       }
     } catch (error) {

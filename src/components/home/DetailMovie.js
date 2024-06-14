@@ -753,7 +753,7 @@ export default function DetailMovie(props) {
                         <div style={{ margin: 0, position: "relative" }}>
                           <h1 style={{ margin: 0 }}>Comment</h1>
                           <div className="center countText">
-                            <p>{comments.length}</p>
+                            <p>{comments?.length||0}</p>
                           </div>
                         </div>
                         <div
@@ -808,7 +808,7 @@ export default function DetailMovie(props) {
                           ></MyComment>
                         </motion.div>
                       )}
-                      {comments && comments.length > 0 && (
+                      {comments && comments?.length > 0 && (
                         <div className="allComment">
                           {comments.map((e, i) => (
                             <motion.div key={i} variants={variants2}>
@@ -832,7 +832,7 @@ export default function DetailMovie(props) {
                   </motion.section>
                 }
               </motion.div>
-              {Images.length > 0 && ShowImg && (
+              {Images?.length > 0 && ShowImg && (
                 <ShowImgDialog
                   listImg={Images}
                   current={ShowImg}

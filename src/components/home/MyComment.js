@@ -7,6 +7,7 @@ import EmojiPicker from "emoji-picker-react";
 import parseUrl from "parse-url";
 import { IsLoading } from "../Loading.js";
 import { fetchVideoTitle, movieApi } from "../message/windowchat.js";
+import { Popover } from "antd";
 export default function MyComment(props) {
   const refTag = useRef();
   const inputRef = useRef();
@@ -78,28 +79,25 @@ export default function MyComment(props) {
     }
   };
   const [ImgView, setImgView] = useState([]);
-      const pastImg=(e)=>
-        {
-          const clipboardData = e.clipboardData || window.clipboardData;
-          const items = clipboardData.items;
-          
-          console.log(clipboardData)
-          for (let i = 0; i < items.length; i++) {
-            if (items[i].kind === "file" && items[i].type.startsWith("image/")) {
-              e.preventDefault();
-              const file = items[i].getAsFile();
-              // setMyComment(pre=>[p])
-              setImgView(pre=>[...pre,URL.createObjectURL(file)])
-              // Bạn có thể xử lý thêm tệp hình ảnh ở đây, chẳng hạn như hiển thị hoặc tải lên máy chủ
-            }
-        }
-      
-    }
+  const [ImgFile, setImgFile] = useState();
   useEffect(() => {
-    if (props.reply) {
-      inputRef.current.focus();
+    
+  }, []);
+  const pastImg = (e) => {
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const items = clipboardData.items;
+
+    console.log(clipboardData);
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].kind === "file" && items[i].type.startsWith("image/")) {
+        e.preventDefault();
+        const file = items[i].getAsFile();
+        setImgFile(file);
+        setImgView((pre) => [...pre, URL.createObjectURL(file)]);
+      }
     }
-  }, [props.reply]);
+  };
+
   useEffect(() => {
     if (inputRef.current) {
       if (myComment) {
@@ -134,18 +132,27 @@ export default function MyComment(props) {
           (e) =>
             (updateContent = content.replaceAll(
               e.emoji,
-              `<img className="emoji" src="${e.imageUrl}"> <img/>`
+              `<img className="emoji" src="${e.imageUrl}"/>`
             ))
         );
       }
-   
-      const res = await fetchApiRes("insertComment", "POST", {
-        userID: auth.username,
-        content: updateContent,
-        movieID: props.movieID,
-        replyID: props.reply,
-        create_at: Date.now(),
-      });
+      const form = new FormData();
+      form.append("userID",auth.username)
+      form.append("content", updateContent||'');
+      if (props.movieID) {
+        form.append("movieID", props.movieID);
+      }
+      console.log(ImgFile)
+      form.append("replyID", props.reply||-1);
+      form.append("create_at", Date.now());
+      if (ImgFile) {
+        form.append("image", ImgFile);
+      }
+      const res = await fetch(
+        `${process.env.REACT_APP_DB_HOST}/api/insertComment`,
+        { method: "POST", body: form }
+      );
+
       inputRef.current.innerHTML = "";
       setCountText(0);
       setMyComment("");
@@ -205,24 +212,25 @@ export default function MyComment(props) {
               </div>
             )}
             <div className="featureComment">
-              <div
-                className="flex items-center		"
-                onClick={(e) => {
-                  setOpenEmojiPicker(!openEmojiPicker);
-                }}
-              >
-                <FiSmile></FiSmile>
-                <div className="emojipick" style={{ zIndex: "6" }}>
-                  <EmojiPicker
-                    width={350}
-                    height={450}
-                    open={openEmojiPicker}
-                    onEmojiClick={(e, i) => {
-                      onClickEmoji(e);
-                    }}
-                    emojiStyle="facebook"
-                  />
-                </div>
+              <div className="flex items-center">
+                <Popover
+                  trigger={"click"}
+                  content={
+                    <EmojiPicker
+                      width={350}
+                      height={450}
+                      onEmojiClick={(e, i) => {
+                        onClickEmoji(e);
+                      }}
+                      emojiStyle="facebook"
+                    />
+                  }
+                >
+                  <span className="circleButton">
+                    <FiSmile></FiSmile>
+                  </span>
+                </Popover>
+
                 <span
                   style={{
                     color: `rgb(${(255 * countText) / 200},${
@@ -234,9 +242,19 @@ export default function MyComment(props) {
                   {`${countText}/200`}{" "}
                   {countText === 200 && ` vượt quá kí tự quy định`}
                 </span>
+                <div className="m-4 flex">
+                  {ImgView &&
+                    ImgView.map((e) => (
+                      <img
+                        className="rounded-xl m-2"
+                        style={{ width: "6rem", aspectRatio: 1 }}
+                        src={e}
+                      ></img>
+                    ))}
+                </div>
               </div>
 
-              {myComment && myComment !== "<br>" && (
+              {((myComment && myComment !== "<br>")||ImgFile) && (
                 <>
                   <span
                     className="circleButton"
@@ -249,7 +267,7 @@ export default function MyComment(props) {
               )}
             </div>
           </div>
-        
+
           {FilterTag && OpenTag && (
             <div className="tagList">
               {FilterTag.map((e) => (
@@ -264,13 +282,8 @@ export default function MyComment(props) {
               ))}
             </div>
           )}
-          
         </div>
-
       }
-        {
-            ImgView && ImgView.map(e=><img style={{width:"10rem",aspectRatio:1}} src={e}></img>)
-          }
     </>
   );
 }

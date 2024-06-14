@@ -1074,7 +1074,7 @@ export default memo(function WindowChat(props) {
                       className="avatarImage"
                       alt="Avatar"
                       loading="lazy"
-                      src={userInfor?.img}
+                      src={userInfor?.cutImg||userInfor?.img}
                     ></Image>
                     <span
                       className={`dot ${

@@ -33,12 +33,12 @@ export const LoginGoolge = ({ children  }) => {
       if (dataRes.AccessToken) {
         setAccessToken(dataRes.AccessToken);
         setRefreshToken(dataRes.RefreshToken);
-        const { Role, Username, UserID, avtURL } = dataRes;
+        const { Role, Username, UserID, avtUrl } = dataRes;
         setAuth({
           role: Role,
           username: Username,
           userID: UserID,
-          avtUrl: avtURL,
+          avtUrl: avtUrl,
         });
       }
     } catch (err) {
