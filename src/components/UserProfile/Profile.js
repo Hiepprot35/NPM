@@ -632,6 +632,7 @@ export default function Profile() {
                   </div>
                   <div className="" style={{ width: "60%" }}>
                     <Posts
+                    setCurrentImg={setCurrentImg}
                       setImgContent={setImgContent}
                       users={Users}
                       username={Users?.MSSV}

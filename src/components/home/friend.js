@@ -41,7 +41,7 @@ export default function FriendList(props) {
       });
       if (response.ok) {
         const data = await response.json();
-
+        console.log(data.result)
         setListUsers(data.result);
       }
     } catch (error) {
@@ -50,152 +50,18 @@ export default function FriendList(props) {
   };
   useEffect(() => {
     getData();
-  }, [AccessToken]);
-  useEffect(() => {
-    document.title = "Users";
   }, []);
-  const foundConversation = async (user1, user2) => {
-    const conversations = await Promise.all([
-      fetchApiRes("message/getConversation", "POST", {
-        user1: user1,
-        user2: user2,
-      }),
-      fetchApiRes("message/getConversation", "POST", {
-        user1: user2,
-        user2: user1,
-      }),
-    ]);
-    const result = conversations.reduce((acc, curr) => {
-      if (curr?.result?.length > 0) {
-        acc = curr.result[0].id;
-      }
-      return acc;
-    }, false);
 
-    return result;
-  };
-  const addToConverArray = (array, prev, id) => {
-    console.log(array, prev, id);
-    const newClicked = prev.filter((obj) => obj.id !== id);
-    const con = array.find((e) => e.id === id);
-    if (con) {
-      newClicked.unshift(con);
-    }
 
-    return newClicked;
-  };
-  // useEffect(() => {
-  //   if (clickNewCon && conversations) {
-  //     setListWindow((pre) => addToConverArray(conversations, pre, clickNewCon));
-  //   }
-  // }, [conversations]);
-  const removeElement = (array, index) => {
-    const newArray = array.filter((obj) => obj?.id !== index);
-    return newArray;
-  };
-  const deleteFriend = async (id) => {
-    const converFound = await foundConversation(id, auth.userID);
-    try {
-      const data = await fetchApiRes("message/updateConversation", "POST", {
-        Friend: false,
-        id: converFound,
-      });
-      if (data.result) {
-        setIsLoading(false);
-      }
-    } catch (error) {
-      setIsLoading(false);
 
-      console.log(error);
-    }
-  };
-  const sendRequestFriend = async (id) => {
-    const converFound = await foundConversation(id, auth.userID);
-    setIsLoading(true);
-    if (!converFound) {
-      try {
-        await fetchApiRes("conversations", "POST", {
-          user1: auth.userID,
-          user2: id,
-          Requesting: 1,
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      try {
-        const data = await fetchApiRes("message/updateConversation", "POST", {
-          Requesting: true,
-          user1: auth.userID,
-          user2: id,
-          id: converFound,
-        });
-        if (data.result) {
-          setIsLoading(false);
-        }
-      } catch (error) {
-        setIsLoading(false);
 
-        console.log(error);
-      }
-    }
-    if (socket) {
-      socket.emit("SendRequestFriend", {
-        sender: auth.userID,
-        receiver: id,
-      });
-    }
-  };
 
-  useEffect(() => {
-    async function AsyncGetCon() {
-      const convers = await getConversation(auth);
-      setConversation(convers);
-    }
-    AsyncGetCon();
-  }, []);
-  useEffect(() => {
-    if (myFriendList && userFriendList) {
-      const generalFriends = userFriendList.map((userFriend) =>
-        userFriend.filter((friend) => myFriendList.includes(friend))
-      );
-      setgerenalFriend(generalFriends);
-    }
-  }, [myFriendList, userFriendList]);
 
-  useEffect(() => {
-    getFriendList();
-    getUserFriendList();
-  }, [Users]);
-  const getFriendList = async () => {
-    const result = await fetchApiRes("message/getFriendList", "POST", {
-      userID: auth.userID,
-    });
-    const data = result.result.map((e) => checkID(e, auth.userID));
-    setMyFriendList(data);
-  };
-  const getUserFriendList = async () => {
-    const listFriend = [];
-    for (let i = 0; i < Users?.length; i++) {
-      const result = await fetchApiRes("message/getFriendList", "POST", {
-        userID: Users[i].UserID,
-      });
-      const data = result.result.map((e) => checkID(e, Users[i].UserID));
-      listFriend.push(data);
-    }
-    setUserFriendList(listFriend);
-  };
 
-  const checkID = (array, id) => {
-    return array.user1 === id ? array.user2 : array.user1;
-  };
+
 
   const refListFriend = useRef();
-  const changeListDiv = (second) => {
-    if (refListFriend.current) {
-      refListFriend.current.classList.toggle("hidden");
-    }
-  };
+
   return (
     <>
       {/* <Layout></Layout> */}
@@ -206,16 +72,11 @@ export default function FriendList(props) {
         ref={refListFriend}
         style={{ display: "flex" }}
       >
-          {!props.profile &&
-            Users &&
-            Users.map((e) => <UserProfile MSSV={e.MSSV} />)}
+          {
+            !Users.length>0 ? <div className="loader"></div>:
+            Users.map((e) => <UserProfile User={e} MSSV={e.MSSV} />)}
       </div>
-      <Button
-        shape="circle"
-        onClick={changeListDiv}
-        style={{ position: "fixed", left: 0, bottom: "0", zIndex: "99" }}
-        icon={<FiX color="black"></FiX>}
-      ></Button>
+    
     </>
   );
 }

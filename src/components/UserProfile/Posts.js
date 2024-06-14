@@ -31,11 +31,21 @@ export default function Posts(props) {
       setPost();
     };
   }, [props.username]);
+  // useEffect(() => {
+  //   if(Post)
+  //   {
+  //     const updatePost=[...Post]
+  //      const dataUpdate = updatePost.sort((a, b) => b.create_at - a.create_at);
+  //      setPost(dataUpdate)
+
+     
+  //   }
+  // }, [Post]);
   const [gridView, setGridView] = useState(false);
   return (
     <>
       <div>
-        <MyComment className="PostProfile w-full"></MyComment>
+        <MyComment update={setPost} className="PostProfile w-full"></MyComment>
       </div>
       <div className="pl-12 w-full mt-8">
         <div className="w-full bg-white rounded-xl p-4 mb-8 flex center justify-between	">
@@ -61,6 +71,7 @@ export default function Posts(props) {
             <Comment
               users={props.users}
               comment={e}
+              setCurrentImg={ props.setCurrentImg}
               className={"PostComponent p-4  mb-8 bg-white rounded-xl w-full"}
             ></Comment>
           ))}

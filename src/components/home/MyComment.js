@@ -80,9 +80,7 @@ export default function MyComment(props) {
   };
   const [ImgView, setImgView] = useState([]);
   const [ImgFile, setImgFile] = useState();
-  useEffect(() => {
-    
-  }, []);
+  useEffect(() => {}, []);
   const pastImg = (e) => {
     const clipboardData = e.clipboardData || window.clipboardData;
     const items = clipboardData.items;
@@ -93,7 +91,7 @@ export default function MyComment(props) {
         e.preventDefault();
         const file = items[i].getAsFile();
         setImgFile(file);
-        setImgView((pre) => [...pre, URL.createObjectURL(file)]);
+        setImgView( [ URL.createObjectURL(file)]);
       }
     }
   };
@@ -137,13 +135,12 @@ export default function MyComment(props) {
         );
       }
       const form = new FormData();
-      form.append("userID",auth.username)
-      form.append("content", updateContent||'');
+      form.append("userID", auth.username);
+      form.append("content", updateContent || "");
       if (props.movieID) {
         form.append("movieID", props.movieID);
       }
-      console.log(ImgFile)
-      form.append("replyID", props.reply||-1);
+      form.append("replyID", props.reply || -1);
       form.append("create_at", Date.now());
       if (ImgFile) {
         form.append("image", ImgFile);
@@ -152,11 +149,17 @@ export default function MyComment(props) {
         `${process.env.REACT_APP_DB_HOST}/api/insertComment`,
         { method: "POST", body: form }
       );
-
+      const newComment=await res.json()
+      console.log(newComment)
+      props.update((pre) => [ newComment,...pre]);
       inputRef.current.innerHTML = "";
       setCountText(0);
+      setImgFile()
+      setImgView()
       setMyComment("");
-      props.setRender((pre) => !pre);
+      if (props.setRender) {
+        props.setRender((pre) => !pre);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -254,7 +257,7 @@ export default function MyComment(props) {
                 </div>
               </div>
 
-              {((myComment && myComment !== "<br>")||ImgFile) && (
+              {((myComment && myComment !== "<br>") || ImgFile) && (
                 <>
                   <span
                     className="circleButton"

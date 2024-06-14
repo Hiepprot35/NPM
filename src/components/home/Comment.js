@@ -9,7 +9,8 @@ import MyComment from "./MyComment";
 import { countTime, getDate, getTime } from "../../function/getTime";
 import { fetchVideoTitle, movieApi } from "../message/windowchat";
 import parseUrl from "parse-url";
-function Comment({ comment, isReply, className,users }) {
+import { NavLink } from "react-router-dom";
+function Comment({ comment, isReply, className,users,setCurrentImg }) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState();
   const [ComemntDetail, setComemntDetail] = useState([]);
@@ -86,7 +87,7 @@ function Comment({ comment, isReply, className,users }) {
     const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
     const data = e.split("imgSplitLink");
     if (data.length > 1) {
-      updatedComment = data[0] + ` <img atl="comment" className="w-full h-full rounded-xl" src="${data[1]}" />`;
+      updatedComment = data[0] + `<img atl="comment" className="w-full h-full rounded-xl" src="${data[1]}" />`;
     }
 
     if (youtubeRegex.test(e)) {
@@ -115,6 +116,7 @@ function Comment({ comment, isReply, className,users }) {
       if (name === "span" && attribs && attribs.class === "tagNameHref") {
         const data = attribs["data-lexical-text"];
         return (
+        
           <Popover content={<UserProfile MSSV={data} />}>
             <a
               href={`${process.env.REACT_APP_CLIENT_URL}/profile/${data}`}
@@ -125,6 +127,19 @@ function Comment({ comment, isReply, className,users }) {
             </a>
           </Popover>
         );
+      }
+      if(name==="img"&&attribs )
+      {
+        const imgElement = domToReact([{ name, attribs, children }]);
+
+        return(
+          <div className="w-full h-full center "  onClick={()=>setCurrentImg({img:attribs.src,userID:comment.userID,id:comment.id,create_at:comment.create_at})}>
+
+          <NavLink to={`${process.env.REACT_APP_CLIENT_URL}/photo?commentID=${comment.id}`}>
+        <img  className="object-contain h-full" style={{height:"40vh"}} {...attribs} />
+          </NavLink>
+          </div>
+        )
       }
     },
   };
@@ -205,7 +220,7 @@ function Comment({ comment, isReply, className,users }) {
               <div className="linearComment"></div>
             )}
           </div>
-          <div className="bodyComment">
+          <div className="bodyComment w-full">
             <div className="NameAndContent">
               <div className="nameComment">
                 <Popover

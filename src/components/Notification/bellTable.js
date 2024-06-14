@@ -30,7 +30,7 @@ function BellTable() {
       const MSSV = await getUserinfobyID(user);
       console.log(MSSV);
       const data = await getStudentInfoByMSSV(MSSV.username);
-      return { ...element, name: data?.Name, img: data?.img };
+      return { ...element, name: data?.Name, img: data?.img ,cutImg:data?.cutImg};
     });
 
     const ListUsers = await Promise.all(promises);
@@ -77,25 +77,10 @@ function BellTable() {
   };
   return (
     <>
-      <div
-        className="circleButton notification"
-        ref={notificationRef}
-        onMouseOver={() => {
-          setShowTable(false);
-        }}
-        onClick={() => {
-          setShowTable(true);
-        }}
-      >
-        {users?.length > 0 && (
-          <div className="countNoti">
-            <p>{users.length}</p>
-          </div>
-        )}
-        <span>
-          <FiBell></FiBell>
-        </span>
-        {showTable && (
+      <Popover
+      trigger={"click"}
+        content={
+          <div>
           <div className="tableNotification">
             <div>
               {users.length > 0 ? (
@@ -103,7 +88,7 @@ function BellTable() {
                   <div className="infoNofi center">
                     <div className="divCenterdiv">
                       <div style={{ margin: ".5rem" }}>
-                        <img src={`${e.img}`}></img>
+                        <img className="avatarImage" src={`${e?.cutImg||e?.img}`}></img>
                       </div>
                       <div>
                         <p>
@@ -134,8 +119,21 @@ function BellTable() {
               )}
             </div>
           </div>
+          </div>
+
+        }
+      >
+      <div className="circleButton notification" ref={notificationRef}>
+        {users?.length > 0 && (
+          <div className="countNoti">
+            <p>{users.length}</p>
+          </div>
         )}
+        <span>
+          <FiBell></FiBell>
+        </span>
       </div>
+      </Popover>
     </>
   );
 }

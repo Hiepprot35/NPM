@@ -37,7 +37,7 @@ const getFriendList = async (userID) => {
 export default function UserProfile(props) {
   const socket = useSocket();
   const [isLoading, setIsLoading] = useState(false);
-  const [Users, setUserInfo] = useState();
+  const [Users, setUserInfo] = useState(props.User);
   const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
     useData();
   const { auth } = useAuth();
@@ -125,7 +125,7 @@ export default function UserProfile(props) {
         user1: auth.userID,
         user2: id,
         created_at: Date.now(),
-        img:Users?.cutImg|| Users?.img,
+        img: Users?.cutImg || Users?.img,
       };
 
       const foundIndex = listWindow.findIndex(
@@ -167,7 +167,6 @@ export default function UserProfile(props) {
           setListWindow((prev) => replaceCover(prev, { ...obj }));
           const data = await AddConver(id);
           setListWindow((prev) => replaceCover(prev, { ...data }));
-
         } catch (error) {
           console.log(error);
         }
@@ -225,7 +224,9 @@ export default function UserProfile(props) {
       try {
         const res = await fetch(`${host}/api/getStudentbyID/${props.MSSV}`);
         const resJson = await res.json();
-        setUserInfo(resJson);
+        if (!props.User) {
+          setUserInfo(resJson);
+        }
       } catch (error) {
         console.error("Error occurred:", error);
       }
@@ -266,7 +267,7 @@ export default function UserProfile(props) {
                         <img
                           className="avatarImage"
                           // style={{ width: "168px" }}
-                          src={Users?.cutImg ||Users?.img}
+                          src={Users?.cutImg || Users?.img}
                           alt=""
                         />
                       </a>
