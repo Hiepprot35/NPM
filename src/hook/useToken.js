@@ -2,7 +2,7 @@ import { useState } from "react";
 import useAuth from "./useAuth";
 
 export default function UseToken() {
-    const {setAuth,setMyInfor}=useAuth()
+    const {setAuth,auth}=useAuth()
     const getToken = () => {
         const tokenString = localStorage.getItem('AccessToken');
         const userToken = JSON?.parse(tokenString);
@@ -30,7 +30,7 @@ export default function UseToken() {
             if(user)
             {
 
-              setAuth({username:user.Username,avtUrl:user.avtUrl,userID:user.UserID,role:user.Role}) 
+              setAuth({username:user.Username,avtUrl:auth.avtUrl,userID:user.UserID,role:user.Role}) 
             }
            
             

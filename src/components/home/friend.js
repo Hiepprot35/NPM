@@ -41,7 +41,7 @@ export default function FriendList(props) {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log(data.result)
+        console.log(data.result);
         setListUsers(data.result);
       }
     } catch (error) {
@@ -52,14 +52,6 @@ export default function FriendList(props) {
     getData();
   }, []);
 
-
-
-
-
-
-
-
-
   const refListFriend = useRef();
 
   return (
@@ -67,16 +59,21 @@ export default function FriendList(props) {
       {/* <Layout></Layout> */}
       <div
         className={
-          props.className ? props.className : `friendListDiv linearBefore overflow-scroll h-80`
+          props.className
+            ? props.className
+            : `friendListDiv linearBefore overflow-scroll h-80`
         }
         ref={refListFriend}
-        style={{ display: "flex" }}
+        style={{ display: "flex center" }}
       >
-          {
-            !Users.length>0 ? <div className="loader"></div>:
-            Users.map((e) => <UserProfile User={e} MSSV={e.MSSV} />)}
+        {!Users.length > 0 ? (
+          <div className="w-ful h-full center">
+            <div className="loader"></div>
+          </div>
+        ) : (
+          Users.map((e) => <UserProfile User={e} MSSV={e.MSSV} />)
+        )}
       </div>
-    
     </>
   );
 }

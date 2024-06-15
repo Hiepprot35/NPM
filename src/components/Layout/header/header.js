@@ -47,6 +47,7 @@ import {
   getNameMonth,
   getTime,
 } from "../../../function/getTime";
+import { Image } from "../../home/home";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -59,7 +60,7 @@ function Header(props) {
   const { setListWindow, setListHiddenBubble } = useData();
   const Menu_profile_header = useRef();
   const [city, setCity] = useState("hanoi");
-  const { auth, setAuth } = useAuth();
+  const { auth, setAuth,myInfor } = useAuth();
   const [chooseHeader, setChooseHeader] = useState();
   const [GenresList, setGenresList] = useState();
   const [showGenres, setShowGenres] = useState(false);
@@ -71,7 +72,6 @@ function Header(props) {
     data();
   }, []);
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState();
   const apiKey = "5b629bb0f5f840b7965193241241704";
   const host = process.env.REACT_APP_DB_HOST;
   const sidebar = {
@@ -119,22 +119,26 @@ function Header(props) {
     closed: { zIndex: 0, opacity: 0, y: 20, transition: { duration: 0.2 } },
   };
   const foundConversation = async (user1, user2) => {
+    console.log(user1,user2)
     const conversations = await fetchApiRes("message/getConversation", "POST", {
       user1: user1,
       user2: user2,
     });
+    console.log(conversations)
     if (conversations.result.length > 0) {
       return conversations.result[0];
     }
   };
   useEffect(() => {
+    console.log(auth)
+  }, [auth]);
+  useEffect(() => {
     let isMounted = true;
-    if (socket && isMounted) {
+    if (socket && auth?.userID) {
       socket.on("getMessage", async (data) => {
-        if (data.sender_id !== auth.userID) {
+        if (data.sender_id !== auth?.userID) {
           updateTitle(data.nameUser);
-          const conver = await foundConversation(auth.userID, data.sender_id);
-          console.log(conver,"header conver found")
+          const conver = await foundConversation(auth?.userID, data.sender_id);
           setListHiddenBubble((pre) =>
             pre.filter((e) => e.id !== data.conversation_id)
           );
@@ -159,7 +163,7 @@ function Header(props) {
         socket.disconnect();
       }
     };
-  }, [socket]);
+  }, [socket,auth]);
   useEffect(() => {
     let isMounted = true;
     const tempApi = async (city) => {
@@ -187,28 +191,7 @@ function Header(props) {
       isMounted = false;
     };
   }, [city]);
-  useEffect(() => {
-    if (auth) {
-      const studentInfo = async () => {
-        const URL = `${host}/api/getStudentbyID/${auth.username}`;
-        try {
-          const studentApi = await fetch(URL);
 
-          const student = await studentApi.json();
-          console.log(student);
-          if (student) {
-            setUser(student);
-          }
-
-          setIsLoading(false);
-        } catch (error) {
-          console.error(error);
-          setIsLoading(false);
-        }
-      };
-      studentInfo();
-    }
-  }, [auth]);
   const [SearchQuery, setSearchQuery] = useState("");
   const [primaryColor, setPrimaryColor] = useState(
     localStorage.getItem("colorTheme") === "true"
@@ -233,25 +216,24 @@ function Header(props) {
     debounce(searchQueryHandle, 500),
     []
   );
-    useEffect(() => {
-      console.log(auth,"auth")
-    }, [auth]);
+
   const content = () => {
     return (
       <div className="Menu_profile_header " ref={Menu_profile_header}>
         <div className="avatar_link">
           <NavLink
             className="Menu_a_link_profile "
-            to={`/profile/${user?.MSSV}`}
+            to={`/profile/${myInfor?.MSSV}`}
           >
             <div className="avatar_name hover">
-              <img
-                src={`${auth?.avtUrl}`}
+              <Image
+              loading={!myInfor?.avtUrl }
+                src={`${myInfor?.avtUrl }`}
                 alt="User Avatar"
                 className="avatarImage"
               />
               <span>
-                <p className="hiddenEllipsis">{user?.Name}</p>
+                <p className="hiddenEllipsis">{myInfor?.Name}</p>
               </span>
             </div>
           </NavLink>
@@ -513,14 +495,18 @@ function Header(props) {
                       {
                         <Popover
                           color="none"
+                          align={{offset:[-20,-10]}}
                           trigger={"click"}
                           content={content}
                         >
+                          {
+                            !myInfor?.avtUrl ?<div className=" w-8 he-8 loader"></div>:
                           <img
-                            className="avatarImage"
-                            src={`${auth.avtUrl}`}
-                            alt="User Avatar"
+                          className="avatarImage"
+                          src={`${myInfor?.avtUrl }`}
+                          alt="User Avatar"
                           />
+                        }
                         </Popover>
                       }
                     </div>

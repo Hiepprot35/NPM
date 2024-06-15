@@ -82,8 +82,7 @@ export default function PhotoPost({ CurrentImg, commentID, UsersProfile }) {
   };
 
   const navigator = (step) => {
-    // Perform navigation logic here
-    // For example, go back in history
+
     window.history.go(step);
   };
 

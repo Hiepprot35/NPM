@@ -14,6 +14,7 @@ import ReactCrop from "react-image-crop";
 import MyComment from "../home/MyComment";
 import Posts from "./Posts";
 import PhotoPost from "./PhotoPost";
+import { useRealTime } from "../../context/useRealTime";
 const ChangeImg = ({ img, MSSV, setUsers }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [ImageUpload, setImageUpload] = useState();
@@ -392,14 +393,15 @@ export default function Profile() {
   const { MSSV } = useParams();
   const queryParameters = new URLSearchParams(window.location.search);
   const commentID = queryParameters.get("commentID");
-
+  const MSSVparam = queryParameters.get("MSSV");
+  const MSSVInput = MSSV || MSSVparam;
   const [gerenalFriend, setgerenalFriend] = useState([]);
-  const { auth, myInfo } = useAuth();
+  const { auth, myInfor } = useAuth();
   const [Users, setUserInfo] = useState();
   const getData = async () => {
     try {
       setIsLoading(true);
-      const data = await getStudentInfoByMSSV(MSSV);
+      const data = await getStudentInfoByMSSV(MSSVInput);
       if (data) {
         setIsLoading(false);
         setUserInfo(data);
@@ -411,8 +413,17 @@ export default function Profile() {
     }
   };
   useEffect(() => {
-    getData();
-  }, []);
+    if (parseInt(auth.username) === parseInt(MSSVInput)) {
+      console.log(myInfor);
+      setUserInfo(myInfor);
+      setIsLoading(false);
+    } else {
+      getData();
+    }
+    return () => {
+      setUserInfo();
+    };
+  }, [MSSVInput, myInfor, auth]);
   const getFriendList = async (userID) => {
     const checkID = (array, id) => {
       return array.user1 === id ? array.user2 : array.user1;
@@ -425,7 +436,7 @@ export default function Profile() {
   };
   const [friends, setFriend] = useState([]);
   useEffect(() => {
-    if (Users) {
+    if (Users?.UserID) {
       const getUserFriend = async () => {
         const dataMyFriend = await getFriendList(auth?.userID);
         const dataUserFriend = await getFriendList(Users.UserID);
@@ -455,7 +466,6 @@ export default function Profile() {
   };
   async function updateUser(proterty) {
     try {
-      setIsLoading(true);
       const res = await fetch(
         `${process.env.REACT_APP_DB_HOST}/api/UpdateUserID/`,
         {
@@ -468,42 +478,42 @@ export default function Profile() {
       );
       const resJson = await res.json();
       if (resJson) {
-        getData();
+        // setIntroduceInput(proterty.introduce)
+        setUserInfo((pre) => ({ ...pre, introduce: proterty.introduce }));
         setChangeIntroduce(false);
       }
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
-    }
+    } catch (error) {}
   }
+  const { Online } = useRealTime();
   useEffect(() => {
     if (ChangeIntroduce && introduceRef.current) {
       introduceRef.current.focus();
     }
   }, [ChangeIntroduce]);
   useEffect(() => {
-    if (Users) {
+    if (Users?.UserID) {
       setIntroduceInput(Users.introduce);
     }
   }, [Users]);
   const [ImgContent, setImgContent] = useState();
-  const [CurrentImg,setCurrentImg]=useState()
+  const [CurrentImg, setCurrentImg] = useState();
   return (
     <Layout>
-      { 
-       <div className="center content flex-col" style={commentID &&{opacity:0}}>
+      {
+        <div
+          className="center content flex-col"
+          style={commentID && { opacity: 0 }}
+        >
           <div style={{ height: "50vh" }} className="w-full bg-black shadow91">
-            <img
-              className="object-contain 	"
-              src={`${Users?.backgroundimg}`}
-            ></img>
+              <img
+                className="object-contain 	"
+                src={`${Users?.backgroundimg}`}
+              ></img>
+            
           </div>
           <div className="w-full px-32 bg-gray-200 shadow91">
-            {(
+            {
               <>
-                {Users?.UserID !== auth.userID && (
-                  <UserProfile MSSV={Users?.MSSV}></UserProfile>
-                )}
                 <div className="flex">
                   <div style={{ marginTop: "-3rem" }}>
                     <div className="flex">
@@ -517,6 +527,7 @@ export default function Profile() {
                               <div className="loader"></div>
                             </div>
                           ) : (
+                            
                             <img
                               alt="avatar"
                               className="cursor-pointer  relative z-0 rounded-full w-52 h-52 transition-all duration-300 hover:scale-110	"
@@ -541,9 +552,12 @@ export default function Profile() {
                   <div className="h-screen " style={{ width: "40%" }}>
                     <div className="p-16 bg-white rounded-xl my-8 shadow-md">
                       <p className="font-bold text-3xl">Giới thiệu</p>
+
                       {!ChangeIntroduce && !isLoading && (
                         <>
-                          <p className="m-8">{Users?.introduce}</p>
+                          <div className="center">
+                            <p className="m-3">{Users?.introduce}</p>
+                          </div>
                           {Users?.MSSV === parseInt(auth.username) && (
                             <p
                               onClick={() => {
@@ -595,18 +609,17 @@ export default function Profile() {
                       <div className="grid grid-cols-3 gap-2">
                         {ImgContent &&
                           ImgContent.map((e) => (
-                            <div onClick={()=>setCurrentImg(e)}>
-
-                            <NavLink
-                              to={`${process.env.REACT_APP_CLIENT_URL}/photo?commentID=${e.id}`}
+                            <div onClick={() => setCurrentImg(e)}>
+                              <NavLink
+                                to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${e.userID}&commentID=${e.id}`}
                               >
-                              <img
-                                className="object-cover rounded-xl"
-                                style={{ aspectRatio: "1" }}
-                                src={`${e.img}`}
-                              />
-                            </NavLink>
-                              </div>
+                                <img
+                                  className="object-cover rounded-xl"
+                                  style={{ aspectRatio: "1" }}
+                                  src={`${e.img}`}
+                                />
+                              </NavLink>
+                            </div>
                           ))}
                       </div>
                     </div>
@@ -632,20 +645,24 @@ export default function Profile() {
                   </div>
                   <div className="" style={{ width: "60%" }}>
                     <Posts
-                    setCurrentImg={setCurrentImg}
+                      setCurrentImg={setCurrentImg}
                       setImgContent={setImgContent}
                       users={Users}
-                      username={Users?.MSSV}
+                      username={Users && Users?.MSSV}
                     ></Posts>
                   </div>
                 </div>
               </>
-            )}
+            }
           </div>
         </div>
       }
       {commentID && (
-        <PhotoPost CurrentImg={CurrentImg} UsersProfile={Users} commentID={commentID}></PhotoPost>
+        <PhotoPost
+          CurrentImg={CurrentImg}
+          UsersProfile={Users}
+          commentID={commentID}
+        ></PhotoPost>
       )}
     </Layout>
   );

@@ -74,8 +74,16 @@ export default memo(function WindowChat(props) {
       if (mask1 || mask2) {
         const obj =
           conversation.user1 === auth.userID
-            ? { id: conversation.id, user1_mask: mask1||conversation.user1_mask, user2_mask: mask2 ||conversation.user2_mask}
-            : { id: conversation.id, user1_mask: mask2||conversation.user1_mask, user2_mask: mask1||conversation.user2_mask };
+            ? {
+                id: conversation.id,
+                user1_mask: mask1 || conversation.user1_mask,
+                user2_mask: mask2 || conversation.user2_mask,
+              }
+            : {
+                id: conversation.id,
+                user1_mask: mask2 || conversation.user1_mask,
+                user2_mask: mask1 || conversation.user2_mask,
+              };
         setListWindow((pre) =>
           pre.map((e) =>
             e.id === conversation.id ? { ...e, ...obj } : { ...e }
@@ -268,7 +276,7 @@ export default memo(function WindowChat(props) {
               "Content-Type": "application/json",
               RefreshToken: RefreshToken,
             },
-            body:JSON.stringify({userID:auth.userID})
+            body: JSON.stringify({ userID: auth.userID }),
           }
         );
         const data = await res.json();
@@ -715,13 +723,13 @@ export default memo(function WindowChat(props) {
     <>
       {!ErrorMess && auth.userID ? (
         <>
-          {(listWindow.some((e) => e.id === props?.count.id) ||
+          {(listWindow.some((e) => e.id === conversation.id) ||
             props.chatApp) && (
             <div className={`windowchat ${conversation.id}`} ref={windowchat}>
               <div
                 className={`top_windowchat ${
                   arrivalMessage &&
-                  props?.count.id === arrivalMessage?.conversation_id &&
+                  conversation.id === arrivalMessage?.conversation_id &&
                   arrivalMessage?.sender_id !== auth.userID &&
                   "arrviedMess"
                 }`}
@@ -742,7 +750,7 @@ export default memo(function WindowChat(props) {
                                 <Image
                                   className="avatarImage"
                                   alt="Avatar"
-                                  src={conversation.img || userInfor?.img}
+                                  src={conversation.img || userInfor?.cutImg}
                                 ></Image>
 
                                 <span
@@ -760,44 +768,40 @@ export default memo(function WindowChat(props) {
                           </div>
                         </Popover>
                         <Popover content={<p>Cài đặt đoạn chat</p>}>
-                        <Popover
-                          title={"Cài đặt đoạn chat"}
-                          placement="left"
-                          content={
-                            <SettingConversation
-                              user={userInfor}
-                              conversation={conversation}
-                            />
-                          }
-                          trigger={"click"}
-                        >
-                          <div className="flex center py-4 hover:bg-gray-200 rounded-xl">
-                            <div className="header_text ">
-                              <p
-                                className="hiddenEllipsis"
-                                style={{ fontWeight: "600" }}
-                              >
-                                {userMask}
-                                <span>{IsTyping && " is typing...."}</span>
-                              </p>
-                              {
-                                <p style={{ fontSize: ".7rem" }}>
-                                  {Onlines &&
-                                  Onlines.some(
-                                    (e) => e.userId === userConver
-                                  ) ? (
-                                    <>Online</>
-                                  ) : (
-                                    <></>
-                                  )}
+                          <Popover
+                            title={"Cài đặt đoạn chat"}
+                            placement="left"
+                            content={
+                              <SettingConversation
+                                user={userInfor}
+                                conversation={conversation}
+                              />
+                            }
+                            trigger={"click"}
+                          >
+                            <div className="flex center py-2 hover:bg-gray-200 rounded-xl">
+                              <div className="header_text ">
+                                <p
+                                  className="hiddenEllipsis"
+                                  style={{ fontWeight: "600" }}
+                                >
+                                  {userMask}
+                                  <span>{IsTyping && " is typing...."}</span>
                                 </p>
-                              }
+                                {
+                                  <p style={{ fontSize: ".7rem" }}>
+                                    {Onlines &&
+                                      Onlines.some(
+                                        (e) => e.userId === userConver
+                                      ) && "Online"}
+                                  </p>
+                                }
+                              </div>
+                              <div className="settingHeader">
+                                <FiArrowDown></FiArrowDown>
+                              </div>
                             </div>
-                            <div className="settingHeader">
-                              <FiArrowDown></FiArrowDown>
-                            </div>
-                          </div>
-                        </Popover>
+                          </Popover>
                         </Popover>
                       </div>
                     </>
@@ -843,7 +847,10 @@ export default memo(function WindowChat(props) {
                             updateMess={Sending}
                             own={message.sender_id === auth.userID}
                             student={{
-                              img: conversation.img || userInfor?.img,
+                              img:
+                                conversation.img ||
+                                userInfor?.cutImg ||
+                                userInfor?.img,
                             }}
                             messages={messages}
                             userID={userConver}
@@ -1074,7 +1081,7 @@ export default memo(function WindowChat(props) {
                       className="avatarImage"
                       alt="Avatar"
                       loading="lazy"
-                      src={userInfor?.cutImg||userInfor?.img}
+                      src={userInfor?.cutImg || userInfor?.img}
                     ></Image>
                     <span
                       className={`dot ${

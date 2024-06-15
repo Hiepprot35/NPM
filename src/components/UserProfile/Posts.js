@@ -5,6 +5,8 @@ import Comment from "../home/Comment";
 import "./Posts.css";
 import MyComment from "../home/MyComment";
 import { FiGrid, FiLayout } from "react-icons/fi";
+import { useRealTime } from "../../context/useRealTime";
+import SharingScreen from "./SharingScreen";
 export default function Posts(props) {
   const { auth } = useAuth();
   const [Post, setPost] = useState([]);
@@ -18,16 +20,17 @@ export default function Posts(props) {
       const dataImg = dataUpdate
         .filter((e) => e.content.includes("imgSplitLink"))
         .map((e) => ({
-          userID:e.userID,
+          userID: e.userID,
           img: e.content.split("imgSplitLink")[1],
           id: e.id, // Keep the id
-          create_at:e.create_at
+          create_at: e.create_at,
         }));
-        props.setImgContent(dataImg)
+      props.setImgContent(dataImg);
       setPost(dataUpdate);
     };
     getPost();
     return () => {
+      props.setImgContent();
       setPost();
     };
   }, [props.username]);
@@ -38,7 +41,6 @@ export default function Posts(props) {
   //      const dataUpdate = updatePost.sort((a, b) => b.create_at - a.create_at);
   //      setPost(dataUpdate)
 
-     
   //   }
   // }, [Post]);
   const [gridView, setGridView] = useState(false);
@@ -51,6 +53,9 @@ export default function Posts(props) {
         <div className="w-full bg-white rounded-xl p-4 mb-8 flex center justify-between	">
           <div>
             <p className="font-semibold text-3xl">Bài viết</p>
+          </div>
+          <div>
+            <SharingScreen></SharingScreen>
           </div>
           <div className="flex">
             <span className="circleButton" onClick={() => setGridView(true)}>
@@ -69,9 +74,10 @@ export default function Posts(props) {
         {Post &&
           Post.map((e) => (
             <Comment
+              key={e.id}
               users={props.users}
               comment={e}
-              setCurrentImg={ props.setCurrentImg}
+              setCurrentImg={props.setCurrentImg}
               className={"PostComponent p-4  mb-8 bg-white rounded-xl w-full"}
             ></Comment>
           ))}

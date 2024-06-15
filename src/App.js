@@ -90,7 +90,7 @@ function App() {
             <Route path="/videocall" element={<VideoCall />}></Route>
             <Route path="/message" element={<MessageRoute />} />
             <Route path="*" element={<Home />} />
-            <Route path="/photo" element={<Profile/>} />
+            <Route path="/photo/" element={<Profile/>} />
 
             <Route path="/message/:messageId" element={<MessageRoute />} />
             <Route path="/lichhoc" element={<ViewTimetable />} />

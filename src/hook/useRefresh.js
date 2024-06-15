@@ -31,11 +31,10 @@ export const useRefresh = () => {
       } else {
         if (response.status === 200) {
           const data = await response.json();
-          console.log(data,"data")
           const { Role, UserID, Username, avtUrl } = data;
      
           setAccessToken(data.AccessToken);
-         
+         setAuth({role:Role,userID:UserID,username:Username,avtUrl:avtUrl})
         }
       }
     } catch (error) {

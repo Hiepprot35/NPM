@@ -175,13 +175,13 @@ export default memo(function Message({
             {}
             <div className="Mess_seen_container">
               <div className="messageTop">
-                {!own && student?.img && message.content !== null && (
+                {!own && student && message.content !== null && (
                   <>
                     {(ag() === 0 || ag() === 3) && (
                       <div className={`Avatar_status`}>
                         <img
                           className="avatarImage"
-                          src={student.img ? `${student?.img}` : ""}
+                          src={student?.img}
                           alt="sender"
                         />
                         <span

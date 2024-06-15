@@ -8,6 +8,7 @@ import parseUrl from "parse-url";
 import { IsLoading } from "../Loading.js";
 import { fetchVideoTitle, movieApi } from "../message/windowchat.js";
 import { Popover } from "antd";
+import SharingScreen from "../UserProfile/SharingScreen.js";
 export default function MyComment(props) {
   const refTag = useRef();
   const inputRef = useRef();
@@ -15,7 +16,7 @@ export default function MyComment(props) {
   const [OpenTag, setOpenTag] = useState(false);
   const [myComment, setMyComment] = useState();
   const [myFriendList, setMyFriendList] = useState([]);
-  const { auth } = useAuth();
+  const { auth,myInfor } = useAuth();
   const checkID = (array, id) => {
     return array.user1 === id ? array.user2 : array.user1;
   };
@@ -187,7 +188,7 @@ export default function MyComment(props) {
         >
           <div className="AvatarComment">
             <div className="AvatarComment2">
-              <img className="avatarImage" src={`${auth.avtUrl}`}></img>
+              <img className="avatarImage" src={`${myInfor?.avtUrl}`}></img>
             </div>
           </div>
 
@@ -232,6 +233,7 @@ export default function MyComment(props) {
                   <span className="circleButton">
                     <FiSmile></FiSmile>
                   </span>
+                  
                 </Popover>
 
                 <span

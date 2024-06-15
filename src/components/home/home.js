@@ -14,14 +14,14 @@ import useAuth from "../../hook/useAuth";
 function useParallax(value, distance) {
   return useTransform(value, [0, 1], [-distance, distance]);
 }
-export function Image({ src, style, className }) {
+export function Image({ src, style, className,loading }) {
   return (
     <img
       alt="Image"
       loading="lazy"
       className={className}
       style={style}
-      src={src ? src : process.env.REACT_APP_CLIENT_URL + "/images/loading.svg"}
+      src={src||loading ? src : process.env.REACT_APP_CLIENT_URL + "/images/loading.svg"}
     ></img>
   );
 }

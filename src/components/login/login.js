@@ -15,7 +15,7 @@ const imgLinkBasic = {
 export const LoginGoolge = ({ children  }) => {
   const { setRefreshToken } = UseRfLocal();
   const { setAccessToken } = UseToken();
-  const { setAuth } = useAuth();
+  const { auth,setAuth } = useAuth();
   const GoogleAuth = () => {
     window.location.href = `${process.env.REACT_APP_DB_HOST}/api/auth/google/callback`;
   };
@@ -29,16 +29,18 @@ export const LoginGoolge = ({ children  }) => {
           "Content-Type": "application/json",
         },
       });
+      
       const dataRes = await res.json();
       if (dataRes.AccessToken) {
         setAccessToken(dataRes.AccessToken);
         setRefreshToken(dataRes.RefreshToken);
         const { Role, Username, UserID, avtUrl } = dataRes;
+        console.log("setAuth",dataRes)
         setAuth({
           role: Role,
           username: Username,
           userID: UserID,
-          avtUrl: avtUrl,
+          avtUrl: auth?.avtUrl||avtUrl,
         });
       }
     } catch (err) {
@@ -46,7 +48,11 @@ export const LoginGoolge = ({ children  }) => {
     }
   };
   useEffect(() => {
-    getUser();
+    if(!auth?.userID)
+      {
+
+        getUser();
+      }
   }, []);
 
   return (

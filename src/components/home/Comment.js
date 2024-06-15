@@ -10,7 +10,8 @@ import { countTime, getDate, getTime } from "../../function/getTime";
 import { fetchVideoTitle, movieApi } from "../message/windowchat";
 import parseUrl from "parse-url";
 import { NavLink } from "react-router-dom";
-function Comment({ comment, isReply, className,users,setCurrentImg }) {
+import { useRealTime } from "../../context/useRealTime";
+function Comment({ comment, isReply, className, users, setCurrentImg }) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState();
   const [ComemntDetail, setComemntDetail] = useState([]);
@@ -87,7 +88,9 @@ function Comment({ comment, isReply, className,users,setCurrentImg }) {
     const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
     const data = e.split("imgSplitLink");
     if (data.length > 1) {
-      updatedComment = data[0] + `<img atl="comment" className="w-full h-full rounded-xl" src="${data[1]}" />`;
+      updatedComment =
+        data[0] +
+        `<img atl="comment" className="w-full h-full rounded-xl" src="${data[1]}" />`;
     }
 
     if (youtubeRegex.test(e)) {
@@ -116,7 +119,6 @@ function Comment({ comment, isReply, className,users,setCurrentImg }) {
       if (name === "span" && attribs && attribs.class === "tagNameHref") {
         const data = attribs["data-lexical-text"];
         return (
-        
           <Popover content={<UserProfile MSSV={data} />}>
             <a
               href={`${process.env.REACT_APP_CLIENT_URL}/profile/${data}`}
@@ -128,18 +130,37 @@ function Comment({ comment, isReply, className,users,setCurrentImg }) {
           </Popover>
         );
       }
-      if(name==="img"&&attribs )
-      {
+      if (name === "img" && attribs) {
         const imgElement = domToReact([{ name, attribs, children }]);
 
-        return(
-          <div className="w-full h-full center "  onClick={()=>setCurrentImg({img:attribs.src,userID:comment.userID,id:comment.id,create_at:comment.create_at})}>
-
-          <NavLink to={`${process.env.REACT_APP_CLIENT_URL}/photo?commentID=${comment.id}`}>
-        <img  className="object-contain h-full" style={{height:"40vh"}} {...attribs} />
-          </NavLink>
+        return (
+          <div
+            className="w-full h-full center "
+            style={{ height: "60vh" }}
+            onClick={() =>
+              setCurrentImg({
+                img: attribs.src,
+                userID: comment.userID,
+                id: comment.id,
+                create_at: comment.create_at,
+              })
+            }
+          >
+            <NavLink
+              to={`${process.env.REACT_APP_CLIENT_URL}/photo?commentID=${comment.id}`}
+            >
+              <div
+                class=" relative overflow-hidden  w-full rounded-xl "
+                style={{ height: "60vh" }}
+              >
+                <img
+                  className="object-contain cursor-pointer h-full w-full  relative z-0 w-52 h-52 transition-all duration-300 hover:scale-110 "
+                  {...attribs}
+                />
+              </div>
+            </NavLink>
           </div>
-        )
+        );
       }
     },
   };
@@ -181,19 +202,19 @@ function Comment({ comment, isReply, className,users,setCurrentImg }) {
   const [SeeMoreComment, setSeeMoreComment] = useState(false);
   const [CountReaction, setCountReaction] = useState();
   const [User, setUser] = useState();
+  const { Onlines } = useRealTime();
 
   useEffect(() => {
     if (comment) {
       const fetchData = async () => {
-    if(users)
-        {setUser(users)}
-        else{
-
+        if (users) {
+          setUser(users);
+        } else {
           const userPromises = await getStudentInfoByMSSV(comment.userID);
           setUser(userPromises);
         }
       };
-    
+
       fetchData();
       getCommentReply();
     }
@@ -206,14 +227,24 @@ function Comment({ comment, isReply, className,users,setCurrentImg }) {
           <div className="AvatarComment">
             <Popover content={<UserProfile MSSV={User?.MSSV}></UserProfile>}>
               <div className="AvatarComment2">
-                {
-                  !User?<div className="loader w-1/2 h-1/2"></div>:
-                <img
-                  className="avatarImage shadow-lg"
-                  style={{maxWidth:"unset"}}
-                  src={`${(User && User?.cutImg) || User?.img}`}
-                  ></img>
-                }
+                {!User ? (
+                  <div className="loader w-1/2 h-1/2"></div>
+                ) : (
+                  <div>
+                    <img
+                      className="avatarImage shadow-lg"
+                      style={{ maxWidth: "unset" }}
+                      src={`${(User && User?.cutImg) || User?.img}`}
+                    ></img>
+                    <span
+                      className={`dot ${
+                        Onlines && Onlines.some((e) => (e.userId) === (User?.UserID))
+                          ? "activeOnline"
+                          : {}
+                      }`}
+                    ></span>
+                  </div>
+                )}
               </div>
             </Popover>
             {((CommentsRep?.length > 0 && SeeMoreComment) || ReplyOpen) && (
@@ -373,14 +404,11 @@ function Comment({ comment, isReply, className,users,setCurrentImg }) {
             style={{ margin: "0 0 2rem 4rem" }}
             onClick={() => setSeeMoreComment((pre) => !pre)}
           >
-            
             <p className="font-semibold text-teal-300	">
-{
-
-!SeeMoreComment ?`Total ${CommentsRep.length} comments. Show all`:`Hidden`
-}
+              {!SeeMoreComment
+                ? `Total ${CommentsRep.length} comments. Show all`
+                : `Hidden`}
             </p>
-             
           </p>
         )}
       </div>

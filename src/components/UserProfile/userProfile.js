@@ -261,8 +261,8 @@ export default function UserProfile(props) {
                         ></UserProfile>
                       }
                     >
-                      <a
-                        href={`${process.env.REACT_APP_CLIENT_URL}/profile/${Users.MSSV}`}
+                      <NavLink
+                        to={`${process.env.REACT_APP_CLIENT_URL}/profile/${Users.MSSV}`}
                       >
                         <img
                           className="avatarImage"
@@ -270,7 +270,7 @@ export default function UserProfile(props) {
                           src={Users?.cutImg || Users?.img}
                           alt=""
                         />
-                      </a>
+                      </NavLink>
                     </Popover>
                   </div>
                   <div
