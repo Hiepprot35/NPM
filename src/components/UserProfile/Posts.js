@@ -55,7 +55,7 @@ export default function Posts(props) {
             <p className="font-semibold text-3xl">Bài viết</p>
           </div>
           <div>
-            <SharingScreen></SharingScreen>
+            {/* <SharingScreen></SharingScreen> */}
           </div>
           <div className="flex">
             <span className="circleButton" onClick={() => setGridView(true)}>

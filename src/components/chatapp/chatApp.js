@@ -21,7 +21,6 @@ const ChatApp = ({ messageId }) => {
   const [currentChat, setCurrentChat] = useState(null);
   const [userSeenAt, setuserSeenAt] = useState();
   const [clicked, setClicket] = useState(false);
-  const [onlineUser, setOnlineUser] = useState();
   const [isSeen, setisSeen] = useState(false);
   useEffect(() => {
     if (messageId) {
@@ -39,10 +38,7 @@ const ChatApp = ({ messageId }) => {
             }
           );
           const data = await res.json();
-          const userID = auth.userID === data.user2 ? data.user1 : data.user2;
-          const username = await getUserinfobyID(userID);
-          const avt = await getStudentInfoByMSSV(username.username);
-          setCurrentChat({ ...data, img: avt.img });
+          setCurrentChat({ ...data });
         } catch (err) {
           console.log(err);
         }
@@ -86,19 +82,6 @@ const ChatApp = ({ messageId }) => {
     }
     AsyncGetCon();
   }, []);
-  useEffect(() => {
-    const receiverId = currentChat
-      ? currentChat.user1 !== auth.userID
-        ? currentChat.user1
-        : currentChat.user2
-      : null;
-
-    const getUser = async () => {
-      const data = await getUserinfobyID(receiverId);
-      setMSSVReceived(data);
-    };
-    getUser();
-  }, [currentChat]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -207,8 +190,8 @@ const ChatApp = ({ messageId }) => {
                           <WindowChat
                             count={{
                               ...currentChat,
-                              img: currentChat.img || CurrentUser?.img,
                             }}
+                            currentUser={CurrentUser}
                             Seen={userSeenAt}
                             chatApp={true}
                             setsendMess={setsendMess}

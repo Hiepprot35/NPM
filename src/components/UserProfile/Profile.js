@@ -8,7 +8,7 @@ import {
   getStudentInfoByMSSV,
   getUserinfobyID,
 } from "../../function/getApi";
-import { FiCamera, FiUpload } from "react-icons/fi";
+import { FiCamera, FiSave, FiUpload } from "react-icons/fi";
 import { Modal, Popover } from "antd";
 import ReactCrop from "react-image-crop";
 import MyComment from "../home/MyComment";
@@ -436,27 +436,42 @@ export default function Profile() {
   };
   const [friends, setFriend] = useState([]);
   useEffect(() => {
-    if (Users?.UserID) {
+    if(auth)
+      {
+        const getUserFriend = async () => {
+          const dataMyFriend = await getFriendList(auth?.userID);
+          let dataUserFriend;
+    
+          const data = await Promise.all(
+            dataMyFriend.map(async (e) => {
+              const info = await fetchApiRes('getStudentbyUserID',"POST",{UserID:e});
+              return info;
+            })
+          );
+          setFriend(data);
+        
+        };
+        getUserFriend();
+      }
+  }, [auth]);
+  useEffect(() => {
+    if (Users?.UserID ) {
       const getUserFriend = async () => {
-        const dataMyFriend = await getFriendList(auth?.userID);
-        const dataUserFriend = await getFriendList(Users.UserID);
-        const data = await Promise.all(
-          dataUserFriend.map(async (e) => {
-            const username = await getUserinfobyID(e);
-            const info = await getStudentInfoByMSSV(username.username);
-            return info;
-          })
-        );
-        console.log(data);
-        setFriend(data);
-        const generalFriends = dataUserFriend.filter((userFriend) => {
-          return dataMyFriend.some((e) => e === userFriend);
-        });
-        setgerenalFriend(generalFriends);
+       let dataUserFriend;
+        if (Users.UserID !== auth.userID) {
+          dataUserFriend = await getFriendList(Users.UserID);
+        
+          const generalFriends = dataUserFriend.filter((userFriend) => {
+            return friends.some((e) => e === userFriend);
+          });
+          setgerenalFriend(generalFriends);
+        }
+   
+      
       };
       getUserFriend();
     }
-  }, [Users]);
+  }, [Users,friends]);
   const introduceRef = useRef();
   const [ChangeIntroduce, setChangeIntroduce] = useState();
   const [IntroduceInput, setIntroduceInput] = useState();
@@ -505,11 +520,10 @@ export default function Profile() {
           style={commentID && { opacity: 0 }}
         >
           <div style={{ height: "50vh" }} className="w-full bg-black shadow91">
-              <img
-                className="object-contain 	"
-                src={`${Users?.backgroundimg}`}
-              ></img>
-            
+            <img
+              className="object-contain 	"
+              src={`${Users?.backgroundimg}`}
+            ></img>
           </div>
           <div className="w-full px-32 bg-gray-200 shadow91">
             {
@@ -527,7 +541,6 @@ export default function Profile() {
                               <div className="loader"></div>
                             </div>
                           ) : (
-                            
                             <img
                               alt="avatar"
                               className="cursor-pointer  relative z-0 rounded-full w-52 h-52 transition-all duration-300 hover:scale-110	"
@@ -579,13 +592,7 @@ export default function Profile() {
                             value={IntroduceInput}
                             placeholder={`${Users?.introduce}`}
                           ></textarea>
-                          <div className="flex">
-                            <span
-                              onClick={() => setChangeIntroduce(false)}
-                              className="cursor-pointer px-4 font-semibold py-2 rounded-xl m-2 center bg-gray-200"
-                            >
-                              Hủy
-                            </span>
+                          <div className="flex flex-row-reverse">
                             <span
                               onClick={() =>
                                 updateUser({
@@ -593,9 +600,15 @@ export default function Profile() {
                                   MSSV: Users?.MSSV,
                                 })
                               }
-                              className="cursor-pointer px-4 font-semibold py-2 rounded-xl m-2 center bg-gray-200"
+                              className="circleButton cursor-pointer  font-semiboldrounded-xl m-2 center"
                             >
-                              Lưu
+                              <FiSave />
+                            </span>
+                            <span
+                              onClick={() => setChangeIntroduce(false)}
+                              className="circleButton cursor-pointer  font-semibold   m-2 center"
+                            >
+                              X
                             </span>
                           </div>
                         </>

@@ -40,7 +40,7 @@ export default function UserProfile(props) {
   const [Users, setUserInfo] = useState(props.User);
   const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
     useData();
-  const { auth } = useAuth();
+  const { auth,myInfor } = useAuth();
   const host = process.env.REACT_APP_DB_HOST;
   const removeElement = (array, index) => {
     const newArray = array.filter((obj) => obj?.id !== index);
@@ -48,11 +48,10 @@ export default function UserProfile(props) {
   };
   const AddConver = async (id, request) => {
     try {
-      const authName = await getStudentInfoByMSSV(auth.username);
       const obj = {
         user1: auth.userID,
         user2: id,
-        user1_mask: authName.Name,
+        user1_mask: myInfor.Name,
         user2_mask: Users.Name,
         Requesting: request ? 1 : 0,
         created_at: Date.now(),
@@ -69,18 +68,9 @@ export default function UserProfile(props) {
       console.log(error);
     }
   };
-  const addToConverArray = (prev, id) => {
-    const newClicked = prev.filter((obj) => obj.id !== id);
-    const con = prev.find((e) => e.id === id);
-    if (con) {
-      newClicked.unshift(con);
-    }
 
-    return newClicked;
-  };
   const sendRequestFriend = async (id) => {
     const converFound = await foundConversation(id, auth.userID);
-    console.log(converFound);
     if (!converFound) {
       await AddConver(id, true);
     } else {

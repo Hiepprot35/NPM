@@ -357,11 +357,10 @@ export default memo(function WindowChat(props) {
   }
   useEffect(() => {
     if (socket) {
-        socket.emit("isTyping", {
-          isTyping: inputMess ? true : false,
-          receiverId: userConver,
-        });
-      
+      socket.emit("isTyping", {
+        isTyping: inputMess ? true : false,
+        receiverId: userConver,
+      });
     }
   }, [inputMess]);
   const [detailConver, setdetailConver] = useState();
@@ -384,7 +383,7 @@ export default memo(function WindowChat(props) {
       if (socket && !isSetting) {
         isSetting = true;
         const mess = {
-          id:data.id,
+          id: data.id,
           conversation_id: conversation.id,
           sender_id: data.sender_id,
           receiverId: userConver,
@@ -406,8 +405,6 @@ export default memo(function WindowChat(props) {
       isSetting = false;
     }
   };
-
-
 
   const sendFastHandle = async () => {
     const data = new FormData();
@@ -502,7 +499,7 @@ export default memo(function WindowChat(props) {
       const imgData = new FormData();
       imgData.append("sender_id", auth.userID);
       imgData.append("conversation_id", conversation.id);
-      imgData.append("created_at",messObj.created_at);
+      imgData.append("created_at", messObj.created_at);
       if (ImageFile.length > 0) {
         for (const file of ImageFile) {
           imgData.append("content", file);
@@ -575,6 +572,7 @@ export default memo(function WindowChat(props) {
       setUserInfo(data);
     }
     fetchData();
+    return(()=>setUserInfo())
   }, [conversation]);
 
   useEffect(() => {
@@ -582,7 +580,9 @@ export default memo(function WindowChat(props) {
       if (
         arrivalMessage &&
         conversation &&
-        [conversation?.user1, conversation?.user2].includes(arrivalMessage.sender_id) &&
+        [conversation?.user1, conversation?.user2].includes(
+          arrivalMessage.sender_id
+        ) &&
         parseInt(arrivalMessage.conversation_id) === conversation.id
       ) {
         setMessages((prev) => [...prev, arrivalMessage]);
@@ -621,21 +621,21 @@ export default memo(function WindowChat(props) {
         document.title = "Xin chàooo";
       }
       setArrivalMessage();
-        try {
-          const res = await fetch(
-            `${process.env.REACT_APP_DB_HOST}/api/message/seen`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(sentToApi),
-            }
-          );
-        } catch (err) {
-          console.log(err);
-        }
-      
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_DB_HOST}/api/message/seen`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(sentToApi),
+          }
+        );
+      } catch (err) {
+        console.log(err);
+      }
+
       if (socket) {
         const sendSocket = {
           converid: data?.conver.id,
@@ -665,7 +665,7 @@ export default memo(function WindowChat(props) {
         );
         const getMess = await res.json();
         if (getMess) {
-          console.log(getMess)
+          console.log(getMess);
           setuserSeenAt(getMess);
         }
       }
@@ -754,29 +754,30 @@ export default memo(function WindowChat(props) {
                         className="header_online"
                         // style={{ margin: ".3rem" }}
                       >
-                        <Popover content={<p>{userInfor?.Name}</p>}>
+                        <Popover content={<p>{props.currentUser?.Name}</p>}>
                           <div className=" p-2 hover:bg-gray-200 rounded-xl">
                             <div className="Avatar_status">
-                              <a
-                                href={`${process.env.REACT_APP_CLIENT_URL}/profile/${userInfor?.MSSV}`}
-                              >
-                                <Image
-                                  className="avatarImage"
-                                  alt="Avatar"
-                                  src={conversation.img || userInfor?.cutImg}
-                                ></Image>
+                                <a
+                                  href={`${process.env.REACT_APP_CLIENT_URL}/profile/${props.currentUser?.MSSV||userInfor?.MSSV}`}
+                                >
+                                  <Image
+                                    className="avatarImage"
+                                    alt="Avatar"
+                                    src={props.currentUser?.cutImg||props.currentUser?.img || conversation.img || userInfor?.cutImg||userInfor?.img}
+                                  ></Image>
 
-                                <span
-                                  className={`dot ${
-                                    Onlines &&
-                                    Onlines.some(
-                                      (online) => online.userId === userConver
-                                    )
-                                      ? "activeOnline"
-                                      : ""
-                                  }`}
-                                ></span>
-                              </a>
+                                  <span
+                                    className={`dot ${
+                                      Onlines &&
+                                      Onlines.some(
+                                        (online) => online.userId === userConver
+                                      )
+                                        ? "activeOnline"
+                                        : ""
+                                    }`}
+                                  ></span>
+                                </a>
+                              
                             </div>
                           </div>
                         </Popover>
@@ -862,7 +863,7 @@ export default memo(function WindowChat(props) {
                             own={message.sender_id === auth.userID}
                             student={{
                               img:
-                                conversation.img ||
+                              props.currentUser?.cutImg || props.currentUser?.img|| conversation?.img||
                                 userInfor?.cutImg ||
                                 userInfor?.img,
                             }}

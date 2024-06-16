@@ -62,16 +62,15 @@ export default memo(function Conversation({
 
   useEffect(() => {
     const studentInfo = async () => {
-      const username = await getUserinfobyID(userID);
-      const data = await getStudentInfoByMSSV(username?.username);
-      setUser(data);
+      const info = await fetchApiRes('getStudentbyUserID',"POST",{UserID:userID});
+
+      setUser(info);
     };
 
     studentInfo();
   }, [conversation]);
   useEffect(() => {
     if (currentChat) {
-      console.log(currentChat, "con");
       setCurrentUser(user);
     }
   }, [currentChat]);

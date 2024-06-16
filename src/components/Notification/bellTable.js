@@ -30,15 +30,26 @@ function BellTable() {
       const MSSV = await getUserinfobyID(user);
       console.log(MSSV);
       const data = await getStudentInfoByMSSV(MSSV.username);
-      return { ...element, name: data?.Name, img: data?.img ,cutImg:data?.cutImg};
+      return {
+        ...element,
+        name: data?.Name,
+        img: data?.img,
+        cutImg: data?.cutImg,
+      };
     });
 
     const ListUsers = await Promise.all(promises);
     setUsers(ListUsers);
   };
   useEffect(() => {
-    data();
-  }, []);
+    if (auth) {
+      data();
+    }
+    return(()=>{
+      setUsers([])
+      setNotification([])
+    })
+  }, [auth]);
 
   useEffect(() => {
     if (socket) {
@@ -78,61 +89,63 @@ function BellTable() {
   return (
     <>
       <Popover
-      trigger={"click"}
+        trigger={"click"}
         content={
           <div>
-          <div className="tableNotification">
-            <div>
-              {users.length > 0 ? (
-                users.map((e, i) => (
-                  <div className="infoNofi center">
-                    <div className="divCenterdiv">
-                      <div style={{ margin: ".5rem" }}>
-                        <img className="avatarImage" src={`${e?.cutImg||e?.img}`}></img>
-                      </div>
-                      <div>
-                        <p>
-                          <strong>{e.name}</strong> gửi lời mời kết bạn
-                        </p>
-                        <div className="divCenterdiv">
-                          <div
-                            className="button AcceptButton"
-                            onClick={() => acceptHandle(e.id)}
-                          >
-                            <p>Đồng ý</p>
-                          </div>
-                          <div
-                            className="button"
-                            onClick={() => deleteHandle(e.id)}
-                          >
-                            <p style={{ color: "black" }}>Từ chối</p>
+            <div className="tableNotification">
+              <div>
+                {users.length > 0 ? (
+                  users.map((e, i) => (
+                    <div className="infoNofi center">
+                      <div className="divCenterdiv">
+                        <div style={{ margin: ".5rem" }}>
+                          <img
+                            className="avatarImage"
+                            src={`${e?.cutImg || e?.img}`}
+                          ></img>
+                        </div>
+                        <div>
+                          <p>
+                            <strong>{e.name}</strong> gửi lời mời kết bạn
+                          </p>
+                          <div className="divCenterdiv">
+                            <div
+                              className="button AcceptButton"
+                              onClick={() => acceptHandle(e.id)}
+                            >
+                              <p>Đồng ý</p>
+                            </div>
+                            <div
+                              className="button"
+                              onClick={() => deleteHandle(e.id)}
+                            >
+                              <p style={{ color: "black" }}>Từ chối</p>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="infoNofi center" style={{ height: "4rem" }}>
+                    <p>Hiện tại không có thông báo mới</p>
                   </div>
-                ))
-              ) : (
-                <div className="infoNofi center" style={{ height: "4rem" }}>
-                  <p>Hiện tại không có thông báo mới</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-          </div>
-
         }
       >
-      <div className="circleButton notification" ref={notificationRef}>
-        {users?.length > 0 && (
-          <div className="countNoti">
-            <p>{users.length}</p>
-          </div>
-        )}
-        <span>
-          <FiBell></FiBell>
-        </span>
-      </div>
+        <div className="circleButton notification" ref={notificationRef}>
+          {users?.length > 0 && (
+            <div className="countNoti">
+              <p>{users.length}</p>
+            </div>
+          )}
+          <span>
+            <FiBell></FiBell>
+          </span>
+        </div>
       </Popover>
     </>
   );
