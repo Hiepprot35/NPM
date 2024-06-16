@@ -357,10 +357,11 @@ export default memo(function WindowChat(props) {
   }
   useEffect(() => {
     if (socket) {
-      socket.emit("isTyping", {
-        isTyping: inputMess ? true : false,
-        receiverId: userConver,
-      });
+        socket.emit("isTyping", {
+          isTyping: inputMess ? true : false,
+          receiverId: userConver,
+        });
+      
     }
   }, [inputMess]);
   const [detailConver, setdetailConver] = useState();
@@ -383,22 +384,22 @@ export default memo(function WindowChat(props) {
       if (socket && !isSetting) {
         isSetting = true;
         const mess = {
+          id:data.id,
           conversation_id: conversation.id,
           sender_id: data.sender_id,
           receiverId: userConver,
           content: data.content,
           isFile: data.isFile,
           nameUser: myMask,
-          created_at: Date.now(),
+          created_at: data.created_at,
         };
         // channel.postMessage(mess);
 
         socket.emit("sendMessage", mess);
         if (props.chatApp === true) {
-          props.setsendMess(mess);
+          // props.setsendMess(mess);
         }
       }
-      console.log(data);
     } catch (error) {
       console.error("Error sending message:", error);
     } finally {
@@ -406,9 +407,7 @@ export default memo(function WindowChat(props) {
     }
   };
 
-  useEffect(() => {
-    console.log(emoji);
-  }, [emoji]);
+
 
   const sendFastHandle = async () => {
     const data = new FormData();
@@ -503,7 +502,7 @@ export default memo(function WindowChat(props) {
       const imgData = new FormData();
       imgData.append("sender_id", auth.userID);
       imgData.append("conversation_id", conversation.id);
-      imgData.append("created_at", Date.now());
+      imgData.append("created_at",messObj.created_at);
       if (ImageFile.length > 0) {
         for (const file of ImageFile) {
           imgData.append("content", file);
@@ -579,15 +578,18 @@ export default memo(function WindowChat(props) {
   }, [conversation]);
 
   useEffect(() => {
-    const updateTitle = async () => {
-      if (arrivalMessage) {
-        const data = [conversation?.user1, conversation?.user2];
-        data.includes(arrivalMessage.sender_id) &&
-          parseInt(arrivalMessage.conversation_id) === conversation.id &&
-          setMessages((prev) => [...prev, arrivalMessage]);
+    const updateMessages = () => {
+      if (
+        arrivalMessage &&
+        conversation &&
+        [conversation?.user1, conversation?.user2].includes(arrivalMessage.sender_id) &&
+        parseInt(arrivalMessage.conversation_id) === conversation.id
+      ) {
+        setMessages((prev) => [...prev, arrivalMessage]);
       }
     };
-    updateTitle();
+
+    updateMessages();
   }, [arrivalMessage]);
 
   useEffect(() => {
@@ -607,42 +609,42 @@ export default memo(function WindowChat(props) {
     setListWindow(listWindow.filter((item) => item.id !== conversation.id));
   };
   const clickConversation = async (data) => {
-    const user12 = [data?.conver?.user1, data?.conver?.user2];
-    const receiverId = user12.find((member) => member !== auth.userID);
-    const sentToApi = {
-      Seen_at: Date.now(),
-      conversation_id: data?.conver.id,
-      sender_id: receiverId,
-    };
-    if (document.title.includes(data.name)) {
-      document.title = "Xin chàooo";
-    }
-    setArrivalMessage();
-    const resFunctiongetNewestMessSeen = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.REACT_APP_DB_HOST}/api/message/seen`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(sentToApi),
-          }
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    resFunctiongetNewestMessSeen();
-    if (socket) {
-      const sendSocket = {
-        converid: data?.conver.id,
-        sender_id: auth.userID,
-        receiverId,
-        isSeen: true,
+    if (arrivalMessage) {
+      const user12 = [data?.conver?.user1, data?.conver?.user2];
+      const receiverId = user12.find((member) => member !== auth.userID);
+      const sentToApi = {
+        Seen_at: Date.now(),
+        conversation_id: data?.conver.id,
+        sender_id: receiverId,
       };
-      socket.emit("UserSeen", sendSocket);
+      if (document.title.includes(data.name)) {
+        document.title = "Xin chàooo";
+      }
+      setArrivalMessage();
+        try {
+          const res = await fetch(
+            `${process.env.REACT_APP_DB_HOST}/api/message/seen`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(sentToApi),
+            }
+          );
+        } catch (err) {
+          console.log(err);
+        }
+      
+      if (socket) {
+        const sendSocket = {
+          converid: data?.conver.id,
+          sender_id: auth.userID,
+          receiverId,
+          isSeen: true,
+        };
+        socket.emit("UserSeen", sendSocket);
+      }
     }
   };
   const [rowCount, setRowcount] = useState(1);
@@ -653,6 +655,9 @@ export default memo(function WindowChat(props) {
   }, [inputMess]);
   const [userSeenAt, setuserSeenAt] = useState();
   const getNewstMess = async (data) => {
+    console.log(
+      `${process.env.REACT_APP_DB_HOST}/api/message/newest/seen/${data}/${auth?.userID}`
+    );
     try {
       if (data) {
         const res = await fetch(
@@ -660,6 +665,7 @@ export default memo(function WindowChat(props) {
         );
         const getMess = await res.json();
         if (getMess) {
+          console.log(getMess)
           setuserSeenAt(getMess);
         }
       }
@@ -667,10 +673,16 @@ export default memo(function WindowChat(props) {
       console.log(error);
     }
   };
+  useEffect(() => {
+    if (auth?.userID) {
+      getNewstMess(props.count.id);
+    }
+  }, [props.count?.id, auth]);
   const [IsTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     if (socket) {
+      console.log("socketconversation", conversation);
       const handleUpdateNewSend = (data) => {
         if (props.chatApp === true) {
           props.setsendMess({ ...data, created_at: Date.now() });
@@ -689,15 +701,16 @@ export default memo(function WindowChat(props) {
       });
       socket.on("getMessage", (data) => updateMess(data));
       // socket.on("updateNewSend", handleUpdateNewSend);
+
       socket.on("getUserSeen", (data) => {
         if (data) {
+          console.log("zoo socket");
           getNewstMess(data.converid);
         }
       });
       return () => {
         socket.off("getUserSeen", (data) => {
           if (data) {
-            getNewstMess(data.converid);
           }
         });
         socket.off("getMessages", (data) => updateMess(data));
@@ -705,7 +718,7 @@ export default memo(function WindowChat(props) {
         socket.off("updateNewSend", handleUpdateNewSend);
       };
     }
-  }, [socket, conversation]);
+  }, [socket]);
   const handleVideoCall = () => {
     const width = 800; // Chiều rộng của cửa sổ tab nhỏ
     const height = (800 * 9) / 16; // Chiều cao của cửa sổ tab nhỏ
@@ -793,7 +806,8 @@ export default memo(function WindowChat(props) {
                                     {Onlines &&
                                       Onlines.some(
                                         (e) => e.userId === userConver
-                                      ) && "Online"}
+                                      ) &&
+                                      "Online"}
                                   </p>
                                 }
                               </div>

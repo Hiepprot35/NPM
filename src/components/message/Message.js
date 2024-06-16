@@ -146,14 +146,12 @@ export default memo(function Message({
       if (message.content) {
         const data = message.content.split("emojiLink");
 
-        const processedData = await Promise.all(
-          data.map(async (e) => {
-            if (e.includes("https://cdn.jsdelivr.net")) {
-              return `<span><img alt="icon" style="width: 1rem; height: 1rem; margin: .1rem;" src="${e}"/></span>`;
-            }
-            return e; // Trả về phần tử gốc nếu không phải là URL cần kiểm tra
-          })
-        );
+        const processedData = data.map((e) => {
+          if (e.includes("https://cdn.jsdelivr.net")) {
+            return `<span><img alt="icon" style="width: 1rem; height: 1rem; margin: .1rem;" src="${e}"/></span>`;
+          }
+          return e; // Trả về phần tử gốc nếu không phải là URL cần kiểm tra
+        });
 
         // Hợp nhất kết quả thành một chuỗi
         setProcessedComment(await checkComment(processedData.join("")));
@@ -180,7 +178,7 @@ export default memo(function Message({
                     {(ag() === 0 || ag() === 3) && (
                       <div className={`Avatar_status`}>
                         <img
-                          className="avatarImage"
+                          className="avatarImage max-w-none"
                           src={student?.img}
                           alt="sender"
                         />
@@ -209,7 +207,11 @@ export default memo(function Message({
                       className={`Mess_seen_text flex ${
                         listAnh?.length > 1 && "grid grid-cols-3"
                       }  `}
-                      style={message.content.includes(`className="maskUserChange"`)?{width:"100%"}:{}}
+                      style={
+                        message.content.includes(`className="maskUserChange"`)
+                          ? { width: "100%" }
+                          : {}
+                      }
                     >
                       {message.isFile ? (
                         <>
@@ -230,7 +232,10 @@ export default memo(function Message({
                               ></img>
                             ))}
                         </>
-                      ) :( message.content&& message.content.includes(`className="maskUserChange"`)) ? (
+                      ) : message.content &&
+                        message.content.includes(
+                          `className="maskUserChange"`
+                        ) ? (
                         parse(message.content)
                       ) : (
                         <div className="messageText center text-wrap break-all px-4 py-2">
@@ -242,14 +247,15 @@ export default memo(function Message({
                 )}
               </div>
 
-              {student &&
-              parseInt(message?.created_at) ===
-                parseInt(listSeen?.created_at) &&
-              listSeen ? (
+              {(student &&
+                parseInt(message?.created_at) ===
+                  parseInt(listSeen?.created_at) &&
+                listSeen) ||
+              message.id === listSeen?.id ? (
                 <div className="Seen_field">
                   <img
                     className="avatarImage"
-                    style={{ width: "1.5rem", height: "1.5rem" }}
+                    style={{ width: "1rem", height: "1rem" }}
                     src={student.img ? `${student?.img}` : ""}
                     alt="sender"
                   />
@@ -268,7 +274,12 @@ export default memo(function Message({
                       ref={seen_text}
                       style={{ fontSize: "0.9rem", color: "gray" }}
                     >
-                      { message.content &&!message.content.includes(`className="maskUserChange"`) &&(updateMess  ? "Đang gửi" : "Đã gửi")}
+                      {!message.Seen_at &&
+                        message.content &&
+                        !message.content.includes(
+                          `className="maskUserChange"`
+                        ) &&
+                        (updateMess ? "Đang gửi" : "Đã gửi")}
                     </span>
                   </div>
                 )

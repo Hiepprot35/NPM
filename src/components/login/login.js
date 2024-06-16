@@ -50,7 +50,7 @@ export const LoginGoolge = ({ children  }) => {
   useEffect(() => {
     if(!auth?.userID)
       {
-
+        console.log("getUser")
         getUser();
       }
   }, []);

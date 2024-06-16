@@ -97,6 +97,11 @@
   width: 100%; /* Thay đổi max-width thành width hoặc loại bỏ nếu không cần thiết */
   margin: 0;
 }
+.singleImg{
+  /* max-height: 70% !important; */
+  
+  object-fit: contain;
+}
 .maskUserChange
 {
   display: flex;

@@ -34,7 +34,7 @@ export default memo(function Conversation({
   const [user, setUser] = useState();
   const { auth } = useAuth();
   const socket = useSocket();
-  const [isLoading, setIsLoading] = useState(true);
+  const [updateContent, setUpdateContent] = useState();
   const [NewestMess, setNewestMesst] = useState(conversation);
   const data = [conversation.user1, conversation.user2];
   useEffect(() => {
@@ -42,6 +42,7 @@ export default memo(function Conversation({
       console.log(conversation);
     }
   }, [conversation]);
+
   const setOnlineUser = data.find((m) => m !== auth.userID);
   const ListusersOnline = (Online && Online.map((item) => item.userId)) || [];
   useEffect(() => {
@@ -74,6 +75,17 @@ export default memo(function Conversation({
       setCurrentUser(user);
     }
   }, [currentChat]);
+  const checkMess=(mess)=>{
+    const data = mess.split("emojiLink");
+
+    const processedData = data.map((e) => {
+      if (e.includes("https://cdn.jsdelivr.net")) {
+        return `<span><img alt="icon" style="width: 1rem; height: 1rem; margin: .1rem;" src="${e}"/></span>`;
+      }
+      return e; // Trả về phần tử gốc nếu không phải là URL cần kiểm tra
+    });
+    return processedData.join("")
+  }
   const getNewestMess = async () => {
     const data = await getMess(conversation);
     setNewestMesst(data);
@@ -133,12 +145,12 @@ export default memo(function Conversation({
                                       "https://res.cloudinary.com"
                                     )
                                     ? "Bạn đã gửi một ảnh"
-                                    : parse(NewestMess.content)
+                                    : parse(checkMess(NewestMess.content))
                                   : NewestMess.content.startsWith(
                                       "https://res.cloudinary.com"
                                     )
                                   ? "Đã gửi một ảnh"
-                                  : parse(NewestMess.content)}
+                                  : parse(checkMess(NewestMess.content))}
                               </span>
 
                               <span>

@@ -57,10 +57,10 @@ function Header(props) {
     icon: "",
     country: "",
   });
-  const { setListWindow, setListHiddenBubble } = useData();
+  const { setListWindow, setListHiddenBubble, listWindow } = useData();
   const Menu_profile_header = useRef();
   const [city, setCity] = useState("hanoi");
-  const { auth, setAuth,myInfor } = useAuth();
+  const { auth, setAuth, myInfor } = useAuth();
   const [chooseHeader, setChooseHeader] = useState();
   const [GenresList, setGenresList] = useState();
   const [showGenres, setShowGenres] = useState(false);
@@ -95,7 +95,7 @@ function Header(props) {
     },
   };
   useEffect(() => {
-    if (socket &&auth?.userID) {
+    if (socket && auth?.userID) {
       socket.emit("addUser", auth?.userID);
     }
     return () => {
@@ -119,51 +119,45 @@ function Header(props) {
     closed: { zIndex: 0, opacity: 0, y: 20, transition: { duration: 0.2 } },
   };
   const foundConversation = async (user1, user2) => {
-    console.log(user1,user2)
     const conversations = await fetchApiRes("message/getConversation", "POST", {
       user1: user1,
       user2: user2,
     });
-    console.log(conversations)
     if (conversations.result.length > 0) {
       return conversations.result[0];
     }
   };
-  useEffect(() => {
-    console.log(auth)
-  }, [auth]);
+
   useEffect(() => {
     let isMounted = true;
+
     if (socket && auth?.userID) {
-      socket.on("getMessage", async (data) => {
-        if (data.sender_id !== auth?.userID) {
+      const handleMessage = async (data) => {
+        if (isMounted && data.sender_id !== auth?.userID) {
+          setListHiddenBubble((prev) => prev.filter((e) => e.id !== data.conversation_id));
+
+          const conversationExists = listWindow.some((item) => item.id === data.conversation_id);
+          let updateList = [...listWindow];
+          if (!conversationExists) {
+            const conver = await foundConversation(auth?.userID, data.sender_id);
+            updateList = [...updateList, { ...conver }];
+          }
+          setListWindow(updateList);
           updateTitle(data.nameUser);
-          const conver = await foundConversation(auth?.userID, data.sender_id);
-          setListHiddenBubble((pre) =>
-            pre.filter((e) => e.id !== data.conversation_id)
-          );
-          setListWindow((prev) => {
-            const conversationExists = prev.find(
-              (item) => item.id === data.conversation_id
-            );
+          let audio = new Audio("/notifi.mp3")
+          audio.play()
 
-            if (!conversationExists) {
-              return [...prev, { ...conver }];
-            } else {
-              return prev;
-            }
-          });
         }
-      });
-    }
+      };
 
-    return () => {
-      isMounted = false;
-      if (socket && isMounted) {
-        socket.disconnect();
-      }
-    };
-  }, [socket,auth]);
+      socket.on('getMessage', handleMessage);
+
+      return () => {
+        isMounted = false;
+        socket.off('getMessage', handleMessage);
+      };
+    }
+  }, [socket]);
   useEffect(() => {
     let isMounted = true;
     const tempApi = async (city) => {
@@ -191,7 +185,6 @@ function Header(props) {
       isMounted = false;
     };
   }, [city]);
-
   const [SearchQuery, setSearchQuery] = useState("");
   const [primaryColor, setPrimaryColor] = useState(
     localStorage.getItem("colorTheme") === "true"
@@ -227,8 +220,8 @@ function Header(props) {
           >
             <div className="avatar_name hover">
               <Image
-              loading={!myInfor?.avtUrl }
-                src={`${myInfor?.avtUrl }`}
+                loading={!myInfor?.avtUrl}
+                src={`${myInfor?.avtUrl}`}
                 alt="User Avatar"
                 className="avatarImage"
               />
@@ -472,6 +465,7 @@ function Header(props) {
                 </div>
               </Popover>
             }
+     
             <Popover content={<p>All Users</p>}>
               <Popover
                 trigger="click"
@@ -495,18 +489,19 @@ function Header(props) {
                       {
                         <Popover
                           color="none"
-                          align={{offset:[-20,-10]}}
+                          align={{ offset: [-20, -10] }}
                           trigger={"click"}
                           content={content}
                         >
-                          {
-                            !myInfor?.avtUrl ?<div className=" w-8 he-8 loader"></div>:
-                          <img
-                          className="avatarImage"
-                          src={`${myInfor?.avtUrl }`}
-                          alt="User Avatar"
-                          />
-                        }
+                          {!myInfor?.avtUrl ? (
+                            <div className=" w-8 he-8 loader"></div>
+                          ) : (
+                            <img
+                              className="avatarImage"
+                              src={`${myInfor?.avtUrl}`}
+                              alt="User Avatar"
+                            />
+                          )}
                         </Popover>
                       }
                     </div>
