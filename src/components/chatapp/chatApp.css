@@ -127,11 +127,10 @@ input[type=text]:focus {
 }
 .Body_mainChatApp .Body_Chatpp .main_windowchat
 {
-    height: 80vh !important;
+    height: auto;
+    max-height: 90%;
 }
 .Body_Chatpp .inputValue{
-    height: auto;
-    max-height: 20vh;
     width: 100%;
 }
 .Header_ChatApp .header_online h3 {

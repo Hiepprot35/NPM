@@ -1,10 +1,11 @@
 export function getTime(data) {
   const timeSent = new Date(parseInt(data));
+  const timeNew=new Date(Date.now())
+  
   const currentHours = timeSent.getHours();
   const currentMinutes = timeSent.getMinutes();
   
   const formatMinutes = currentMinutes < 10 ? `0${currentMinutes}` : currentMinutes;
-
   return `${currentHours}:${formatMinutes}`;
 }
 export function cauculatorTime(data)

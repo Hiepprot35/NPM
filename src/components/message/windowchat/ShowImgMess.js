@@ -20,8 +20,8 @@ export default function ShowImgDialog(props) {
   }, [currentSlide]);
   useEffect(() => {
     if (props.listImg && props.current) {
-      console.log(props.listImg);
-      const indexOfTerms = props.listImg.findIndex((e) => e === props.current);
+      
+      const indexOfTerms = props.listImg.findIndex((e) =>e===props.current);
       setCurrentSlide(indexOfTerms);
     }
   }, [props.listImg, props.current]);
@@ -83,7 +83,7 @@ export default function ShowImgDialog(props) {
   }, [currentSlide]);
   const saveImage = async () => {
     let imageUrl =props.isMovies? `https://image.tmdb.org/t/p/original${props.current.file_path}`:props.current;
-    FileSaver.saveAs(imageUrl,props.current.file_path, "image.jpg");
+    FileSaver.saveAs(imageUrl,Date.now(), "image.jpg");
   };
 
   return (
@@ -173,7 +173,7 @@ export default function ShowImgDialog(props) {
                             : `${e}`
                         }
                         style={{
-                          opacity: `${i == currentSlide ? "1" : "0.2"}`,
+                          opacity: `${i === currentSlide ? "1" : "0.2"}`,
                           borderRadius: "1rem",
                           transition: "opacity 500ms linear",
                         }}

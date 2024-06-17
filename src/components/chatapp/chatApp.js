@@ -169,7 +169,7 @@ const ChatApp = ({ messageId }) => {
                 </div>
               )}
             </div>
-            <div className="Main_ChatApp">
+            <div className="Main_ChatApp  w-screen" style={{height:"93vh"}}>
               {conversations.length === 0 ? (
                 <div className="chatbox_res">
                   Kết bạn đi anh bạn{" "}
@@ -185,8 +185,8 @@ const ChatApp = ({ messageId }) => {
                     </div>
                   ) : (
                     <>
-                      <div className="Body_mainChatApp">
-                        <div className="ChatApp">
+                      <div className="Body_mainChatApp h-full">
+                        <div className="ChatApp h-full ">
                           <WindowChat
                             count={{
                               ...currentChat,

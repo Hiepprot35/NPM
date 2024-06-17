@@ -31,10 +31,9 @@ export default memo(function Message({
   useEffect(() => {
     if (message.isFile === 1) {
       const data = message.content.split(",");
-      setImgMess((pre) => [...pre, ...data]);
       setListAnh(data);
     }
-  }, []);
+  }, [message]);
   const ag = () => {
     const l = messages.length;
     const sender = message.sender_id;
