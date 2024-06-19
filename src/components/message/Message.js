@@ -9,6 +9,7 @@ import { Popover } from "antd";
 import parseUrl from "parse-url";
 import { fetchVideoTitle, movieApi } from "./windowchat";
 import { FiCamera, FiVideo } from "react-icons/fi";
+import { Image } from "../home/home";
 export default memo(function Message({
   message,
   i,
@@ -175,11 +176,10 @@ export default memo(function Message({
                 {!own && student && message.content !== null && (
                   <>
                     {(ag() === 0 || ag() === 3) && (
-                      <div className={`Avatar_status`}>
-                        <img
+                      <div className="Avatar_status">
+                        <Image
                           className="avatarImage max-w-none"
                           src={student?.img}
-                          alt="sender"
                         />
                         <span
                           className={`dot ${
@@ -218,6 +218,7 @@ export default memo(function Message({
                             listAnh.map((e, i) => (
                               <img
                                 key={i}
+                                alt="Image"
                                 onClick={() => setShowImgMess(e)}
                                 className={`cursor-pointer ${
                                   listAnh?.length > 1 && "listImg"

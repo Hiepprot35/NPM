@@ -35,6 +35,7 @@ import VideoPlayer from "../chatapp/VideoPlayer";
 import UseToken from "../../hook/useToken";
 import UseRfLocal from "../../hook/useRFLocal";
 import VehicleChat from "./windowchat/VehicleChat";
+import { NavLink } from "react-router-dom";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 export const movieApi = async (videoID) => {
   const url = `https://api.themoviedb.org/3/movie/${videoID}`;
@@ -63,7 +64,7 @@ export default memo(function WindowChat(props) {
   const [inputMess, setInputmess] = useState("");
   const conversation = props?.count;
   const SettingConversation = ({ conversation, user }) => {
-    const { auth } = useAuth();
+    const { auth ,myInfor} = useAuth();
     const [OpenMask, setOpenMask] = useState(false);
     const [OpenIcon, setOpenIcon] = useState(false);
     const [host, setHost] = useState();
@@ -98,7 +99,7 @@ export default memo(function WindowChat(props) {
         if (mask1) {
           const Mes = {
             conversation_id: conversation.id,
-            content: `<div className="maskUserChange">${host.Name} đã đổi biệt danh thành ${mask1}</div>`,
+            content: `<div className="maskUserChange">${myInfor.Name} đã đổi biệt danh thành ${mask1}</div>`,
             sender_id: auth.userID,
             created_at: Date.now(),
             isFile: 0,
@@ -108,7 +109,7 @@ export default memo(function WindowChat(props) {
         if (mask2) {
           const Mes2 = {
             conversation_id: conversation.id,
-            content: `<div className="maskUserChange">${host.Name} đã đổi biệt danh thành ${mask2}</div>`,
+            content: `<div className="maskUserChange">${myInfor.Name} đã đổi biệt danh thành ${mask2}</div>`,
             sender_id: auth.userID,
             created_at: Date.now(),
             isFile: 0,
@@ -118,13 +119,7 @@ export default memo(function WindowChat(props) {
       }
     };
 
-    useEffect(() => {
-      const getData = async () => {
-        const data = await getStudentInfoByMSSV(auth?.username);
-        setHost(data);
-      };
-      getData();
-    }, []);
+
     useEffect(() => {
       if (!OpenMask) {
         setMask1();
@@ -568,8 +563,9 @@ export default memo(function WindowChat(props) {
 
   useEffect(() => {
     async function fetchData() {
-      const username = await getUserinfobyID(parseInt(userConver));
-      const data = await getStudentInfoByMSSV(username?.username);
+
+      const data = await fetchApiRes('getStudentbyUserID',"POST",{UserID:parseInt(userConver)});
+
       setUserInfo(data);
     }
     fetchData();
@@ -766,11 +762,11 @@ export default memo(function WindowChat(props) {
                           className="header_online"
                           // style={{ margin: ".3rem" }}
                         >
-                          <Popover content={<p>{props.currentUser?.Name}</p>}>
+                          <Popover content={<p>{props.currentUser?.Name||userInfor?.Name}</p>}>
                             <div className=" p-2 hover:bg-gray-200 rounded-xl">
                               <div className="Avatar_status">
-                                <a
-                                  href={`${
+                                <NavLink
+                                  to={`${
                                     process.env.REACT_APP_CLIENT_URL
                                   }/profile/${
                                     props.currentUser?.MSSV || userInfor?.MSSV
@@ -798,7 +794,7 @@ export default memo(function WindowChat(props) {
                                         : ""
                                     }`}
                                   ></span>
-                                </a>
+                                </NavLink>
                               </div>
                             </div>
                           </Popover>

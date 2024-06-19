@@ -6,7 +6,12 @@ import parse, { domToReact } from "html-react-parser";
 import { Popover } from "antd";
 import UserProfile from "../UserProfile/userProfile";
 import MyComment from "./MyComment";
-import { countTime, getDate, getTime } from "../../function/getTime";
+import {
+  countTime,
+  getDate,
+  getTime,
+  getWeekdays,
+} from "../../function/getTime";
 import { fetchVideoTitle, movieApi } from "../message/windowchat";
 import parseUrl from "parse-url";
 import { NavLink } from "react-router-dom";
@@ -135,7 +140,7 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
 
         return (
           <div
-            className="w-full h-full center "
+            className="w-full h-full center bg-black rounded-xl "
             style={{ height: "60vh" }}
             onClick={() =>
               setCurrentImg({
@@ -147,14 +152,14 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
             }
           >
             <NavLink
-              to={`${process.env.REACT_APP_CLIENT_URL}/photo?commentID=${comment.id}`}
+              to={`${process.env.REACT_APP_CLIENT_URL}/photo?MSSV=${comment.userID}&commentID=${comment.id}`}
             >
               <div
-                class=" relative overflow-hidden  w-full rounded-xl "
+                class=" relative overflow-hidden   w-full center  "
                 style={{ height: "60vh" }}
               >
                 <img
-                  className="object-contain cursor-pointer h-full w-full  relative z-0 w-52 h-52 transition-all duration-300 hover:scale-110 "
+                  className="object-contain cursor-pointer h-full w-full  relative z-0 transition-all duration-300 hover:scale-110 "
                   {...attribs}
                 />
               </div>
@@ -225,7 +230,7 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
       <div className="containerComment">
         <div className="headerComment">
           <div className="AvatarComment">
-            <Popover content={<UserProfile MSSV={User?.MSSV}></UserProfile>}>
+            <Popover content={<UserProfile User={User} MSSV={User?.MSSV}></UserProfile>}>
               <div className="AvatarComment2">
                 {!User ? (
                   <div className="loader w-1/2 h-1/2"></div>
@@ -238,7 +243,8 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
                     ></img>
                     <span
                       className={`dot ${
-                        Onlines && Onlines.some((e) => (e.userId) === (User?.UserID))
+                        Onlines &&
+                        Onlines.some((e) => e.userId === User?.UserID)
                           ? "activeOnline"
                           : {}
                       }`}
@@ -254,13 +260,17 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
           <div className="bodyComment w-full">
             <div className="NameAndContent">
               <div className="nameComment">
-                <Popover
-                  content={<UserProfile MSSV={User?.MSSV}></UserProfile>}
-                >
-                  <div className="NameComment" style={{ cursor: "pointer" }}>
-                    <span style={{ fontWeight: 600 }}>{User?.Name}</span>
-                  </div>
-                </Popover>
+                {User && (
+                  <Popover
+                    content={
+                      <UserProfile User={User} MSSV={User?.MSSV}></UserProfile>
+                    }
+                  >
+                    <div className="NameComment" style={{ cursor: "pointer" }}>
+                      <span style={{ fontWeight: 600 }}>{User?.Name}</span>
+                    </div>
+                  </Popover>
+                )}
               </div>
               <div className="contentComment">
                 {[comment.content].map((e) => (
@@ -268,16 +278,14 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
                 ))}
               </div>
             </div>
-            <div
-              className="likedislike center"
-              style={{ justifyContent: "space-around" }}
-            >
+            <div className="likedislike items-center">
               <div>
                 <Popover
                   content={
                     <p>
                       {getDate(comment.create_at)} lúc{" "}
-                      {getTime(comment.create_at)}
+                      {getTime(comment.create_at)},{" "}
+                      {getWeekdays(comment.create_at)}
                     </p>
                   }
                 >

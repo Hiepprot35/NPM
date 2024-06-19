@@ -28,8 +28,10 @@ function BellTable() {
       let user = element.user1 !== auth.userID ? element.user1 : element.user2;
       console.log(user);
       const MSSV = await getUserinfobyID(user);
-      console.log(MSSV);
-      const data = await getStudentInfoByMSSV(MSSV.username);
+      const data = await fetchApiRes("getStudentbyUserID", "POST", {
+        UserID: parseInt(user),
+      });
+
       return {
         ...element,
         name: data?.Name,
@@ -45,10 +47,10 @@ function BellTable() {
     if (auth) {
       data();
     }
-    return(()=>{
-      setUsers([])
-      setNotification([])
-    })
+    return () => {
+      setUsers([]);
+      setNotification([]);
+    };
   }, [auth]);
 
   useEffect(() => {

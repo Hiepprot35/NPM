@@ -105,7 +105,7 @@ export default memo(function Conversation({
           <div className="conversation">
             <div className="Avatar_status">
               <img
-                src={user.img ? `${user?.img}` : ""}
+                src={user?.cutImg ? `${user?.cutImg}` : `${user?.img}`}
                 className={`avatarImage`}
                 style={{ width: "4rem" }}
                 alt="uer avatar"

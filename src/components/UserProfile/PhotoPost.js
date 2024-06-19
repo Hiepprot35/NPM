@@ -115,7 +115,7 @@ export default function PhotoPost({ CurrentImg, commentID, UsersProfile }) {
     };
   }, [commentID]);
   return (
-    <div className="w-screen h-screen flex fixed inset-0">
+    <div className="w-screen h-screen flex fixed inset-0 center">
       <div className="h-full" style={{ width: "70%" }}>
         <div className="bg-black w-full center h-full relative ">
           {!Comment ? (

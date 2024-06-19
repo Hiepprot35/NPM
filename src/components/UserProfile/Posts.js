@@ -9,45 +9,29 @@ import { useRealTime } from "../../context/useRealTime";
 import SharingScreen from "./SharingScreen";
 export default function Posts(props) {
   const { auth } = useAuth();
-  const [Post, setPost] = useState([]);
-  const [Imgs, setImgs] = useState([]);
-  useEffect(() => {
-    const getPost = async () => {
-      const data = await fetchApiRes(
-        `getAllCommentPost/?userID=${props?.username}&replyID=-1`
-      );
-      const dataUpdate = data.result.sort((a, b) => b.create_at - a.create_at);
-      const dataImg = dataUpdate
-        .filter((e) => e.content.includes("imgSplitLink"))
-        .map((e) => ({
-          userID: e.userID,
-          img: e.content.split("imgSplitLink")[1],
-          id: e.id, // Keep the id
-          create_at: e.create_at,
-        }));
-      props.setImgContent(dataImg);
-      setPost(dataUpdate);
-    };
-    getPost();
-    return () => {
-      props.setImgContent();
-      setPost();
-    };
-  }, [props.username]);
-  // useEffect(() => {
-  //   if(Post)
-  //   {
-  //     const updatePost=[...Post]
-  //      const dataUpdate = updatePost.sort((a, b) => b.create_at - a.create_at);
-  //      setPost(dataUpdate)
+  
+  //       .filter((e) => e.content.includes("imgSplitLink"))
+  //       .map((e) => ({
+  //         userID: e.userID,
+  //         img: e.content.split("imgSplitLink")[1],
+  //         id: e.id, // Keep the id
+  //         create_at: e.create_at,
+  //       }));
+  //     props.setImgContent(dataImg);
+  //     setPost(dataUpdate);
+  //   };
+  //   getPost();
+  //   return () => {
+  //     props.setImgContent();
+  //     setPost();
+  //   };
+  // }, [props.username]);
 
-  //   }
-  // }, [Post]);
   const [gridView, setGridView] = useState(false);
   return (
     <>
       <div>
-        <MyComment update={setPost} className="PostProfile w-full"></MyComment>
+        <MyComment update={props.setPost} className="PostProfile w-full"></MyComment>
       </div>
       <div className="pl-12 w-full mt-8">
         <div className="w-full bg-white rounded-xl p-4 mb-8 flex center justify-between	">
@@ -71,8 +55,8 @@ export default function Posts(props) {
       <div
         className={`mb-8 pl-12 w-full  ${gridView && "grid grid-cols-2 gap-2"}	`}
       >
-        {Post &&
-          Post.map((e) => (
+        {
+          props.Posts.map((e) => (
             <Comment
               key={e.id}
               users={props.users}

@@ -37,10 +37,10 @@ const getFriendList = async (userID) => {
 export default function UserProfile(props) {
   const socket = useSocket();
   const [isLoading, setIsLoading] = useState(false);
-  const [Users, setUserInfo] = useState(props.User);
+  const [Users, setUserInfo] = useState();
   const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
     useData();
-  const { auth,myInfor } = useAuth();
+  const { auth, myInfor } = useAuth();
   const host = process.env.REACT_APP_DB_HOST;
   const removeElement = (array, index) => {
     const newArray = array.filter((obj) => obj?.id !== index);
@@ -102,12 +102,19 @@ export default function UserProfile(props) {
   };
 
   const replaceCover = (pre, data) => {
-    return pre.map((e) =>
-      (e.user1 === data.user1 && e.user2 === data.user2) ||
-      (e.user2 === data.user1 && e.user1 === data.user2)
-        ? data
-        : e
+    const index = pre.findIndex(
+      (e) =>
+        (e.user1 === data.user1 && e.user2 === data.user2) ||
+        (e.user2 === data.user1 && e.user1 === data.user2)
     );
+  
+    if (index !== -1) {
+      const newPre = [...pre];
+      newPre[index] = data;
+      return newPre;
+    }
+  
+    return pre;
   };
   const handleAddChat = async (id) => {
     try {
@@ -214,16 +221,19 @@ export default function UserProfile(props) {
       try {
         const res = await fetch(`${host}/api/getStudentbyID/${props.MSSV}`);
         const resJson = await res.json();
-        if (!props.User) {
-          setUserInfo(resJson);
-        }
+        setUserInfo(resJson);
       } catch (error) {
         console.error("Error occurred:", error);
       }
     };
-
-    getData();
-  }, [props.MSSV]);
+    console.log(props.User)
+    if (!props.User) {
+      getData();
+    }
+    else{
+      setUserInfo(props.User)
+    }
+  }, [props.MSSV,props.User]);
 
   return (
     <>
@@ -246,6 +256,7 @@ export default function UserProfile(props) {
                     <Popover
                       content={
                         <UserProfile
+                        User={Users}
                           MSSV={Users.MSSV}
                           isHover={true}
                         ></UserProfile>

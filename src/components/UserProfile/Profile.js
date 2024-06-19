@@ -180,10 +180,14 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
 
     console.log(disX, "= ", rectCut.left, rectFull.left);
     let disY = YTrans + event.clientY - startY;
-    if (startX !== null && startY !== null) {
+    while (rectCut.top > rectFull.top) {
       setDistanceX(disX);
       setDistanceY(disY);
     }
+    // if (startX !== null && startY !== null) {
+    //   setDistanceX(disX);
+    //   setDistanceY(disY);
+    // }
   };
 
   const handleMouseUp = (event) => {
@@ -358,31 +362,19 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
               </div>
             </div>
           </div>
-          <div
-            className="m-12 relative z-20"
-            ref={divRef}
-            style={{
-              borderRadius: "3px",
-              width: "300px",
-              borderBottom: "6px solid black",
-            }}
-          >
-            <span
-              style={{
-                background: "blue",
-                top: `-.25rem`,
-                left: `${position.left}px`,
-              }}
-              ref={pointRef}
-              draggable
-              onDragStart={dragStartHandle}
-              onDrag={dragHandle}
-              onDragEnd={dragHandle}
-              className="w-4 h-4 rounded-full    absolute"
-            ></span>
-            <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
-            <canvas ref={canvasFullRef} style={{ display: "none" }}></canvas>
-          </div>
+          <input
+            className=""
+            value={Scale}
+            type="range"
+            min="1"
+            max="3"
+            defaultValue={1}
+            step={0.2}
+            onChange={(e) => setScale(e.target.value)}
+          ></input>
+
+          <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
+          <canvas ref={canvasFullRef} style={{ display: "none" }}></canvas>
         </div>
       </Modal>
     </>
@@ -398,32 +390,72 @@ export default function Profile() {
   const [gerenalFriend, setgerenalFriend] = useState([]);
   const { auth, myInfor } = useAuth();
   const [Users, setUserInfo] = useState();
-  const getData = async () => {
+
+  const getData = async (signal, currentRequestVersion) => {
     try {
-      setIsLoading(true);
-      const data = await getStudentInfoByMSSV(MSSVInput);
+      console.log("send res")
+      const data = await getStudentInfoByMSSV(MSSVInput, { signal });
+      if (signal.aborted) return;
       if (data) {
-        setIsLoading(false);
         setUserInfo(data);
       }
     } catch (error) {
-      setIsLoading(false);
+      if (error.name !== "AbortError") {
+        console.error("Error occurred:", error);
+      }
+    }
+  };
 
-      console.error("Error occurred:", error);
+  const getPost = async (signal, currentRequestVersion) => {
+    try {
+      const data = await fetchApiRes(
+        `getAllCommentPost/?userID=${MSSVInput}&replyID=-1`,
+        "GET",
+        null,
+        { signal }
+      );
+      if (signal.aborted) return;
+      if (data && data.result) {
+        const dataUpdate = data.result.sort(
+          (a, b) => b.create_at - a.create_at
+        );
+        const dataImg = dataUpdate
+          .filter((e) => e.content.includes("imgSplitLink"))
+          .map((e) => ({
+            userID: e.userID,
+            img: e.content.split("imgSplitLink")[1],
+            id: e.id, // Keep the id
+            create_at: e.create_at,
+          }));
+        setImgContent(dataImg);
+        setPost(dataUpdate);
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Error occurred:", error);
+      }
     }
   };
   useEffect(() => {
-    if (parseInt(auth.username) === parseInt(MSSVInput)) {
-      console.log(myInfor);
-      setUserInfo(myInfor);
-      setIsLoading(false);
-    } else {
-      getData();
-    }
+    setPost(null);
+    setFriend(null);
+    setUserInfo(null);
+    setImgContent(null);
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    getData(signal);
+    getPost(signal);
     return () => {
-      setUserInfo();
+      controller.abort();
+
+      setPost(null);
+      setFriend(null);
+      setUserInfo(null);
+      setImgContent(null);
     };
-  }, [MSSVInput, myInfor, auth]);
+  }, [MSSVInput]);
+
   const getFriendList = async (userID) => {
     const checkID = (array, id) => {
       return array.user1 === id ? array.user2 : array.user1;
@@ -434,44 +466,42 @@ export default function Profile() {
     const data = result.result.map((e) => checkID(e, userID));
     return data;
   };
-  const [friends, setFriend] = useState([]);
+  const [friends, setFriend] = useState();
   useEffect(() => {
-    if(auth)
-      {
-        const getUserFriend = async () => {
-          const dataMyFriend = await getFriendList(auth?.userID);
-          let dataUserFriend;
-    
-          const data = await Promise.all(
-            dataMyFriend.map(async (e) => {
-              const info = await fetchApiRes('getStudentbyUserID',"POST",{UserID:e});
-              return info;
-            })
-          );
-          setFriend(data);
-        
-        };
-        getUserFriend();
-      }
-  }, [auth]);
-  useEffect(() => {
-    if (Users?.UserID ) {
+    if (Users?.UserID) {
       const getUserFriend = async () => {
-       let dataUserFriend;
-        if (Users.UserID !== auth.userID) {
-          dataUserFriend = await getFriendList(Users.UserID);
-        
-          const generalFriends = dataUserFriend.filter((userFriend) => {
-            return friends.some((e) => e === userFriend);
-          });
-          setgerenalFriend(generalFriends);
-        }
-   
-      
+        const dataMyFriend = await getFriendList(Users?.UserID);
+        let dataUserFriend;
+
+        const data = await Promise.all(
+          dataMyFriend.map(async (e) => {
+            const info = await fetchApiRes("getStudentbyUserID", "POST", {
+              UserID: e,
+            });
+            return info;
+          })
+        );
+        setFriend(data);
+      };
+
+      getUserFriend();
+    }
+    return () => setFriend();
+  }, [Users]);
+  useEffect(() => {
+    if (friends && Users) {
+      const getUserFriend = async () => {
+        let dataUserFriend;
+        dataUserFriend = await getFriendList(auth.userID);
+
+        const generalFriends = dataUserFriend.filter((userFriend) => {
+          return friends.some((e) => e === userFriend);
+        });
+        setgerenalFriend(generalFriends);
       };
       getUserFriend();
     }
-  }, [Users,friends]);
+  }, [friends]);
   const introduceRef = useRef();
   const [ChangeIntroduce, setChangeIntroduce] = useState();
   const [IntroduceInput, setIntroduceInput] = useState();
@@ -510,6 +540,8 @@ export default function Profile() {
       setIntroduceInput(Users.introduce);
     }
   }, [Users]);
+  const [PostsData, setPost] = useState();
+
   const [ImgContent, setImgContent] = useState();
   const [CurrentImg, setCurrentImg] = useState();
   return (
@@ -519,7 +551,10 @@ export default function Profile() {
           className="center content flex-col"
           style={commentID && { opacity: 0 }}
         >
-          <div style={{ height: "50vh" }} className="w-full bg-black shadow91">
+          <div
+            style={{ height: "50vh" }}
+            className="w-full bg-black shadow91 relative"
+          >
             <img
               className="object-contain 	"
               src={`${Users?.backgroundimg}`}
@@ -533,7 +568,7 @@ export default function Profile() {
                     <div className="flex">
                       <div className="relative">
                         <div class=" relative overflow-hidden rounded-full border-4 border-neutral-50 ">
-                          {isLoading ? (
+                          {!Users ? (
                             <div
                               className="center bg-white"
                               style={{ width: "15rem", aspectRatio: "1" }}
@@ -558,7 +593,7 @@ export default function Profile() {
                   </div>
                   <div className=" mx-4 flex-col content-center">
                     <p className="text-4xl font-bold ">{Users?.Name}</p>
-                    <p>Bạn bè {friends.length}</p>
+                    <p>Bạn bè {friends?.length}</p>
                   </div>
                 </div>
                 <div className="w-full flex">
@@ -620,7 +655,7 @@ export default function Profile() {
                     <div className="p-8 bg-white rounded-xl my-8 shadow-md">
                       <p className="font-bold text-3xl">Ảnh</p>
                       <div className="grid grid-cols-3 gap-2">
-                        {ImgContent &&
+                        {ImgContent ? (
                           ImgContent.map((e) => (
                             <div onClick={() => setCurrentImg(e)}>
                               <NavLink
@@ -633,36 +668,51 @@ export default function Profile() {
                                 />
                               </NavLink>
                             </div>
-                          ))}
+                          ))
+                        ) : (
+                          <div className="loader"></div>
+                        )}
                       </div>
                     </div>
                     <div className="p-16 bg-white rounded-xl my-8 shadow-md">
                       <p className="font-bold text-3xl">Bạn bè</p>
                       <p>
-                        {friends.length} bạn bè ({gerenalFriend.length} bạn
+                        {friends?.length} bạn bè ({gerenalFriend.length} bạn
                         chung)
                       </p>
-                      <div className="grid grid-cols-3	">
-                        {friends.map((e) => (
-                          <div className="flex-col  center">
-                            <img
-                              className="rounded-xl"
-                              style={{ aspectRatio: 1 }}
-                              src={`${e.img}`}
-                            ></img>
-                            <p className="font-semibold">{e.Name}</p>
-                          </div>
-                        ))}
+                      <div className="grid grid-cols-3 gap-3	">
+                        {friends ? (
+                          friends.map((e) => (
+                            <div className="flex-col w-full center">
+                              <img
+                                className="rounded-xl w-full  "
+                                style={{ aspectRatio: 1 }}
+                                src={`${e.cutImg || e.img}`}
+                              ></img>
+                              <p className="font-semibold">{e.Name}</p>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="loader"></div>
+                        )}
                       </div>
                     </div>
                   </div>
                   <div className="" style={{ width: "60%" }}>
-                    <Posts
-                      setCurrentImg={setCurrentImg}
-                      setImgContent={setImgContent}
-                      users={Users}
-                      username={Users && Users?.MSSV}
-                    ></Posts>
+                    {PostsData ? (
+                      <Posts
+                        setCurrentImg={setCurrentImg}
+                        setImgContent={setImgContent}
+                        Posts={PostsData}
+                        setPost={setPost}
+                        users={Users}
+                        username={Users && Users?.MSSV}
+                      />
+                    ) : (
+                      <div className=" w-full center">
+                        <div className="loader"></div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </>

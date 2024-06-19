@@ -8,6 +8,14 @@ export function getTime(data) {
   const formatMinutes = currentMinutes < 10 ? `0${currentMinutes}` : currentMinutes;
   return `${currentHours}:${formatMinutes}`;
 }
+const days = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+    
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+export function getWeekdays(data) {
+  const time = new Date(parseInt(data));
+  const weekday = days[time.getDay()];
+  return weekday;
+}
 export function cauculatorTime(data)
 {
   const int=parseInt(data)

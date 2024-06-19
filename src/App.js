@@ -23,6 +23,7 @@ import VideoPlayer from "./components/chatapp/VideoPlayer";
 import Profile from "./components/UserProfile/Profile";
 import Header from "./components/Layout/header/header";
 import PhotoPost from "./components/UserProfile/PhotoPost";
+import GoogleMap from "./components/UserProfile/Map";
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   // const socket=useSocket();
@@ -101,12 +102,13 @@ function App() {
     } else {
       return (
         <Routes>
-          {/* <Route path="*" element={<Navigate to="/"></Navigate>} /> */}
-          {/* <Route path="*" element={<IsLoading />} /> */}
+  
+          <Route path="/photo/" element={<Profile/>} />
+          <Route path="/profile/:MSSV" element={<Profile />} />
+
           <Route path="/login" element={<Login />} />
           <Route path="/create" element={<CreateStudent />} />
-          <Route path="*" element={<Login />} />
-          <Route path="/" element={<Home />} />
+          <Route path="*" element={<Home />} />
 
           <Route
             path="/movie/moviedetail/:id"
