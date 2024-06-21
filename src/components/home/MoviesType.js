@@ -114,7 +114,7 @@ export default function MoviesType(props) {
 
   useEffect(() => {
     getMovie();
-  }, []);
+  }, [id,page]);
 
   useEffect(() => {
     if (Movies) {
@@ -159,12 +159,12 @@ export default function MoviesType(props) {
                 {arr.map((e, index) => (
                   <li className="pageText center" style={{ height: "2rem" }}>
                     {e > 0 ? (
-                      <a
-                        href={`${process.env.REACT_APP_CLIENT_URL}/films?id=${id}&type=${type}&page=${e}`}
+                      <NavLink
+                        to={`${process.env.REACT_APP_CLIENT_URL}/films?id=${id}&type=${type}&page=${e}`}
                         key={index}
                       >
                         <span className="circleButton" style={parseInt(page)===e?{backgroundColor:"gray"}:{}}>{e}</span>
-                      </a>
+                      </NavLink>
                     ) : (
                       <span>{e}</span>
                     )}

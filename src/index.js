@@ -1,6 +1,4 @@
-import * as process from 'process';
-
-
+import * as process from "process";
 
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -24,9 +22,9 @@ window.process = process;
 window.Buffer = [];
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <DataProvider>
-    <ActiveSectionContextProvider>
-      <AuthProvider>
+  <AuthProvider>
+    <DataProvider>
+      <ActiveSectionContextProvider>
         <SessionProvider>
           <SocketProvider>
             <RealTimeContextProvider>
@@ -38,9 +36,9 @@ root.render(
             </RealTimeContextProvider>
           </SocketProvider>
         </SessionProvider>
-      </AuthProvider>
-    </ActiveSectionContextProvider>
-  </DataProvider>
+      </ActiveSectionContextProvider>
+    </DataProvider>
+  </AuthProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

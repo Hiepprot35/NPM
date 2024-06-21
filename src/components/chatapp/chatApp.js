@@ -10,6 +10,7 @@ import WindowChat from "../message/windowchat";
 import "./chatApp.css";
 import Layout from "../Layout/layout";
 import { useRealTime } from "../../context/useRealTime";
+import { useData } from "../../context/dataContext";
 const ChatApp = ({ messageId }) => {
   document.title = "Message";
   const messageScroll = useRef(null);
@@ -17,8 +18,9 @@ const ChatApp = ({ messageId }) => {
   const { auth } = useAuth();
 
   const [MSSVReceived, setMSSVReceived] = useState();
-  const [conversations, setConversation] = useState([]);
+  const {Conversations}=useData()
   const [currentChat, setCurrentChat] = useState(null);
+  const {setConversationContext}=useData()
   const [userSeenAt, setuserSeenAt] = useState();
   const [clicked, setClicket] = useState(false);
   const [isSeen, setisSeen] = useState(false);
@@ -53,7 +55,6 @@ const ChatApp = ({ messageId }) => {
   const navigate = useNavigate();
 
   const ClickChat = (data) => {
-    setCurrentChat(data);
     navigate(
       `/message/${data.user1 === auth.userID ? data.user2 : data.user1}`,
       { replace: true }
@@ -74,14 +75,7 @@ const ChatApp = ({ messageId }) => {
   }, [socket]);
 
   const [sendMess, setsendMess] = useState(false);
-  useEffect(() => {
-    console.log("getconversation");
-    async function AsyncGetCon() {
-      const convers = await getConversation(auth);
-      setConversation(convers);
-    }
-    AsyncGetCon();
-  }, []);
+
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -112,7 +106,7 @@ const ChatApp = ({ messageId }) => {
   };
   useEffect(() => {
     if (searchTerm) {
-      const result = conversations.filter((conversation) => {
+      const result =Conversations && Conversations.filter((conversation) => {
         return searchTerm?.some(
           (searchItem) =>
             searchItem.UserID === conversation.user1 ||
@@ -123,9 +117,7 @@ const ChatApp = ({ messageId }) => {
     }
   }, [searchTerm]);
   const [CurrentUser, setCurrentUser] = useState();
-  useEffect(() => {
-    console.log(currentChat);
-  }, [currentChat]);
+
   return (
     <>
       {
@@ -138,8 +130,8 @@ const ChatApp = ({ messageId }) => {
                 className="chatMenuInput"
                 onChange={(e) => handleSearch(e)}
               />
-              {conversations.length > 0 ? (
-                conversations.map((c, index) => (
+              {Conversations && Conversations.length > 0 ? (
+                Conversations.map((c, index) => (
                   <div
                     onClick={() => {
                       ClickChat(c);
@@ -156,8 +148,9 @@ const ChatApp = ({ messageId }) => {
                       conversation={c}
                       currentUser={auth.userID}
                       sendMess={sendMess}
+                      setCurrentChat={setCurrentChat}
+
                       currentChat={currentChat?.id === c?.id}
-                      setCurrentUser={setCurrentUser}
                       Online={Onlines}
                       listSeen={isSeen}
                     />
@@ -170,7 +163,7 @@ const ChatApp = ({ messageId }) => {
               )}
             </div>
             <div className="Main_ChatApp  w-screen" style={{height:"93vh"}}>
-              {conversations.length === 0 ? (
+              {Conversations && Conversations.length === 0 ? (
                 <div className="chatbox_res">
                   Kết bạn đi anh bạn{" "}
                   <a href="/home" className="play_in_cheo">
@@ -191,7 +184,7 @@ const ChatApp = ({ messageId }) => {
                             count={{
                               ...currentChat,
                             }}
-                            currentUser={CurrentUser}
+                            setCurrentChat={setCurrentChat}
                             Seen={userSeenAt}
                             chatApp={true}
                             setsendMess={setsendMess}

@@ -12,7 +12,7 @@ import "./nvarbar.css";
 export default function Nvarbar(props) {
   const { session, setSession } = useSession();
   const { socket } = useSocket();
-  const { listWindow, listHiddenBubble } = useData();
+  const { listWindow, listHiddenBubble,ConversationContext } = useData();
   const [Conver, setConver] = useState(listHiddenBubble.concat(listWindow));
   useEffect(() => {
     console.log("ok")
@@ -144,8 +144,8 @@ export default function Nvarbar(props) {
         <MessageMainLayout />
       </motion.div>
       <div className="windowchat_container">
-        {Conver &&
-          Conver.map((e, i) => (
+        {ConversationContext &&
+          ConversationContext.map((e, i) => (
             <Windowchat key={e.id} count={e} index={i} isHidden={false} />
           ))}
       </div>

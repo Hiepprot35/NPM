@@ -48,6 +48,8 @@ import {
   getTime,
 } from "../../../function/getTime";
 import { Image } from "../../home/home";
+import Nvarbar from "../nvarbar/Nvarbar";
+import { getConversation } from "../../conversation/getConversation";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -57,7 +59,7 @@ function Header(props) {
     icon: "",
     country: "",
   });
-  const { setListWindow, setListHiddenBubble, listWindow } = useData();
+  const { setListWindow, setListHiddenBubble, listWindow ,setConversationContext} = useData();
   const Menu_profile_header = useRef();
   const [city, setCity] = useState("hanoi");
   const { auth, setAuth, myInfor } = useAuth();
@@ -123,41 +125,52 @@ function Header(props) {
       user1: user1,
       user2: user2,
     });
+    // const conversations=await getConversation(auth)
     if (conversations.result.length > 0) {
       return conversations.result[0];
     }
   };
 
   useEffect(() => {
-    let isMounted = true;
 
     if (socket && auth?.userID) {
       const handleMessage = async (data) => {
-        if (isMounted && data.sender_id !== auth?.userID) {
-          setListHiddenBubble((prev) => prev.filter((e) => e.id !== data.conversation_id));
-
-          const conversationExists = listWindow.some((item) => item.id === data.conversation_id);
-          let updateList = [...listWindow];
+        if ( data.sender_id !== auth?.userID) {
+          const obj={...data?.conversation}
+          setListHiddenBubble((prev) => prev.filter((e) => e.id !== obj.id));
+          console.log(obj)
+          const conversationExists = listWindow.some((item) => item.id === obj.id);
+          console.log(conversationExists)
           if (!conversationExists) {
-            const conver = await foundConversation(auth?.userID, data.sender_id);
-            updateList = [...updateList, { ...conver }];
+            setListWindow(pre=>[...pre,{id:obj.id}]);
           }
-          setListWindow(updateList);
-          updateTitle(data.nameUser);
-          let audio = new Audio("/notifi.mp3")
-          audio.play()
+          setConversationContext(pre=>{
+            const data=pre.filter(e=>e.id!==obj.id)
+             data.push(obj)
+             return data
+          })
+          updateTitle(obj.user1===auth.userID?obj.user2_mask:obj.user1_mask);
+      
 
         }
+        try
+        {
+  
+          let audio = new Audio("/notifi.mp3")
+          audio.play()
+        }
+        catch{
+          console.log("ok")
+        }
       };
-
+ 
       socket.on('getMessage', handleMessage);
 
       return () => {
-        isMounted = false;
         socket.off('getMessage', handleMessage);
       };
     }
-  }, [socket]);
+  }, [socket,auth]);
   useEffect(() => {
     let isMounted = true;
     const tempApi = async (city) => {
@@ -269,6 +282,9 @@ function Header(props) {
   }, [primaryColor]);
   const [Clock, setClock] = useState();
   useEffect(() => {
+    console.log(auth)
+  }, [auth]);
+  useEffect(() => {
     const intel = setInterval(() => {
       const showTime = new Date();
       const day = showTime.getDate();
@@ -335,7 +351,6 @@ function Header(props) {
                     <NavLink
                       to={element.hash}
                       className="Link"
-                      onClick={() => setChooseHeader(element.name)}
                     >
                       {element.name}
                     </NavLink>
@@ -373,9 +388,9 @@ function Header(props) {
                     >
                       {GenresList &&
                         GenresList.map((e, i) => (
-                          <a
+                          <NavLink
                             key={i}
-                            href={`${process.env.REACT_APP_CLIENT_URL}/films/?id=${e.id}&type=${e.name}`}
+                            to={`${process.env.REACT_APP_CLIENT_URL}/films/?id=${e.id}&type=${e.name}`}
                             style={{ color: "white" }}
                           >
                             <motion.div
@@ -385,7 +400,7 @@ function Header(props) {
                             >
                               {e.name}
                             </motion.div>
-                          </a>
+                          </NavLink>
                         ))}
                     </motion.div>
                   }

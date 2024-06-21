@@ -38,8 +38,14 @@ export default function UserProfile(props) {
   const socket = useSocket();
   const [isLoading, setIsLoading] = useState(false);
   const [Users, setUserInfo] = useState();
-  const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
-    useData();
+  const {
+    listWindow,
+    setListWindow,
+    setListHiddenBubble,
+    listHiddenBubble,
+    setConversationContext,
+    Conversations,
+  } = useData();
   const { auth, myInfor } = useAuth();
   const host = process.env.REACT_APP_DB_HOST;
   const removeElement = (array, index) => {
@@ -107,70 +113,52 @@ export default function UserProfile(props) {
         (e.user1 === data.user1 && e.user2 === data.user2) ||
         (e.user2 === data.user1 && e.user1 === data.user2)
     );
-  
+
     if (index !== -1) {
       const newPre = [...pre];
       newPre[index] = data;
       return newPre;
     }
-  
+
     return pre;
   };
   const handleAddChat = async (id) => {
     try {
-      const conver = {
+      const obj = {
         user1: auth.userID,
         user2: id,
+        user1_mask: myInfor.Name,
+        user2_mask: Users.Name,
+        img: Users.cutImg || Users.img,
         created_at: Date.now(),
-        img: Users?.cutImg || Users?.img,
       };
-
-      const foundIndex = listWindow.findIndex(
-        (e) =>
-          (e.user1 === conver.user1 && e.user2 === conver.user2) ||
-          (e.user2 === conver.user1 && e.user1 === conver.user2)
-      );
-      const inHiddent = listHiddenBubble.find(
-        (e) =>
-          (e.user1 === conver.user1 && e.user2 === conver.user2) ||
-          (e.user2 === conver.user1 && e.user1 === conver.user2)
-      );
-      if (foundIndex === -1 && !inHiddent) {
-        setListWindow((pre) => [...pre, conver]);
-      } else {
-        let updatedList = [...listWindow];
-        if (inHiddent) {
-          setListHiddenBubble((pre) => pre.filter((e) => e !== inHiddent));
-          updatedList.unshift(inHiddent);
-        }
-        if (foundIndex) {
-          const element = updatedList.splice(foundIndex, 1)[0];
-          updatedList.unshift(element);
-        }
-
-        setListWindow(updatedList);
-      }
-
-      const converFound = await foundConversation(id, auth.userID);
-
-      if (!converFound) {
+      const converFound =
+        Conversations &&
+        Conversations.find(
+          (e) =>
+            (e.user1 === auth.userID && e.user2 === Users.UserID) ||
+            (e.user2 === auth.userID && e.user1 === Users.UserID)
+        );
+      console.log(Conversations);
+      console.log(converFound);
+      if (!converFound && Conversations) {
         try {
-          const obj = {
-            user1: auth.userID,
-            user2: id,
-            user2_mask: Users.Name,
-            created_at: Date.now(),
-          };
-          setListWindow((prev) => replaceCover(prev, { ...obj }));
           const data = await AddConver(id);
-          setListWindow((prev) => replaceCover(prev, { ...data }));
+          setListWindow((prev) => {
+            const filteredList = prev.filter((item) => item.id !== data.id);
+            return [{ id: data.id }, ...filteredList];
+          });
+          setConversationContext((prev) => [...prev, { id: data.id, ...obj }]);
         } catch (error) {
           console.log(error);
         }
       } else {
-        setListWindow((prev) =>
-          replaceCover(prev, { ...converFound, ...conver })
-        );
+        setConversationContext((prev) => [
+          ...prev,
+          { ...converFound, img: Users.cutImg || Users.img },
+        ]);
+
+        setListWindow((prev) => [...prev, { id: converFound.id }]);
       }
     } catch (error) {
       console.log(error);
@@ -226,14 +214,13 @@ export default function UserProfile(props) {
         console.error("Error occurred:", error);
       }
     };
-    console.log(props.User)
+    console.log(props.User);
     if (!props.User) {
       getData();
+    } else {
+      setUserInfo(props.User);
     }
-    else{
-      setUserInfo(props.User)
-    }
-  }, [props.MSSV,props.User]);
+  }, [props.MSSV, props.User]);
 
   return (
     <>
@@ -256,7 +243,7 @@ export default function UserProfile(props) {
                     <Popover
                       content={
                         <UserProfile
-                        User={Users}
+                          User={Users}
                           MSSV={Users.MSSV}
                           isHover={true}
                         ></UserProfile>
@@ -288,27 +275,29 @@ export default function UserProfile(props) {
                     </div>
                   </div>
                   <div>
-                    <Button
-                      type="primary"
-                      size="large"
-                      className="sendButton"
-                      onClick={() => {
-                        if (auth.userID) {
-                          handleAddChat(Users.UserID);
-                        } else {
-                          window.open(
-                            `${process.env.REACT_APP_CLIENT_URL}/login`,
-                            "_blank"
-                          );
+                    {Conversations && (
+                      <Button
+                        type="primary"
+                        size="large"
+                        className="sendButton"
+                        onClick={() => {
+                          if (auth.userID) {
+                            handleAddChat(Users.UserID);
+                          } else {
+                            window.open(
+                              `${process.env.REACT_APP_CLIENT_URL}/login`,
+                              "_blank"
+                            );
+                          }
+                        }}
+                        style={{ width: "3rem", margin: ".2rem" }}
+                        icon={
+                          <FiMessageCircle
+                            style={{ stroke: "blue" }}
+                          ></FiMessageCircle>
                         }
-                      }}
-                      style={{ width: "3rem", margin: ".2rem" }}
-                      icon={
-                        <FiMessageCircle
-                          style={{ stroke: "blue" }}
-                        ></FiMessageCircle>
-                      }
-                    ></Button>
+                      ></Button>
+                    )}
                     <Button
                       size="large"
                       style={{ width: "3rem", margin: ".2rem" }}

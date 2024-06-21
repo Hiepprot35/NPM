@@ -12,7 +12,7 @@ export default function VehicleChat(props) {
         <img
           className="avatarImage "
           style={{ width: "40%" }}
-          src={`${props.user?.cutImg || props.user?.img}`}
+          src={`${props.user.img}`}
         ></img>
         <div className="p-3 font-semibold">
           <p className="text-3xl">{props?.mask}</p>

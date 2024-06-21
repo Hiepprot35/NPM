@@ -250,7 +250,7 @@ export default memo(function Message({
               {(student &&
                 parseInt(message?.created_at) ===
                   parseInt(listSeen?.created_at) &&
-                listSeen) ||
+                listSeen.Seen_at) ||
               message.id === listSeen?.id ? (
                 <div className="Seen_field">
                   <img

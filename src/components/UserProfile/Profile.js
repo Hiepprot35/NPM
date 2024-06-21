@@ -180,10 +180,17 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
 
     console.log(disX, "= ", rectCut.left, rectFull.left);
     let disY = YTrans + event.clientY - startY;
-    while (rectCut.top > rectFull.top) {
+    if (rectCut.left > rectFull.left) {
       setDistanceX(disX);
-      setDistanceY(disY);
     }
+    if (rectCut.left === rectFull.left) {
+      setDistanceX(rectFull.left);
+    }
+    if (rectCut.left < rectFull.left && disX < 0) {
+      setDistanceX(disX);
+    }
+    setDistanceY(disY);
+
     // if (startX !== null && startY !== null) {
     //   setDistanceX(disX);
     //   setDistanceY(disY);
@@ -196,7 +203,7 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
     const rectFull = divFullRef.current.getBoundingClientRect();
     const rectCut = divCutRef.current.getBoundingClientRect();
     let disY = YTrans + event.clientY - startY;
-
+   
     setXTrans(disX);
     setYTrans(disY);
     // setDistanceX(0)
@@ -393,7 +400,7 @@ export default function Profile() {
 
   const getData = async (signal, currentRequestVersion) => {
     try {
-      console.log("send res")
+      console.log("send res");
       const data = await getStudentInfoByMSSV(MSSVInput, { signal });
       if (signal.aborted) return;
       if (data) {
@@ -544,6 +551,12 @@ export default function Profile() {
 
   const [ImgContent, setImgContent] = useState();
   const [CurrentImg, setCurrentImg] = useState();
+  const [BackgroundUpdate, setBackgroundUpdate] = useState();
+  const backgroundImg = useRef();
+  const changeBackImg = (e) => {
+    const backgroundImg = URL.createObjectURL(e.target.files[0]);
+    setBackgroundUpdate(backgroundImg);
+  };
   return (
     <Layout>
       {
@@ -553,12 +566,24 @@ export default function Profile() {
         >
           <div
             style={{ height: "50vh" }}
-            className="w-full bg-black shadow91 relative"
+            className="w-full px-32 relative rounded-3xl"
           >
             <img
-              className="object-contain 	"
-              src={`${Users?.backgroundimg}`}
+              style={{ objectPosition: "10px" }}
+              className="object-cover   w-full h-full cursor-move  rounded-xl 	"
+              src={`${BackgroundUpdate || Users?.backgroundimg}`}
             ></img>
+            <input
+              ref={backgroundImg}
+              type="file"
+              hidden
+              onChange={(e) => changeBackImg(e)}
+            ></input>
+            <div className="circleButton absolute left-10 bottom-10">
+              <FiCamera
+                onClick={(e) => backgroundImg.current.click()}
+              ></FiCamera>
+            </div>
           </div>
           <div className="w-full px-32 bg-gray-200 shadow91">
             {

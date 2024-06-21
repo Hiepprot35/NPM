@@ -5,31 +5,42 @@ import useAuth from "../../hook/useAuth";
 import Conversation from "../conversation/conversations";
 import { getConversation } from "../conversation/getConversation";
 import { useRealTime } from "../../context/useRealTime";
-
+import { getInforByUserID } from "../../function/getApi";
+export const findUserConversation=async (conversation,auth)=>
+  {
+    const userConver =
+    conversation?.user1 === auth.userID
+      ? conversation?.user2
+      : conversation?.user1;
+  const myMask =
+    conversation.user1 === auth?.userID
+      ? conversation.user1_mask
+      : conversation.user2_mask;
+  const userMask =
+    conversation.user1 === auth?.userID
+      ? conversation.user2_mask
+      : conversation.user1_mask;
+  const data=await getInforByUserID(userMask)
+    return {userConver:userConver,myMask:myMask,userMask:userMask,username:data.Name,avtUrl:data?.cutImg||data?.img}
+  }
 export default function MessageMainLayout(props) {
   const [onlineUser, setOnlineUser] = useState();
   const socket = useSocket();
   const { auth } = useAuth();
   const [conversations, setConversation] = useState([]);
 
-  const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
+  const { listWindow, setListWindow, setListHiddenBubble, Conversations,ConversationContex} =
     useData();
-  useEffect(() => {
-    async function AsyncGetCon() {
-      const convers = await getConversation(auth);
-      setConversation(convers);
-    }
-    AsyncGetCon();
-  }, []);
+
 
   const onClickConser = (c) => {
     setListWindow((prev) => {
       const newClicked = prev.filter(obj => obj.id !== c);
     
-      if (conversations) {
-        const conversation = conversations.find(e => e?.id === c);
+      if (Conversations) {
+        const conversation = Conversations.find(e => e?.id === c);
         if (conversation) {
-          newClicked.unshift(conversation);
+          newClicked.unshift({id:conversation.id});
         }
       }
     
@@ -48,11 +59,12 @@ export default function MessageMainLayout(props) {
         {!props.isHidden && (
           <>
             <h1> Tin nhắn </h1>
-            {conversations.length>0 && (
+            <div className="h-80 overflow-y-scroll">
+            { (
               <>
-                {conversations.map(
+                {Conversations && Conversations.map(
                   (c, i) =>
-                    c.Friend === 1 && (
+                     (
                       <div
                         key={c.id}
                         className="converrsation_chat center"
@@ -71,6 +83,7 @@ export default function MessageMainLayout(props) {
                 )}
               </>
             )}
+            </div>
           </>
         )}
       </div>

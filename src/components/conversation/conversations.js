@@ -10,6 +10,7 @@ import {
   getStudentInfoByMSSV,
   getUserinfobyID,
 } from "../../function/getApi";
+import { useData } from "../../context/dataContext";
 export const getMess = async (conversation) => {
   try {
     const res = await fetch(
@@ -28,20 +29,16 @@ export default memo(function Conversation({
   Online,
   notSeen_field,
   sendMess,
-  setCurrentUser,
+  setCurrentChat,
   currentChat,
 }) {
+  const { setConversationContext } = useData();
   const [user, setUser] = useState();
   const { auth } = useAuth();
   const socket = useSocket();
   const [updateContent, setUpdateContent] = useState();
   const [NewestMess, setNewestMesst] = useState(conversation);
   const data = [conversation.user1, conversation.user2];
-  useEffect(() => {
-    if (conversation) {
-      console.log(conversation);
-    }
-  }, [conversation]);
 
   const setOnlineUser = data.find((m) => m !== auth.userID);
   const ListusersOnline = (Online && Online.map((item) => item.userId)) || [];
@@ -59,22 +56,19 @@ export default memo(function Conversation({
       ? conversation.user2
       : conversation.user1;
 
-
   useEffect(() => {
     const studentInfo = async () => {
-      const info = await fetchApiRes('getStudentbyUserID',"POST",{UserID:userID});
+      const info = await fetchApiRes("getStudentbyUserID", "POST", {
+        UserID: userID,
+      });
 
       setUser(info);
     };
 
     studentInfo();
   }, [conversation]);
-  useEffect(() => {
-    if (currentChat) {
-      setCurrentUser(user);
-    }
-  }, [currentChat]);
-  const checkMess=(mess)=>{
+
+  const checkMess = (mess) => {
     const data = mess.split("emojiLink");
 
     const processedData = data.map((e) => {
@@ -83,8 +77,8 @@ export default memo(function Conversation({
       }
       return e; // Trả về phần tử gốc nếu không phải là URL cần kiểm tra
     });
-    return processedData.join("")
-  }
+    return processedData.join("");
+  };
   const getNewestMess = async () => {
     const data = await getMess(conversation);
     setNewestMesst(data);
@@ -98,11 +92,33 @@ export default memo(function Conversation({
       }
     }
   }, [sendMess]);
+  const ClickConversationHandle = () => {
+    const obj = {
+      ...conversation,
+      img: user?.cutImg || user?.img,
+      Name: user?.Name,
+      MSSV: user.MSSV,
+    };
+    console.log(obj);
+    if (setCurrentChat) {
+      setCurrentChat({ ...obj });
+    } else {
+      setConversationContext((pre) => {
+        const data = pre.filter((e) => e.id !== obj.id);
+        data.push(obj);
+        return data;
+      });
+    }
+  };
+
   return (
     <>
       {user ? (
         <>
-          <div className="conversation">
+          <div
+            className="conversation"
+            onClick={() => ClickConversationHandle()}
+          >
             <div className="Avatar_status">
               <img
                 src={user?.cutImg ? `${user?.cutImg}` : `${user?.img}`}

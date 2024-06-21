@@ -1,4 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import useAuth from "../hook/useAuth";
+import { getConversation } from "../components/conversation/getConversation";
+import { getInforByUserID } from "../function/getApi";
 
 // Tạo context
 export const DataContext = createContext();
@@ -7,10 +10,16 @@ export const DataContext = createContext();
 export const DataProvider = ({ children }) => {
   const [listWindow, setListWindow] = useState([]);
   const [listHiddenBubble, setListHiddenBubble] = useState([]);
-
-  // Lấy dữ liệu từ localStorage khi component mount
+  const [ConversationContext, setConversationContext] = useState([]);
+  const [Conversations, setConversations] = useState();
+  const { auth } = useAuth();
   useEffect(() => {
-    const storedHiddenBubble = JSON.parse(localStorage.getItem("hiddenCounter"));
+    console.log(ConversationContext);
+  }, [ConversationContext]);
+  useEffect(() => {
+    const storedHiddenBubble = JSON.parse(
+      localStorage.getItem("hiddenCounter")
+    );
     if (storedHiddenBubble) {
       setListHiddenBubble(storedHiddenBubble);
     }
@@ -30,9 +39,49 @@ export const DataProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("hiddenCounter", JSON.stringify(listHiddenBubble));
   }, [listHiddenBubble]);
-
+  useEffect(() => {
+    console.log(auth);
+    if (auth) {
+      const res = async () => {
+        const data = await getConversation(auth);
+        const storedHiddenBubble = JSON.parse(
+          localStorage.getItem("hiddenCounter")
+        );
+        const storedWindow = JSON.parse(localStorage.getItem("counter"));
+        const mergen=[...storedHiddenBubble,...storedWindow];
+        
+        if(mergen.length>0)
+          {
+          const index=data.filter(e=>mergen.some(v=>v.id===e.id))
+           const update= index.map(async(e)=>{
+              let id= e.user1===auth.userID?e.user2:e.user1
+              const hehe=await getInforByUserID(id)
+                return {...e,   img: data?.cutImg || hehe?.img,
+                  Name: hehe?.Name,
+                  MSSV: hehe.MSSV}
+            })
+            const promies=await Promise.all(update)
+            console.log(update)
+            setConversationContext(promies)
+          }
+        setConversations(data);
+      };
+      res();
+    }
+  }, [auth]);
   return (
-    <DataContext.Provider value={{ listWindow, setListWindow, listHiddenBubble, setListHiddenBubble }}>
+    <DataContext.Provider
+      value={{
+        listWindow,
+        setListWindow,
+        listHiddenBubble,
+        setListHiddenBubble,
+        ConversationContext,
+        setConversationContext,
+        Conversations,
+        setConversations,
+      }}
+    >
       {children}
     </DataContext.Provider>
   );

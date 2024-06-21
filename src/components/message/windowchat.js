@@ -20,6 +20,7 @@ import { useSocket } from "../../context/socketContext";
 import {
   TheMovieApi,
   fetchApiRes,
+  getInforByUserID,
   getStudentInfoByMSSV,
   getUserinfobyID,
 } from "../../function/getApi";
@@ -58,13 +59,13 @@ export const fetchVideoTitle = async (videoID) => {
 };
 
 export default memo(function WindowChat(props) {
-  const { auth } = useAuth();
+  const { auth,myInfor } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const socket = useSocket();
   const [inputMess, setInputmess] = useState("");
   const conversation = props?.count;
   const SettingConversation = ({ conversation, user }) => {
-    const { auth ,myInfor} = useAuth();
+    const { auth, myInfor } = useAuth();
     const [OpenMask, setOpenMask] = useState(false);
     const [OpenIcon, setOpenIcon] = useState(false);
     const [host, setHost] = useState();
@@ -119,7 +120,6 @@ export default memo(function WindowChat(props) {
       }
     };
 
-
     useEffect(() => {
       if (!OpenMask) {
         setMask1();
@@ -168,10 +168,10 @@ export default memo(function WindowChat(props) {
           >
             <div className="flex m-2">
               <div className="center">
-                <img className="avatarImage" src={`${host?.img}`}></img>
+                <img className="avatarImage" src={`${myInfor?.cutImg||myInfor?.img}`}></img>
               </div>
               <div className="m-4">
-                <p>{host?.Name}</p>
+                <p>{myInfor?.Name}</p>
                 <input
                   value={mask1}
                   onChange={(e) => setMask1(e.target.value)}
@@ -185,7 +185,7 @@ export default memo(function WindowChat(props) {
             </div>
             <div className="flex m-2">
               <div className="center">
-                <img className="avatarImage" src={`${user?.img}`}></img>
+                <img className="avatarImage" src={`${user?.cutImg||user?.img}`}></img>
               </div>
               <div className="m-4">
                 <p>{user?.Name}</p>
@@ -225,8 +225,13 @@ export default memo(function WindowChat(props) {
       </ul>
     );
   };
-  const { listWindow, setListWindow, setListHiddenBubble, listHiddenBubble } =
-    useData();
+  const {
+    listWindow,
+    setListWindow,
+    setListHiddenBubble,
+    listHiddenBubble,
+    setConversationContext,
+  } = useData();
   const userConver =
     conversation?.user1 === auth.userID
       ? conversation?.user2
@@ -316,14 +321,15 @@ export default memo(function WindowChat(props) {
   const showHiddenConver = (e) => {
     setListWindow((pre) => {
       const data = [...pre];
-      data.push(e);
+      data.push({id:e.id});
       return data;
     });
     closeHiddenWindow(e);
   };
   function hiddenWindowHandle(c) {
-    setListHiddenBubble((pre) => [...pre, c]);
-    closeWindow();
+    setListWindow(listWindow.filter((item) => item.id !== c.id));
+
+    setListHiddenBubble((pre) => [...pre, {id:c.id}]);
   }
   function pick_imageMess(e) {
     const imgMessFile = e.target.files;
@@ -371,7 +377,6 @@ export default memo(function WindowChat(props) {
     // Lắng nghe thông điệp từ các tab khác
     channel.onmessage = (event) => {
       if (event.data.conversation_id === conversation.id) {
-        console.log(event.data)
         setArrivalMessage(event.data);
       }
     };
@@ -381,20 +386,20 @@ export default memo(function WindowChat(props) {
     };
   }, [conversation]);
   useEffect(() => {
-    console.log(arrivalMessage)
+    console.log(arrivalMessage);
   }, [arrivalMessage]);
   const socketSend = async (data) => {
     try {
       if (socket && !isSetting) {
         isSetting = true;
         const mess = {
+          conversation:{...conversation,img:myInfor.avtUrl},
           id: data.id,
           conversation_id: conversation.id,
           sender_id: data.sender_id,
           receiverId: userConver,
           content: data.content,
           isFile: data.isFile,
-          nameUser: myMask,
           created_at: data.created_at,
         };
         // channel.postMessage(mess);
@@ -456,7 +461,6 @@ export default memo(function WindowChat(props) {
           content: viewImg.toString(),
           isFile: 1,
         });
-       
       }
       if (messagesText.length > 0 && emojiText.length === 0) {
         channel.postMessage({
@@ -464,7 +468,6 @@ export default memo(function WindowChat(props) {
           content: messagesText,
           isFile: 0,
         });
-      
       }
       let updatedInputMess;
       if (emojiText.length > 0) {
@@ -539,7 +542,6 @@ export default memo(function WindowChat(props) {
         promises.push(newMessage);
         socketSend(newMessage);
       }
-
     } catch (err) {
       setSending(true);
     } finally {
@@ -564,9 +566,8 @@ export default memo(function WindowChat(props) {
   useEffect(() => {
     async function fetchData() {
 
-      const data = await fetchApiRes('getStudentbyUserID',"POST",{UserID:parseInt(userConver)});
-
-      setUserInfo(data);
+      // const data= await getInforByUserID(userConver)
+      // setUserInfo(data);
     }
     fetchData();
     return () => setUserInfo();
@@ -598,6 +599,7 @@ export default memo(function WindowChat(props) {
   }, [conversation?.id]);
   useEffect(() => {
     setMessages([]);
+    setImgMess([])
     const controller = new AbortController();
     const signal = controller.signal;
     getMessages(signal);
@@ -608,6 +610,9 @@ export default memo(function WindowChat(props) {
   const messagesRef = useRef();
 
   const closeWindow = () => {
+    setConversationContext((pre) =>
+      pre.filter((item) => item.id !== conversation.id)
+    );
     setListWindow(listWindow.filter((item) => item.id !== conversation.id));
   };
   const clickConversation = async (data) => {
@@ -742,7 +747,7 @@ export default memo(function WindowChat(props) {
             props.chatApp) && (
             <div className="flex  h-full">
               <div
-                className={`h-full windowchat ${conversation.id}`}
+                className={`h-full windowchat`}
                 ref={windowchat}
                 style={props.chatApp ? { width: "100%" } : {}}
               >
@@ -762,22 +767,16 @@ export default memo(function WindowChat(props) {
                           className="header_online"
                           // style={{ margin: ".3rem" }}
                         >
-                          <Popover content={<p>{props.currentUser?.Name||userInfor?.Name}</p>}>
+                          <Popover content={<p>{conversation?.Name||userInfor?.Name}</p>}>
                             <div className=" p-2 hover:bg-gray-200 rounded-xl">
                               <div className="Avatar_status">
                                 <NavLink
-                                  to={`${
-                                    process.env.REACT_APP_CLIENT_URL
-                                  }/profile/${
-                                    props.currentUser?.MSSV || userInfor?.MSSV
-                                  }`}
+                                  to={`${process.env.REACT_APP_CLIENT_URL}/profile/${conversation.MSSV||userInfor?.MSSV}`}
                                 >
                                   <Image
                                     className="avatarImage"
                                     alt="Avatar"
                                     src={
-                                      props.currentUser?.cutImg ||
-                                      props.currentUser?.img ||
                                       conversation.img ||
                                       userInfor?.cutImg ||
                                       userInfor?.img
@@ -886,8 +885,7 @@ export default memo(function WindowChat(props) {
                               own={message.sender_id === auth.userID}
                               student={{
                                 img:
-                                  props.currentUser?.cutImg ||
-                                  props.currentUser?.img ||
+                                
                                   conversation?.img ||
                                   userInfor?.cutImg ||
                                   userInfor?.img,
@@ -1072,7 +1070,7 @@ export default memo(function WindowChat(props) {
                   setShowImgMess={setShowImgMess}
                   imgs={ImgMess}
                   current={ShowImgMess}
-                  user={props.currentUser}
+                  user={conversation}
                   mask={userMask}
                 ></VehicleChat>
               )}
@@ -1118,7 +1116,7 @@ export default memo(function WindowChat(props) {
               >
                 <div
                   className="hiddenBubble"
-                  style={{ bottom: `${4.4 + 3.2 * props.index}rem` }}
+                  style={{ bottom: `${4.4 + 3.2 * listHiddenBubble.findIndex(e=>e.id===conversation.id)}rem` }}
                 >
                   <div
                     className="closeButton"
