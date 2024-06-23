@@ -1,5 +1,22 @@
-.PostComponent  .myCommentComponent,.PostComponent .containerComment,.PostComponent .MyReplyComment 
+.PostComponent .myCommentComponent,
+.PostComponent .containerComment,
+.PostComponent .MyReplyComment {
+  width: 100% !important;
+}
 
-
-{width: 100% !important;}
-
+.LoadingModel,
+.LoadingModel button {
+  cursor: wait !important;
+}
+.blurwhiteback {
+  /* background: rgb(255, 255, 255); */
+  background: linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.9663515064228817) 24%,
+    rgba(255, 255, 255, 0.9271358201483718) 40%,
+    rgba(255, 255, 255, 0.8935223747702206) 56%,
+    rgba(255, 255, 255, 0.5966036072632177) 77%,
+    rgba(255, 255, 255, 0) 93%
+  );
+}

@@ -12,15 +12,8 @@ import "./nvarbar.css";
 export default function Nvarbar(props) {
   const { session, setSession } = useSession();
   const { socket } = useSocket();
-  const { listWindow, listHiddenBubble,ConversationContext } = useData();
-  const [Conver, setConver] = useState(listHiddenBubble.concat(listWindow));
-  useEffect(() => {
-    console.log("ok")
-    setConver(listHiddenBubble.concat(listWindow));
-    return()=>{
-      setConver()
-    }
-  }, [listHiddenBubble, listWindow]);
+  const { ConversationContext } = useData();
+
   
   const itemVariants = {
     open: {

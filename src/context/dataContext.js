@@ -12,6 +12,7 @@ export const DataProvider = ({ children }) => {
   const [listHiddenBubble, setListHiddenBubble] = useState([]);
   const [ConversationContext, setConversationContext] = useState([]);
   const [Conversations, setConversations] = useState();
+  const [Users, setUsers] = useState([]);
   const { auth } = useAuth();
   useEffect(() => {
     console.log(ConversationContext);
@@ -48,23 +49,23 @@ export const DataProvider = ({ children }) => {
           localStorage.getItem("hiddenCounter")
         );
         const storedWindow = JSON.parse(localStorage.getItem("counter"));
-        const mergen=[...storedHiddenBubble,...storedWindow];
-        
-        if(mergen.length>0)
-          {
-          const index=data.filter(e=>mergen.some(v=>v.id===e.id))
-           const update= index.map(async(e)=>{
-              let id= e.user1===auth.userID?e.user2:e.user1
-              const hehe=await getInforByUserID(id)
-                return {...e,   img: data?.cutImg || hehe?.img,
-                  Name: hehe?.Name,
-                  MSSV: hehe.MSSV}
-            })
-            const promies=await Promise.all(update)
-            console.log(update)
-            setConversationContext(promies)
-          }
-        setConversations(data);
+        const mergen = [...storedHiddenBubble, ...storedWindow];
+        const update = data.map(async (e) => {
+          let id = e.user1 === auth.userID ? e.user2 : e.user1;
+          const hehe = await getInforByUserID(id);
+          return {
+            ...e,
+            img: data?.cutImg || hehe?.img,
+            Name: hehe?.Name,
+            MSSV: hehe.MSSV,
+          };
+        });
+        const promies = await Promise.all(update);
+        if (mergen.length > 0) {
+          const index = promies.filter((e) => mergen.some((v) => v.id === e.id)); 
+          setConversationContext(index);
+        }
+        setConversations(promies);
       };
       res();
     }
@@ -80,6 +81,8 @@ export const DataProvider = ({ children }) => {
         setConversationContext,
         Conversations,
         setConversations,
+        Users,
+        setUsers,
       }}
     >
       {children}

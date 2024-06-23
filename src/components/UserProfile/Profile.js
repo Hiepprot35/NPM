@@ -8,16 +8,18 @@ import {
   getStudentInfoByMSSV,
   getUserinfobyID,
 } from "../../function/getApi";
-import { FiCamera, FiSave, FiUpload } from "react-icons/fi";
+import { FiCamera, FiDelete, FiMove, FiSave, FiUpload } from "react-icons/fi";
 import { Modal, Popover } from "antd";
 import ReactCrop from "react-image-crop";
 import MyComment from "../home/MyComment";
 import Posts from "./Posts";
 import PhotoPost from "./PhotoPost";
 import { useRealTime } from "../../context/useRealTime";
+import AvatarEditor from "react-avatar-editor";
+import { icon } from "leaflet";
 const ChangeImg = ({ img, MSSV, setUsers }) => {
   const [OpenModal, setOpenModal] = useState(false);
-  const [ImageUpload, setImageUpload] = useState();
+  const [ImageUpload, setImageUpload] = useState(img);
   const [ImageSend, setImageSend] = useState();
   const [imageDimensions, setImageDimensions] = useState();
   const [Scale, setScale] = useState(1);
@@ -29,28 +31,15 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
     setImageUpload(imgLink);
     setImageSend(imgMessFile);
   };
-  useEffect(() => {
-    console.log(ImageSend);
-  }, [ImageSend]);
-  const urlToObject = async (link) => {
-    const response = await fetch(link);
-    const blob = await response.blob();
-    const file = new File([blob], "image.jpg", { type: blob.type });
-  };
   const openHandle = async () => {
     setOpenModal(true);
     setImageUpload(img);
   };
 
   const closeHandle = () => {
-    setDistanceX(0);
-    setDistanceY(0);
     setImageUpload();
     setImageSend();
     setScale(1);
-    setXTrans(0);
-    setYTrans(0);
-    setPosition({});
     setOpenModal(false);
     setImageDimensions({ width: 0, height: 0 });
   };
@@ -73,163 +62,24 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
       }
     };
   }, [ImageUpload]);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
-  const pointRef = useRef();
-  const divRef = useRef();
-  const dragStartHandle = (e) => {
-    const { offsetX, offsetY } = e.nativeEvent;
-    e.dataTransfer.setData("text/plain", JSON.stringify({ offsetX, offsetY }));
-  };
 
-  const dragHandle = (e) => {
-    const { clientX } = e;
-    const rect = divRef.current.getBoundingClientRect();
-    const point = pointRef.current.getBoundingClientRect();
-    let newLeft = clientX - rect.left;
-
-    // Giới hạn phạm vi kéo trong div
-    if (newLeft < 0) newLeft = 0;
-    if (newLeft > rect.width) newLeft = rect.width - point.width;
-    setScale((2 * newLeft + rect.width) / rect.width);
-    setPosition({ left: newLeft });
-  };
-
-  const [Output, setOutput] = useState();
   const cutImageRef = useRef();
-  const canvasRef = useRef(null);
-  const canvasFullRef = useRef(null);
-  const divCutRef = useRef(null);
-  const divFullRef = useRef(null);
-  const [croppedImage, setCroppedImage] = useState(null);
-  // useEffect(() => {
-  //   if(img)
-  // }, [img]);
-  const cropImage = async () => {
-    const imgCanvas = new Image();
-
-    imgCanvas.crossOrigin = "anonymous";
-
-    imgCanvas.src = ImageUpload || img;
-
-    await new Promise((resolve, reject) => {
-      imgCanvas.onload = () => {
-        resolve(); // Khi hình ảnh được tải hoàn tất, resolve promise
-      };
-
-      imgCanvas.onerror = (error) => {
-        reject(new Error("Failed to load image")); // Nếu xảy ra lỗi, reject promise với thông báo lỗi
-      };
-    });
-
-    const rectCut = divCutRef.current.getBoundingClientRect();
-    const rectFull = divFullRef.current.getBoundingClientRect();
-
-    const zoomX = imgCanvas.width / rectFull.width;
-    const zoomY = imgCanvas.height / rectFull.height;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    const offsetX = rectCut.left - rectFull.left;
-    const offsetY = rectCut.top - rectFull.top;
-    const scaledWidth = rectCut.width * zoomX;
-    const scaledHeight = rectCut.height * zoomY;
-
-    canvas.width = 300;
-    canvas.height = 300;
-
-    ctx.drawImage(
-      imgCanvas,
-      offsetX * zoomX,
-      offsetY * zoomY,
-      scaledWidth,
-      scaledHeight,
-      0,
-      0,
-      300,
-      300
-    );
-
-    const dataUrl = canvas.toDataURL("image/png");
-    const blobBin = atob(dataUrl.split(",")[1]);
-    let array = [];
-    for (let i = 0; i < blobBin.length; i++) {
-      array.push(blobBin.charCodeAt(i));
-    }
-    const file = new Blob([new Uint8Array(array)], { type: "image/png" });
-    return { fileBuffer: file, view: dataUrl };
-  };
-
-  const [startX, setStartX] = useState(0);
-  const [startY, setStartY] = useState(0);
-  const [distanceX, setDistanceX] = useState(0);
-  const [distanceY, setDistanceY] = useState(0);
-  const [XTrans, setXTrans] = useState(0);
-  const [YTrans, setYTrans] = useState(0);
-  const handleMouseDown = (event) => {
-    setStartX(event.clientX);
-    setStartY(event.clientY);
-  };
-
-  const handleMouseMove = (event) => {
-    event.preventDefault();
-
-    let disX = XTrans + event.clientX - startX;
-    const rectFull = divFullRef.current.getBoundingClientRect();
-    const rectCut = divCutRef.current.getBoundingClientRect();
-
-    console.log(disX, "= ", rectCut.left, rectFull.left);
-    let disY = YTrans + event.clientY - startY;
-    if (rectCut.left > rectFull.left) {
-      setDistanceX(disX);
-    }
-    if (rectCut.left === rectFull.left) {
-      setDistanceX(rectFull.left);
-    }
-    if (rectCut.left < rectFull.left && disX < 0) {
-      setDistanceX(disX);
-    }
-    setDistanceY(disY);
-
-    // if (startX !== null && startY !== null) {
-    //   setDistanceX(disX);
-    //   setDistanceY(disY);
-    // }
-  };
-
-  const handleMouseUp = (event) => {
-    event.preventDefault();
-    let disX = XTrans + event.clientX - startX;
-    const rectFull = divFullRef.current.getBoundingClientRect();
-    const rectCut = divCutRef.current.getBoundingClientRect();
-    let disY = YTrans + event.clientY - startY;
-   
-    setXTrans(disX);
-    setYTrans(disY);
-    // setDistanceX(0)
-    // setDistanceY(0)
-  };
-
-  const style =
-    imageDimensions && imageDimensions.width >= imageDimensions.height
-      ? {
-          height: "300px",
-          width: "auto",
-          transform: `translate(${distanceX}px, ${distanceY}px) scale(${Scale})`,
-        }
-      : {
-          width: "300px",
-          height: "auto",
-          transform: `translate(${distanceX}px, ${distanceY}px) scale(${Scale})`,
-        };
+  const [Loading, setLoading] = useState(false);
 
   const updateAvatar = async () => {
-    const data = await cropImage();
+    // const data = await cropImage();
+    setLoading(true);
+    let imgCropped, imageURL;
+    if (cutImageRef.current) {
+      const canvas = await fetch(cutImageRef.current.getImage().toDataURL());
+      imgCropped = await canvas.blob();
+      imageURL = window.URL.createObjectURL(imgCropped);
+    }
     const img = new FormData();
     if (ImageSend) {
       img.append("images", ImageSend);
     }
-    img.append("images", data.fileBuffer);
+    img.append("images", imgCropped);
     img.append("MSSV", MSSV);
     const obj = { img: ImageUpload, MSSV: MSSV };
     try {
@@ -238,9 +88,12 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
         { method: "POST", body: img }
       );
       closeHandle();
-      setAuth((pre) => ({ ...pre, avtUrl: data.view }));
-      setUsers((pre) => ({ ...pre, cutImg: data.view }));
+      setAuth((pre) => ({ ...pre, avtUrl: imageURL }));
+      setUsers((pre) => ({ ...pre, cutImg: imageURL }));
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
+
       console.log(error);
     }
   };
@@ -254,14 +107,17 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
       </span>
 
       <Modal
-        onOk={updateAvatar}
+        onOk={!Loading ? updateAvatar : null}
+        okText={!Loading ? "Save" : ` Saving`}
+        loading={Loading}
+        className={`${Loading ? "LoadingModel" : ""}`}
         width={1000}
         destroyOnClose
         title={
           <p className="center text-3xl font-semibold">Thay đổi ảnh đại diện</p>
         }
         open={OpenModal}
-        onCancel={closeHandle}
+        onCancel={!Loading ? closeHandle : null}
       >
         <div className="w-full h-auto center flex-col ">
           <div className="m-4 z-20">
@@ -279,95 +135,25 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
             />
           </div>
           <div
-            className="center  relative overflow-hidden"
+            className="center  relative "
             style={
               imageDimensions &&
               imageDimensions?.width >= imageDimensions.height
-                ? { height: "500px", width: "100%" }
-                : { width: "100%", height: "500px" }
+                ? { height: "300px", width: "800px" }
+                : { width: "800px", height: "300px" }
             }
           >
-            <div className="w-full h-full center">
-              <div
-                className=" z-10"
-                style={{
-                  width: "300px",
-                  height: "300px",
-                }}
-              >
-                <div
-                  className=" overflow-hidden center relative cursor-move rounded-full z-20"
-                  draggable
-                  onDragStart={handleMouseDown}
-                  onDrag={handleMouseMove}
-                  onDragEnd={handleMouseUp}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                  }}
-                  ref={divCutRef}
-                  style={{
-                    height: "300px",
-                    width: "300px",
-                    borderRadius: "50%",
-                  }}
-                >
-                  <div
-                    className="relative center"
-                    style={
-                      imageDimensions &&
-                      imageDimensions?.width >= imageDimensions.height
-                        ? { height: "300px", width: "700px" }
-                        : { width: "300px", height: "700px" }
-                    }
-                  >
-                    <div className="relative center" style={style}>
-                      <img
-                        className="object-fill  h-full "
-                        ref={cutImageRef}
-                        src={ImageUpload}
-                        alt="Uploaded"
-                        style={
-                          imageDimensions &&
-                          imageDimensions?.width >= imageDimensions.height
-                            ? { height: "100%", maxWidth: "none" }
-                            : { width: "100%", maxWidth: "none" }
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="center absolute  cursor-move w-full h-full inset-0  "
-                  draggable
-                  onDragStart={handleMouseDown}
-                  onDrag={handleMouseMove}
-                  onDragEnd={handleMouseUp}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                  }}
-                >
-                  <div
-                    className=""
-                    style={{
-                      ...style,
-                    }}
-                  >
-                    <img
-                      className="= object-fill opacity-30 "
-                      src={ImageUpload}
-                      ref={divFullRef}
-                      style={
-                        imageDimensions &&
-                        imageDimensions?.width >= imageDimensions.height
-                          ? { height: "100%", maxWidth: "none" }
-                          : { width: "100%", maxWidth: "none" }
-                      }
-                      alt="Uploaded"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <AvatarEditor
+              ref={cutImageRef}
+              image={`${ImageUpload}`}
+              crossOrigin="anonymous"
+              borderRadius={100}
+              border={30}
+              className="object-contain w-full h-full"
+              color={[255, 255, 255, 0.6]} // RGBA
+              scale={Scale}
+              rotate={0}
+            />
           </div>
           <input
             className=""
@@ -380,8 +166,8 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
             onChange={(e) => setScale(e.target.value)}
           ></input>
 
-          <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
-          <canvas ref={canvasFullRef} style={{ display: "none" }}></canvas>
+          {/* <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
+          <canvas ref={canvasFullRef} style={{ display: "none" }}></canvas> */}
         </div>
       </Modal>
     </>
@@ -404,6 +190,7 @@ export default function Profile() {
       const data = await getStudentInfoByMSSV(MSSVInput, { signal });
       if (signal.aborted) return;
       if (data) {
+        document.title = data?.Name + " | Profile";
         setUserInfo(data);
       }
     } catch (error) {
@@ -493,6 +280,7 @@ export default function Profile() {
 
       getUserFriend();
     }
+    console.log(Users);
     return () => setFriend();
   }, [Users]);
   useEffect(() => {
@@ -536,12 +324,15 @@ export default function Profile() {
       }
     } catch (error) {}
   }
+  const [imageHeight, setImageHeight] = useState(0);
+
   const { Online } = useRealTime();
   useEffect(() => {
     if (ChangeIntroduce && introduceRef.current) {
       introduceRef.current.focus();
     }
   }, [ChangeIntroduce]);
+  const dragBackRef = useRef();
   useEffect(() => {
     if (Users?.UserID) {
       setIntroduceInput(Users.introduce);
@@ -555,40 +346,234 @@ export default function Profile() {
   const backgroundImg = useRef();
   const changeBackImg = (e) => {
     const backgroundImg = URL.createObjectURL(e.target.files[0]);
-    setBackgroundUpdate(backgroundImg);
+    setBackgroundUpdate({ view: backgroundImg, src: e.target.files[0] });
+  };
+  const containerBackRef = useRef();
+  const [startY, setStartY] = useState();
+  const [isDragging, setIsDragging] = useState(false);
+
+  const dragStartHandle = (e) => {
+    e.preventDefault();
+    setStartY(e.clientY);
+    setIsDragging(true);
+  };
+
+
+  // Usage example:
+
+  // Usage example:
+  const [cursor, setCursor] = useState();
+  const dragBackHandle = (e) => {
+    if (isDragging && dragBackRef.current && containerBackRef.current) {
+      console.log("ok");
+      const ref = dragBackRef.current;
+      const container = containerBackRef.current;
+      const clientY = e.clientY;
+      const offsetY = clientY - startY;
+      const newTop = ref.offsetTop + offsetY;
+      // Calculate the maximum top value
+      const maxTop = container.clientHeight - ref.clientHeight;
+      let finaltop;
+      // Set the new top value with boundaries
+      if (newTop > 0) {
+        finaltop = 0;
+        ref.style.top = "0px";
+      } else if (newTop < maxTop) {
+        finaltop = maxTop;
+        ref.style.top = `${maxTop}px`;
+      } else {
+        finaltop = newTop;
+        ref.style.top = `${newTop}px`;
+      }
+      console.log(finaltop / ref.height);
+      setStartY(clientY); // Up
+    }
+  };
+
+  const dragEndHandle = (e) => {
+    setIsDragging(false);
+  };
+  const saveMovingHandle=async()=>
+    {
+      if (containerBackRef.current && dragBackRef.current) {
+        const full = containerBackRef.current.getBoundingClientRect();
+        const cut = dragBackRef.current.getBoundingClientRect();
+        const tinhtoan = (-cut.top + full.top) / cut.height;
+        const update=Users.backgroundimg.split("%hiep%")[0]+"%hiep%"+tinhtoan
+        setUserInfo(pre=>({...pre,backgroundimg:update}))  
+        setMovingSetting(false)
+      const res=await fetchApiRes('UpdateUserID',"POST",{backgroundimg:update,MSSV:Users?.MSSV})
+    }    
+    }
+  const saveBackHandle = async () => {
+    if (containerBackRef.current && dragBackRef.current) {
+      try {
+        setIsLoading(true)
+        const full = containerBackRef.current.getBoundingClientRect();
+        const cut = dragBackRef.current.getBoundingClientRect();
+        const persent = full.height / cut.height;
+        const tinhtoan = (-cut.top + full.top) / cut.height;
+        const img = new FormData();
+        if (BackgroundUpdate) {
+          img.append("images", BackgroundUpdate.src);
+          img.append("back", 1);
+          img.append("top", tinhtoan);
+          img.append("MSSV", Users?.MSSV);
+        }
+        setUserInfo(pre=>({...pre,backgroundimg:`${BackgroundUpdate.view+"%hiep%"+ tinhtoan}`}))
+        setBackgroundUpdate()
+        const res = await fetch(
+          `${process.env.REACT_APP_DB_HOST}/api/UpdateUserID/`,
+          {
+            method: "POST",
+
+            body: img,
+          }
+        );
+        setIsLoading(false)
+      } catch (error) {
+        console.log(error);
+        setIsLoading(false)
+
+      }
+    }
+  };
+  const backChange = (e) => {
+    if (backgroundImg.current) {
+      setMovingSetting(false);
+      backgroundImg.current.click();
+    }
+  };
+  const [MovingSetting, setMovingSetting] = useState(false);
+  const MovingHandle = () => {
+    setMovingSetting(true);
+  };
+  const handleChange = [
+    { text: ` Moving`, icon: <FiMove />, click: MovingHandle },
+    { text: ` Change`, icon: <FiUpload />, click: backChange },
+    { text: ` Delete`, icon: <FiDelete />, click: MovingHandle },
+  ];
+  const Setting = BackgroundUpdate || MovingSetting;
+  const backGroundHandle = (data) => {
+    return (
+      <button
+        className="flex px-4 rounded-xl items-center hover:bg-gray-200"
+        onClick={data.click}
+      >
+        {data.icon}
+        <p className="p-4">{data.text}</p>
+      </button>
+    );
   };
   return (
     <Layout>
       {
         <div
           className="center content flex-col"
-          style={commentID && { opacity: 0 }}
+          
+          style={commentID ? { opacity: 0}:{cursor:`${cursor}`} }
         >
           <div
-            style={{ height: "50vh" }}
-            className="w-full px-32 relative rounded-3xl"
+            style={{
+            cursor:cursor,
+              width: "100%",
+              height: "60vh",
+              backgroundImage: `url(${
+                BackgroundUpdate?.view || Users?.backgroundimg
+              })`,
+            }}
+            ref={containerBackRef}
+            onMouseDown={Setting ? dragStartHandle : null}
+            onMouseMove={Setting ? dragBackHandle : null}
+            onMouseUp={Setting ? dragEndHandle : null}
+            onMouseLeave={dragEndHandle}
+            
+            className={`relative overflow-hidden  bg-cover ${
+              Setting && "cursor-move"
+            }	`}
           >
-            <img
-              style={{ objectPosition: "10px" }}
-              className="object-cover   w-full h-full cursor-move  rounded-xl 	"
-              src={`${BackgroundUpdate || Users?.backgroundimg}`}
-            ></img>
+            <div className="w-full h-full absolute inset-0 backdrop-blur-xl  bg-white/30 z-0"></div>
+            <div className="w-full h-1/2 absolute bottom-0 blurwhiteback"></div>
+            <div className="w-full h-full center relative">
+              <div
+                className="h-full center relative overflow-hidden  rounded-b-lg "
+                style={{ width: "80%" }}
+              >
+                <div className="absolute right-10 bottom-20 z-10 rounded-b-lg">
+                  {BackgroundUpdate && (
+                    <>
+                      <span className="circleButton" onClick={saveBackHandle}>
+                        <FiSave />
+                      </span>
+                      <span
+                        className="circleButton"
+                        onClick={() => setBackgroundUpdate()}
+                      >
+                        X
+                      </span>
+                    </>
+                  )}
+                  {MovingSetting && (
+                    <span className="circleButton" onClick={saveMovingHandle}>
+                      <FiSave />
+                    </span>
+                  )}
+                </div>
+                <Popover
+                  trigger={"click"}
+                  content={
+                    <div className="">
+                      {handleChange.map((e) => backGroundHandle(e))}
+                    </div>
+                  }
+                >
+                 
+                  <div className="p-2 bg-white center z-10 rounded cursor-pointer shadow-md absolute right-10 bottom-10 hover:bg-gray-200">
+                    <FiCamera />
+                    <p className="px-2">Change Background Image</p>
+                  </div>
+                </Popover>
+                {isLoading &&
+                  <div className=" center w-full h-full absolute inset-0 z-50 bg-white-500/50">
+                  <p className="text-4xl">Uploading . . . . </p>
+                  </div>
+                  }
+                {Users?.backgroundimg ? (
+                  <img
+                    alt="background"
+                    ref={dragBackRef}
+                    style={
+                      Setting
+                        ? {}
+                        : {
+                            top: 0,
+                            transform: `translateY(${
+                              -Users?.backgroundimg.split("%hiep%")[1] * 100
+                            }%)`,
+                          }
+                    }
+                    className="object-cover w-full absolute z-1"
+                    src={`${
+                      BackgroundUpdate?.view ||
+                      Users?.backgroundimg.split("%hiep%")[0]
+                    }`}
+                  ></img>
+                ) : (
+                  <div className="w-full h-full bg-black"></div>
+                )}
+              </div>
+            </div>
             <input
               ref={backgroundImg}
               type="file"
               hidden
               onChange={(e) => changeBackImg(e)}
             ></input>
-            <div className="circleButton absolute left-10 bottom-10">
-              <FiCamera
-                onClick={(e) => backgroundImg.current.click()}
-              ></FiCamera>
-            </div>
           </div>
-          <div className="w-full px-32 bg-gray-200 shadow91">
+          <div className="w-full bg-gray-200 ">
             {
               <>
-                <div className="flex">
+                <div className="flex  px-52 pb-16 mb-8 bg-white ">
                   <div style={{ marginTop: "-3rem" }}>
                     <div className="flex">
                       <div className="relative">
@@ -608,11 +593,13 @@ export default function Profile() {
                             ></img>
                           )}
                         </div>
-                        <ChangeImg
-                          img={`${Users?.img}`}
-                          MSSV={Users?.MSSV}
-                          setUsers={setUserInfo}
-                        ></ChangeImg>
+                        {parseInt(auth?.username) === Users?.MSSV && (
+                          <ChangeImg
+                            img={`${Users?.img}`}
+                            MSSV={Users?.MSSV}
+                            setUsers={setUserInfo}
+                          ></ChangeImg>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -621,9 +608,9 @@ export default function Profile() {
                     <p>Bạn bè {friends?.length}</p>
                   </div>
                 </div>
-                <div className="w-full flex">
+                <div className="w-full flex px-52 ">
                   <div className="h-screen " style={{ width: "40%" }}>
-                    <div className="p-16 bg-white rounded-xl my-8 shadow-md">
+                    <div className="p-16 bg-white rounded-xl mb-8 ">
                       <p className="font-bold text-3xl">Giới thiệu</p>
 
                       {!ChangeIntroduce && !isLoading && (
@@ -677,7 +664,7 @@ export default function Profile() {
 
                       <p>Tham gia vào {Users?.create_at}</p>
                     </div>
-                    <div className="p-8 bg-white rounded-xl my-8 shadow-md">
+                    <div className="p-8 bg-white rounded-xl my-8">
                       <p className="font-bold text-3xl">Ảnh</p>
                       <div className="grid grid-cols-3 gap-2">
                         {ImgContent ? (
@@ -708,14 +695,20 @@ export default function Profile() {
                       <div className="grid grid-cols-3 gap-3	">
                         {friends ? (
                           friends.map((e) => (
-                            <div className="flex-col w-full center">
-                              <img
-                                className="rounded-xl w-full  "
-                                style={{ aspectRatio: 1 }}
-                                src={`${e.cutImg || e.img}`}
-                              ></img>
-                              <p className="font-semibold">{e.Name}</p>
-                            </div>
+                            <Popover content={<UserProfile User={e} />}>
+                              <NavLink
+                                to={`${process.env.REACT_APP_CLIENT_URL}/profile/${e.MSSV}`}
+                              >
+                                <div className="flex-col w-full center">
+                                  <img
+                                    className="rounded-xl w-full  "
+                                    style={{ aspectRatio: 1 }}
+                                    src={`${e.cutImg || e.img}`}
+                                  ></img>
+                                  <p className="font-semibold">{e.Name}</p>
+                                </div>
+                              </NavLink>
+                            </Popover>
                           ))
                         ) : (
                           <div className="loader"></div>

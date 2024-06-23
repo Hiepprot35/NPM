@@ -33,7 +33,7 @@ export default memo(function Conversation({
   currentChat,
 }) {
   const { setConversationContext } = useData();
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(conversation);
   const { auth } = useAuth();
   const socket = useSocket();
   const [updateContent, setUpdateContent] = useState();
@@ -56,17 +56,17 @@ export default memo(function Conversation({
       ? conversation.user2
       : conversation.user1;
 
-  useEffect(() => {
-    const studentInfo = async () => {
-      const info = await fetchApiRes("getStudentbyUserID", "POST", {
-        UserID: userID,
-      });
+  // useEffect(() => {
+  //   const studentInfo = async () => {
+  //     const info = await fetchApiRes("getStudentbyUserID", "POST", {
+  //       UserID: userID,
+  //     });
 
-      setUser(info);
-    };
+  //     setUser(info);
+  //   };
 
-    studentInfo();
-  }, [conversation]);
+  //   studentInfo();
+  // }, [conversation]);
 
   const checkMess = (mess) => {
     const data = mess.split("emojiLink");

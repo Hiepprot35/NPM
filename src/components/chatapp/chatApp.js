@@ -18,9 +18,8 @@ const ChatApp = ({ messageId }) => {
   const { auth } = useAuth();
 
   const [MSSVReceived, setMSSVReceived] = useState();
-  const {Conversations}=useData()
+  const {Conversations,ConversationContext}=useData()
   const [currentChat, setCurrentChat] = useState(null);
-  const {setConversationContext}=useData()
   const [userSeenAt, setuserSeenAt] = useState();
   const [clicked, setClicket] = useState(false);
   const [isSeen, setisSeen] = useState(false);

@@ -95,25 +95,25 @@ export default function PhotoPost({ CurrentImg, commentID, UsersProfile }) {
     };
     const res = await fetchApiRes("insertLike", "PUT", obj);
   };
-  useEffect(() => {
-    const getPost = async () => {
-      const data = await fetchApiRes(`getAllCommentPost/?id=${commentID}`);
-      const users = await getStudentInfoByMSSV(data.result[0].userID);
-      setUsers(users);
-      const comment = data.result[0].content.split("imgSplitLink");
-      setComment({
-        content: comment[0],
-        img: comment[1],
-        create_at: data.result[0].create_at,
-      });
-    };
-    if (!CurrentImg) {
-      getPost();
-    }
-    return () => {
-      setComment();
-    };
-  }, [commentID]);
+  // useEffect(() => {
+  //   const getPost = async () => {
+  //     const data = await fetchApiRes(`getAllCommentPost/?id=${commentID}`);
+  //     const users = await getStudentInfoByMSSV(data.result[0].userID);
+  //     setUsers(users);
+  //     const comment = data.result[0].content.split("imgSplitLink");
+  //     setComment({
+  //       content: comment[0],
+  //       img: comment[1],
+  //       create_at: data.result[0].create_at,
+  //     });
+  //   };
+  //   if (!CurrentImg) {
+  //     getPost();
+  //   }
+  //   return () => {
+  //     setComment();
+  //   };
+  // }, [commentID]);
   return (
     <div className="w-screen h-screen flex fixed inset-0 center">
       <div className="h-full" style={{ width: "70%" }}>
