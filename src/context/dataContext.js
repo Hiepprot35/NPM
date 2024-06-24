@@ -55,7 +55,7 @@ export const DataProvider = ({ children }) => {
           const hehe = await getInforByUserID(id);
           return {
             ...e,
-            img: data?.cutImg || hehe?.img,
+            img: hehe?.cutImg || hehe?.img,
             Name: hehe?.Name,
             MSSV: hehe.MSSV,
           };
@@ -68,6 +68,10 @@ export const DataProvider = ({ children }) => {
         setConversations(promies);
       };
       res();
+    }
+    else{
+      setConversationContext([])
+      setConversations([])
     }
   }, [auth]);
   return (

@@ -39,11 +39,11 @@ export default function UserProfile(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [Users, setUserInfo] = useState();
   const {
-    listWindow,
     setListWindow,
     setListHiddenBubble,
-    listHiddenBubble,
+    setConversations,
     setConversationContext,
+    ConversationContext,
     Conversations,
   } = useData();
   const { auth, myInfor } = useAuth();
@@ -74,11 +74,16 @@ export default function UserProfile(props) {
       console.log(error);
     }
   };
-
+  const [Cursor, setCursor] = useState();
   const sendRequestFriend = async (id) => {
-    const converFound = await foundConversation(id, auth.userID);
+    // const converFound = await foundConversation(id, auth.userID);
+    const converFound = ConversationContext.find(
+      (e) => e.user1 === id || e.user2 === id
+    );
     if (!converFound) {
+      setCursor("wait");
       await AddConver(id, true);
+      setCursor("");
     } else {
       const user1_mask =
         converFound.user1 === auth.userID
@@ -132,32 +137,31 @@ export default function UserProfile(props) {
         img: Users.cutImg || Users.img,
         created_at: Date.now(),
       };
-      const converFound =
-        Conversations &&
-        Conversations.find(
-          (e) =>
-            (e.user1 === auth.userID && e.user2 === Users.UserID) ||
-            (e.user2 === auth.userID && e.user1 === Users.UserID)
-        );
-      console.log(Conversations);
-      console.log(converFound);
-      if (!converFound && Conversations) {
+      const converFound = Conversations.find(
+        (e) => e?.user1 === id || e?.user2 === id
+      );
+
+      if (!converFound) {
         try {
           const data = await AddConver(id);
+          const newConver={ id: data.id, ...obj }
           setListWindow((prev) => {
-            const filteredList = prev.filter((item) => item.id !== data.id);
-            return [{ id: data.id }, ...filteredList];
+            return [{ id: data.id }, ...prev];
           });
-          setConversationContext((prev) => [...prev, { id: data.id, ...obj }]);
+          setConversations((prev) => {
+            return [newConver, ...prev];
+          });
+          
+          setConversationContext((prev) => [newConver,...prev]);
         } catch (error) {
           console.log(error);
         }
       } else {
         setConversationContext((prev) => [
-          ...prev,
           { ...converFound, img: Users.cutImg || Users.img },
+          ...prev.filter((e) => e.id !== converFound.id),
         ]);
-
+        setListHiddenBubble(pre=>[...pre.filter(e=>e.id!==converFound.id)])
         setListWindow((prev) => [...prev, { id: converFound.id }]);
       }
     } catch (error) {
@@ -227,7 +231,7 @@ export default function UserProfile(props) {
       {isLoading ? (
         <IsLoading></IsLoading>
       ) : (
-        <div className="UserProfile" style={{ width: "100%" }}>
+        <div className="UserProfile" style={{ width: "100%", cursor: Cursor }}>
           <div className="">
             {Users && (
               <div>

@@ -240,7 +240,6 @@ hr {
 }
 .ActiveLink a {
   color: rgb(177, 241, 232);
-  font-family: "'ttcommons', sans-serif";
   /* background-color: rgba(158, 154, 154, 0.682); */
 }
 .show_menu_profile {

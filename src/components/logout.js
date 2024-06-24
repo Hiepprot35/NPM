@@ -27,6 +27,8 @@ export const LogOut = () => {
         }
       );
     } catch (error) {}
+    window.location.reload(true);
+
   };
   
   return (

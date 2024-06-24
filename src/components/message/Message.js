@@ -19,7 +19,6 @@ export default memo(function Message({
   listSeen,
   messages,
   userID,
-  setImgMess,
   setShowImgMess,
   updateMess,
 }) {
@@ -247,11 +246,11 @@ export default memo(function Message({
                 )}
               </div>
 
-              {(student &&
+              {(student && listSeen&&
                 parseInt(message?.created_at) ===
                   parseInt(listSeen?.created_at) &&
-                listSeen.Seen_at) ||
-              message.id === listSeen?.id ? (
+                listSeen?.Seen_at) ||
+              parseInt(message.id) === parseInt(listSeen?.id) ? (
                 <div className="Seen_field">
                   <img
                     className="avatarImage"

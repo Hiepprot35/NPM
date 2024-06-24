@@ -11,7 +11,7 @@ html {
     overflow-x: hidden;
   --themeColor: white;
   --textColor: black;
-  --widthContentHome: 85vw;
+  --widthContentHome: 75vw;
   --opacityShow: 1;
   --icon_size: 1.5rem;
   --backgroundTextColor: rgba(34, 33, 33, 0.564);
@@ -71,6 +71,7 @@ span {
 .linear {
 }
 .leftHome {
+  
   transition: 500ms ease-out;
   padding-top: 7vh;
 }
@@ -438,24 +439,29 @@ Generic layout (demo looks)
   height: 100%;
 }
 
-/* ::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: .7rem; 
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
+  background-color: #f1f1f100;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #4c4b4b; 
+  cursor: pointer;
+  background-color: #9c9696; 
   border-radius: 5px;
-} */
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #8f8c8c95; 
+  border-radius: 5px;
+}
 svg {
   stroke: var(--textColor);
 }
 .hiddenNvaBar {
   position: fixed;
-  right: 15vw;
+  right:20vw;
   margin: 0;
   top: 7vh;
   z-index: 99;

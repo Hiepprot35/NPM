@@ -538,7 +538,7 @@ export default function Profile() {
                   <p className="text-4xl">Uploading . . . . </p>
                   </div>
                   }
-                {Users?.backgroundimg ? (
+                {Users?.backgroundimg ||BackgroundUpdate ? (
                   <img
                     alt="background"
                     ref={dragBackRef}
@@ -552,7 +552,7 @@ export default function Profile() {
                             }%)`,
                           }
                     }
-                    className="object-cover w-full absolute z-1"
+                    className="object-fill w-full absolute z-1"
                     src={`${
                       BackgroundUpdate?.view ||
                       Users?.backgroundimg.split("%hiep%")[0]

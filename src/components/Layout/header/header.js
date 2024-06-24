@@ -50,6 +50,7 @@ import {
 import { Image } from "../../home/home";
 import Nvarbar from "../nvarbar/Nvarbar";
 import { getConversation } from "../../conversation/getConversation";
+import Conversation from "../../conversation/conversations";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -59,7 +60,13 @@ function Header(props) {
     icon: "",
     country: "",
   });
-  const { setListWindow, setListHiddenBubble, listWindow ,setConversationContext} = useData();
+  const {
+    setListWindow,
+    setListHiddenBubble,
+    listWindow,
+    setConversationContext,
+    Conversations,
+  } = useData();
   const Menu_profile_header = useRef();
   const [city, setCity] = useState("hanoi");
   const { auth, setAuth, myInfor } = useAuth();
@@ -132,45 +139,43 @@ function Header(props) {
   };
 
   useEffect(() => {
-
     if (socket && auth?.userID) {
       const handleMessage = async (data) => {
-        if ( data.sender_id !== auth?.userID) {
-          const obj={...data?.conversation}
+        if (data.sender_id !== auth?.userID) {
+          const obj = { ...data?.conversation };
           setListHiddenBubble((prev) => prev.filter((e) => e.id !== obj.id));
-          console.log(obj)
-          const conversationExists = listWindow.some((item) => item.id === obj.id);
-          console.log(conversationExists)
+          console.log(obj);
+          const conversationExists = listWindow.some(
+            (item) => item.id === obj.id
+          );
+          console.log(conversationExists);
           if (!conversationExists) {
-            setListWindow(pre=>[...pre,{id:obj.id}]);
+            setListWindow((pre) => [...pre, { id: obj.id }]);
           }
-          setConversationContext(pre=>{
-            const data=pre.filter(e=>e.id!==obj.id)
-             data.push(obj)
-             return data
-          })
-          updateTitle(obj.user1===auth.userID?obj.user2_mask:obj.user1_mask);
-      
-
+          setConversationContext((pre) => {
+            const data = pre.filter((e) => e.id !== obj.id);
+            data.push(obj);
+            return data;
+          });
+          updateTitle(
+            obj.user1 === auth.userID ? obj.user2_mask : obj.user1_mask
+          );
         }
-        try
-        {
-  
-          let audio = new Audio("/notifi.mp3")
-          audio.play()
-        }
-        catch{
-          console.log("ok")
+        try {
+          const audio = new Audio("/notifi.mp3");
+          audio.play();
+        } catch {
+          console.log("ok");
         }
       };
- 
-      socket.on('getMessage', handleMessage);
+
+      socket.on("getMessage", handleMessage);
 
       return () => {
-        socket.off('getMessage', handleMessage);
+        socket.off("getMessage", handleMessage);
       };
     }
-  }, [socket,auth]);
+  }, [socket, auth]);
   useEffect(() => {
     let isMounted = true;
     const tempApi = async (city) => {
@@ -282,7 +287,7 @@ function Header(props) {
   }, [primaryColor]);
   const [Clock, setClock] = useState();
   useEffect(() => {
-    console.log(auth)
+    console.log(auth);
   }, [auth]);
   useEffect(() => {
     const intel = setInterval(() => {
@@ -344,14 +349,11 @@ function Header(props) {
                 .map((element, index) => (
                   <li
                     key={index}
-                    className={`hrefLink ${
+                    className={`hrefLink  ${
                       element.hash === props.hash ? "ActiveLink" : "notActive"
                     }`}
                   >
-                    <NavLink
-                      to={element.hash}
-                      className="Link"
-                    >
+                    <NavLink to={element.hash} className="Link  font-semibold mx-4">
                       {element.name}
                     </NavLink>
                   </li>
@@ -363,7 +365,7 @@ function Header(props) {
                     onClick={() => setShowGenres((pre) => !pre)}
                     className="center"
                   >
-                    <span>Thể loại</span>
+                    <span className=" font-semibold mx-4">Thể loại</span>
                     {
                       <span
                         className="chevron"
@@ -480,12 +482,33 @@ function Header(props) {
                 </div>
               </Popover>
             }
-     
+
             <Popover content={<p>All Users</p>}>
               <Popover
                 trigger="click"
-                title={<p>Users</p>}
-                content={<FriendList></FriendList>}
+                content={
+                  <div className="w-full">
+                    <h1>Đoạn chat</h1>
+                    <input
+                      placeholder="Search for friends"
+                      className="chatMenuInput"
+                    />
+                    {Conversations && Conversations.length > 0 ? (
+                      Conversations.map((c, index) => (
+                        <div key={c.id} className="converrsation_chat">
+                          <Conversation
+                            conversation={c}
+                            currentUser={auth.userID}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="converrsation_chat">
+                        <div className="loader"></div>
+                      </div>
+                    )}
+                  </div>
+                }
               >
                 <div className="circleButton">
                   <FiUser></FiUser>

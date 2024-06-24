@@ -74,7 +74,7 @@ export default function Nvarbar(props) {
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--widthContentHome",
-      `${ShowNvaBar ? "85vw" : "100vw"}`
+      `${ShowNvaBar ? "80vw" : "100vw"}`
     );
     document.documentElement.style.setProperty(
       "--opacityShow",
@@ -90,7 +90,7 @@ export default function Nvarbar(props) {
     }
   };
   return (
-    <div>
+    <div className="w-full">
       <div
         className="hiddenNvaBar circleButton  "
         onClick={(e) => hiddenNavBarHandle(e)}
@@ -111,9 +111,9 @@ export default function Nvarbar(props) {
         variants={sidebar}
         className="leftHome"
       >
-        <div className="newFeed">
+        <div className="newFeed h-auto">
           <span>
-            <p className="weightFont">New feed</p>
+            <p className="text-4xl font-semibold">New feed</p>
           </span>
           {newFeed.map((e, i) => (
             <motion.a variants={itemVariants} href={`${e.href}`} key={i}>
@@ -131,10 +131,14 @@ export default function Nvarbar(props) {
             </motion.a>
           ))}
         </div>
+        
+        <div className="h-3/4">
         <div className="center" style={{ margin: "1rem" }}>
           <div className="linear"></div>
         </div>
         <MessageMainLayout />
+        </div>
+
       </motion.div>
       <div className="windowchat_container">
         {ConversationContext &&

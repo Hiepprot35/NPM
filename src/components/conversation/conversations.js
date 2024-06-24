@@ -13,9 +13,9 @@ import {
 import { useData } from "../../context/dataContext";
 export const getMess = async (conversation) => {
   try {
-    const res = await fetch(
-      `${process.env.REACT_APP_DB_HOST}/api/message/newest/${conversation.id}`
-    );
+    const url = `${process.env.REACT_APP_DB_HOST}/api/message/newest/${conversation.id}`;
+    console.log(url)
+    const res = await fetch(url);
     const data2 = await res.json();
 
     return data2;
@@ -32,7 +32,12 @@ export default memo(function Conversation({
   setCurrentChat,
   currentChat,
 }) {
-  const { setConversationContext } = useData();
+  const {
+    setConversationContext,
+    Conversations,
+    setListHiddenBubble,
+    setListWindow,
+  } = useData();
   const [user, setUser] = useState(conversation);
   const { auth } = useAuth();
   const socket = useSocket();
@@ -56,17 +61,6 @@ export default memo(function Conversation({
       ? conversation.user2
       : conversation.user1;
 
-  // useEffect(() => {
-  //   const studentInfo = async () => {
-  //     const info = await fetchApiRes("getStudentbyUserID", "POST", {
-  //       UserID: userID,
-  //     });
-
-  //     setUser(info);
-  //   };
-
-  //   studentInfo();
-  // }, [conversation]);
 
   const checkMess = (mess) => {
     const data = mess.split("emojiLink");
@@ -83,7 +77,9 @@ export default memo(function Conversation({
     const data = await getMess(conversation);
     setNewestMesst(data);
   };
-
+  useEffect(() => {
+    getNewestMess()
+  }, [conversation]);
   useEffect(() => {
     if (sendMess) {
       if (sendMess.conversation_id === conversation.id) {
@@ -92,6 +88,24 @@ export default memo(function Conversation({
       }
     }
   }, [sendMess]);
+  const onClickConser = (c) => {
+    setListWindow((prev) => {
+      const newClicked = prev.filter((obj) => obj.id !== c);
+
+      if (Conversations) {
+        const conversation = Conversations.find((e) => e?.id === c);
+        if (conversation) {
+          newClicked.unshift({ id: conversation.id });
+        }
+      }
+
+      return newClicked;
+    });
+    setListHiddenBubble((pre) => {
+      const data = pre.filter((e) => e.id !== c);
+      return data;
+    });
+  };
   const ClickConversationHandle = () => {
     const obj = {
       ...conversation,
@@ -103,6 +117,7 @@ export default memo(function Conversation({
     if (setCurrentChat) {
       setCurrentChat({ ...obj });
     } else {
+      onClickConser(conversation.id);
       setConversationContext((pre) => {
         const data = pre.filter((e) => e.id !== obj.id);
         data.push(obj);
@@ -146,14 +161,13 @@ export default memo(function Conversation({
               {notSeen_field ? (
                 <></>
               ) : (
-                <div className="messConversation">
+                <div className="messConversation flex ">
                   {NewestMess && (
                     <>
                       {
                         <>
-                          {" "}
                           {NewestMess.content && (
-                            <div>
+                            <div className="">
                               <span>
                                 {NewestMess.sender_id === auth.userID
                                   ? NewestMess.content.startsWith(
@@ -180,7 +194,7 @@ export default memo(function Conversation({
                   {NewestMess?.sender_id === auth.userID &&
                     NewestMess.isSeen === 1 &&
                     NewestMess && (
-                      <div className="Seen_field">
+                      <div className="Seen_field ml-4">
                         <img
                           style={{ width: "1rem", height: "1rem" }}
                           src={`${user.img}`}

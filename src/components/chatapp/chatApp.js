@@ -136,7 +136,7 @@ const ChatApp = ({ messageId }) => {
                       ClickChat(c);
                     }}
                     key={c.id}
-                    className="converrsation_chat"
+                    className="converrsation_chat "
                     style={
                       currentChat && currentChat?.id === c.id
                         ? { backgroundColor: "rgb(245, 243, 243)" }
