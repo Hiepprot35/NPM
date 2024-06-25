@@ -20,7 +20,7 @@ function BellTable() {
     const res = await fetchApiRes("message/getRequestFriends", "POST", {
       user2: auth.userID,
     });
-    console.log(res);
+    console.log(res)
     setNotification(res.result);
   };
   const getUsers = async () => {

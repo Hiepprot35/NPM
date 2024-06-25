@@ -9,7 +9,7 @@ import {
   getUserinfobyID,
 } from "../../function/getApi";
 import { FiCamera, FiDelete, FiMove, FiSave, FiUpload } from "react-icons/fi";
-import { Modal, Popover, theme } from "antd";
+import { Avatar, Modal, Popover, theme } from "antd";
 import ReactCrop from "react-image-crop";
 import MyComment from "../home/MyComment";
 import Posts from "./Posts";
@@ -234,10 +234,7 @@ export default function Profile() {
     }
   };
   useEffect(() => {
-    setPost(null);
-    setFriend(null);
-    setUserInfo(null);
-    setImgContent(null);
+    unMountComponent();
     const controller = new AbortController();
     const { signal } = controller;
 
@@ -246,13 +243,15 @@ export default function Profile() {
     return () => {
       controller.abort();
 
-      setPost(null);
-      setFriend(null);
-      setUserInfo(null);
-      setImgContent(null);
+      unMountComponent();
     };
   }, [MSSVInput]);
-
+  const unMountComponent = () => {
+    setPost(null);
+    setFriend(null);
+    setUserInfo(null);
+    setImgContent(null);
+  };
   const getFriendList = async (userID) => {
     const checkID = (array, id) => {
       return array.user1 === id ? array.user2 : array.user1;
@@ -268,7 +267,6 @@ export default function Profile() {
     if (Users?.UserID) {
       const getUserFriend = async () => {
         const dataMyFriend = await getFriendList(Users?.UserID);
-        let dataUserFriend;
 
         const data = await Promise.all(
           dataMyFriend.map(async (e) => {
@@ -361,7 +359,6 @@ export default function Profile() {
     setIsDragging(true);
   };
 
-
   // Usage example:
 
   // Usage example:
@@ -396,22 +393,25 @@ export default function Profile() {
   const dragEndHandle = (e) => {
     setIsDragging(false);
   };
-  const saveMovingHandle=async()=>
-    {
-      if (containerBackRef.current && dragBackRef.current) {
-        const full = containerBackRef.current.getBoundingClientRect();
-        const cut = dragBackRef.current.getBoundingClientRect();
-        const tinhtoan = (-cut.top + full.top) / cut.height;
-        const update=Users.backgroundimg.split("%hiep%")[0]+"%hiep%"+tinhtoan
-        setUserInfo(pre=>({...pre,backgroundimg:update}))  
-        setMovingSetting(false)
-      const res=await fetchApiRes('UpdateUserID',"POST",{backgroundimg:update,MSSV:Users?.MSSV})
-    }    
+  const saveMovingHandle = async () => {
+    if (containerBackRef.current && dragBackRef.current) {
+      const full = containerBackRef.current.getBoundingClientRect();
+      const cut = dragBackRef.current.getBoundingClientRect();
+      const tinhtoan = (-cut.top + full.top) / cut.height;
+      const update =
+        Users.backgroundimg.split("%hiep%")[0] + "%hiep%" + tinhtoan;
+      setUserInfo((pre) => ({ ...pre, backgroundimg: update }));
+      setMovingSetting(false);
+      const res = await fetchApiRes("UpdateUserID", "POST", {
+        backgroundimg: update,
+        MSSV: Users?.MSSV,
+      });
     }
+  };
   const saveBackHandle = async () => {
     if (containerBackRef.current && dragBackRef.current) {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
         const full = containerBackRef.current.getBoundingClientRect();
         const cut = dragBackRef.current.getBoundingClientRect();
         const persent = full.height / cut.height;
@@ -423,8 +423,11 @@ export default function Profile() {
           img.append("top", tinhtoan);
           img.append("MSSV", Users?.MSSV);
         }
-        setUserInfo(pre=>({...pre,backgroundimg:`${BackgroundUpdate.view+"%hiep%"+ tinhtoan}`}))
-        setBackgroundUpdate()
+        setUserInfo((pre) => ({
+          ...pre,
+          backgroundimg: `${BackgroundUpdate.view + "%hiep%" + tinhtoan}`,
+        }));
+        setBackgroundUpdate();
         const res = await fetch(
           `${process.env.REACT_APP_DB_HOST}/api/UpdateUserID/`,
           {
@@ -433,11 +436,10 @@ export default function Profile() {
             body: img,
           }
         );
-        setIsLoading(false)
+        setIsLoading(false);
       } catch (error) {
         console.log(error);
-        setIsLoading(false)
-
+        setIsLoading(false);
       }
     }
   };
@@ -457,7 +459,7 @@ export default function Profile() {
     { text: ` Delete`, icon: <FiDelete />, click: MovingHandle },
   ];
   const Setting = BackgroundUpdate || MovingSetting;
-  const {themeColor}=useData()
+  const { themeColor } = useData();
 
   const backGroundHandle = (data) => {
     return (
@@ -475,28 +477,33 @@ export default function Profile() {
       {
         <div
           className="center content flex-col"
-          
-          style={commentID ? { opacity: 0}:{cursor:`${cursor}`} }
+          style={commentID ? { opacity: 0 } : { cursor: `${cursor}` }}
         >
           <div
             style={{
-            cursor:cursor,
+              cursor: cursor,
               width: "100%",
               height: "60vh",
-              backgroundImage: `url("${BackgroundUpdate?.view||Users?.backgroundimg.split("%hiep%")[0]}")`,
+              backgroundImage: `url("${
+                BackgroundUpdate?.view ||
+                Users?.backgroundimg&& Users?.backgroundimg.split("%hiep%")[0]
+              }")`,
             }}
             ref={containerBackRef}
             onMouseDown={Setting ? dragStartHandle : null}
             onMouseMove={Setting ? dragBackHandle : null}
             onMouseUp={Setting ? dragEndHandle : null}
             onMouseLeave={dragEndHandle}
-            
             className={`relative overflow-hidden  bg-cover ${
               Setting && "cursor-move"
             }	`}
           >
             <div className="w-full h-full absolute inset-0 backdrop-blur-xl  bg-white/30 z-0"></div>
-            <div className={`w-full h-1/2 absolute bottom-0 ${! themeColor? "blurwhiteback ":"blurblackback"}`}></div>
+            <div
+              className={`w-full h-1/2 absolute bottom-0 ${
+                !themeColor ? "blurwhiteback " : "blurblackback"
+              }`}
+            ></div>
             <div className="w-full h-full center relative">
               <div
                 className="h-full center relative overflow-hidden  rounded-b-lg "
@@ -530,18 +537,19 @@ export default function Profile() {
                     </div>
                   }
                 >
-                 
                   <div className="p-2 bg-white center z-10 rounded cursor-pointer shadow-md absolute right-10 bottom-10 hover:bg-gray-200">
                     <FiCamera fill="black" />
-                    <p className="px-2 text-black	font-semibold">Change Background Image</p>
+                    <p className="px-2 text-black	font-semibold">
+                      Change Background Image
+                    </p>
                   </div>
                 </Popover>
-                {isLoading &&
+                {isLoading && (
                   <div className=" center w-full h-full absolute inset-0 z-50 bg-white-500/50">
-                  <p className="text-4xl">Uploading . . . . </p>
+                    <p className="text-4xl">Uploading . . . . </p>
                   </div>
-                  }
-                {Users?.backgroundimg ||BackgroundUpdate ? (
+                )}
+                {Users?.backgroundimg || BackgroundUpdate ? (
                   <img
                     alt="background"
                     ref={dragBackRef}
@@ -573,10 +581,16 @@ export default function Profile() {
               onChange={(e) => changeBackImg(e)}
             ></input>
           </div>
-          <div className={`w-full ${themeColor? "bg-black":" bg-gray-200"} `}>
+          <div
+            className={`w-full ${themeColor ? "bg-black" : " bg-gray-200"} `}
+          >
             {
               <>
-                <div className={`flex  px-52 pb-16 mb-8 ${themeColor? "bg-black":"theme"}`}>
+                <div
+                  className={`flex  px-52 pb-16 mb-8 ${
+                    themeColor ? "bg-black" : "theme"
+                  }`}
+                >
                   <div style={{ marginTop: "-3rem" }}>
                     <div className="flex">
                       <div className="relative">
@@ -609,6 +623,11 @@ export default function Profile() {
                   <div className=" mx-4 flex-col content-center">
                     <p className="text-4xl font-bold ">{Users?.Name}</p>
                     <p>Bạn bè {friends?.length}</p>
+                    <Avatar.Group>
+                      {
+                       friends&& friends.map(e=>(<Avatar src={`${e.cutImg||e.img}`}/>))
+                      }
+                    </Avatar.Group>
                   </div>
                 </div>
                 <div className="w-full flex px-52 ">
@@ -665,10 +684,12 @@ export default function Profile() {
                       )}
                       {isLoading && <div className="">...............</div>}
 
-                      <p>Tham gia vào: <span className="text-2xl font-semibold">
-                         {formatDate((Users?.create_at))}
+                      <p>
+                        Tham gia vào:{" "}
+                        <span className="text-2xl font-semibold">
+                          {formatDate(Users?.create_at)}
                         </span>
-                        </p>
+                      </p>
                     </div>
                     <div className="p-8 theme rounded-xl my-8">
                       <p className="font-bold text-3xl">Ảnh</p>

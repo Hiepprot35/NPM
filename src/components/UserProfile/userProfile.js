@@ -75,9 +75,19 @@ export default function UserProfile(props) {
     }
   };
   const [Cursor, setCursor] = useState();
+  const deleteRequestFriend = async (id) => {
+    const converFound = Conversations.find(
+      (e) => e.user1 === id || e.user2 === id
+    );
+    const data = await fetchApiRes("message/updateConversation", "POST", {
+      Requesting: 0,
+
+      id: converFound.id,
+    });
+  };
   const sendRequestFriend = async (id) => {
     // const converFound = await foundConversation(id, auth.userID);
-    const converFound = ConversationContext.find(
+    const converFound = Conversations.find(
       (e) => e.user1 === id || e.user2 === id
     );
     if (!converFound) {
@@ -143,18 +153,18 @@ export default function UserProfile(props) {
 
       if (!converFound) {
         try {
-          setCursor('wait')
+          setCursor("wait");
           const data = await AddConver(id);
-          setCursor('')
-          const newConver={ id: data.id, ...obj }
+          setCursor("");
+          const newConver = { id: data.id, ...obj };
           setListWindow((prev) => {
             return [{ id: data.id }, ...prev];
           });
           setConversations((prev) => {
             return [newConver, ...prev];
           });
-          
-          setConversationContext((prev) => [newConver,...prev]);
+
+          setConversationContext((prev) => [newConver, ...prev]);
         } catch (error) {
           console.log(error);
         }
@@ -163,7 +173,9 @@ export default function UserProfile(props) {
           { ...converFound, img: Users.cutImg || Users.img },
           ...prev.filter((e) => e.id !== converFound.id),
         ]);
-        setListHiddenBubble(pre=>[...pre.filter(e=>e.id!==converFound.id)])
+        setListHiddenBubble((pre) => [
+          ...pre.filter((e) => e.id !== converFound.id),
+        ]);
         setListWindow((prev) => [...prev, { id: converFound.id }]);
       }
     } catch (error) {
@@ -296,7 +308,11 @@ export default function UserProfile(props) {
                             );
                           }
                         }}
-                        style={{ width: "3rem", margin: ".2rem",cursor:Cursor }}
+                        style={{
+                          width: "3rem",
+                          margin: ".2rem",
+                          cursor: Cursor,
+                        }}
                         icon={
                           <FiMessageCircle
                             style={{ stroke: "blue" }}
@@ -304,12 +320,38 @@ export default function UserProfile(props) {
                         }
                       ></Button>
                     )}
-                    <Button
-                      size="large"
-                      style={{ width: "3rem", margin: ".2rem",cursor:Cursor }}
-                      onClick={() => sendRequestFriend(Users.UserID)}
-                      icon={<FiUserPlus></FiUserPlus>}
-                    ></Button>
+                    {Conversations.find((e) => {
+                      if (e.user1 === auth.username) {
+                        return (
+                          <Button
+                            size="large"
+                            style={{
+                              width: "3rem",
+                              margin: ".2rem",
+                              cursor: Cursor,
+                            }}
+                            onClick={() => sendRequestFriend(Users.UserID)}
+                            icon={<FiUserPlus></FiUserPlus>}
+                          ></Button>
+                        );
+                      }
+                    })}
+                    {Conversations.find((e) => {
+                      if (e.user1 === auth.username) {
+                        return (
+                          <Button
+                            size="large"
+                            style={{
+                              width: "3rem",
+                              margin: ".2rem",
+                              cursor: Cursor,
+                            }}
+                            onClick={() => sendRequestFriend(Users.UserID)}
+                            icon={<FiUserPlus></FiUserPlus>}
+                          ></Button>
+                        );
+                      }
+                    })}
                   </div>
                 </div>
               </div>

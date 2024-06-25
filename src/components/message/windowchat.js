@@ -421,7 +421,13 @@ export default memo(function WindowChat(props) {
       isSetting = false;
     }
   };
-
+  const handleKeyDown=async(e)=>
+    {
+      if(e.key==="Enter")
+        {
+      handleSubmit(e)     
+        }
+    }
   const sendFastHandle = async () => {
     const data = new FormData();
     const messObj = {
@@ -745,7 +751,7 @@ export default memo(function WindowChat(props) {
 
     // Các thuộc tính của cửa sổ mới
     const windowFeatures = `width=${width},height=${height},top=${top},left=${left}`;
-    const url = `${process.env.REACT_APP_CLIENT_URL}/videocall/?userID=${userInfor?.UserID}&converID=${conversation.id}`;
+    const url = `${process.env.REACT_APP_CLIENT_URL}/videocall/?userID=${userConver}&converID=${conversation.id}`;
     window.open(url, "Call Video", windowFeatures);
   };
 
@@ -1063,6 +1069,7 @@ export default memo(function WindowChat(props) {
                             className="features_hover"
                             onClick={(e) => handleSubmit(e)}
                             style={{ cursor: "pointer" }}
+                            onKeyDown={handleKeyDown}
                           >
                             <FiSend></FiSend>
                           </div>
