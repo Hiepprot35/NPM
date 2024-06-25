@@ -1,19 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { Buffer } from "buffer";
 import { ConfirmDialog } from "../confirmComponent/confirm";
 import useAuth from "../../hook/useAuth";
 import FormInput from "../Layout/FormInput/FormInput";
 import SuccessNotification from "../Notification/successNotifi";
 import "./createStudent.css";
-import { data } from "jquery";
 import { huyen } from "../../lib/huyen";
 import { cityname } from "../../lib/city";
 export default function CreateStudent() {
-  // const fs = require('fs');
 
   const fileInputRef = useRef(null);
   const khoaRef = useRef(1);
-  const currentChooseClass = useRef(null);
   const currentChooseSex = useRef(null);
   const [currentChooseKhoa, setCurrentChooseKhoa] = useState(1);
   const { auth } = useAuth();
@@ -74,6 +70,7 @@ export default function CreateStudent() {
   }, [CityName]);
   const sendData = async (data) => {
     try {
+        setCursor('wait')
       const formDataInfo = {};
       data.forEach((value, key) => {
         formDataInfo[key] = value;
@@ -83,6 +80,7 @@ export default function CreateStudent() {
         body: data,
       });
       const resJson = await res.json();
+      setCursor('')
       if (resJson && resJson.status === 200) {
         setIsMounted(false);
         setMessRes(resJson.message);
@@ -91,13 +89,17 @@ export default function CreateStudent() {
         setMessRes(resJson.message || "Lỗi");
         console.log(resJson);
       }
+      
     } catch (error) {
+        setCursor('')
+
       console.error("Error occurred:", error);
     }
   };
   async function handleSubmit(event) {
     try {
       event.preventDefault();
+
       if (dataimg) {
         setValues({
           ...values,
@@ -107,8 +109,18 @@ export default function CreateStudent() {
           backgroundimg: "dataimg",
         });
 
-        setIsMounted(true);
       }
+      else{
+        setValues({
+            ...values,
+            Address: addresInfo,
+            Sex: currentChooseSex.current.value,
+            backgroundimg: "dataimg",
+          });
+  
+      }
+      setIsMounted(true);
+
     } catch (error) {
       console.error(error);
     }
@@ -137,6 +149,7 @@ export default function CreateStudent() {
         )
     );
   }, [classInfo, currentChooseKhoa]);
+  const [Cursor, setCursor] = useState('');
   const inputs = [
     {
       id: 1,
@@ -178,10 +191,12 @@ export default function CreateStudent() {
     {
       id: 7,
       name: "SDT",
-      type: "text",
+      type: "tel",
+      errorMessage: "It should be a valid num!",
+
       placeholder: "SDT",
       label: "SDT",
-      // pattern: "^[0-9]{3,16}$",
+      pattern: "^[0-9]{3,16}$",
       required: true,
     },
   ];
@@ -202,7 +217,7 @@ export default function CreateStudent() {
   };
   return (
     <>
-      <div className="CreateStudentForm">
+      <div className="CreateStudentForm" style={{cursor:Cursor}}>
         <div className="column_form">
           <h2>Register</h2>
           <form onSubmit={handleSubmit}>
