@@ -200,7 +200,10 @@
     font-size: 0.7rem;
     margin-top: -.4rem; 
 }
-
+input[type='date']:focus
+{
+    outline: 0;
+}
 .input_property
 {
     margin-left: 1rem;

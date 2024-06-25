@@ -17,6 +17,7 @@ import PhotoPost from "./PhotoPost";
 import { useRealTime } from "../../context/useRealTime";
 import AvatarEditor from "react-avatar-editor";
 import { icon } from "leaflet";
+import { formatDate, getDate } from "../../function/getTime";
 const ChangeImg = ({ img, MSSV, setUsers }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [ImageUpload, setImageUpload] = useState(img);
@@ -662,7 +663,10 @@ export default function Profile() {
                       )}
                       {isLoading && <div className="">...............</div>}
 
-                      <p>Tham gia vào {Users?.create_at}</p>
+                      <p>Tham gia vào: <span className="text-2xl font-semibold">
+                         {formatDate((Users?.create_at))}
+                        </span>
+                        </p>
                     </div>
                     <div className="p-8 bg-white rounded-xl my-8">
                       <p className="font-bold text-3xl">Ảnh</p>

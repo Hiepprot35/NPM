@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { getDate } from "../../function/getTime";
+import SuccessNotification from "../Notification/successNotifi";
+import useAuth from "../../hook/useAuth";
+import { notification } from "antd";
 export default function PropertyUser(props) {
+  const { auth } = useAuth();
   const [property, setProperty] = useState(props.propertyUser.value);
   const label_property = useRef(null);
+  const [messRes, setMessRes] = useState();
   const button_save = useRef(null);
   function clickFocusProperty() {
     if (label_property.current) {
@@ -15,16 +20,47 @@ export default function PropertyUser(props) {
       label_property.current.classList.remove("click_property");
     }
   }
-  function saveUserProperty() {
-    let values = property;
-    if (props.propertyUser.key === "Birthday") {
-      values = getDate(property);
+  const [noti,contextHolder]=notification.useNotification()
+  const [Cursor,setCursor]=useState('')
+  async function updateUser(proterty) {
+    try {
+      setCursor('wait')
+      const res = await fetch(
+        `${process.env.REACT_APP_DB_HOST}/api/UpdateUserID/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(proterty),
+        }
+      );
+      const resJson = await res.json();
+      console.log(resJson);
+      setCursor('')
+      noti.open({
+        message: ' 🥳 Notification update',
+        description:
+          `${resJson.message}`,
+        duration: 0,
+      });    } catch (error) {
+      console.log(error);
     }
-    props.setUserInfo({ ...props.userInfo, [props.propertyUser.key]: values });
-    props.setClicked(false);
-    props.setSaved(true);
   }
+  async function saveUserProperty(value) {
+    let values = property;
+    if(props.propertyUser.key==="Birthday")
+      {
+        const time=new Date(property)
+        values=time.getTime()
+      }
+ 
+    await updateUser({ [props.propertyUser.key]: values, MSSV: parseInt(auth.username) });
+    props.setUserInfo(pre=>({...pre, [props.propertyUser.key]: values}))
+  }
+
   useEffect(() => {
+    console.log(property);
     if (button_save.current) {
       if (property !== props.propertyUser.value) {
         button_save.current.classList.add("invaild_ButtonSave");
@@ -33,7 +69,9 @@ export default function PropertyUser(props) {
   }, [property]);
   return (
     <>
-      <div className="layout_filter">
+          {contextHolder}
+
+      <div className="layout_filter" style={{cursor:Cursor}}>
         <motion.div
           className="setting_property"
           initial={{ opacity: 0, y: 500 }}
@@ -42,7 +80,7 @@ export default function PropertyUser(props) {
         >
           <div>
             <h4>
-              Chỉnh sửa {props.propertyUser.key}
+              Change {props.propertyUser.key}
               <br></br>
             </h4>
           </div>
@@ -83,7 +121,7 @@ export default function PropertyUser(props) {
                 }}
                 className="input_property"
                 type={props.propertyUser.key === "Birthday" ? "date" : "text"}
-                value={
+                defaultValue={
                   props.propertyUser.key === "Birthday"
                     ? getDate(property)
                     : property
@@ -97,11 +135,16 @@ export default function PropertyUser(props) {
             </label>
           </div>
 
-          <button ref={button_save} onClick={(e) => saveUserProperty()}>
-            {" "}
-            Lưu{" "}
+          <button ref={button_save} onClick={property!==props.propertyUser.value?saveUserProperty:null} style={{cursor:Cursor,background:property===props.propertyUser.value?"gray":"blue",color:"white"}}>
+            Lưu
           </button>
         </motion.div>
+        {messRes && (
+          <SuccessNotification
+            messRes={messRes}
+            setMessRes={setMessRes}
+          ></SuccessNotification>
+        )}
       </div>
     </>
   );

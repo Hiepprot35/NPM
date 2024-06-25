@@ -6,7 +6,7 @@ import useAuth from "../../hook/useAuth.js";
 import EmojiPicker from "emoji-picker-react";
 import parseUrl from "parse-url";
 import { IsLoading } from "../Loading.js";
-import { fetchVideoTitle, movieApi } from "../message/windowchat.js";
+import * as cheerio from 'cheerio';
 import { Popover } from "antd";
 import SharingScreen from "../UserProfile/SharingScreen.js";
 export default function MyComment(props) {
@@ -96,10 +96,15 @@ export default function MyComment(props) {
       }
     }
   };
-
+  const [videoData, setVideoData] = useState(null);
   useEffect(() => {
+    console.log(videoData)
+  }, [videoData]);
+  useEffect(() => {
+    console.log(myComment)
     if (inputRef.current) {
       if (myComment) {
+    
         if (myComment.includes("@")) {
           setOpenTag(true);
           const atIndex = myComment.indexOf("@");
@@ -244,6 +249,8 @@ export default function MyComment(props) {
                     marginLeft: "1rem",
                   }}
                 >
+                            <div> ccc {videoData?.title}</div>
+
                   {`${countText}/200`}{" "}
                   {countText === 200 && ` vượt quá kí tự quy định`}
                 </span>

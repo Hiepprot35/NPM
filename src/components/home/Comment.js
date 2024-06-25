@@ -93,11 +93,16 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
     const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
     const data = e.split("imgSplitLink");
     if (data.length > 1) {
-      updatedComment =
-        data[0] +
-        `<img atl="comment" className="w-full h-full rounded-xl" src="${data[1]}" />`;
+      updatedComment = `<div className="flex">
+      ${data[0]}
+      </div>
+        <img atl="comment" className="w-full h-full rounded-xl" src="${data[1]}" />`;
     }
-
+    else{
+      updatedComment = `<div className="flex">
+      ${data[0]}
+      </div>` 
+    }
     if (youtubeRegex.test(e)) {
       const url = e.match(youtubeRegex);
       const videoId =
@@ -137,35 +142,38 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
       }
       if (name === "img" && attribs) {
         const imgElement = domToReact([{ name, attribs, children }]);
-
-        return (
-          <div
-            className="w-full h-full center bg-black rounded-xl "
-            style={{ height: "60vh" }}
-            onClick={() =>
-              setCurrentImg({
-                img: attribs.src,
-                userID: comment.userID,
-                id: comment.id,
-                create_at: comment.create_at,
-              })
-            }
-          >
-            <NavLink
-              to={`${process.env.REACT_APP_CLIENT_URL}/photo?MSSV=${comment.userID}&commentID=${comment.id}`}
+        if (attribs?.className && !attribs?.className.includes("emoji")) {
+          return (
+            <div
+              className="w-full h-full center bg-black rounded-xl "
+              style={{ height: "60vh" }}
+              onClick={() =>
+                setCurrentImg({
+                  img: attribs.src,
+                  userID: comment.userID,
+                  id: comment.id,
+                  create_at: comment.create_at,
+                })
+              }
             >
-              <div
-                class=" relative overflow-hidden   w-full center  "
-                style={{ height: "60vh" }}
+              <NavLink
+                to={`${process.env.REACT_APP_CLIENT_URL}/photo?MSSV=${comment.userID}&commentID=${comment.id}`}
               >
-                <img
-                  className="object-contain cursor-pointer h-full w-full  relative z-0 transition-all duration-300 hover:scale-110 "
-                  {...attribs}
-                />
-              </div>
-            </NavLink>
-          </div>
-        );
+                <div
+                  class=" relative overflow-hidden   w-full center  "
+                  style={{ height: "60vh" }}
+                >
+                  <img
+                    className="object-contain cursor-pointer h-full w-full  relative z-0 transition-all duration-300 hover:scale-110 "
+                    {...attribs}
+                  />
+                </div>
+              </NavLink>
+            </div>
+          );
+        } else {
+          return imgElement;
+        }
       }
     },
   };
@@ -230,7 +238,11 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
       <div className="containerComment">
         <div className="headerComment">
           <div className="AvatarComment">
-            <Popover content={<UserProfile User={User} MSSV={User?.MSSV}></UserProfile>}>
+            <Popover
+              content={
+                <UserProfile User={User} MSSV={User?.MSSV}></UserProfile>
+              }
+            >
               <div className="AvatarComment2">
                 {!User ? (
                   <div className="loader w-1/2 h-1/2"></div>
