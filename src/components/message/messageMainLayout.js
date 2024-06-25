@@ -35,9 +35,7 @@ export default function MessageMainLayout(props) {
   const [conversations, setConversation] = useState([]);
 
   const {
-    listWindow,
-    setListWindow,
-    setListHiddenBubble,
+    LoadingConver,
     Conversations,
     ConversationContex,
   } = useData();
@@ -50,10 +48,10 @@ export default function MessageMainLayout(props) {
         {!props.isHidden && (
           <>
             <h1 className="text-4xl font-semibold"> Tin nhắn </h1>
-            <div className=" hover:overflow-y-scroll" style={{height:"80%"}}>
+            <div className=" hover:overflow-y-scroll" style={{ height: "80%" }}>
               {
                 <>
-                  {Conversations &&
+                  {Conversations && !LoadingConver? (
                     Conversations.map((c, i) => (
                       <div key={c.id} className="converrsation_chat center">
                         <Conversation
@@ -63,7 +61,12 @@ export default function MessageMainLayout(props) {
                           Online={Onlines}
                         ></Conversation>
                       </div>
-                    ))}
+                    ))
+                  ) : (
+                    <div className="w-full center">
+                      <div className="loader"></div>
+                    </div>
+                  )}
                 </>
               }
             </div>

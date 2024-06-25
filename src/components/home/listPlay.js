@@ -284,7 +284,7 @@ export const Text = (props) => {
         </div>
         <Slide className={"abcdef"}>
           <div className="listMovies" ref={listMovieRef}>
-            {filmData.map((film, index) => (
+            {filmData.length>0 && filmData.map((film, index) => (
               <div className="CardMovie" key={index}>
                 <article>
                   <header>
@@ -339,6 +339,7 @@ export const Text = (props) => {
                 </article>
               </div>
             ))}
+            {filmData.length===0 && <p className="text-4xl font-semibold">Bạn chưa thích phim nào. Hãy tìm một bộ phim yêu thích của mình nhé !</p>}
           </div>
         </Slide>
       </motion.div>

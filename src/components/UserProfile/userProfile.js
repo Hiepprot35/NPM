@@ -143,7 +143,9 @@ export default function UserProfile(props) {
 
       if (!converFound) {
         try {
+          setCursor('wait')
           const data = await AddConver(id);
+          setCursor('')
           const newConver={ id: data.id, ...obj }
           setListWindow((prev) => {
             return [{ id: data.id }, ...prev];
@@ -294,7 +296,7 @@ export default function UserProfile(props) {
                             );
                           }
                         }}
-                        style={{ width: "3rem", margin: ".2rem" }}
+                        style={{ width: "3rem", margin: ".2rem",cursor:Cursor }}
                         icon={
                           <FiMessageCircle
                             style={{ stroke: "blue" }}
@@ -304,7 +306,7 @@ export default function UserProfile(props) {
                     )}
                     <Button
                       size="large"
-                      style={{ width: "3rem", margin: ".2rem" }}
+                      style={{ width: "3rem", margin: ".2rem",cursor:Cursor }}
                       onClick={() => sendRequestFriend(Users.UserID)}
                       icon={<FiUserPlus></FiUserPlus>}
                     ></Button>

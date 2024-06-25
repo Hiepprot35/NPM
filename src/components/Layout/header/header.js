@@ -23,6 +23,7 @@ import "./header.css";
 import {
   FiArrowDown,
   FiChevronDown,
+  FiMessageCircle,
   FiMoon,
   FiSearch,
   FiSettings,
@@ -353,7 +354,10 @@ function Header(props) {
                       element.hash === props.hash ? "ActiveLink" : "notActive"
                     }`}
                   >
-                    <NavLink to={element.hash} className="Link  font-semibold mx-4">
+                    <NavLink
+                      to={element.hash}
+                      className="Link  font-semibold mx-4"
+                    >
                       {element.name}
                     </NavLink>
                   </li>
@@ -455,7 +459,7 @@ function Header(props) {
                   )
                 }
               >
-                <div className="h-8 w-8 overflow-hidden">
+                <div className="h-8 w-8 mx-4 overflow-hidden">
                   <div
                     className="h-32 transition-all ease-linear duration-300"
                     style={
@@ -483,7 +487,7 @@ function Header(props) {
               </Popover>
             }
 
-            <Popover content={<p>All Users</p>}>
+            <Popover content={<p>Message</p>}>
               <Popover
                 trigger="click"
                 content={
@@ -493,26 +497,41 @@ function Header(props) {
                       placeholder="Search for friends"
                       className="chatMenuInput"
                     />
-                    {Conversations && Conversations.length > 0 ? (
-                      Conversations.map((c, index) => (
-                        <div key={c.id} className="converrsation_chat">
-                          <Conversation
-                            conversation={c}
-                            currentUser={auth.userID}
-                          />
+                    <div
+                      className="overfolow-hidden overflow-y-scroll"
+                      style={{ height: "60vh" }}
+                    >
+                      {Conversations && Conversations.length > 0 ? (
+                        Conversations.map((c, index) => (
+                          <div key={c.id} className="converrsation_chat">
+                            <Conversation
+                              conversation={c}
+                              currentUser={auth.userID}
+                            />
+                          </div>
+                        ))
+                      ) : (
+                        <div className="converrsation_chat">
+                          <div className="loader"></div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="converrsation_chat">
-                        <div className="loader"></div>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                    <NavLink to={`${process.env.REACT_APP_CLIENT_URL}/message`}>
+                      Xem thêm trong mes
+                    </NavLink>
                   </div>
                 }
               >
                 <div className="circleButton">
-                  <FiUser></FiUser>
+                  <FiMessageCircle />
                 </div>
+              </Popover>
+            </Popover>
+            <Popover content={<p>All Users</p>}>
+              <Popover trigger={"click"} content={<FriendList></FriendList>}>
+                <span className="circleButton">
+                  <FiUser />
+                </span>
               </Popover>
             </Popover>
             <BellTable></BellTable>
