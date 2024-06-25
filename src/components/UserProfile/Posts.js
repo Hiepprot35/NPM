@@ -34,7 +34,7 @@ export default function Posts(props) {
         <MyComment update={props.setPost} className="PostProfile w-full"></MyComment>
       </div>
       <div className="pl-12 w-full mt-8">
-        <div className="w-full bg-white rounded-xl p-4 mb-8 flex center justify-between	">
+        <div className="w-full theme rounded-xl p-4 mb-8 flex center justify-between	">
           <div>
             <p className="font-semibold text-3xl">Bài viết</p>
           </div>
@@ -62,7 +62,7 @@ export default function Posts(props) {
               users={props.users}
               comment={e}
               setCurrentImg={props.setCurrentImg}
-              className={"PostComponent p-4  mb-8 bg-white rounded-xl w-full"}
+              className={"PostComponent p-4  mb-8 theme rounded-xl w-full"}
             ></Comment>
           ))}
       </div>

@@ -13,6 +13,9 @@ export const DataProvider = ({ children }) => {
   const [ConversationContext, setConversationContext] = useState([]);
   const [Conversations, setConversations] = useState();
   const [Users, setUsers] = useState([]);
+  const [themeColor, setThemeColor] = useState(
+    localStorage.getItem("colorTheme") === "true"
+  );
   const [LoadingConver, setLoading] = useState(false);
   const { auth } = useAuth();
   useEffect(() => {
@@ -45,7 +48,7 @@ export const DataProvider = ({ children }) => {
     console.log(auth);
     if (auth) {
       const res = async () => {
-        setLoading(true)
+        setLoading(true);
         const data = await getConversation(auth);
         const storedHiddenBubble = JSON.parse(
           localStorage.getItem("hiddenCounter")
@@ -64,18 +67,18 @@ export const DataProvider = ({ children }) => {
         });
         const promies = await Promise.all(update);
         if (mergen.length > 0) {
-          const index = promies.filter((e) => mergen.some((v) => v.id === e.id)); 
+          const index = promies.filter((e) =>
+            mergen.some((v) => v.id === e.id)
+          );
           setConversationContext(index);
         }
         setConversations(promies);
-        setLoading(false)
-
+        setLoading(false);
       };
       res();
-    }
-    else{
-      setConversationContext([])
-      setConversations([])
+    } else {
+      setConversationContext([]);
+      setConversations([]);
     }
   }, [auth]);
   return (
@@ -90,7 +93,10 @@ export const DataProvider = ({ children }) => {
         Conversations,
         setConversations,
         Users,
-        setUsers,LoadingConver
+        setUsers,
+        LoadingConver,
+        themeColor,
+        setThemeColor,
       }}
     >
       {children}

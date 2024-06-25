@@ -66,7 +66,7 @@ function Header(props) {
     setListHiddenBubble,
     listWindow,
     setConversationContext,
-    Conversations,
+    Conversations,themeColor,setThemeColor
   } = useData();
   const Menu_profile_header = useRef();
   const [city, setCity] = useState("hanoi");
@@ -205,12 +205,10 @@ function Header(props) {
     };
   }, [city]);
   const [SearchQuery, setSearchQuery] = useState("");
-  const [primaryColor, setPrimaryColor] = useState(
-    localStorage.getItem("colorTheme") === "true"
-  );
+
 
   const ChangeColorTheme = (event) => {
-    setPrimaryColor(!primaryColor);
+    setThemeColor(pre=>!pre);
   };
   const refSearchButton = useRef();
   const searchHandle = () => {
@@ -258,7 +256,7 @@ function Header(props) {
             text={"Cài đặt thông tin"}
           />
         </NavLink>
-        {primaryColor ? (
+        {themeColor ? (
           <SettingComponent
             icon={<FiSun></FiSun>}
             text={"Light"}
@@ -276,16 +274,16 @@ function Header(props) {
     );
   };
   useEffect(() => {
-    localStorage.setItem("colorTheme", primaryColor);
+    localStorage.setItem("colorTheme", themeColor);
     document.documentElement.style.setProperty(
       "--themeColor",
-      `${primaryColor ? "rgb(24,25,26)" : "white"}`
+      `${themeColor ? "rgb(24,25,26)" : "white"}`
     );
     document.documentElement.style.setProperty(
       "--textColor",
-      `${!primaryColor ? "rgb(24,25,26)" : "white"}`
+      `${!themeColor ? "rgb(24,25,26)" : "white"}`
     );
-  }, [primaryColor]);
+  }, [themeColor]);
   const [Clock, setClock] = useState();
   useEffect(() => {
     console.log(auth);
@@ -452,7 +450,7 @@ function Header(props) {
             {
               <Popover
                 content={
-                  primaryColor ? (
+                  themeColor ? (
                     <p className="text-white">Light</p>
                   ) : (
                     <p className="text-black">Dark</p>
@@ -463,21 +461,21 @@ function Header(props) {
                   <div
                     className="h-32 transition-all ease-linear duration-300"
                     style={
-                      primaryColor
+                      themeColor
                         ? { transform: "translateY(-2rem)" }
                         : { transform: "translateY(0)" }
                     }
                   >
                     <span
                       className="circleButton transition-all ease-linear duration-300 m-0"
-                      style={primaryColor ? { opacity: 0 } : { opacity: 1 }}
+                      style={themeColor ? { opacity: 0 } : { opacity: 1 }}
                       onClick={ChangeColorTheme}
                     >
                       <FiSunrise></FiSunrise>
                     </span>
                     <span
                       className="circleButton transition-all ease-linear duration-300 m-0"
-                      style={primaryColor ? { opacity: 1 } : { opacity: 0 }}
+                      style={themeColor ? { opacity: 1 } : { opacity: 0 }}
                       onClick={ChangeColorTheme}
                     >
                       <FiMoon></FiMoon>

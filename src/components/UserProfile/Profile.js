@@ -9,7 +9,7 @@ import {
   getUserinfobyID,
 } from "../../function/getApi";
 import { FiCamera, FiDelete, FiMove, FiSave, FiUpload } from "react-icons/fi";
-import { Modal, Popover } from "antd";
+import { Modal, Popover, theme } from "antd";
 import ReactCrop from "react-image-crop";
 import MyComment from "../home/MyComment";
 import Posts from "./Posts";
@@ -18,6 +18,7 @@ import { useRealTime } from "../../context/useRealTime";
 import AvatarEditor from "react-avatar-editor";
 import { icon } from "leaflet";
 import { formatDate, getDate } from "../../function/getTime";
+import { useData } from "../../context/dataContext";
 const ChangeImg = ({ img, MSSV, setUsers }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [ImageUpload, setImageUpload] = useState(img);
@@ -98,6 +99,7 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
       console.log(error);
     }
   };
+
   return (
     <>
       <span
@@ -455,6 +457,8 @@ export default function Profile() {
     { text: ` Delete`, icon: <FiDelete />, click: MovingHandle },
   ];
   const Setting = BackgroundUpdate || MovingSetting;
+  const {themeColor}=useData()
+
   const backGroundHandle = (data) => {
     return (
       <button
@@ -479,9 +483,7 @@ export default function Profile() {
             cursor:cursor,
               width: "100%",
               height: "60vh",
-              backgroundImage: `url(${
-                BackgroundUpdate?.view || Users?.backgroundimg
-              })`,
+              backgroundImage: `url("${BackgroundUpdate?.view||Users?.backgroundimg.split("%hiep%")[0]}")`,
             }}
             ref={containerBackRef}
             onMouseDown={Setting ? dragStartHandle : null}
@@ -494,7 +496,7 @@ export default function Profile() {
             }	`}
           >
             <div className="w-full h-full absolute inset-0 backdrop-blur-xl  bg-white/30 z-0"></div>
-            <div className="w-full h-1/2 absolute bottom-0 blurwhiteback"></div>
+            <div className={`w-full h-1/2 absolute bottom-0 ${! themeColor? "blurwhiteback ":"blurblackback"}`}></div>
             <div className="w-full h-full center relative">
               <div
                 className="h-full center relative overflow-hidden  rounded-b-lg "
@@ -530,8 +532,8 @@ export default function Profile() {
                 >
                  
                   <div className="p-2 bg-white center z-10 rounded cursor-pointer shadow-md absolute right-10 bottom-10 hover:bg-gray-200">
-                    <FiCamera />
-                    <p className="px-2">Change Background Image</p>
+                    <FiCamera fill="black" />
+                    <p className="px-2 text-black	font-semibold">Change Background Image</p>
                   </div>
                 </Popover>
                 {isLoading &&
@@ -571,17 +573,17 @@ export default function Profile() {
               onChange={(e) => changeBackImg(e)}
             ></input>
           </div>
-          <div className="w-full bg-gray-200 ">
+          <div className={`w-full ${themeColor? "bg-black":" bg-gray-200"} `}>
             {
               <>
-                <div className="flex  px-52 pb-16 mb-8 bg-white ">
+                <div className={`flex  px-52 pb-16 mb-8 ${themeColor? "bg-black":"theme"}`}>
                   <div style={{ marginTop: "-3rem" }}>
                     <div className="flex">
                       <div className="relative">
                         <div class=" relative overflow-hidden rounded-full border-4 border-neutral-50 ">
                           {!Users ? (
                             <div
-                              className="center bg-white"
+                              className="center theme"
                               style={{ width: "15rem", aspectRatio: "1" }}
                             >
                               <div className="loader"></div>
@@ -611,7 +613,7 @@ export default function Profile() {
                 </div>
                 <div className="w-full flex px-52 ">
                   <div className="h-screen " style={{ width: "40%" }}>
-                    <div className="p-16 bg-white rounded-xl mb-8 ">
+                    <div className="p-16 theme rounded-xl mb-8 ">
                       <p className="font-bold text-3xl">Giới thiệu</p>
 
                       {!ChangeIntroduce && !isLoading && (
@@ -624,7 +626,7 @@ export default function Profile() {
                               onClick={() => {
                                 showIntroduceHandle();
                               }}
-                              className="p-2 w-full bg-gray-200 font-semibold center rounded-xl my-2 cursor-pointer hover:bg-gray-100"
+                              className="p-2 w-full bg-gray-200 text-black	 font-semibold center rounded-xl my-2 cursor-pointer hover:bg-gray-100"
                             >
                               Chỉnh sửa mục đáng chú ý
                             </p>
@@ -668,7 +670,7 @@ export default function Profile() {
                         </span>
                         </p>
                     </div>
-                    <div className="p-8 bg-white rounded-xl my-8">
+                    <div className="p-8 theme rounded-xl my-8">
                       <p className="font-bold text-3xl">Ảnh</p>
                       <div className="grid grid-cols-3 gap-2">
                         {ImgContent ? (
@@ -690,7 +692,7 @@ export default function Profile() {
                         )}
                       </div>
                     </div>
-                    <div className="p-16 bg-white rounded-xl my-8 shadow-md">
+                    <div className="p-16 theme rounded-xl my-8 shadow-md">
                       <p className="font-bold text-3xl">Bạn bè</p>
                       <p>
                         {friends?.length} bạn bè ({gerenalFriend.length} bạn
