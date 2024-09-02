@@ -296,7 +296,8 @@ function Comment({
                       </div>
                     </Popover>
                   )}
-                  {isPost && comment?.userID===auth?.username && (
+                  {isPost && comment?.userID===auth?.username
+                   && (
                     <div className="featPost">
                       <ul className="flex ">
                         <li className="">

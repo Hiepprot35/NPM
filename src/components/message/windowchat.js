@@ -253,7 +253,9 @@ export default memo(function WindowChat(props) {
   const windowchat = useRef(null);
   const [userInfor, setUserInfo] = useState();
   const [messages, setMessages] = useState([]);
-
+  const [countOffset, setCountOffset] = useState(0);
+  const [countAllMess, setCountAllMes] = useState(0);
+  const [isGettingScroll, setisGettingScroll] = useState(false);
   const { Onlines, CallComing, setCallComing } = useRealTime();
 
   const [Sending, setSending] = useState(false);
@@ -262,6 +264,58 @@ export default memo(function WindowChat(props) {
   const { AccessToken, setAccessToken } = UseToken();
   const { RefreshToken } = UseRfLocal();
   const channel = new BroadcastChannel("message_channel");
+
+  const handleScroll = () => {
+    if (main_windowchat.current && !isGettingScroll) {
+      const scrollHeight = main_windowchat.current.scrollHeight;
+      const clientHeight = main_windowchat.current.clientHeight;
+      const scrolledFromTop = main_windowchat.current.scrollTop;
+
+      const overflowHeight = scrollHeight - clientHeight;
+
+      if (overflowHeight - Math.abs(scrolledFromTop) < 100) {
+        setCountOffset((pre) => pre + 10);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const scrollMess = async () => {
+      try {
+        setisGettingScroll(true);
+        const res = await fetch(
+          `${process.env.REACT_APP_DB_HOST}/api/message/conversation/${conversation?.id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${AccessToken}`,
+              "Content-Type": "application/json",
+              RefreshToken: RefreshToken,
+            },
+            body: JSON.stringify({ userID: auth.userID, offset: countOffset }),
+          }
+        );
+
+        if (!res.ok) {
+          setisGettingScroll(true);
+
+          throw new Error("Failed to fetch messages");
+        }
+
+        const { result } = await res.json();
+        if (result.length === 0) {
+          setisGettingScroll(true);
+        }
+        setMessages((prevMessages) => [...result, ...prevMessages]);
+        setisGettingScroll(false);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+    if (messages.length < countAllMess) {
+      scrollMess();
+    }
+  }, [countOffset]);
 
   async function getMessages(signal) {
     if (conversation?.id) {
@@ -285,7 +339,8 @@ export default memo(function WindowChat(props) {
           setListHiddenBubble([]);
           setListWindow([]);
         } else {
-          setMessages(data);
+          setMessages(data.result.reverse());
+          setCountAllMes(data.totalCount);
           const hehe = data.reduce((acc, e) => {
             if (e.isFile) {
               acc.push(...e.content.split(","));
@@ -344,11 +399,11 @@ export default memo(function WindowChat(props) {
     const index = data.findIndex((v) => v.toString() === e.toString());
 
     if (index !== -1) {
-      data.splice(index, 1); 
-      data2.splice(index, 1); 
+      data.splice(index, 1);
+      data2.splice(index, 1);
 
-      setImgView(data); 
-      setFileImg(data2); 
+      setImgView(data);
+      setFileImg(data2);
     }
   }
   function onClickEmoji(e) {
@@ -443,6 +498,13 @@ export default memo(function WindowChat(props) {
     socketSend(result);
   };
   const [ImgMess, setImgMess] = useState([]);
+  const sendMessRes = async (imgData) => {
+    const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
+      method: "POST",
+      body: imgData,
+    });
+    return res;
+  };
   async function handleSubmit(e) {
     e.preventDefault();
     inputValue.current.focus();
@@ -510,39 +572,22 @@ export default memo(function WindowChat(props) {
           imgData.append("content", file);
         }
         imgData.set("isFile", 1);
-        const res = await fetch(
-          `${process.env.REACT_APP_DB_HOST}/api/message`,
-          {
-            method: "POST",
-            body: imgData,
-          }
-        );
+        const res = sendMessRes(imgData);
         const newMessage = await res.json();
         socketSend(newMessage);
       }
       if (messagesText.length > 0 && emojiText.length === 0) {
         imgData.set("isFile", 0);
         imgData.set("content", messagesText);
-        const res = await fetch(
-          `${process.env.REACT_APP_DB_HOST}/api/message`,
-          {
-            method: "POST",
-            body: imgData,
-          }
-        );
+        const res = sendMessRes(imgData);
+
         const newMessage = await res.json();
         socketSend(newMessage);
       }
       if (emojiText.length > 0) {
         imgData.set("isFile", 0);
         imgData.set("content", updatedInputMess);
-        const res = await fetch(
-          `${process.env.REACT_APP_DB_HOST}/api/message`,
-          {
-            method: "POST",
-            body: imgData,
-          }
-        );
+        const res = sendMessRes(imgData);
         const newMessage = await res.json();
         promises.push(newMessage);
         socketSend(newMessage);
@@ -882,16 +927,24 @@ export default memo(function WindowChat(props) {
                     </div>
                   </div>
                 </div>
+
                 <div
                   className="Body_Chatpp relative flex flex-col justify-evenly	  "
                   style={props.chatApp ? { height: "93%" } : { height: "60vh" }}
                 >
+                  {isGettingScroll && (
+                    <div className="center ">
+                      <div className="loader "></div>
+                    </div>
+                  )}
                   <div
-                    className="main_windowchat h-full "
+                    className="main_windowchat"
+                    style={{ height: `${100 + countOffset * 10}%` }}
                     ref={main_windowchat}
+                    onScroll={handleScroll}
                   >
                     {messages.length > 0 ? (
-                      <div className="messages" ref={messagesRef}>
+                      <div className="" ref={messagesRef}>
                         {messages.map((message, index) => (
                           <div className="message_content" key={message.id}>
                             <Message
@@ -1022,7 +1075,7 @@ export default memo(function WindowChat(props) {
                                   onClick={() => remove_imageMess(e)}
                                   className="circleButton buttonImgView w-4 m-0 "
                                 >
-                                  <FiX/>
+                                  <FiX />
                                 </span>
                               </div>
                             ))}
