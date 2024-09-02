@@ -286,39 +286,44 @@ export default memo(function WindowChat(props) {
   };
 
   useEffect(() => {
-    const scrollMess = async () => {
-      try {
-        setisGettingScroll(true);
-        const res = await fetch(
-          `${process.env.REACT_APP_DB_HOST}/api/message/conversation/${conversation?.id}`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${AccessToken}`,
-              "Content-Type": "application/json",
-              RefreshToken: RefreshToken,
-            },
-            body: JSON.stringify({ userID: auth.userID, offset: countOffset }),
+    if (countOffset > 0) {
+      const scrollMess = async () => {
+        try {
+          setisGettingScroll(true);
+          const res = await fetch(
+            `${process.env.REACT_APP_DB_HOST}/api/message/conversation/${conversation?.id}`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${AccessToken}`,
+                "Content-Type": "application/json",
+                RefreshToken: RefreshToken,
+              },
+              body: JSON.stringify({
+                userID: auth.userID,
+                offset: countOffset,
+              }),
+            }
+          );
+
+          if (!res.ok) {
+            setisGettingScroll(true);
+
+            throw new Error("Failed to fetch messages");
           }
-        );
 
-        if (!res.ok) {
-          setisGettingScroll(true);
-
-          throw new Error("Failed to fetch messages");
+          const { result } = await res.json();
+          if (result.length === 0) {
+            setisGettingScroll(true);
+          }
+          setMessages((prevMessages) => [...result, ...prevMessages]);
+          setisGettingScroll(false);
+        } catch (error) {
+          console.error("Error fetching messages:", error);
         }
-
-        const { result } = await res.json();
-        if (result.length === 0) {
-          setisGettingScroll(true);
-        }
-        setMessages((prevMessages) => [...result, ...prevMessages]);
-        setisGettingScroll(false);
-      } catch (error) {
-        console.error("Error fetching messages:", error);
-      }
-    };
-    scrollMess();
+      };
+      scrollMess();
+    }
   }, [countOffset]);
 
   async function getMessages(signal) {
