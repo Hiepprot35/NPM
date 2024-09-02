@@ -184,7 +184,7 @@ function Comment({
       [data.action]: true,
       userID: auth.username,
     };
-    const res = await fetchApiRes("insertLike", "PUT", obj);
+    await fetchApiRes("insertLike", "PUT", obj);
     setClicked(!Clicked);
   };
 
@@ -296,7 +296,7 @@ function Comment({
                       </div>
                     </Popover>
                   )}
-                  {isPost && (
+                  {isPost && comment?.userID===auth?.username && (
                     <div className="featPost">
                       <ul className="flex ">
                         <li className="">

@@ -426,7 +426,6 @@ export default function Profile() {
           ...pre,
           backgroundimg: `${BackgroundUpdate.view + "%hiep%" + tinhtoan}`,
         }));
-        setBackgroundUpdate();
         const res = await fetch(
           `${process.env.REACT_APP_DB_HOST}/api/UpdateUserID/`,
           {
@@ -435,6 +434,7 @@ export default function Profile() {
             body: img,
           }
         );
+        setBackgroundUpdate();
         setIsLoading(false);
       } catch (error) {
         console.log(error);
@@ -559,9 +559,9 @@ export default function Profile() {
                     </div>
                   </Popover>
                 )}
-                {isLoading && (
+                {isLoading && BackgroundUpdate && (
                   <div className=" center w-full h-full absolute inset-0 z-50 bg-white-500/50">
-                    <p className="text-4xl">Uploading . . . . </p>
+                    <h1 className="text-3xl">Uploading . . . . </h1>
                   </div>
                 )}
                 {Users?.backgroundimg || BackgroundUpdate ? (
