@@ -7,8 +7,8 @@ import SlideMovie from "./Slide";
 const Session = ({ title, body }) => {
   return (
     <div className="sessionTV">
-      <div className=" m-8 font-semibold">
-        <h1 className="text-5xl text-x">{title}</h1>
+      <div className=" m-8 p-4 w-full backdrop-blur-sm bg-white/30	">
+        <h1 className="text-5xl font-semibold">{title}</h1>
       </div>
       <div className="center" style={{ marginTop: "2rem", width: "100%" }}>
         {body && <SlideMovie list={body} perPage={5}></SlideMovie>}

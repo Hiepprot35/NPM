@@ -10,8 +10,8 @@ import { cauculatorTime, countTime } from "../../function/getTime";
 import MyComment from "../home/MyComment";
 import { Popover } from "antd";
 import useAuth from "../../hook/useAuth";
-
-export default function PhotoPost({ CurrentImg, commentID, UsersProfile }) {
+import { ReactComment } from "../../lib/useObject";
+export default function PhotoPost({ CurrentImg, setCurrentImg,commentID, UsersProfile }) {
   const findTrueProperties = (obj) => {
     const prop = ReactComment.find((e) => {
       if (obj[e.action] === 1) {
@@ -27,13 +27,7 @@ export default function PhotoPost({ CurrentImg, commentID, UsersProfile }) {
 
   const { auth } = useAuth();
   const [Users, setUsers] = useState(UsersProfile);
-  const ReactComment = [
-    { action: "Like", icon: "👍", isLike: true, name: "Like" },
-    { action: "isFavorite", icon: "❤️", isFavorite: true, name: "Favorite" },
-    { action: "isHaha", icon: "😂", isHaha: true, name: "Haha" },
-    { action: "isSad", icon: "😔", isSad: true, name: "Sad" },
-    { action: "DisLike", icon: "👎", DisLike: true, name: "DisLike" },
-  ];
+
   const getComment = async () => {
     if (commentID) {
       try {
@@ -114,6 +108,11 @@ export default function PhotoPost({ CurrentImg, commentID, UsersProfile }) {
   //     setComment();
   //   };
   // }, [commentID]);
+  const close=()=>
+  {
+    navigator(-1)
+    setCurrentImg(null)
+  }
   return (
     <div className="w-screen h-screen flex fixed inset-0 center">
       <div className="h-full" style={{ width: "70%" }}>
@@ -122,13 +121,27 @@ export default function PhotoPost({ CurrentImg, commentID, UsersProfile }) {
             <div className="loader"></div>
           ) : (
             <>
+            {
+              Comment.type.includes('image') &&
               <img
-                className="object-contain w-full h-full"
-                style={{width:"auto",height:"auto"}}
-                src={`${ Comment?.img}`}
+              alt="imageAvatar"
+              className="object-contain w-full h-full"
+              style={{width:"auto",height:"auto"}}
+              src={`${ Comment?.img}`}
               />
+            }
+             {
+           Comment.type && Comment.type.includes('video') &&
+           <video
+           className="h-full"
+           alt={`Comment Media `}
+           controls
+           >
+            <source src={Comment?.img} type="video/mp4"></source>
+           </video>
+        }
               <div className="absolute right-3" style={{ top: "8vh" }}>
-                <span className="circleButton" onClick={() => navigator(-1)}>
+                <span className="circleButton" onClick={() => close()}>
                   X
                 </span>
               </div>
@@ -145,6 +158,7 @@ export default function PhotoPost({ CurrentImg, commentID, UsersProfile }) {
               ) : (
                 <>
                   <img
+                  alt="avatar"
                     className="avatarImage"
                     src={`${Users?.cutImg || Users?.img}`}
                   />

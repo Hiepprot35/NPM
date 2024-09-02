@@ -28,7 +28,7 @@ span {
   color: var(--textColor);
 }
 .theme{
-  background-color: var(--themeColor);
+  background-color: var(--themeColor) !important;
 }
 .content{
   padding-top: 7vh;
@@ -487,12 +487,17 @@ span,a
     font-size: 6px;
   }
 }
-@media only screen and (min-width: 1920px) and (max-width: 4000px) {
+@media only screen and (min-width: 1800px) and (max-width: 2500px) {
+  html {
+    font-size: 16px;
+  }
+}
+@media only screen and (min-width: 2500px) and (max-width: 4000px) {
   html {
     font-size: 24px;
   }
 }
-@media only screen and (min-width: 4000px)  {
+@media only screen and (min-width:4000px)  {
   html {
     font-size: 40px;
   }

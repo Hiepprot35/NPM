@@ -91,12 +91,12 @@ export function countTime(data) {
 
   if (hour < 1) {
     if (minute >= 1) {
-      return `${minute}m`;
+      return `${minute} minutes`;
     } else {
       return `vừa xong`;
     }
   } else if (hour < 24) {
-    return `${hour}h`;
+    return `${hour} hours`;
   } else {
     const day = Math.floor(hour / 24);
     return `${day}d`;

@@ -54,7 +54,7 @@ export async function fetchApiRes(url, method, body, options = {}) {
       method: method,
       headers: { "Content-type": "application/json" },
       body: body instanceof FormData ? body : JSON.stringify(body),
-      ...options, // Spread the options to include signal
+      ...options, 
     };
 
     // Remove body if method is GET

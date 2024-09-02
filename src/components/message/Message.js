@@ -1,15 +1,13 @@
-import { useState, useEffect, useRef, memo } from "react";
-import parse, { domToReact } from "html-react-parser";
-import "./message.css";
-import * as timeUse from "../../function/getTime";
-import { IsLoading } from "../Loading";
-import useAuth from "../../hook/useAuth";
-import { useSocket } from "../../context/socketContext";
 import { Popover } from "antd";
-import parseUrl from "parse-url";
-import { fetchVideoTitle, movieApi } from "./windowchat";
-import { FiCamera, FiVideo } from "react-icons/fi";
+import parse, { domToReact } from "html-react-parser";
+import { memo, useEffect, useRef, useState } from "react";
+import { FiVideo } from "react-icons/fi";
+import * as timeUse from "../../function/getTime";
+import useAuth from "../../hook/useAuth";
 import { Image } from "../home/home";
+import { IsLoading } from "../Loading";
+import "./message.css";
+import { fetchVideoTitle, movieApi } from "./windowchat";
 export default memo(function Message({
   message,
   i,
@@ -216,8 +214,8 @@ export default memo(function Message({
                           {listAnh &&
                             listAnh.map((e, i) => (
                               <img
+                                alt="avatar"
                                 key={i}
-                                alt="Image"
                                 onClick={() => setShowImgMess(e)}
                                 className={`cursor-pointer ${
                                   listAnh?.length > 1 && "listImg"
@@ -246,7 +244,8 @@ export default memo(function Message({
                 )}
               </div>
 
-              {(student && listSeen&&
+              {(student &&
+                listSeen &&
                 parseInt(message?.created_at) ===
                   parseInt(listSeen?.created_at) &&
                 listSeen?.Seen_at) ||

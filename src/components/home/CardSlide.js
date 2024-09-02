@@ -112,7 +112,7 @@ export const CardSlide = ({ e, i, card, className }) => {
                 animate={isHover ? "open" : "closed"}
                 variants={variants}
               >
-                <motion.div className="hiddenText">
+                <motion.div className="hiddenText font-semibold">
                   <TextAnimetion
                     className="hiddenText"
                     isHover={isHover}
@@ -211,10 +211,10 @@ export const CardSlide = ({ e, i, card, className }) => {
           </div>
         </div>
         <div
-          className="hiddenText"
-          style={{ width: `${card.width}vw`, height: "2rem", margin: `${card.width / 15}vw`, }}
+          className="hiddenText "
+          style={{ width: `${card.width}vw`, margin: `${card.width / 15}vw`, }}
         >
-          <p>{e.title || e.original_name}</p>
+          <p className="text-2xl font-semibold">{e.title || e.original_name}</p>
         </div>
       </div>
     </a>

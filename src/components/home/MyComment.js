@@ -1,14 +1,12 @@
+import { Popover } from "antd";
+import EmojiPicker from "emoji-picker-react";
 import { default as React, useEffect, useRef, useState } from "react";
-import "./myComment.scss";
-import { FiSend, FiSmile } from "react-icons/fi";
+import { FiSend, FiSmile, FiX } from "react-icons/fi";
 import { fetchApiRes } from "../../function/getApi.js";
 import useAuth from "../../hook/useAuth.js";
-import EmojiPicker from "emoji-picker-react";
-import parseUrl from "parse-url";
-import { IsLoading } from "../Loading.js";
-import * as cheerio from 'cheerio';
-import { Popover } from "antd";
-import SharingScreen from "../UserProfile/SharingScreen.js";
+import Upload from "../imageView/Upload.js";
+import "./myComment.scss";
+import ImageView from "../imageView/imageView.js";
 export default function MyComment(props) {
   const refTag = useRef();
   const inputRef = useRef();
@@ -16,7 +14,7 @@ export default function MyComment(props) {
   const [OpenTag, setOpenTag] = useState(false);
   const [myComment, setMyComment] = useState();
   const [myFriendList, setMyFriendList] = useState([]);
-  const { auth,myInfor } = useAuth();
+  const { auth, myInfor } = useAuth();
   const checkID = (array, id) => {
     return array.user1 === id ? array.user2 : array.user1;
   };
@@ -80,31 +78,37 @@ export default function MyComment(props) {
     }
   };
   const [ImgView, setImgView] = useState([]);
-  const [ImgFile, setImgFile] = useState();
-  useEffect(() => {}, []);
+  const [ImgFile, setImgFile] = useState([]);
   const pastImg = (e) => {
     const clipboardData = e.clipboardData || window.clipboardData;
     const items = clipboardData.items;
 
-    console.log(clipboardData);
     for (let i = 0; i < items.length; i++) {
       if (items[i].kind === "file" && items[i].type.startsWith("image/")) {
         e.preventDefault();
         const file = items[i].getAsFile();
         setImgFile(file);
-        setImgView( [ URL.createObjectURL(file)]);
+        setImgView([URL.createObjectURL(file)]);
       }
     }
   };
-  const [videoData, setVideoData] = useState(null);
+  const [VideosUpload, setVideosUpload] = useState([]);
+  function pick_imageMess(e) {
+    const imgMessFile = e.target.files;
+    for (let i = 0; i < imgMessFile.length; i++) {
+      console.log("type,",imgMessFile[i].type)
+      if (imgMessFile[i].type === "video/mp4") {
+        setVideosUpload(pre=>[...pre,URL.createObjectURL(imgMessFile[i])]);
+      }
+      setImgFile((pre) => [...pre, imgMessFile[i]]);
+      setImgView((pre) => [...pre, URL.createObjectURL(imgMessFile[i])]);
+    }
+  }
+ 
   useEffect(() => {
-    console.log(videoData)
-  }, [videoData]);
-  useEffect(() => {
-    console.log(myComment)
+    console.log(myComment);
     if (inputRef.current) {
       if (myComment) {
-    
         if (myComment.includes("@")) {
           setOpenTag(true);
           const atIndex = myComment.indexOf("@");
@@ -126,7 +130,6 @@ export default function MyComment(props) {
 
   const sendComment = async (e) => {
     e.preventDefault();
-    let isSending = false;
     setisLoading(true);
     try {
       let content = myComment;
@@ -149,19 +152,27 @@ export default function MyComment(props) {
       form.append("replyID", props.reply || -1);
       form.append("create_at", Date.now());
       if (ImgFile) {
-        form.append("image", ImgFile);
+        for (const file of ImgFile) {
+          form.append("images", file);
+        }
       }
       const res = await fetch(
         `${process.env.REACT_APP_DB_HOST}/api/insertComment`,
         { method: "POST", body: form }
       );
-      const newComment=await res.json()
-      console.log(newComment)
-      props.update((pre) => [ newComment,...pre]);
+      const newComment = await res.json();
+      console.log(newComment);
+      props.update((pre) => [
+        {
+          ...newComment,
+          media: ImgView.map((e) => ({ url: e })),
+        },
+        ...pre,
+      ]);
       inputRef.current.innerHTML = "";
       setCountText(0);
-      setImgFile()
-      setImgView()
+      setImgFile([]);
+      setImgView([]);
       setMyComment("");
       if (props.setRender) {
         props.setRender((pre) => !pre);
@@ -170,7 +181,6 @@ export default function MyComment(props) {
       console.log(error);
     }
   };
-  const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
   const [Emoji, setEmoji] = useState([]);
   const onClickEmoji = (e) => {
     if (inputRef.current) {
@@ -193,7 +203,11 @@ export default function MyComment(props) {
         >
           <div className="AvatarComment">
             <div className="AvatarComment2">
-              <img className="avatarImage" src={`${myInfor?.avtUrl}`}></img>
+              <img
+                alt="avatar"
+                className="avatarImage"
+                src={`${myInfor?.avtUrl}`}
+              ></img>
             </div>
           </div>
 
@@ -235,12 +249,13 @@ export default function MyComment(props) {
                     />
                   }
                 >
-                  <span className="circleButton">
-                    <FiSmile></FiSmile>
-                  </span>
-                  
+                  <div>
+                    <span className="circleButton">
+                      <FiSmile></FiSmile>
+                    </span>
+                  </div>
                 </Popover>
-
+                <Upload pick_imageMess={pick_imageMess} />
                 <span
                   style={{
                     color: `rgb(${(255 * countText) / 200},${
@@ -249,33 +264,35 @@ export default function MyComment(props) {
                     marginLeft: "1rem",
                   }}
                 >
-                            <div> ccc {videoData?.title}</div>
-
                   {`${countText}/200`}{" "}
                   {countText === 200 && ` vượt quá kí tự quy định`}
                 </span>
-                <div className="m-4 flex">
-                  {ImgView &&
-                    ImgView.map((e) => (
-                      <img
-                        className="rounded-xl m-2"
-                        style={{ width: "6rem", aspectRatio: 1 }}
-                        src={e}
-                      ></img>
-                    ))}
+                <div className="multiFile_layout w-48">
+                  <ImageView imgView={ImgView} setImgView={setImgView} />
+                </div>
+                <div>
+                  {VideosUpload &&
+                    VideosUpload.map((e, index) => {
+                      return (
+                        <video
+                          key={index}
+                          src={
+                            typeof e === "string" ? e : URL.createObjectURL(e)
+                          }
+                          controls
+                          width="500"
+                        ></video>
+                      );
+                    })}
                 </div>
               </div>
 
               {((myComment && myComment !== "<br>") || ImgFile) && (
-                <>
-                  <span
-                    className="circleButton"
-                    style={{ margin: "0" }}
-                    onClick={sendComment}
-                  >
+                <div className="center">
+                  <span className="circleButton" onClick={sendComment}>
                     <FiSend />
                   </span>
-                </>
+                </div>
               )}
             </div>
           </div>
@@ -288,7 +305,11 @@ export default function MyComment(props) {
                   style={{ margin: ".5rem" }}
                   onClick={() => tagHandle(e)}
                 >
-                  <img className="avatarImage" src={`${e.img}`}></img>
+                  <img
+                    alt="avatar"
+                    className="avatarImage"
+                    src={`${e.img}`}
+                  ></img>
                   <p style={{ margin: ".3rem" }}>{e.Name}</p>
                 </div>
               ))}

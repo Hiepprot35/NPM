@@ -15,28 +15,19 @@ import {
   FiX,
   FiXCircle,
 } from "react-icons/fi";
+import { NavLink } from "react-router-dom";
 import { useData } from "../../context/dataContext";
 import { useSocket } from "../../context/socketContext";
-import {
-  TheMovieApi,
-  fetchApiRes,
-  getInforByUserID,
-  getStudentInfoByMSSV,
-  getUserinfobyID,
-} from "../../function/getApi";
+import { useRealTime } from "../../context/useRealTime";
+import { TheMovieApi, fetchApiRes } from "../../function/getApi";
 import useAuth from "../../hook/useAuth";
+import UseRfLocal from "../../hook/useRFLocal";
+import UseToken from "../../hook/useToken";
 import { Image } from "../home/home";
 import Message from "./Message";
 import "./windowchat.css";
-import { IsLoading } from "../Loading";
-import UserProfile from "../UserProfile/userProfile";
 import ShowImgDialog from "./windowchat/ShowImgMess";
-import { useRealTime } from "../../context/useRealTime";
-import VideoPlayer from "../chatapp/VideoPlayer";
-import UseToken from "../../hook/useToken";
-import UseRfLocal from "../../hook/useRFLocal";
 import VehicleChat from "./windowchat/VehicleChat";
-import { NavLink } from "react-router-dom";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 export const movieApi = async (videoID) => {
   const url = `https://api.themoviedb.org/3/movie/${videoID}`;
@@ -169,6 +160,7 @@ export default memo(function WindowChat(props) {
             <div className="flex m-2">
               <div className="center">
                 <img
+                  alt="Avatar"
                   className="avatarImage"
                   src={`${myInfor?.cutImg || myInfor?.img}`}
                 ></img>
@@ -189,6 +181,7 @@ export default memo(function WindowChat(props) {
             <div className="flex m-2">
               <div className="center">
                 <img
+                  alt="Avatar"
                   className="avatarImage"
                   src={`${user?.cutImg || user?.img}`}
                 ></img>
@@ -351,11 +344,11 @@ export default memo(function WindowChat(props) {
     const index = data.findIndex((v) => v.toString() === e.toString());
 
     if (index !== -1) {
-      data.splice(index, 1); // Xóa phần tử tại chỉ số index trong mảng data
-      data2.splice(index, 1); // Xóa phần tử tương ứng tại chỉ số index trong mảng data2
+      data.splice(index, 1); 
+      data2.splice(index, 1); 
 
-      setImgView(data); // Cập nhật trạng thái imgView với mảng đã thay đổi
-      setFileImg(data2); // Cập nhật trạng thái fileImg với mảng đã thay đổi
+      setImgView(data); 
+      setFileImg(data2); 
     }
   }
   function onClickEmoji(e) {
@@ -421,13 +414,11 @@ export default memo(function WindowChat(props) {
       isSetting = false;
     }
   };
-  const handleKeyDown=async(e)=>
-    {
-      if(e.key==="Enter")
-        {
-      handleSubmit(e)     
-        }
+  const handleKeyDown = async (e) => {
+    if (e.key === "Enter") {
+      handleSubmit(e);
     }
+  };
   const sendFastHandle = async () => {
     const data = new FormData();
     const messObj = {
@@ -468,13 +459,13 @@ export default memo(function WindowChat(props) {
       };
       const update = [...messages];
       if (ImageFile.length > 0) {
-        const imgMess={
+        const imgMess = {
           ...messObj,
           content: viewImg.toString(),
           isFile: 1,
-        }
+        };
         channel.postMessage(imgMess);
-        setImgMess(pre=>[viewImg.toString(),...pre])
+        setImgMess((pre) => [viewImg.toString(), ...pre]);
       }
       if (messagesText.length > 0 && emojiText.length === 0) {
         channel.postMessage({
@@ -945,6 +936,7 @@ export default memo(function WindowChat(props) {
                         <>
                           <div onClick={setEmtyImg} className="features_hover">
                             <img
+                              alt="Arrow"
                               src={`${ClientURL}/images/arrow-left.svg`}
                               style={{ width: "1.5rem", height: "1.5rem" }}
                             ></img>
@@ -1021,16 +1013,17 @@ export default memo(function WindowChat(props) {
                               >
                                 <div key={i} className="listImgMess w-16 h-16">
                                   <img
+                                    alt="Hello"
                                     className="rounded-xl  w-full h-full object-cover"
                                     src={e}
                                   ></img>
                                 </div>
-                                <div
+                                <span
                                   onClick={() => remove_imageMess(e)}
-                                  className="circleButton buttonImgView"
+                                  className="circleButton buttonImgView w-4 m-0 "
                                 >
-                                  X
-                                </div>
+                                  <FiX/>
+                                </span>
                               </div>
                             ))}
                           </div>

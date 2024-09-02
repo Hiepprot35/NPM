@@ -1,28 +1,14 @@
-import { useEffect, useRef, useState } from "react";
-import { Buffer } from "buffer";
-import { useRefresh } from "../../hook/useRefresh";
-import UseToken from "../../hook/useToken";
-import Header from "../Layout/header/header";
-import useAuth from "../../hook/useAuth";
-import "./userProfile.css";
-import BlobtoBase64 from "../../function/BlobtoBase64";
-import Home from "../home/home";
-import FriendList from "../home/friend";
-import MessageMainLayout from "../message/messageMainLayout";
 import { Button, Layout, Popover } from "antd";
-import GerenalFriendComponent from "../home/gerenalFriendComponent";
-import { FiMessageCircle, FiUserPlus } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { FiMessageCircle, FiUserMinus, FiUserPlus } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
-import {
-  fetchApiRes,
-  getStudentInfoByMSSV,
-  getUserinfobyID,
-} from "../../function/getApi";
 import { useData } from "../../context/dataContext";
-import { getConversation } from "../conversation/getConversation";
 import { useSocket } from "../../context/socketContext";
+import { fetchApiRes } from "../../function/getApi";
+import useAuth from "../../hook/useAuth";
+import GerenalFriendComponent from "../home/gerenalFriendComponent";
 import { IsLoading } from "../Loading";
-const { Content, Footer } = Layout;
+import "./userProfile.css";
 const getFriendList = async (userID) => {
   const checkID = (array, id) => {
     return array.user1 === id ? array.user2 : array.user1;
@@ -37,28 +23,21 @@ const getFriendList = async (userID) => {
 export default function UserProfile(props) {
   const socket = useSocket();
   const [isLoading, setIsLoading] = useState(false);
-  const [Users, setUserInfo] = useState();
   const {
     setListWindow,
     setListHiddenBubble,
     setConversations,
     setConversationContext,
-    ConversationContext,
     Conversations,
   } = useData();
   const { auth, myInfor } = useAuth();
-  const host = process.env.REACT_APP_DB_HOST;
-  const removeElement = (array, index) => {
-    const newArray = array.filter((obj) => obj?.id !== index);
-    return newArray;
-  };
   const AddConver = async (id, request) => {
     try {
       const obj = {
         user1: auth.userID,
         user2: id,
         user1_mask: myInfor.Name,
-        user2_mask: Users.Name,
+        user2_mask: props.User.Name,
         Requesting: request ? 1 : 0,
         created_at: Date.now(),
       };
@@ -143,8 +122,8 @@ export default function UserProfile(props) {
         user1: auth.userID,
         user2: id,
         user1_mask: myInfor.Name,
-        user2_mask: Users.Name,
-        img: Users.cutImg || Users.img,
+        user2_mask: props.User.Name,
+        img: props.User.cutImg || props.User.img,
         created_at: Date.now(),
       };
       const converFound = Conversations.find(
@@ -170,7 +149,7 @@ export default function UserProfile(props) {
         }
       } else {
         setConversationContext((prev) => [
-          { ...converFound, img: Users.cutImg || Users.img },
+          { ...converFound, img: props.User.cutImg || props.User.img },
           ...prev.filter((e) => e.id !== converFound.id),
         ]);
         setListHiddenBubble((pre) => [
@@ -201,10 +180,10 @@ export default function UserProfile(props) {
   const [gerenalFriend, setgerenalFriend] = useState([]);
 
   useEffect(() => {
-    if (Users) {
+    if (props.User) {
       const getUserFriend = async () => {
         const dataMyFriend = await getFriendList(auth?.userID);
-        const dataUserFriend = await getFriendList(Users?.UserID);
+        const dataUserFriend = await getFriendList(props.User?.UserID);
         const generalFriends = dataUserFriend.filter((userFriend) => {
           return dataMyFriend.some((e) => e === userFriend);
         });
@@ -212,42 +191,14 @@ export default function UserProfile(props) {
       };
       getUserFriend();
     }
-  }, [Users]);
-  // useEffect(() => {
-  //   if (myFriendList && userFriendList) {
-  //     const generalFriends = userFriendList.filter((userFriend) => {
-  //       return myFriendList.some((e) => e === userFriend);
-  //     });
-
-  //     setgerenalFriend(generalFriends);
-  //   }
-  // }, [myFriendList, userFriendList]);
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const res = await fetch(`${host}/api/getStudentbyID/${props.MSSV}`);
-        const resJson = await res.json();
-        setUserInfo(resJson);
-      } catch (error) {
-        console.error("Error occurred:", error);
-      }
-    };
-    console.log(props.User);
-    if (!props.User) {
-      getData();
-    } else {
-      setUserInfo(props.User);
-    }
-  }, [props.MSSV, props.User]);
+  }, [props.User]);
 
   return (
     <>
-      {isLoading ? (
-        <IsLoading></IsLoading>
-      ) : (
+      {
         <div className="UserProfile" style={{ width: "100%", cursor: Cursor }}>
           <div className="">
-            {Users && (
+            {props.User && (
               <div>
                 <div
                   className="center"
@@ -261,20 +212,24 @@ export default function UserProfile(props) {
                     <Popover
                       content={
                         <UserProfile
-                          User={Users}
-                          MSSV={Users.MSSV}
+                          User={props.User}
+                          MSSV={props.User.MSSV}
                           isHover={true}
                         ></UserProfile>
                       }
                     >
                       <NavLink
-                        to={`${process.env.REACT_APP_CLIENT_URL}/profile/${Users.MSSV}`}
+                        to={`${process.env.REACT_APP_CLIENT_URL}/profile/${props.User.MSSV}`}
                       >
                         <img
                           className="avatarImage"
                           // style={{ width: "168px" }}
-                          src={Users?.cutImg || Users?.img}
-                          alt=""
+                          src={
+                            props.User?.cutImg ||
+                            props.User?.img ||
+                            "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg"
+                          }
+                          alt="avatar"
                         />
                       </NavLink>
                     </Popover>
@@ -283,7 +238,9 @@ export default function UserProfile(props) {
                     className={props.hover ? "hoverProfile" : `article-body`}
                   >
                     <div>
-                      <b>{Users.Name}</b>
+                      <b>
+                        {props.User.Name} {auth.userID}
+                      </b>
                       <p>Có {gerenalFriend.length} bạn chung</p>
                       {gerenalFriend && (
                         <GerenalFriendComponent
@@ -300,7 +257,7 @@ export default function UserProfile(props) {
                         className="sendButton"
                         onClick={() => {
                           if (auth.userID) {
-                            handleAddChat(Users.UserID);
+                            handleAddChat(props.User.UserID);
                           } else {
                             window.open(
                               `${process.env.REACT_APP_CLIENT_URL}/login`,
@@ -320,45 +277,41 @@ export default function UserProfile(props) {
                         }
                       ></Button>
                     )}
-                    {Conversations.find((e) => {
-                      if (e.user1 === auth.username) {
-                        return (
-                          <Button
-                            size="large"
-                            style={{
-                              width: "3rem",
-                              margin: ".2rem",
-                              cursor: Cursor,
-                            }}
-                            onClick={() => sendRequestFriend(Users.UserID)}
-                            icon={<FiUserPlus></FiUserPlus>}
-                          ></Button>
-                        );
-                      }
-                    })}
-                    {Conversations.find((e) => {
-                      if (e.user1 === auth.username) {
-                        return (
-                          <Button
-                            size="large"
-                            style={{
-                              width: "3rem",
-                              margin: ".2rem",
-                              cursor: Cursor,
-                            }}
-                            onClick={() => sendRequestFriend(Users.UserID)}
-                            icon={<FiUserPlus></FiUserPlus>}
-                          ></Button>
-                        );
-                      }
-                    })}
+                    {Conversations.some(
+                      (e) =>
+                        (e.user1 === props.User.UserID ||
+                          e.user2 === props.User.UserID) &&
+                        e.Friend
+                    ) ? (
+                      <Button
+                        size="large"
+                        style={{
+                          width: "3rem",
+                          margin: ".2rem",
+                          cursor: Cursor,
+                        }}
+                        onClick={() => deleteRequestFriend(props.User.UserID)}
+                        icon={<FiUserMinus></FiUserMinus>}
+                      ></Button>
+                    ) : (
+                      <Button
+                        size="large"
+                        style={{
+                          width: "3rem",
+                          margin: ".2rem",
+                          cursor: Cursor,
+                        }}
+                        onClick={() => sendRequestFriend(props.User.UserID)}
+                        icon={<FiUserPlus></FiUserPlus>}
+                      ></Button>
+                    )}
                   </div>
                 </div>
               </div>
             )}
           </div>
         </div>
-      )}
+      }
     </>
   );
 }

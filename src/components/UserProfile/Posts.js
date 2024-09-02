@@ -1,32 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { fetchApiRes } from "../../function/getApi";
+import React, { useState } from "react";
+import { FiGrid, FiLayout } from "react-icons/fi";
 import useAuth from "../../hook/useAuth";
 import Comment from "../home/Comment";
-import "./Posts.css";
 import MyComment from "../home/MyComment";
-import { FiGrid, FiLayout } from "react-icons/fi";
-import { useRealTime } from "../../context/useRealTime";
-import SharingScreen from "./SharingScreen";
+import "./Posts.css";
 export default function Posts(props) {
-  const { auth } = useAuth();
-  
-  //       .filter((e) => e.content.includes("imgSplitLink"))
-  //       .map((e) => ({
-  //         userID: e.userID,
-  //         img: e.content.split("imgSplitLink")[1],
-  //         id: e.id, // Keep the id
-  //         create_at: e.create_at,
-  //       }));
-  //     props.setImgContent(dataImg);
-  //     setPost(dataUpdate);
-  //   };
-  //   getPost();
-  //   return () => {
-  //     props.setImgContent();
-  //     setPost();
-  //   };
-  // }, [props.username]);
-
   const [gridView, setGridView] = useState(false);
   return (
     <>
@@ -58,11 +36,12 @@ export default function Posts(props) {
         {
           props.Posts.map((e) => (
             <Comment
+              isPost={true}
               key={e.id}
               users={props.users}
               comment={e}
               setCurrentImg={props.setCurrentImg}
-              className={"PostComponent p-4  mb-8 theme rounded-xl w-full"}
+              className={"PostComponent p-4  mb-4 theme rounded-xl w-full"}
             ></Comment>
           ))}
       </div>

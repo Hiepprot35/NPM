@@ -43,7 +43,7 @@ import { FiEye, FiX } from "react-icons/fi";
         {!Report ? (
           <Button
             onClick={() => watchMovieHandle(id,background)}
-            className="buttonFilmHandle buttonFilm"
+            className="buttonFilmHandle buttonFilm theme"
             icon={<FiEye />}
           >
             <span>Watch</span>
@@ -52,7 +52,7 @@ import { FiEye, FiX } from "react-icons/fi";
           <Popover content={Report}>
             <Button
               // onClick={() => watchMovieHandle(e.id)}
-              className="buttonFilmHandle buttonFilm"
+              className="buttonFilmHandle buttonFilm theme"
               icon={<FiEye />}
             >
               <span>Watch</span>

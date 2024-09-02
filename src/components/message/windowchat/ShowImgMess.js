@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import "./showImgMess.css";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import FileSaver from "file-saver";
+import { useEffect, useRef, useState } from "react";
 import { FiArrowLeft, FiArrowRight, FiDownload } from "react-icons/fi";
-import FileSaver, { saveAs } from "file-saver";
+import { useNavigate } from "react-router-dom";
+import "./showImgMess.css";
 export default function ShowImgDialog(props) {
   const nagative = useNavigate();
   useEffect(() => {
@@ -20,8 +20,7 @@ export default function ShowImgDialog(props) {
   }, [currentSlide]);
   useEffect(() => {
     if (props.listImg && props.current) {
-      
-      const indexOfTerms = props.listImg.findIndex((e) =>e===props.current);
+      const indexOfTerms = props.listImg.findIndex((e) => e === props.current);
       setCurrentSlide(indexOfTerms);
     }
   }, [props.listImg, props.current]);
@@ -82,8 +81,10 @@ export default function ShowImgDialog(props) {
     }
   }, [currentSlide]);
   const saveImage = async () => {
-    let imageUrl =props.isMovies? `https://image.tmdb.org/t/p/original${props.current.file_path}`:props.current;
-    FileSaver.saveAs(imageUrl,Date.now(), "image.jpg");
+    let imageUrl = props.isMovies
+      ? `https://image.tmdb.org/t/p/original${props.current.file_path}`
+      : props.current;
+    FileSaver.saveAs(imageUrl, Date.now(), "image.jpg");
   };
 
   return (
@@ -128,6 +129,7 @@ export default function ShowImgDialog(props) {
                       onClick={() => clickImg(i)}
                     >
                       <img
+                        alt="avatr"
                         src={
                           props.isMovies
                             ? `https://image.tmdb.org/t/p/original/${e.file_path}`
@@ -167,6 +169,7 @@ export default function ShowImgDialog(props) {
                       style={{ cursor: "pointer", marginLeft: "0.3rem" }}
                     >
                       <img
+                        alt="avatar"
                         src={
                           props.isMovies
                             ? `https://image.tmdb.org/t/p/original/${e.file_path}`

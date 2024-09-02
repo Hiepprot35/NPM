@@ -1,10 +1,11 @@
 import React, { memo, useEffect, useState } from "react";
-import { FiThumbsDown, FiThumbsUp } from "react-icons/fi";
+import { FiSettings, FiThumbsDown, FiThumbsUp, FiX } from "react-icons/fi";
 import useAuth from "../../hook/useAuth";
 import { fetchApiRes, getStudentInfoByMSSV } from "../../function/getApi";
 import parse, { domToReact } from "html-react-parser";
-import { Popover } from "antd";
+import { Popconfirm, Popover } from "antd";
 import UserProfile from "../UserProfile/userProfile";
+import { ReactComment } from "../../lib/useObject";
 import MyComment from "./MyComment";
 import {
   countTime,
@@ -16,7 +17,15 @@ import { fetchVideoTitle, movieApi } from "../message/windowchat";
 import parseUrl from "parse-url";
 import { NavLink } from "react-router-dom";
 import { useRealTime } from "../../context/useRealTime";
-function Comment({ comment, isReply, className, users, setCurrentImg }) {
+import MediaGrid from "../imageView/MediaGrid";
+function Comment({
+  comment,
+  isReply,
+  className,
+  users,
+  setCurrentImg,
+  isPost,
+}) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState();
   const [ComemntDetail, setComemntDetail] = useState([]);
@@ -92,16 +101,28 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
     const youtubeRegex = /(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
     const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
     const data = e.split("imgSplitLink");
-    if (data.length > 1) {
-      updatedComment = `<div className="flex">
-      ${data[0]}
+    if (data[1].length > 0) {
+      updatedComment = `
+      <div className="flex">
+        ${data[0]}
       </div>
-        <img atl="comment" className="w-full h-full rounded-xl" src="${data[1]}" />`;
-    }
-    else{
+      ${data[1]
+        .split(",")
+        .map(
+          (e) =>
+            e &&
+            `
+        <img alt="comment" className="${
+          isPost ? "shadow-lg" : ""
+        } w-full h-full rounded-xl" src="${e.trim()}" />
+      `
+        )
+        .join("")}
+    `;
+    } else {
       updatedComment = `<div className="flex">
       ${data[0]}
-      </div>` 
+      </div>`;
     }
     if (youtubeRegex.test(e)) {
       const url = e.match(youtubeRegex);
@@ -140,41 +161,7 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
           </Popover>
         );
       }
-      if (name === "img" && attribs) {
-        const imgElement = domToReact([{ name, attribs, children }]);
-        if (attribs?.className && !attribs?.className.includes("emoji")) {
-          return (
-            <div
-              className="w-full h-full center bg-black rounded-xl "
-              style={{ height: "60vh" }}
-              onClick={() =>
-                setCurrentImg({
-                  img: attribs.src,
-                  userID: comment.userID,
-                  id: comment.id,
-                  create_at: comment.create_at,
-                })
-              }
-            >
-              <NavLink
-                to={`${process.env.REACT_APP_CLIENT_URL}/photo?MSSV=${comment.userID}&commentID=${comment.id}`}
-              >
-                <div
-                  class=" relative overflow-hidden   w-full center  "
-                  style={{ height: "60vh" }}
-                >
-                  <img
-                    className="object-contain cursor-pointer h-full w-full  relative z-0 transition-all duration-300 hover:scale-110 "
-                    {...attribs}
-                  />
-                </div>
-              </NavLink>
-            </div>
-          );
-        } else {
-          return imgElement;
-        }
-      }
+    
     },
   };
 
@@ -200,13 +187,6 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
     const res = await fetchApiRes("insertLike", "PUT", obj);
     setClicked(!Clicked);
   };
-  const ReactComment = [
-    { action: "Like", icon: "👍", isLike: true, name: "Like" },
-    { action: "isFavorite", icon: "❤️", isFavorite: true, name: "Favorite" },
-    { action: "isHaha", icon: "😂", isHaha: true, name: "Haha" },
-    { action: "isSad", icon: "😔", isSad: true, name: "Sad" },
-    { action: "DisLike", icon: "👎", DisLike: true, name: "DisLike" },
-  ];
 
   const [ReplyOpen, setReplyOpen] = useState(false);
   const ReplyHandle = () => {
@@ -232,10 +212,13 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
       getCommentReply();
     }
   }, [comment]);
-
+  const deletePost = async (id) => {
+    const url = `${process.env.REACT_APP_DB_HOST}/api/comment/delete/${id}`;
+    const res = await fetch(url, { method: "DELETE" });
+  };
   return (
-    <div className={`comment ${className}`}>
-      <div className="containerComment">
+    <div className={`comment ${className} ${isPost && "shadow-xl"}`}>
+      <div className={`containerComment my-2 `}>
         <div className="headerComment">
           <div className="AvatarComment">
             <Popover
@@ -249,6 +232,7 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
                 ) : (
                   <div>
                     <img
+                      alt="commentImg"
                       className="avatarImage shadow-lg"
                       style={{ maxWidth: "unset" }}
                       src={`${(User && User?.cutImg) || User?.img}`}
@@ -269,40 +253,86 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
               <div className="linearComment"></div>
             )}
           </div>
-          <div className="bodyComment w-full">
-            <div className="NameAndContent">
-              <div className="nameComment">
-                {User && (
-                  <Popover
-                    content={
-                      <UserProfile User={User} MSSV={User?.MSSV}></UserProfile>
-                    }
-                  >
-                    <div className="NameComment" style={{ cursor: "pointer" }}>
-                      <span style={{ fontWeight: 600 }}>{User?.Name}</span>
+          <div
+            className={`bodyComment w-full ${
+              !isPost && "bg-slate-300	 rounded-xl"
+            }`}
+          >
+            <div className="px-2 ">
+              <div
+                className={`nameComment ${!isPost && "p-2"} `}
+                style={{ height: "2.5rem" }}
+              >
+                <div className="flex justify-between">
+                  {User && (
+                    <Popover
+                      content={
+                        <UserProfile
+                          User={User}
+                          MSSV={User?.MSSV}
+                        ></UserProfile>
+                      }
+                    >
+                      <div
+                        className="NameComment"
+                        style={{ cursor: "pointer" }}
+                      >
+                        <span style={{ fontWeight: 600 }}>{User?.Name}</span>
+                        <p>
+                          <Popover
+                            content={
+                              <p>
+                                {getDate(comment.create_at)} lúc{" "}
+                                {getTime(comment.create_at)},{" "}
+                                {getWeekdays(comment.create_at)}
+                              </p>
+                            }
+                          >
+                            <span className="text-sm text-slate-500	">
+                              {countTime(comment.create_at)} ago
+                            </span>
+                          </Popover>{" "}
+                        </p>
+                      </div>
+                    </Popover>
+                  )}
+                  {isPost && (
+                    <div className="featPost">
+                      <ul className="flex ">
+                        <li className="">
+                          <span className="circleButton m-0">
+                            <FiSettings />
+                          </span>
+                        </li>
+                        <li className="mx-2">
+                          <Popconfirm
+                            title="Delete this post"
+                            description="Are you sure to delete this task?"
+                            okText="Yes"
+                            onConfirm={() => deletePost(comment.id)}
+                            cancelText="No"
+                          >
+                            <span className="circleButton m-0">
+                              <FiX />
+                            </span>
+                          </Popconfirm>
+                        </li>
+                      </ul>
                     </div>
-                  </Popover>
-                )}
+                  )}
+                </div>
               </div>
-              <div className="contentComment">
-                {[comment.content].map((e) => (
+
+              <div className="contentComment mx-2 py-2 shadow-indigo-500/40">
+                {/* {[comment.content].map((e) => (
                   <span>{parse(processedComment, options)}</span>
-                ))}
+                ))} */}
+                <span>{parse(comment.content, options)}</span>
+                {comment.media && <MediaGrid userID={comment.userID} media={ comment.media} />}
               </div>
             </div>
             <div className="likedislike items-center">
               <div>
-                <Popover
-                  content={
-                    <p>
-                      {getDate(comment.create_at)} lúc{" "}
-                      {getTime(comment.create_at)},{" "}
-                      {getWeekdays(comment.create_at)}
-                    </p>
-                  }
-                >
-                  <span>{countTime(comment.create_at)}</span>
-                </Popover>
                 <span
                   className="likeButton replyButton"
                   style={{ margin: "0 1rem" }}
@@ -406,7 +436,7 @@ function Comment({ comment, isReply, className, users, setCurrentImg }) {
 
         {!isReply && ReplyOpen && (
           <>
-            <div className="MyReplyComment CommentReply">
+            <div className="MyReplyComment CommentReply ">
               <MyComment
                 setRender={setClicked}
                 movieID={comment.movieID}

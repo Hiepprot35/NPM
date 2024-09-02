@@ -38,17 +38,19 @@ export function CardMovie({ film, index, className }) {
 
           <div className="detailMovieCard center" style={{ height: "5vh" }}>
             <p>
-            {film.runtime && timeFilm(film.runtime)} / 
-        {film?.production_companies?.[0]?.name ? film.production_companies[0].name : 'No production company available'} / 
-        {film.genres && film.genres.length > 0 ? (
-          film.genres.map((e, index) => (
-            <span key={index}>
-              {e?.name}{index < film.genres.length - 1 && ","}
-            </span>
-          ))
-        ) : (
-          'No genres available'
-        )}
+              {film.runtime && timeFilm(film.runtime)} /
+              {film?.production_companies?.[0]?.name
+                ? film.production_companies[0].name
+                : "No production company available"}{" "}
+              /
+              {film.genres && film.genres.length > 0
+                ? film.genres.map((e, index) => (
+                    <span key={index}>
+                      {e?.name}
+                      {index < film.genres.length - 1 && ","}
+                    </span>
+                  ))
+                : "No genres available"}
             </p>
           </div>
 
@@ -174,12 +176,24 @@ export const Text = (props) => {
       <>
         {!props.hiddenText ? (
           splitText.map((e, i) => (
-            <Span style={props.style} key={i} e={e} i={i} />
+            <Span
+              className={props.className}
+              style={props.style}
+              key={i}
+              e={e}
+              i={i}
+            />
           ))
         ) : (
           <>
             {truncatedText.map((e, i) => (
-              <Span style={props.style} key={i} e={e} i={i} />
+              <Span
+                className={props.className}
+                style={props.style}
+                key={i}
+                e={e}
+                i={i}
+              />
             ))}
             {seeMore ? (
               remainingText.map((e, i) => <Span e={e} i={i} />)
@@ -205,7 +219,7 @@ export const Text = (props) => {
   );
 };
 
- function ListPlay(props) {
+function ListPlay(props) {
   const { auth } = useAuth();
   const [ListFilm, setListFilm] = useState([]);
   const [MovieLink, setMovieLink] = useState();
@@ -284,66 +298,72 @@ export const Text = (props) => {
         </div>
         <Slide className={"abcdef"}>
           <div className="listMovies" ref={listMovieRef}>
-            {filmData.length>0 && filmData.map((film, index) => (
-              <div className="CardMovie" key={index}>
-                <article>
-                  <header>
-                    <div
-                      className="cardBackGround"
-                      style={{
-                        backgroundImage: `url('https://image.tmdb.org/t/p/original/${film.poster_path}')`,
-                      }}
-                    ></div>
-                  </header>
-                  <div style={{ marginLeft: "1rem" }}>
-                    <div style={{ height: "4rem", overflow: "hidden" }}>
-                      <h1
+            {filmData.length > 0 &&
+              filmData.map((film, index) => (
+                <div className="CardMovie" key={index}>
+                  <article>
+                    <header>
+                      <div
+                        className="cardBackGround"
                         style={{
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
+                          backgroundImage: `url('https://image.tmdb.org/t/p/original/${film.poster_path}')`,
                         }}
-                      >
-                        {film.original_title}
-                      </h1>
-                    </div>
-
-                    <div
-                      className="detailMovieCard center"
-                      style={{ height: "5vh" }}
-                    >
-                      <p>
-                        {timeFilm(film.runtime)}/{" "}
-                        {film?.production_companies[0]?.name}/{" "}
-                        {film.genres.map((e, index) => (
-                          <i key={index}>
-                            <>
-                              {" "}
-                              {e.name}
-                              {index < film.genres.length - 1 && ","}
-                            </>
-                          </i>
-                        ))}
-                      </p>
-                    </div>
-
-                    <div className="center" style={{ margin: "1rem" }}>
-                      <div className="linear"></div>
-                    </div>
-                    <footer>
-                      <div className="center">
-                        <WatchFilms id={film.id}></WatchFilms>
+                      ></div>
+                    </header>
+                    <div style={{ marginLeft: "1rem" }}>
+                      <div style={{ height: "4rem", overflow: "hidden" }}>
+                        <h1
+                          style={{
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {film.original_title}
+                        </h1>
                       </div>
-                    </footer>
-                  </div>
-                </article>
-              </div>
-            ))}
-            {filmData.length===0 && <p className="text-4xl font-semibold">Bạn chưa thích phim nào. Hãy tìm một bộ phim yêu thích của mình nhé !</p>}
+
+                      <div
+                        className="detailMovieCard center"
+                        style={{ height: "5vh" }}
+                      >
+                        <p>
+                          {timeFilm(film.runtime)}/{" "}
+                          {film?.production_companies[0]?.name}/{" "}
+                          {film.genres.map((e, index) => (
+                            <i key={index}>
+                              <>
+                                {" "}
+                                {e.name}
+                                {index < film.genres.length - 1 && ","}
+                              </>
+                            </i>
+                          ))}
+                        </p>
+                      </div>
+
+                      <div className="center" style={{ margin: "1rem" }}>
+                        <div className="linear"></div>
+                      </div>
+                      <footer>
+                        <div className="center">
+                          <WatchFilms id={film.id}></WatchFilms>
+                        </div>
+                      </footer>
+                    </div>
+                  </article>
+                </div>
+              ))}
+            {filmData.length === 0 && (
+              <p className="text-4xl font-semibold">
+                Bạn chưa thích phim nào. Hãy tìm một bộ phim yêu thích của mình
+                nhé !
+              </p>
+            )}
           </div>
         </Slide>
       </motion.div>
     </>
   );
 }
-export default memo(ListPlay)
+export default memo(ListPlay);

@@ -1,24 +1,19 @@
+import { Avatar, Modal, Popover } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import UserProfile from "./userProfile";
-import Layout from "../Layout/layout";
-import { NavLink, useParams } from "react-router-dom";
-import useAuth from "../../hook/useAuth";
-import {
-  fetchApiRes,
-  getStudentInfoByMSSV,
-  getUserinfobyID,
-} from "../../function/getApi";
-import { FiCamera, FiDelete, FiMove, FiSave, FiUpload } from "react-icons/fi";
-import { Avatar, Modal, Popover, theme } from "antd";
-import ReactCrop from "react-image-crop";
-import MyComment from "../home/MyComment";
-import Posts from "./Posts";
-import PhotoPost from "./PhotoPost";
-import { useRealTime } from "../../context/useRealTime";
 import AvatarEditor from "react-avatar-editor";
-import { icon } from "leaflet";
-import { formatDate, getDate } from "../../function/getTime";
+import { FiCamera, FiDelete, FiMove, FiSave, FiUpload } from "react-icons/fi";
+import { NavLink, useParams } from "react-router-dom";
 import { useData } from "../../context/dataContext";
+import { useRealTime } from "../../context/useRealTime";
+import { fetchApiRes, getStudentInfoByMSSV } from "../../function/getApi";
+import { formatDate } from "../../function/getTime";
+import useAuth from "../../hook/useAuth";
+import Layout from "../Layout/layout";
+import PhotoPost from "./PhotoPost";
+import Posts from "./Posts";
+import UserProfile from "./userProfile";
+import NotFoundPage from "../Layout/NotFound/NotFoundPage";
+import { IsLoading } from "../Loading";
 const ChangeImg = ({ img, MSSV, setUsers }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [ImageUpload, setImageUpload] = useState(img);
@@ -180,7 +175,7 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
 export default function Profile() {
   const { MSSV } = useParams();
   const queryParameters = new URLSearchParams(window.location.search);
-  const commentID = queryParameters.get("commentID");
+  const commentID = queryParameters.get("hid");
   const MSSVparam = queryParameters.get("MSSV");
   const MSSVInput = MSSV || MSSVparam;
   const [gerenalFriend, setgerenalFriend] = useState([]);
@@ -205,6 +200,7 @@ export default function Profile() {
 
   const getPost = async (signal, currentRequestVersion) => {
     try {
+      setIsLoading(true);
       const data = await fetchApiRes(
         `getAllCommentPost/?userID=${MSSVInput}&replyID=-1`,
         "GET",
@@ -212,19 +208,24 @@ export default function Profile() {
         { signal }
       );
       if (signal.aborted) return;
+      setImgContent([]);
+      setPost([]);
       if (data && data.result) {
         const dataUpdate = data.result.sort(
           (a, b) => b.create_at - a.create_at
         );
-        const dataImg = dataUpdate
-          .filter((e) => e.content.includes("imgSplitLink"))
-          .map((e) => ({
-            userID: e.userID,
-            img: e.content.split("imgSplitLink")[1],
-            id: e.id, // Keep the id
-            create_at: e.create_at,
-          }));
-        setImgContent(dataImg);
+        setIsLoading(false);
+        const userId = data.result[0].userID;
+        const imgs = data.result.flatMap((post) =>
+          post.media.map((e) => ({
+            userID: userId,
+            img: e.url,
+            id: e.id,
+            type: e.type,
+            create_at: e.createdAt,
+          }))
+        );
+        setImgContent(imgs);
         setPost(dataUpdate);
       }
     } catch (error) {
@@ -247,10 +248,10 @@ export default function Profile() {
     };
   }, [MSSVInput]);
   const unMountComponent = () => {
-    setPost(null);
-    setFriend(null);
+    setPost();
+    setFriend([]);
     setUserInfo(null);
-    setImgContent(null);
+    setImgContent();
   };
   const getFriendList = async (userID) => {
     const checkID = (array, id) => {
@@ -325,9 +326,7 @@ export default function Profile() {
       }
     } catch (error) {}
   }
-  const [imageHeight, setImageHeight] = useState(0);
 
-  const { Online } = useRealTime();
   useEffect(() => {
     if (ChangeIntroduce && introduceRef.current) {
       introduceRef.current.focus();
@@ -443,12 +442,25 @@ export default function Profile() {
       }
     }
   };
+  useEffect(() => {
+    const getMediaRes = async () => {
+      const res = await fetchApiRes(`comment/getMedia/${commentID}`, "GET");
+      if (res.result.length > 0) {
+        const { url, createdAt, id,type } = res.result[0];
+        setCurrentImg({ img: url, create_at: createdAt, id: id,type:type });
+      }
+    };
+    if (commentID) {
+      getMediaRes();
+    }
+  }, [commentID, MSSVparam]);
   const backChange = (e) => {
     if (backgroundImg.current) {
       setMovingSetting(false);
       backgroundImg.current.click();
     }
   };
+
   const [MovingSetting, setMovingSetting] = useState(false);
   const MovingHandle = () => {
     setMovingSetting(true);
@@ -486,7 +498,8 @@ export default function Profile() {
               height: "60vh",
               backgroundImage: `url("${
                 BackgroundUpdate?.view ||
-                Users?.backgroundimg&& Users?.backgroundimg.split("%hiep%")[0]
+                (Users?.backgroundimg &&
+                  Users?.backgroundimg.split("%hiep%")[0])
               }")`,
             }}
             ref={containerBackRef}
@@ -529,21 +542,23 @@ export default function Profile() {
                     </span>
                   )}
                 </div>
-                <Popover
-                  trigger={"click"}
-                  content={
-                    <div className="">
-                      {handleChange.map((e) => backGroundHandle(e))}
+                {Users?.UserID === auth.userID && (
+                  <Popover
+                    trigger={"click"}
+                    content={
+                      <div className="">
+                        {handleChange.map((e) => backGroundHandle(e))}
+                      </div>
+                    }
+                  >
+                    <div className="p-2 bg-white center z-10 rounded cursor-pointer shadow-md absolute right-10 bottom-10 hover:bg-gray-200">
+                      <FiCamera stroke="black" />
+                      <p className="px-2 text-black	font-semibold">
+                        Change Background Image
+                      </p>
                     </div>
-                  }
-                >
-                  <div className="p-2 bg-white center z-10 rounded cursor-pointer shadow-md absolute right-10 bottom-10 hover:bg-gray-200">
-                    <FiCamera fill="black" />
-                    <p className="px-2 text-black	font-semibold">
-                      Change Background Image
-                    </p>
-                  </div>
-                </Popover>
+                  </Popover>
+                )}
                 {isLoading && (
                   <div className=" center w-full h-full absolute inset-0 z-50 bg-white-500/50">
                     <p className="text-4xl">Uploading . . . . </p>
@@ -624,9 +639,10 @@ export default function Profile() {
                     <p className="text-4xl font-bold ">{Users?.Name}</p>
                     <p>Bạn bè {friends?.length}</p>
                     <Avatar.Group>
-                      {
-                       friends&& friends.map(e=>(<Avatar src={`${e.cutImg||e.img}`}/>))
-                      }
+                      {friends &&
+                        friends.map((e) => (
+                          <Avatar src={`${e.cutImg || e.img}`} />
+                        ))}
                     </Avatar.Group>
                   </div>
                 </div>
@@ -695,19 +711,23 @@ export default function Profile() {
                       <p className="font-bold text-3xl">Ảnh</p>
                       <div className="grid grid-cols-3 gap-2">
                         {ImgContent ? (
-                          ImgContent.map((e) => (
-                            <div onClick={() => setCurrentImg(e)}>
-                              <NavLink
-                                to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${e.userID}&commentID=${e.id}`}
-                              >
-                                <img
-                                  className="object-cover rounded-xl"
-                                  style={{ aspectRatio: "1" }}
-                                  src={`${e.img}`}
-                                />
-                              </NavLink>
-                            </div>
-                          ))
+                          ImgContent.map(
+                            (e) =>
+                              e.img && e.type.includes('image')&& (
+                                <div onClick={() => setCurrentImg(e)}>
+                                  <NavLink
+                                    to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${e.userID}&hid=${e.id}`}
+                                  >
+                                    <img
+                                      alt="ImageProfile"
+                                      className="object-cover rounded-xl"
+                                      style={{ aspectRatio: "1" }}
+                                      src={`${e.img}`}
+                                    />
+                                  </NavLink>
+                                </div>
+                              )
+                          )
                         ) : (
                           <div className="loader"></div>
                         )}
@@ -728,6 +748,7 @@ export default function Profile() {
                               >
                                 <div className="flex-col w-full center">
                                   <img
+                                    alt="ImageProfile"
                                     className="rounded-xl w-full  "
                                     style={{ aspectRatio: 1 }}
                                     src={`${e.cutImg || e.img}`}
@@ -765,9 +786,10 @@ export default function Profile() {
           </div>
         </div>
       }
-      {commentID && (
+      {CurrentImg && (
         <PhotoPost
           CurrentImg={CurrentImg}
+          setCurrentImg={setCurrentImg}
           UsersProfile={Users}
           commentID={commentID}
         ></PhotoPost>

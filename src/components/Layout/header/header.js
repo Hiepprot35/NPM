@@ -1,27 +1,19 @@
-import { Controls, Player } from "@lottiefiles/react-lottie-player";
 import React, {
   memo,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
-  useState,
+  useState
 } from "react";
+import { IoLogoGoogle } from "react-icons/io";
 import { NavLink } from "react-router-dom";
 import { useSocket } from "../../../context/socketContext";
-import { fetchApiRes, getStudentInfoByMSSV } from "../../../function/getApi";
-import { IoLogoGoogle } from "react-icons/io";
+import { fetchApiRes } from "../../../function/getApi";
 
-import { getUserinfobyID } from "../../../function/getApi";
-import useAuth from "../../../hook/useAuth";
-import { header_Student } from "../../../lib/data";
-import { IsLoading } from "../../Loading";
-import BellTable from "../../Notification/bellTable";
-import { LogOut } from "../../logout";
+import { Popover } from "antd";
 import { motion } from "framer-motion";
-import "./header.css";
+import { debounce } from "lodash";
 import {
-  FiArrowDown,
   FiChevronDown,
   FiMessageCircle,
   FiMoon,
@@ -29,29 +21,26 @@ import {
   FiSettings,
   FiSun,
   FiSunrise,
-  FiUser,
+  FiUser
 } from "react-icons/fi";
-import SettingComponent from "../../setting/SettingComponent";
-import { Button, Input, Popover } from "antd";
-import { LoginGoolge } from "../../login/login";
 import { useData } from "../../../context/dataContext";
-import { genresList } from "../../home/MovieFilms";
-import Search from "./Search";
-import _, { debounce } from "lodash";
-import { useOutsideClick } from "../../../hook/useOutsideClick";
-import { TextAnimetion } from "../../home/Slide";
-import { Span, Text } from "../../home/listPlay";
-import FriendList from "../../home/friend";
 import {
   Month,
-  getDate,
-  getNameMonth,
-  getTime,
 } from "../../../function/getTime";
-import { Image } from "../../home/home";
-import Nvarbar from "../nvarbar/Nvarbar";
-import { getConversation } from "../../conversation/getConversation";
+import useAuth from "../../../hook/useAuth";
+import { useOutsideClick } from "../../../hook/useOutsideClick";
+import { header_Student } from "../../../lib/data";
+import { IsLoading } from "../../Loading";
+import BellTable from "../../Notification/bellTable";
 import Conversation from "../../conversation/conversations";
+import { genresList } from "../../home/MovieFilms";
+import FriendList from "../../home/friend";
+import { Image } from "../../home/home";
+import { LoginGoolge } from "../../login/login";
+import { LogOut } from "../../logout";
+import SettingComponent from "../../setting/SettingComponent";
+import Search from "./Search";
+import "./header.css";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({

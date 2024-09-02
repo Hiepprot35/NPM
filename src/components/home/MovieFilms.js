@@ -207,9 +207,9 @@ export default function MovieFilms(props) {
               <div
                 className="circleShadow"
                 style={{
-                  transition:"500ms linear",
-                  opacity:`${BackImg?1:0}`,
-                  backgroundImage: `${BackImg?BackImg:""}`,
+                  transition: "500ms linear",
+                  opacity: `${BackImg ? 1 : 0}`,
+                  backgroundImage: `${BackImg ? BackImg : ""}`,
                 }}
               ></div>
               <div className="MovieFilms" ref={refMovieFilms}>
@@ -241,6 +241,7 @@ export default function MovieFilms(props) {
                                   <motion.div {...animeText(i)}>
                                     <i>
                                       <motion.p
+                                        className="text-white font-semibold"
                                         style={{
                                           fontSize: "1.4rem",
                                           fontWeight: "600",
@@ -263,6 +264,7 @@ export default function MovieFilms(props) {
                                   }}
                                 >
                                   <motion.h1
+                                    className="text-white font-semibold"
                                     style={{ margin: 0 }}
                                     {...animeText(i)}
                                   >
@@ -275,26 +277,22 @@ export default function MovieFilms(props) {
                                   style={{ margin: "1rem" }}
                                 >
                                   {e?.runtime && (
-                                    <Text className={`font-semibold`}
-                                      text={`${timeFilm(e?.runtime)} | `}
+                                    <Text
+                                      className={`font-semibold`}
+                                      text={`${timeFilm(e?.runtime)} |  `}
                                     ></Text>
                                   )}
 
-                                  <Text className={`font-semibold`}
+                                  <Text
+                                    className={`font-semibold`}
                                     text={`${e?.origin_country.map(
-                                      (country) => {
-                                        const data = countries.find(
-                                          (ac) => ac.iso_3166_1 === country
-                                        );
-                                        return data
-                                          ? data.english_name
-                                          : country;
-                                      }
+                                      (country) => country
                                     )} | `}
                                   />
 
                                   {GenresList && e.genre_ids && (
-                                    <Text className={`font-semibold`}
+                                    <Text
+                                      className={`font-semibold`}
                                       style={{ fontSize: "1rem" }}
                                       text={`${e.genre_ids.map(
                                         (e) =>
@@ -305,7 +303,8 @@ export default function MovieFilms(props) {
                                     />
                                   )}
                                   {e.genres && (
-                                    <Text className={`font-semibold`}
+                                    <Text
+                                      className={`font-semibold`}
                                       style={{ fontSize: "1rem" }}
                                       text={`${e.genres.map((e) => e.name)}`}
                                     />
@@ -338,7 +337,10 @@ export default function MovieFilms(props) {
                                       src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg"
                                     ></img>
                                   </span>
-                                  <p style={{ fontWeight: "600" }}>
+                                  <p
+                                    className="text-white font-semibold"
+                                    style={{ fontWeight: "600" }}
+                                  >
                                     {e.vote_average}/10
                                   </p>
                                 </div>
@@ -353,7 +355,11 @@ export default function MovieFilms(props) {
                             </div>
                             <div className="overViewText">
                               <div>
-                                <Text hiddenText={true} text={e.overview} />
+                                <Text
+                                  hiddenText={true}
+                                  className={"text-white"}
+                                  text={e.overview}
+                                />
                               </div>
                             </div>
                             <div
@@ -376,15 +382,15 @@ export default function MovieFilms(props) {
                                 className="popover"
                                 content={
                                   <div>
-                                    <div
-                                      className="center"
-                                      style={{ margin: ".5rem" }}
-                                    >
-                                      <NavLink to={`movie/moviedetail/${e.id}`}>
+                                    <NavLink to={`movie/moviedetail/${e.id}`}>
+                                      <div
+                                        className="center"
+                                        style={{ margin: ".5rem" }}
+                                      >
                                         <FiInfo></FiInfo>
                                         <span>More detail</span>
-                                      </NavLink>
-                                    </div>
+                                      </div>
+                                    </NavLink>
                                     <div
                                       className="linear"
                                       style={{ width: "100%" }}
@@ -405,10 +411,12 @@ export default function MovieFilms(props) {
                                 }
                               >
                                 <Button
-                                  className=" buttonFilmHandle buttonFilm2"
-                                  icon={<FiMoreHorizontal></FiMoreHorizontal>}
+                                  className=" buttonFilmHandle buttonFilm2 theme"
+                                  icon={<FiMoreHorizontal fill="white"></FiMoreHorizontal>}
                                 >
-                                  <span>More information</span>
+                                  <span >
+                                    More information
+                                  </span>
                                 </Button>
                               </Popover>
                             </div>{" "}
