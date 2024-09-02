@@ -274,7 +274,13 @@ export default memo(function WindowChat(props) {
       const overflowHeight = scrollHeight - clientHeight;
 
       if (overflowHeight - Math.abs(scrolledFromTop) < 100) {
-        setCountOffset((pre) => pre + 10);
+        if (messages.length < countAllMess) {
+          if (countAllMess - messages.length >= 10) {
+            setCountOffset((pre) => pre + 10);
+          } else {
+            setCountOffset((pre) => pre + countAllMess - messages.length);
+          }
+        }
       }
     }
   };
@@ -312,9 +318,7 @@ export default memo(function WindowChat(props) {
         console.error("Error fetching messages:", error);
       }
     };
-    if (messages.length < countAllMess) {
-      scrollMess();
-    }
+    scrollMess();
   }, [countOffset]);
 
   async function getMessages(signal) {
