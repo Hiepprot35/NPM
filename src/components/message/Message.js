@@ -196,6 +196,7 @@ export default memo(function Message({
                     content={
                       <p style={{ padding: 0 }} ref={time}>
                         {timeUse.getTime(message.created_at)}
+                        {timeUse.getDate(message.created_at)}
                       </p>
                     }
                   >
@@ -265,7 +266,7 @@ export default memo(function Message({
                   </p>
                 </div>
               ) : (
-                messages.indexOf(message) === messages.length - 1 &&
+                messages.indexOf(message) ===0 &&
                 own && (
                   <div className="Seen_field">
                     <span

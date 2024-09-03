@@ -2,7 +2,7 @@ import { Modal, Popover } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { LuSticker } from "react-icons/lu";
 
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import {
   FiArrowDown,
   FiEdit,
@@ -253,8 +253,7 @@ export default memo(function WindowChat(props) {
   const windowchat = useRef(null);
   const [userInfor, setUserInfo] = useState();
   const [messages, setMessages] = useState([]);
-  const [countOffset, setCountOffset] = useState(0);
-  const [countAllMess, setCountAllMes] = useState(0);
+  const [IsMore, setIsMore] = useState(true);
   const [isGettingScroll, setisGettingScroll] = useState(false);
   const { Onlines, CallComing, setCallComing } = useRealTime();
 
@@ -264,67 +263,67 @@ export default memo(function WindowChat(props) {
   const { AccessToken, setAccessToken } = UseToken();
   const { RefreshToken } = UseRfLocal();
   const channel = new BroadcastChannel("message_channel");
+  const [offset, setOffset] = useState(1);
 
-  const handleScroll = () => {
-    if (main_windowchat.current && !isGettingScroll) {
-      const scrollHeight = main_windowchat.current.scrollHeight;
-      const clientHeight = main_windowchat.current.clientHeight;
-      const scrolledFromTop = main_windowchat.current.scrollTop;
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-      const overflowHeight = scrollHeight - clientHeight;
-
-      if (overflowHeight - Math.abs(scrolledFromTop) < 100) {
-        if (messages.length < countAllMess) {
-          if (countAllMess - messages.length >= 10) {
-            setCountOffset((pre) => pre + 10);
-          } else {
-            setCountOffset((pre) => pre + countAllMess - messages.length);
-          }
+  const loadMessages = useCallback(async () => {
+    if (isGettingScroll) return;
+    try {
+      setisGettingScroll(true);
+      const res = await fetch(
+        `${process.env.REACT_APP_DB_HOST}/api/message/conversation/${conversation?.id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${AccessToken}`,
+            "Content-Type": "application/json",
+            RefreshToken: RefreshToken,
+          },
+          body: JSON.stringify({
+            userID: auth.userID,
+            offset: offset * 10,
+          }),
         }
-      }
+      );
+
+      const { result, totalCount } = await res.json();
+      const loadMess = [...messages, ...result];
+      console.log(loadMess, messages, totalCount);
+      setOffset((pre) => pre + 1);
+      setIsMore(loadMess.length <= totalCount);
+      setMessages(loadMess);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    } finally {
+      setisGettingScroll(false);
     }
-  };
-
+  }, [offset, isGettingScroll, messages]);
   useEffect(() => {
-    if (countOffset > 0) {
-      const scrollMess = async () => {
-        try {
-          setisGettingScroll(true);
-          const res = await fetch(
-            `${process.env.REACT_APP_DB_HOST}/api/message/conversation/${conversation?.id}`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${AccessToken}`,
-                "Content-Type": "application/json",
-                RefreshToken: RefreshToken,
-              },
-              body: JSON.stringify({
-                userID: auth.userID,
-                offset: countOffset,
-              }),
-            }
-          );
-
-          if (!res.ok) {
-            setisGettingScroll(true);
-
-            throw new Error("Failed to fetch messages");
-          }
-
-          const { result } = await res.json();
-          if (result.length === 0) {
-            setisGettingScroll(true);
-          }
-          setMessages((prevMessages) => [...result, ...prevMessages]);
-          setisGettingScroll(false);
-        } catch (error) {
-          console.error("Error fetching messages:", error);
+    if (main_windowchat.current) {
+      const handleScroll = () => {
+        const { scrollTop, scrollHeight, clientHeight } =
+          main_windowchat.current;
+        if (
+          scrollHeight / 20 > scrollHeight - clientHeight + scrollTop &&
+          !isGettingScroll &&
+          IsMore
+        ) {
+          loadMessages();
         }
       };
-      scrollMess();
+      const chatWindow = main_windowchat.current;
+      chatWindow.addEventListener("scroll", handleScroll);
+
+      // Dọn dẹp sự kiện khi component bị unmount
+      return () => {
+        chatWindow.removeEventListener("scroll", handleScroll);
+      };
     }
-  }, [countOffset]);
+  }, [loadMessages]);
+  useEffect(() => {
+    console.log(isGettingScroll);
+  }, [isGettingScroll]);
 
   async function getMessages(signal) {
     if (conversation?.id) {
@@ -348,8 +347,8 @@ export default memo(function WindowChat(props) {
           setListHiddenBubble([]);
           setListWindow([]);
         } else {
-          setMessages(data.result.reverse());
-          setCountAllMes(data.totalCount);
+          setMessages(data.result);
+          setIsMore(data.result.length <= data.totalCount);
           const hehe = data.reduce((acc, e) => {
             if (e.isFile) {
               acc.push(...e.content.split(","));
@@ -391,7 +390,6 @@ export default memo(function WindowChat(props) {
   };
   function hiddenWindowHandle(c) {
     setListWindow(listWindow.filter((item) => item.id !== c.id));
-
     setListHiddenBubble((pre) => [...pre, { id: c.id }]);
   }
   function pick_imageMess(e) {
@@ -448,9 +446,7 @@ export default memo(function WindowChat(props) {
       channel.close();
     };
   }, [conversation]);
-  useEffect(() => {
-    console.log(arrivalMessage);
-  }, [arrivalMessage]);
+
   const socketSend = async (data) => {
     try {
       if (socket && !isSetting) {
@@ -641,7 +637,7 @@ export default memo(function WindowChat(props) {
         ) &&
         parseInt(arrivalMessage.conversation_id) === conversation.id
       ) {
-        setMessages((prev) => [...prev, arrivalMessage]);
+        setMessages((prev) => [arrivalMessage, ...prev]);
       }
     };
 
@@ -665,7 +661,6 @@ export default memo(function WindowChat(props) {
       controller.abort();
     };
   }, [conversation?.id]);
-  const messagesRef = useRef();
 
   const closeWindow = () => {
     setConversationContext((pre) =>
@@ -720,9 +715,6 @@ export default memo(function WindowChat(props) {
   }, [inputMess]);
   const [userSeenAt, setuserSeenAt] = useState();
   const getNewstMess = async (data) => {
-    console.log(
-      `${process.env.REACT_APP_DB_HOST}/api/message/newest/seen/${data}/${auth?.userID}`
-    );
     try {
       if (data) {
         const res = await fetch(
@@ -730,7 +722,6 @@ export default memo(function WindowChat(props) {
         );
         const getMess = await res.json();
         if (getMess) {
-          console.log(getMess);
           setuserSeenAt(getMess);
         }
       }
@@ -738,9 +729,7 @@ export default memo(function WindowChat(props) {
       console.log(error);
     }
   };
-  useEffect(() => {
-    console.log(userSeenAt);
-  }, [userSeenAt]);
+
   useEffect(() => {
     if (auth?.userID) {
       getNewstMess(props.count.id);
@@ -750,7 +739,6 @@ export default memo(function WindowChat(props) {
 
   useEffect(() => {
     if (socket) {
-      console.log("socketconversation", conversation);
       const handleUpdateNewSend = (data) => {
         if (props.chatApp === true) {
           props.setsendMess({ ...data, created_at: Date.now() });
@@ -772,7 +760,6 @@ export default memo(function WindowChat(props) {
 
       socket.on("getUserSeen", (data) => {
         if (data) {
-          console.log("zoo socket");
           getNewstMess(data.converid);
         }
       });
@@ -941,19 +928,12 @@ export default memo(function WindowChat(props) {
                   className="Body_Chatpp relative flex flex-col justify-evenly	  "
                   style={props.chatApp ? { height: "93%" } : { height: "60vh" }}
                 >
-                  {isGettingScroll && (
-                    <div className="center ">
-                      <div className="loader "></div>
-                    </div>
-                  )}
                   <div
-                    className="main_windowchat"
-                    style={{ height: `${100 + countOffset * 10}%` }}
+                    className="overflow-y-auto h-full flex flex-col-reverse p-4 border border-gray-300"
                     ref={main_windowchat}
-                    onScroll={handleScroll}
                   >
                     {messages.length > 0 ? (
-                      <div className="" ref={messagesRef}>
+                      <>
                         {messages.map((message, index) => (
                           <div className="message_content" key={message.id}>
                             <Message
@@ -976,10 +956,15 @@ export default memo(function WindowChat(props) {
                             ></Message>
                           </div>
                         ))}
-                      </div>
+                      </>
                     ) : (
                       <div className="w-full h-full center">
                         <div className="loader"></div>
+                      </div>
+                    )}
+                    {isGettingScroll && IsMore && (
+                      <div className="center ">
+                        <div className="loader "></div>
                       </div>
                     )}
                   </div>
