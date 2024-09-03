@@ -80,6 +80,7 @@ export default function ShowImgDialog(props) {
       }
     }
   }, [currentSlide]);
+  console.log(props.listImg)
   const saveImage = async () => {
     let imageUrl = props.isMovies
       ? `https://image.tmdb.org/t/p/original${props.current.file_path}`

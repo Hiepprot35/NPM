@@ -349,17 +349,21 @@ export default memo(function WindowChat(props) {
         } else {
           setMessages(data.result);
           setIsMore(data.result.length <= data.totalCount);
-          const hehe = data.reduce((acc, e) => {
-            if (e.isFile) {
-              acc.push(...e.content.split(","));
-            }
-            return acc;
-          }, []);
-          setImgMess(hehe.reverse());
         }
       } catch (err) {}
     }
   }
+  useEffect(() => {
+    if (messages) {
+      const hehe = messages.reduce((acc, e) => {
+        if (e.isFile) {
+          acc.push(...e.content.split(","));
+        }
+        return acc;
+      }, []);
+      setImgMess(hehe);
+    }
+  }, [messages]);
   function pasteImg(e) {
     const clipboardData = e.clipboardData || window.clipboardData;
     const items = clipboardData.items;
