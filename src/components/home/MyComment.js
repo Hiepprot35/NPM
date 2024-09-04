@@ -1,23 +1,21 @@
 import { Popover } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { default as React, useEffect, useRef, useState } from "react";
-import { FiSend, FiSmile, FiX } from "react-icons/fi";
+import { FiSend, FiSmile } from "react-icons/fi";
 import { fetchApiRes } from "../../function/getApi.js";
 import useAuth from "../../hook/useAuth.js";
+import MediaGrid from "../imageView/MediaGrid.js";
 import Upload from "../imageView/Upload.js";
 import "./myComment.scss";
-import ImageView from "../imageView/imageView.js";
+import { IsLoading } from "../Loading.js";
 export default function MyComment(props) {
-  const refTag = useRef();
   const inputRef = useRef();
   const [FilterTag, setFilterTag] = useState();
   const [OpenTag, setOpenTag] = useState(false);
   const [myComment, setMyComment] = useState();
   const [myFriendList, setMyFriendList] = useState([]);
   const { auth, myInfor } = useAuth();
-  const checkID = (array, id) => {
-    return array.user1 === id ? array.user2 : array.user1;
-  };
+
   const [isLoading, setisLoading] = useState(false);
   const getFriendList = async () => {
     const result = await fetchApiRes("getallstudent");
@@ -96,15 +94,16 @@ export default function MyComment(props) {
   function pick_imageMess(e) {
     const imgMessFile = e.target.files;
     for (let i = 0; i < imgMessFile.length; i++) {
-      console.log("type,",imgMessFile[i].type)
+      console.log("type,", imgMessFile[i].type);
       if (imgMessFile[i].type === "video/mp4") {
-        setVideosUpload(pre=>[...pre,URL.createObjectURL(imgMessFile[i])]);
+        setVideosUpload((pre) => [...pre, URL.createObjectURL(imgMessFile[i])]);
+      } else {
+        setImgView((pre) => [...pre, URL.createObjectURL(imgMessFile[i])]);
       }
       setImgFile((pre) => [...pre, imgMessFile[i]]);
-      setImgView((pre) => [...pre, URL.createObjectURL(imgMessFile[i])]);
     }
   }
- 
+
   useEffect(() => {
     console.log(myComment);
     if (inputRef.current) {
@@ -165,7 +164,6 @@ export default function MyComment(props) {
       props.update((pre) => [
         {
           ...newComment,
-          media: ImgView.map((e) => ({ url: e })),
         },
         ...pre,
       ]);
@@ -173,15 +171,23 @@ export default function MyComment(props) {
       setCountText(0);
       setImgFile([]);
       setImgView([]);
+      setVideosUpload([]);
       setMyComment("");
       if (props.setRender) {
         props.setRender((pre) => !pre);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setisLoading(false);
     }
   };
   const [Emoji, setEmoji] = useState([]);
+  useEffect(() => {
+    console.log(
+      ImgView.map((e, index) => ({ url: e, id: index, type: "image" }))
+    );
+  }, [ImgView]);
   const onClickEmoji = (e) => {
     if (inputRef.current) {
       inputRef.current.innerHTML = inputRef.current.innerHTML + " " + e.emoji;
@@ -196,6 +202,9 @@ export default function MyComment(props) {
   };
   return (
     <>
+      {isLoading && (
+        <IsLoading className={"bg-indigo-600 bg-opacity-25"}></IsLoading>
+      )}
       {
         <div
           className={` myCommentComponent ${props.className}`}
@@ -234,6 +243,17 @@ export default function MyComment(props) {
                 </p>
               </div>
             )}
+            {ImgView && (
+              <div className="w-30vh">
+                <MediaGrid
+                  media={ImgView.map((e, index) => ({
+                    url: e,
+                    id: index,
+                    type: "image",
+                  }))}
+                ></MediaGrid>
+              </div>
+            )}
             <div className="featureComment">
               <div className="flex items-center">
                 <Popover
@@ -267,9 +287,9 @@ export default function MyComment(props) {
                   {`${countText}/200`}{" "}
                   {countText === 200 && ` vượt quá kí tự quy định`}
                 </span>
-                <div className="multiFile_layout w-48">
+                {/* <div className="multiFile_layout w-48">
                   <ImageView imgView={ImgView} setImgView={setImgView} />
-                </div>
+                </div> */}
                 <div>
                   {VideosUpload &&
                     VideosUpload.map((e, index) => {

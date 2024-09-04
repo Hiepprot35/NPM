@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 
 const MediaGrid = ({ media,userID }) => {
   const [firstImageSize, setFirstImageSize] = useState(null);
-  const ImageLink = ({image}) => {
+  const ImageLink = ({image , style}) => {
     return (
       <NavLink
         to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${userID}&hid=${image.id}`}
@@ -12,7 +12,7 @@ const MediaGrid = ({ media,userID }) => {
         {
          image.type&& image.type.includes('image') &&
           <img
-          className="w-full h-full object-cover"
+          className={style?style:"w-full h-full object-contain"}
           src={image.url}
           alt={`Comment Media `}
           />
@@ -20,7 +20,7 @@ const MediaGrid = ({ media,userID }) => {
         {
            image.type && image.type.includes('video') &&
            <video
-           className="h-full"
+           className="h-full w-full"
            alt={`Comment Media `}
            controls
            >
@@ -33,7 +33,7 @@ const MediaGrid = ({ media,userID }) => {
   const renderMedia = (data) => {
     return (
       <div
-        className={`grid ${
+        className={`grid h-full ${
           getFirstImageLayout() === "landscape"
             ? " grid-rows-2"
             : " grid-cols-2"
@@ -44,10 +44,10 @@ const MediaGrid = ({ media,userID }) => {
             to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${userID}&hid=${data[0].id}`}
           >
             <img
-              className={`h-full w-full ${
+              className={` ${
                 getFirstImageLayout() === "landscape"
-                  ? "object-cover"
-                  : "object-scale-down"
+                  ? "object-cover h-full w-full"
+                  : "object-scale-down  h-full w-full"
               }`}
               src={data[0].url}
               alt={`Comment Media 1`}
@@ -62,8 +62,8 @@ const MediaGrid = ({ media,userID }) => {
           } gap-2`}
         >
           {data.slice(1, 3).map((e, index) => (
-            <div key={index} className="relative bg-black">
-              <ImageLink image={e} />
+            <div key={index} className="relative bg-black center">
+              <ImageLink image={e} style={"w-full object-cover"} />
               {index === 1 && data.length > 3 && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                   <span className="text-white text-xl">
@@ -102,7 +102,7 @@ const MediaGrid = ({ media,userID }) => {
     const layout = getFirstImageLayout();
     return (
       <div
-        className={`w-full bg-black ${
+        className={`w-full h-full bg-black ${
           layout === "landscape" ? "flex justify-center" : ""
         }`}
       >
@@ -111,7 +111,7 @@ const MediaGrid = ({ media,userID }) => {
     );
   } else if (media.length === 2) {
     return (
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 ">
         {media.map((e, index) => (
           <div key={index} className="bg-black">
             <ImageLink image={e}   />

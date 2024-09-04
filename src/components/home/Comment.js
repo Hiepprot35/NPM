@@ -324,12 +324,17 @@ function Comment({
                 </div>
               </div>
 
-              <div className="contentComment mx-2 py-2 shadow-indigo-500/40">
+              <div className="contentComment h mx-2 py-2 shadow-indigo-500/40">
                 {/* {[comment.content].map((e) => (
                   <span>{parse(processedComment, options)}</span>
                 ))} */}
                 <span>{parse(comment.content, options)}</span>
-                {comment.media && <MediaGrid userID={comment.userID} media={ comment.media} />}
+                {comment.media.length>0 &&
+                <div className="h-75vh">
+
+                <MediaGrid userID={comment.userID} media={ comment.media} />
+                </div>
+                }
               </div>
             </div>
             <div className="likedislike items-center">
