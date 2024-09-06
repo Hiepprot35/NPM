@@ -11,7 +11,8 @@ import MyComment from "../home/MyComment";
 import { Popover } from "antd";
 import useAuth from "../../hook/useAuth";
 import { ReactComment } from "../../lib/useObject";
-export default function PhotoPost({ CurrentImg, setCurrentImg,commentID, UsersProfile }) {
+import { useLocation, useNavigate } from "react-router-dom";
+export default function PhotoPost({ UsersProfile }) {
   const findTrueProperties = (obj) => {
     const prop = ReactComment.find((e) => {
       if (obj[e.action] === 1) {
@@ -20,14 +21,30 @@ export default function PhotoPost({ CurrentImg, setCurrentImg,commentID, UsersPr
     });
     return prop;
   };
-  const [Comment, setComment] = useState(CurrentImg);
+
+  const [Comment, setComment] = useState();
   const [CountReaction, setCountReaction] = useState();
   const countReactionHeight = 2.5;
   const [hoverReaction, setHoverReaction] = useState(false);
+  const queryParameters = new URLSearchParams(window.location.search);
 
+  const commentID = queryParameters.get("hid");
+  const MSSVparam = queryParameters.get("MSSV");
   const { auth } = useAuth();
   const [Users, setUsers] = useState(UsersProfile);
 
+  useEffect(() => {
+    const getMediaRes = async () => {
+      const res = await fetchApiRes(`comment/getMedia/?id=${commentID}`, "GET");
+      if (res.result.length > 0) {
+        const { url, createdAt, id, type } = res.result[0];
+        setComment({ img: url, create_at: createdAt, id: id, type: type });
+      }
+    };
+    if (commentID) {
+      getMediaRes();
+    }
+  }, [commentID, MSSVparam]);
   const getComment = async () => {
     if (commentID) {
       try {
@@ -75,10 +92,7 @@ export default function PhotoPost({ CurrentImg, setCurrentImg,commentID, UsersPr
     });
   };
 
-  const navigator = (step) => {
-
-    window.history.go(step);
-  };
+  const navigate = useNavigate();
 
   const commentReactHandle = async (e, data) => {
     setmyReaction(data);
@@ -89,57 +103,49 @@ export default function PhotoPost({ CurrentImg, setCurrentImg,commentID, UsersPr
     };
     const res = await fetchApiRes("insertLike", "PUT", obj);
   };
-  // useEffect(() => {
-  //   const getPost = async () => {
-  //     const data = await fetchApiRes(`getAllCommentPost/?id=${commentID}`);
-  //     const users = await getStudentInfoByMSSV(data.result[0].userID);
-  //     setUsers(users);
-  //     const comment = data.result[0].content.split("imgSplitLink");
-  //     setComment({
-  //       content: comment[0],
-  //       img: comment[1],
-  //       create_at: data.result[0].create_at,
-  //     });
-  //   };
-  //   if (!CurrentImg) {
-  //     getPost();
-  //   }
-  //   return () => {
-  //     setComment();
-  //   };
-  // }, [commentID]);
-  const close=()=>
-  {
-    navigator(-1)
-    setCurrentImg(null)
-  }
+  useEffect(() => {
+    const getPost = async () => {
+      // const data = await fetchApiRes(`getAllCommentPost/?id=${commentID}`);
+      const users = await getStudentInfoByMSSV(MSSVparam);
+      setUsers(users);
+      // const comment = data.result[0].content.split("imgSplitLink");
+      // setComment({
+      //   content: comment[0],
+      //   img: comment[1],
+      //   create_at: data.result[0].create_at,
+      // });
+    };
+    getPost()
+    return () => {
+      setComment();
+    };
+  }, [MSSVparam]);
+  const location = useLocation();
+
+  const close = () => {
+    navigate(-1, { state: { backgroundLocation: location } });
+  };
   return (
-    <div className="w-screen h-screen flex fixed inset-0 center">
+    <div className="content w-50 h-50  flex fixed inset-0 center">
       <div className="h-full" style={{ width: "70%" }}>
         <div className="bg-black w-full center h-full relative ">
           {!Comment ? (
             <div className="loader"></div>
           ) : (
             <>
-            {
-              Comment.type.includes('image') &&
-              <img
-              alt="imageAvatar"
-              className="object-contain w-full h-full"
-              style={{width:"auto",height:"auto"}}
-              src={`${ Comment?.img}`}
-              />
-            }
-             {
-           Comment.type && Comment.type.includes('video') &&
-           <video
-           className="h-full"
-           alt={`Comment Media `}
-           controls
-           >
-            <source src={Comment?.img} type="video/mp4"></source>
-           </video>
-        }
+              {Comment.type.includes("image") && (
+                <img
+                  alt="imageAvatar"
+                  className="object-contain w-full h-full"
+                  style={{ width: "auto", height: "auto" }}
+                  src={`${Comment?.img}`}
+                />
+              )}
+              {Comment.type && Comment.type.includes("video") && (
+                <video className="h-full" alt={`Comment Media `} controls>
+                  <source src={Comment?.img} type="video/mp4"></source>
+                </video>
+              )}
               <div className="absolute right-3" style={{ top: "8vh" }}>
                 <span className="circleButton" onClick={() => close()}>
                   X
@@ -158,7 +164,7 @@ export default function PhotoPost({ CurrentImg, setCurrentImg,commentID, UsersPr
               ) : (
                 <>
                   <img
-                  alt="avatar"
+                    alt="avatar"
                     className="avatarImage"
                     src={`${Users?.cutImg || Users?.img}`}
                   />
@@ -246,10 +252,9 @@ export default function PhotoPost({ CurrentImg, setCurrentImg,commentID, UsersPr
               })}{" "}
           </div>
         </div>
-              <div style={{width:"70%"}}>
-
-        <MyComment className="w-full"></MyComment>
-              </div>
+        <div className="" style={{ width: "70%" }}>
+          <MyComment className="w-full"></MyComment>
+        </div>
       </div>
     </div>
   );

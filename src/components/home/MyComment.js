@@ -129,6 +129,7 @@ export default function MyComment(props) {
 
   const sendComment = async (e) => {
     e.preventDefault();
+    console.log("senddd");
     setisLoading(true);
     try {
       let content = myComment;
@@ -155,6 +156,7 @@ export default function MyComment(props) {
           form.append("images", file);
         }
       }
+      console.log(form,"Adddddddddddddddddddd");
       const res = await fetch(
         `${process.env.REACT_APP_DB_HOST}/api/insertComment`,
         { method: "POST", body: form }

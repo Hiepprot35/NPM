@@ -1297,7 +1297,7 @@ export const myproject = [
 export const header_Student = [
   {
     name: "Home",
-    hash: "/home",
+    hash: "/",
     role: [1, 2],
     return: <FiHome></FiHome>,
   },
@@ -1310,6 +1310,12 @@ export const header_Student = [
   {
     name: "Message",
     hash: "/message",
+    role: [1, 2],
+    return: <FiMessageCircle></FiMessageCircle>,
+  },
+  {
+    name: "Newfeed",
+    hash: "/newfeed",
     role: [1, 2],
     return: <FiMessageCircle></FiMessageCircle>,
   },

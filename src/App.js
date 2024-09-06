@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { Navigate, Route, Routes, useParams } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 import Chuongtrinhdaotao from "./chuongtrinhdaotao";
 import Dashboard from "./components/Dashboard/Dashboard";
 import ChatApp from "./components/chatapp/chatApp";
@@ -21,17 +27,15 @@ import { IsLoading } from "./components/Loading";
 import MoviesType from "./components/home/MoviesType";
 import VideoPlayer from "./components/chatapp/VideoPlayer";
 import Profile from "./components/UserProfile/Profile";
-import Header from "./components/Layout/header/header";
 import PhotoPost from "./components/UserProfile/PhotoPost";
-import GoogleMap from "./components/UserProfile/Map";
+import NewFeed from "./components/newfeed/NewFeed";
 function App() {
-  const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
-  // const socket=useSocket();
+  const [isLoading, setIsLoading] = useState(true);
+  let location = useLocation();
+  const background = location.state && location.state.background;
   const { auth, setAuth } = useAuth();
   const { RefreshToken } = UseRfLocal();
-  const { AccessToken, setAccessToken, checkAccessToken } = UseToken();
-  const ROLES = [1, 2];
-  const [login, setLogin] = useState(true);
+  const { AccessToken, checkAccessToken } = UseToken();
   useEffect(() => {
     setIsLoading(false);
   }, [AccessToken]);
@@ -63,57 +67,68 @@ function App() {
       if (auth.role === 1) {
         return (
           <Routes>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/" element={<Layout></Layout>}>
+              <Route path="/dashboard" element={<Dashboard />} />
 
-            <Route path="/home" element={<Home />} />
-            <Route path="/message" element={<ChatApp />} />
-            <Route path="/message/:id" element={<ChatApp />} />
+              <Route index element={<Home />} />
+              <Route path="/message" element={<ChatApp />} />
+              <Route path="/message/:id" element={<ChatApp />} />
 
-            <Route path="/" element={<Navigate to="/home"></Navigate>} />
-            <Route path="/create" element={<CreateStudent />} />
-            <Route path="/*" element={<Navigate to="/"></Navigate>} />
+              <Route path="/" element={<Navigate to="/home"></Navigate>} />
+              <Route path="/create" element={<CreateStudent />} />
+            </Route>
           </Routes>
         );
       } else if (auth.role === 2) {
         return (
-          <Routes>
-            <Route path="/dangkilop" element={<DangKiLopHoc />} />
-            <Route path="/profile/:MSSV" element={<Profile />} />
-            <Route path="/chuongtrinhdaotao" element={<Chuongtrinhdaotao />} />
-            <Route
-              path="/movie/moviedetail/:id"
-              element={<DeltailMovieFilms />}
-            />
-            {/* <Route path="/" element={<Dashboard />} /> */}
-            <Route path="/" element={<Home />} />
-            <Route path="/friends" element={<FriendList />} />
-            <Route path="/films" element={<MoviesType />} />
-            <Route path="/videocall" element={<VideoCall />}></Route>
-            <Route path="/message" element={<MessageRoute />} />
-            <Route path="*" element={<Home />} />
-            <Route path="/photo/" element={<Profile/>} />
+          <div>
+            <Routes location={background || location}>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<NewFeed />} />
+                <Route path="dangkilop" element={<DangKiLopHoc />} />
+                <Route
+                  path="chuongtrinhdaotao"
+                  element={<Chuongtrinhdaotao />}
+                />
+                <Route
+                  path="movie/moviedetail/:id"
+                  element={<DeltailMovieFilms />}
+                />
+                <Route path="friends" element={<FriendList />} />
+                <Route path="films" element={<MoviesType />} />
+                <Route path="videocall" element={<VideoCall />} />
+                <Route path="message" element={<MessageRoute />} />
+                <Route path="lichhoc" element={<ViewTimetable />} />
+                <Route path="setting" element={<SettingAccount />} />
+                <Route path="photo" element={<PhotoPost />} />
+                <Route path=":MSSV" element={<Profile />}></Route>
+              </Route>
+            </Routes>
 
-            <Route path="/message/:messageId" element={<MessageRoute />} />
-            <Route path="/lichhoc" element={<ViewTimetable />} />
-            <Route path="/setting" element={<SettingAccount />} />
-          </Routes>
+            {background && (
+              <Routes>
+                <Route path="/photo" element={<PhotoPost />} />
+              </Routes>
+            )}
+          </div>
         );
       }
     } else {
       return (
         <Routes>
-  
-          <Route path="/photo/" element={<Profile/>} />
-          <Route path="/profile/:MSSV" element={<Profile />} />
-
           <Route path="/login" element={<Login />} />
-          <Route path="/create" element={<CreateStudent />} />
-          <Route path="*" element={<Home />} />
+          <Route path="/" element={<Layout></Layout>}>
+            <Route index element={<Home />} />
+            <Route path="/photo" element={<PhotoPost />} />
+            <Route path="/profile/:MSSV" element={<Profile />} />
+            <Route path="*" element={<Home />}></Route>
+            <Route path="/create" element={<CreateStudent />} />
 
-          <Route
-            path="/movie/moviedetail/:id"
-            element={<DeltailMovieFilms />}
-          />
+            <Route
+              path="/movie/moviedetail/:id"
+              element={<DeltailMovieFilms />}
+            />
+          </Route>
         </Routes>
       );
     }
@@ -122,11 +137,6 @@ function App() {
   }
 }
 
-function ProfileRoutes() {
-  const { MSSV } = useParams();
-
-  return <UserProfile MSSV={MSSV} />;
-}
 function VideoCall() {
   const { userID } = useParams();
 

@@ -27,7 +27,7 @@ function Comment({
   isPost,
 }) {
   const { auth } = useAuth();
-  const [CommentsRep, setCommentsRep] = useState();
+  const [CommentsRep, setCommentsRep] = useState([]);
   const [ComemntDetail, setComemntDetail] = useState([]);
   const [myReaction, setmyReaction] = useState();
   const countReactionHeight = 2.5;
@@ -161,7 +161,6 @@ function Comment({
           </Popover>
         );
       }
-    
     },
   };
 
@@ -198,6 +197,7 @@ function Comment({
   const { Onlines } = useRealTime();
 
   useEffect(() => {
+    console.log(comment, "commentcommentcommentcomment");
     if (comment) {
       const fetchData = async () => {
         if (users) {
@@ -214,13 +214,15 @@ function Comment({
   }, [comment]);
   const deletePost = async (id) => {
     const url = `${process.env.REACT_APP_DB_HOST}/api/comment/delete/${id}`;
-    const res = await fetch(url, { method: "DELETE" });
+    await fetch(url, { method: "DELETE" });
   };
   return (
-    <div className={`comment ${className} ${isPost && "shadow-xl"}`}>
-      <div className={`containerComment my-2 `}>
+    <div
+      className={`comment ${className} ${isPost ? "shadow-xl" : "bg-white" } cursor-pointer hover:bg-slate-100	`}
+    >
+      <div className={`containerComment mr-10`}>
         <div className="headerComment">
-          <div className="AvatarComment">
+          <div className="AvatarComment w-10">
             <Popover
               content={
                 <UserProfile User={User} MSSV={User?.MSSV}></UserProfile>
@@ -261,43 +263,40 @@ function Comment({
             <div className="px-2 ">
               <div
                 className={`nameComment ${!isPost && "p-2"} `}
-                style={{ height: "2.5rem" }}
               >
                 <div className="flex justify-between">
-                  {User && (
-                    <Popover
-                      content={
-                        <UserProfile
-                          User={User}
-                          MSSV={User?.MSSV}
-                        ></UserProfile>
-                      }
-                    >
-                      <div
-                        className="NameComment"
-                        style={{ cursor: "pointer" }}
+                  <div className="flex">
+                    {User && (
+                      <Popover
+                        content={
+                          <UserProfile
+                            User={User}
+                            MSSV={User?.MSSV}
+                          ></UserProfile>
+                        }
                       >
                         <span style={{ fontWeight: 600 }}>{User?.Name}</span>
-                        <p>
-                          <Popover
-                            content={
-                              <p>
-                                {getDate(comment.create_at)} lúc{" "}
-                                {getTime(comment.create_at)},{" "}
-                                {getWeekdays(comment.create_at)}
-                              </p>
-                            }
-                          >
-                            <span className="text-sm text-slate-500	">
-                              {countTime(comment.create_at)} ago
-                            </span>
-                          </Popover>{" "}
-                        </p>
-                      </div>
-                    </Popover>
-                  )}
-                  {isPost && comment?.userID===auth?.username
-                   && (
+                      </Popover>
+                    )}
+                    <span className="">
+                      <Popover
+                        content={
+                          <p>
+                            {getDate(comment.create_at)} lúc{" "}
+                            {getTime(comment.create_at)},{" "}
+                            {getWeekdays(comment.create_at)}
+                          </p>
+                        }
+                      >
+                        {"          "}
+
+                        <span className="cursor-pointer text-slate-500	pl-10 hover:underline">
+                          {countTime(comment.create_at)}
+                        </span>
+                      </Popover>
+                    </span>
+                  </div>
+                  {isPost && comment?.userID === auth?.username && (
                     <div className="featPost">
                       <ul className="flex ">
                         <li className="">
@@ -324,17 +323,21 @@ function Comment({
                 </div>
               </div>
 
-              <div className="contentComment h mx-2 py-2 shadow-indigo-500/40">
+              <div className="contentComment shadow-indigo-500/40">
                 {/* {[comment.content].map((e) => (
                   <span>{parse(processedComment, options)}</span>
                 ))} */}
-                <span>{parse(comment.content, options)}</span>
-                {comment.media.length>0 &&
-                <div className="h-75vh">
+                <div className="pb-4">
 
-                <MediaGrid userID={comment.userID} media={ comment.media} />
+                <span className="text-lg" >{parse(comment.content || "", options)}</span>
                 </div>
-                }
+                {comment.media && comment.media.length > 0 && (
+                  <div
+                    className={(isPost && ``) || (isReply && `h-30vh w-1/2`)}
+                  >
+                    <MediaGrid userID={comment.userID} media={comment.media} />
+                  </div>
+                )}
               </div>
             </div>
             <div className="likedislike items-center">
@@ -429,9 +432,14 @@ function Comment({
           <div className="CommentReply">
             {CommentsRep.map((e, i) =>
               i < CommentsRep.length - 1 ? (
-                <Comment comment={e} className={"notLastComment"}></Comment>
+                <Comment
+                  comment={e}
+                  isReply={true}
+                  className={"notLastComment"}
+                ></Comment>
               ) : (
                 <Comment
+                  isReply={true}
                   comment={e}
                   className={ReplyOpen ? "notLastComment" : `lastComment`}
                 ></Comment>
@@ -440,7 +448,7 @@ function Comment({
           </div>
         )}
 
-        {!isReply && ReplyOpen && (
+        {!isReply && ReplyOpen && comment && (
           <>
             <div className="MyReplyComment CommentReply ">
               <MyComment
@@ -450,6 +458,7 @@ function Comment({
                 style={{ margin: 0, padding: 0 }}
                 reply={comment.id}
                 user={User?.Name}
+                update={setCommentsRep}
               ></MyComment>
             </div>
           </>

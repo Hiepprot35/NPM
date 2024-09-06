@@ -54,37 +54,35 @@ export default function Home(props) {
         }}
         className="progress-bar"
       ></motion.div>
-      <Layout link={"/home"}>
-        {!props.isHidden && (
-          <>
-            <div className="contentHome bg-black" ref={contentHomeRef}>
-              <InViewComponent
-                style={{ height: "100vh" }}
-                href={`${process.env.REACT_APP_CLIENT_URL}/home#trending`}
-              >
-                <MovieFilms setImg={setImg} />
-              </InViewComponent>
-              <InViewComponent
-                style={{ height: "100vh" }}
-                href={`${process.env.REACT_APP_CLIENT_URL}/home#tvseries`}
-              >
-                <TVMovie Img={Img} />
-              </InViewComponent>
+      {!props.isHidden && (
+        <>
+          <div className="contentHome bg-black" ref={contentHomeRef}>
+            <InViewComponent
+              style={{ height: "100vh" }}
+              href={`${process.env.REACT_APP_CLIENT_URL}/home#trending`}
+            >
+              <MovieFilms setImg={setImg} />
+            </InViewComponent>
+            <InViewComponent
+              style={{ height: "100vh" }}
+              href={`${process.env.REACT_APP_CLIENT_URL}/home#tvseries`}
+            >
+              <TVMovie Img={Img} />
+            </InViewComponent>
 
-              {auth?.userID && (
-                <InViewComponent
-                  style={{ height: "200vh" }}
-                  href={`${process.env.REACT_APP_CLIENT_URL}/home#playlist`}
-                >
-                  <ListPlay Img={Img} />
-                </InViewComponent>
-              )}
-            </div>
-          </>
-        )}
+            {auth?.userID && (
+              <InViewComponent
+                style={{ height: "200vh" }}
+                href={`${process.env.REACT_APP_CLIENT_URL}/home#playlist`}
+              >
+                <ListPlay Img={Img} />
+              </InViewComponent>
+            )}
+          </div>
+        </>
+      )}
 
-        {/* <ChatApp user={auth} room={room} /> */}
-      </Layout>
+      {/* <ChatApp user={auth} room={room} /> */}
     </>
   );
 }

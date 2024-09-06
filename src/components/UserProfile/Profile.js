@@ -2,7 +2,7 @@ import { Avatar, Modal, Popover } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { FiCamera, FiDelete, FiMove, FiSave, FiUpload } from "react-icons/fi";
-import { NavLink, useParams } from "react-router-dom";
+import { Link, NavLink, Outlet, useParams } from "react-router-dom";
 import { useData } from "../../context/dataContext";
 import { useRealTime } from "../../context/useRealTime";
 import { fetchApiRes, getStudentInfoByMSSV } from "../../function/getApi";
@@ -32,7 +32,9 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
     setOpenModal(true);
     setImageUpload(img);
   };
-
+  useEffect(() => {
+    console.log("render");
+  }, []);
   const closeHandle = () => {
     setImageUpload();
     setImageSend();
@@ -172,12 +174,10 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
   );
 };
 
-export default function Profile() {
+export default function Profile({ children }) {
   const { MSSV } = useParams();
-  const queryParameters = new URLSearchParams(window.location.search);
-  const commentID = queryParameters.get("hid");
-  const MSSVparam = queryParameters.get("MSSV");
-  const MSSVInput = MSSV || MSSVparam;
+
+  const MSSVInput = MSSV;
   const [gerenalFriend, setgerenalFriend] = useState([]);
   const { auth, myInfor } = useAuth();
   const [Users, setUserInfo] = useState();
@@ -341,7 +341,6 @@ export default function Profile() {
   const [PostsData, setPost] = useState();
 
   const [ImgContent, setImgContent] = useState();
-  const [CurrentImg, setCurrentImg] = useState();
   const [BackgroundUpdate, setBackgroundUpdate] = useState();
   const backgroundImg = useRef();
   const changeBackImg = (e) => {
@@ -442,18 +441,7 @@ export default function Profile() {
       }
     }
   };
-  useEffect(() => {
-    const getMediaRes = async () => {
-      const res = await fetchApiRes(`comment/getMedia/${commentID}`, "GET");
-      if (res.result.length > 0) {
-        const { url, createdAt, id,type } = res.result[0];
-        setCurrentImg({ img: url, create_at: createdAt, id: id,type:type });
-      }
-    };
-    if (commentID) {
-      getMediaRes();
-    }
-  }, [commentID, MSSVparam]);
+
   const backChange = (e) => {
     if (backgroundImg.current) {
       setMovingSetting(false);
@@ -485,12 +473,9 @@ export default function Profile() {
     );
   };
   return (
-    <Layout>
+    <>
       {
-        <div
-          className="center content flex-col"
-          style={commentID ? { opacity: 0 } : { cursor: `${cursor}` }}
-        >
+        <div className="center content flex-col">
           <div
             style={{
               cursor: cursor,
@@ -713,19 +698,18 @@ export default function Profile() {
                         {ImgContent ? (
                           ImgContent.map(
                             (e) =>
-                              e.img && e.type.includes('image')&& (
-                                <div onClick={() => setCurrentImg(e)}>
-                                  <NavLink
-                                    to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${e.userID}&hid=${e.id}`}
-                                  >
-                                    <img
-                                      alt="ImageProfile"
-                                      className="object-cover rounded-xl"
-                                      style={{ aspectRatio: "1" }}
-                                      src={`${e.img}`}
-                                    />
-                                  </NavLink>
-                                </div>
+                              e.img &&
+                              e.type.includes("image") && (
+                                <Link
+                                  to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${e.userID}&hid=${e.id}`}
+                                >
+                                  <img
+                                    alt="ImageProfile"
+                                    className="object-cover rounded-xl"
+                                    style={{ aspectRatio: "1" }}
+                                    src={`${e.img}`}
+                                  />
+                                </Link>
                               )
                           )
                         ) : (
@@ -743,8 +727,8 @@ export default function Profile() {
                         {friends ? (
                           friends.map((e) => (
                             <Popover content={<UserProfile User={e} />}>
-                              <NavLink
-                                to={`${process.env.REACT_APP_CLIENT_URL}/profile/${e.MSSV}`}
+                              <Link
+                                to={`${process.env.REACT_APP_CLIENT_URL}/${e.MSSV}`}
                               >
                                 <div className="flex-col w-full center">
                                   <img
@@ -755,7 +739,7 @@ export default function Profile() {
                                   ></img>
                                   <p className="font-semibold">{e.Name}</p>
                                 </div>
-                              </NavLink>
+                              </Link>
                             </Popover>
                           ))
                         ) : (
@@ -764,10 +748,9 @@ export default function Profile() {
                       </div>
                     </div>
                   </div>
-                  <div className="" style={{ width: "60%" }}>
+                  <div className="h-full" style={{ width: "60%" }}>
                     {PostsData ? (
                       <Posts
-                        setCurrentImg={setCurrentImg}
                         setImgContent={setImgContent}
                         Posts={PostsData}
                         setPost={setPost}
@@ -786,14 +769,6 @@ export default function Profile() {
           </div>
         </div>
       }
-      {CurrentImg && (
-        <PhotoPost
-          CurrentImg={CurrentImg}
-          setCurrentImg={setCurrentImg}
-          UsersProfile={Users}
-          commentID={commentID}
-        ></PhotoPost>
-      )}
-    </Layout>
+    </>
   );
 }

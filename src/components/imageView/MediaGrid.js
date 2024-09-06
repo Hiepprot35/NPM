@@ -1,69 +1,77 @@
 import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { insertSearch } from "../../function/addIntoSearch";
 
-
-const MediaGrid = ({ media,userID }) => {
+const MediaGrid = ({ media, userID }) => {
   const [firstImageSize, setFirstImageSize] = useState(null);
-  const ImageLink = ({image , style}) => {
+  const location = useLocation();
+
+  const ImageLink = ({ image, style }) => {
     return (
-      <NavLink
+      <Link
         to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${userID}&hid=${image.id}`}
+        state={{ background: location }}
       >
-        {
-         image.type&& image.type.includes('image') &&
+        {image.type && image.type.includes("image") && (
           <img
-          className={style?style:"w-full h-full object-contain"}
-          src={image.url}
-          alt={`Comment Media `}
+            onClick={() =>
+              insertSearch({ userId: userID, content: image.label })
+            }
+            className={`${style ? style : "w-full h-full object-cover rounded-2xl"}`} // Thêm lớp rounded-lg
+            src={image.url}
+            alt={`Comment Media`}
           />
-        }
-        {
-           image.type && image.type.includes('video') &&
-           <video
-           className="h-full w-full"
-           alt={`Comment Media `}
-           controls
-           >
+        )}
+        {image.type && image.type.includes("video") && (
+          <video className={` ${style} h-full w-full `} alt={`Comment Media`} controls>
+            {" "}
+            {/* Thêm lớp rounded-lg */}
             <source src={image.url} type="video/mp4"></source>
-           </video>
-        }
-      </NavLink>
+          </video>
+        )}
+      </Link>
     );
   };
   const renderMedia = (data) => {
     return (
       <div
         className={`grid h-full ${
-          getFirstImageLayout() === "landscape"
-            ? " grid-rows-2"
-            : " grid-cols-2"
-        } gap-2`}
+          firstImageSize ? " grid-rows-2" : " grid-cols-2"
+        } gap-1`}
       >
-        <div className="bg-black">
-          <NavLink
+        <div className="">
+          <Link
             to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${userID}&hid=${data[0].id}`}
+            state={{ background: location }}
           >
             <img
-              className={` ${
-                getFirstImageLayout() === "landscape"
-                  ? "object-cover h-full w-full"
-                  : "object-scale-down  h-full w-full"
+              className={`w-full ${
+                firstImageSize
+                  ? "object-cover h-full rounded-t-2xl	 "
+                  : " h-full rounded-l-2xl "
               }`}
               src={data[0].url}
               alt={`Comment Media 1`}
             />
-          </NavLink>
+          </Link>
         </div>
         <div
           className={`grid ${
-            getFirstImageLayout() === "landscape"
-              ? " grid-cols-2"
-              : " grid-rows-2"
-          } gap-2`}
+            firstImageSize ? " grid-cols-2" : " grid-rows-2"
+          } gap-1`}
         >
           {data.slice(1, 3).map((e, index) => (
-            <div key={index} className="relative bg-black center">
-              <ImageLink image={e} style={"w-full object-cover"} />
+            <div key={index} className="relative w-full h-full  ">
+              <ImageLink
+                image={e}
+                style={` object-cover w-full h-full ${
+                  !firstImageSize
+                    ? (index === 0 && "rounded-tr-2xl") ||
+                      (index === 1 && "rounded-br-2xl")
+                    : (index === 0 && "rounded-bl-2xl") ||
+                      (index === 1 && "rounded-br-2xl")
+                } `}
+              />
               {index === 1 && data.length > 3 && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                   <span className="text-white text-xl">
@@ -82,39 +90,32 @@ const MediaGrid = ({ media,userID }) => {
       const img = new Image();
       img.src = media[0].url;
       img.onload = () => {
-        setFirstImageSize({ width: img.width, height: img.height });
+        setFirstImageSize(img.width > img.height);
       };
     }
   }, [media]);
 
-  const getFirstImageLayout = () => {
-    if (firstImageSize) {
-      return firstImageSize.width > firstImageSize.height
-        ? "landscape"
-        : "portrait";
-    }
-    return "portrait";
-  };
-
   if (!media || media.length === 0) return null;
 
   if (media.length === 1) {
-    const layout = getFirstImageLayout();
     return (
       <div
-        className={`w-full h-full bg-black ${
-          layout === "landscape" ? "flex justify-center" : ""
+        className={`w-full h-full ${
+          firstImageSize ? "flex justify-center" : ""
         }`}
       >
-        <ImageLink image={media[0]} />
+        <ImageLink image={media[0]}  />
       </div>
     );
   } else if (media.length === 2) {
     return (
-      <div className="grid grid-cols-2 gap-2 ">
+      <div className="grid grid-cols-2 gap-1 ">
         {media.map((e, index) => (
-          <div key={index} className="bg-black">
-            <ImageLink image={e}   />
+          <div key={index} className="">
+            <ImageLink
+              image={e}
+              style={`w-full h-full object-cover ${index === 1 ? "rounded-r-2xl" : "rounded-l-2xl"}`}
+            />
           </div>
         ))}
       </div>

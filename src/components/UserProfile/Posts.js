@@ -31,7 +31,8 @@ export default function Posts(props) {
       </div>
 
       <div
-        className={`mb-8 pl-12 w-full  ${gridView && "grid grid-cols-2 gap-2"}	`}
+      
+        className={`mb-8 pl-12 w-full    ${gridView && "grid grid-cols-2 gap-2"}	`}
       >
         {
           props.Posts.map((e) => (
@@ -40,7 +41,6 @@ export default function Posts(props) {
               key={e.id}
               users={props.users}
               comment={e}
-              setCurrentImg={props.setCurrentImg}
               className={"PostComponent p-4  mb-4 theme rounded-xl w-full"}
             ></Comment>
           ))}

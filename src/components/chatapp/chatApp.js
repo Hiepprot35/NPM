@@ -120,7 +120,6 @@ const ChatApp = ({ messageId }) => {
   return (
     <>
       {
-        <Layout nvarbar={true} link={"/message"}>
           <div className="Container_ChatApp">
             <div className="Narbar_ChatApp">
               <h1>Đoạn chat</h1>
@@ -197,7 +196,6 @@ const ChatApp = ({ messageId }) => {
               )}
             </div>
           </div>
-        </Layout>
       }
     </>
   );

@@ -9,7 +9,8 @@ module.exports = {
         },
         spacing:{
           '75vh':'75vh',
-          '30vh':'30vh'
+          '30vh':'30vh',
+          '50vw':'50vw',
         }
       },
     },

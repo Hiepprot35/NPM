@@ -163,7 +163,7 @@ export default function DetailMovie(props) {
       `/gettAllCommentFilms/?movieID=${props.movieID}&replyID=-1/`,
       "GET"
     );
-    if (res?.result.length>0) {
+    if (res?.result.length > 0) {
       const commentsRes = res?.result.sort((a, b) => {
         const timeA = new Date(a.create_at).getTime();
         const timeB = new Date(b.create_at).getTime();
@@ -447,7 +447,7 @@ export default function DetailMovie(props) {
     }
   }, [ShowMiniRp]);
   useEffect(() => {
-    console.log((comments),"aaaaaaaaaaaaaaaaaaaaa")
+    console.log(comments, "aaaaaaaaaaaaaaaaaaaaa");
   }, [comments]);
   const getActors = async () => {
     try {
@@ -513,7 +513,7 @@ export default function DetailMovie(props) {
       {Loading ? (
         <IsLoading />
       ) : (
-        <Layout link={"/home"}>
+        <>
           {Movies.id ? (
             <motion.div
               className="DetailMovie"
@@ -753,7 +753,7 @@ export default function DetailMovie(props) {
                         <div style={{ margin: 0, position: "relative" }}>
                           <h1 style={{ margin: 0 }}>Comment</h1>
                           <div className="center countText">
-                            <p>{comments?.length||0}</p>
+                            <p>{comments?.length || 0}</p>
                           </div>
                         </div>
                         <div
@@ -849,7 +849,7 @@ export default function DetailMovie(props) {
               <FiCheck></FiCheck> Coypied URL
             </MiniRp>
           )}
-        </Layout>
+        </>
       )}
     </>
   );

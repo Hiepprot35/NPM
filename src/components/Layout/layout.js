@@ -5,28 +5,32 @@ import { useRealTime } from "../../context/useRealTime";
 import { FiCheck } from "react-icons/fi";
 import VideoPlayer from "../chatapp/VideoPlayer";
 import { useSocket } from "../../context/socketContext";
+import { Outlet } from "react-router-dom";
 
 export default function Layout({ link, children, nvarbar }) {
-  const { requestCall,setRequestCall } = useRealTime();
-  const socket=useSocket()
+  const { requestCall, setRequestCall } = useRealTime();
+  const socket = useSocket();
   const handleVideoCall = (userID) => {
     console.log("openchat");
     const url = `${process.env.REACT_APP_CLIENT_URL}/videocall/${userID}`;
     window.open(url, "_blank");
   };
   const answerCall = () => {
-   
-    setRequestCall()
+    setRequestCall();
     const width = 800; // Chiều rộng của cửa sổ tab nhỏ
-    const height = 800*9/16; // Chiều cao của cửa sổ tab nhỏ
-    
+    const height = (800 * 9) / 16; // Chiều cao của cửa sổ tab nhỏ
+
     const left = (window.innerWidth - width) / 2;
     const top = (window.innerHeight - height) / 2;
-    
+
     // Các thuộc tính của cửa sổ mới
     const windowFeatures = `width=${width},height=${height},top=${top},left=${left}`;
-    const url = `${process.env.REACT_APP_CLIENT_URL}/videocall/?userID=${requestCall?.from}&converID=${requestCall.converID}&reply=${true}&senderSocket=${requestCall.senderSocket}`;
-    window.open(url, "Video Call",windowFeatures);
+    const url = `${process.env.REACT_APP_CLIENT_URL}/videocall/?userID=${
+      requestCall?.from
+    }&converID=${requestCall.converID}&reply=${true}&senderSocket=${
+      requestCall.senderSocket
+    }`;
+    window.open(url, "Video Call", windowFeatures);
   };
   const refuseCall = () => {
     if (socket) {
@@ -40,14 +44,14 @@ export default function Layout({ link, children, nvarbar }) {
           </div>
           `,
 
-        converID: requestCall?.converID
+        converID: requestCall?.converID,
       });
     }
     setRequestCall({});
   };
   return (
-    <>
-      <Header hash={link} />
+    <div>
+      <Header />
       {!nvarbar && <Nvarbar></Nvarbar>}
       {requestCall?.isRequesting && (
         <div className="callComing center w-screen h-screen z-10 fixed">
@@ -60,13 +64,15 @@ export default function Layout({ link, children, nvarbar }) {
               <span className="circleButton" onClick={() => answerCall()}>
                 <FiCheck></FiCheck>
               </span>
-              <span className="circleButton" onClick={() =>refuseCall()}>
+              <span className="circleButton" onClick={() => refuseCall()}>
                 X
               </span>
             </div>
           </div>
         </div>
-      )}      {children}
-    </>
+      )}{" "}
+      {/* {children} */}
+      <Outlet />
+    </div>
   );
 }

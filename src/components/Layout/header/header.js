@@ -1,12 +1,6 @@
-import React, {
-  memo,
-  useCallback,
-  useEffect,
-  useRef,
-  useState
-} from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { IoLogoGoogle } from "react-icons/io";
-import { NavLink } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { useSocket } from "../../../context/socketContext";
 import { fetchApiRes } from "../../../function/getApi";
 
@@ -21,12 +15,10 @@ import {
   FiSettings,
   FiSun,
   FiSunrise,
-  FiUser
+  FiUser,
 } from "react-icons/fi";
 import { useData } from "../../../context/dataContext";
-import {
-  Month,
-} from "../../../function/getTime";
+import { Month } from "../../../function/getTime";
 import useAuth from "../../../hook/useAuth";
 import { useOutsideClick } from "../../../hook/useOutsideClick";
 import { header_Student } from "../../../lib/data";
@@ -55,7 +47,9 @@ function Header(props) {
     setListHiddenBubble,
     listWindow,
     setConversationContext,
-    Conversations,themeColor,setThemeColor
+    Conversations,
+    themeColor,
+    setThemeColor,
   } = useData();
   const Menu_profile_header = useRef();
   const [city, setCity] = useState("hanoi");
@@ -195,9 +189,8 @@ function Header(props) {
   }, [city]);
   const [SearchQuery, setSearchQuery] = useState("");
 
-
   const ChangeColorTheme = (event) => {
-    setThemeColor(pre=>!pre);
+    setThemeColor((pre) => !pre);
   };
   const refSearchButton = useRef();
   const searchHandle = () => {
@@ -222,7 +215,7 @@ function Header(props) {
         <div className="avatar_link">
           <NavLink
             className="Menu_a_link_profile "
-            to={`/profile/${myInfor?.MSSV}`}
+            to={`/${myInfor?.MSSV}`}
           >
             <div className="avatar_name hover">
               <Image

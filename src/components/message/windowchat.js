@@ -15,7 +15,7 @@ import {
   FiX,
   FiXCircle,
 } from "react-icons/fi";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useData } from "../../context/dataContext";
 import { useSocket } from "../../context/socketContext";
 import { useRealTime } from "../../context/useRealTime";
@@ -825,10 +825,8 @@ export default memo(function WindowChat(props) {
                           >
                             <div className=" center h-full px-2  hover:bg-gray-200 rounded-xl">
                               <div className="Avatar_status">
-                                <NavLink
-                                  to={`${
-                                    process.env.REACT_APP_CLIENT_URL
-                                  }/profile/${
+                                <Link
+                                  to={`/${
                                     conversation.MSSV || userInfor?.MSSV
                                   }`}
                                 >
@@ -852,7 +850,7 @@ export default memo(function WindowChat(props) {
                                         : ""
                                     }`}
                                   ></span>
-                                </NavLink>
+                                </Link>
                               </div>
                             </div>
                           </Popover>

@@ -15,6 +15,7 @@ import { DataProvider } from "./context/dataContext";
 import { SessionProvider } from "./context/sectionProvider";
 import { WidthProvider } from "./context/widthProvider";
 import { RealTimeContextProvider } from "./context/useRealTime";
+import { CurrentCommentProvider } from "./context/CurrentComment";
 
 document.title = "Login";
 window.global = window;
@@ -29,9 +30,11 @@ root.render(
           <SocketProvider>
             <RealTimeContextProvider>
               <WidthProvider>
-                <BrowserRouter>
-                  <App></App>
-                </BrowserRouter>
+                <CurrentCommentProvider>
+                  <BrowserRouter>
+                    <App></App>
+                  </BrowserRouter>
+                </CurrentCommentProvider>
               </WidthProvider>
             </RealTimeContextProvider>
           </SocketProvider>
