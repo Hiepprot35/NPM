@@ -2,12 +2,14 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import useAuth from "../hook/useAuth";
 import { getConversation } from "../components/conversation/getConversation";
 import { getInforByUserID } from "../function/getApi";
+import UseToken from "../hook/useToken";
 
 // Tạo context
 export const DataContext = createContext();
 
 // DataProvider component
 export const DataProvider = ({ children }) => {
+  const {AccessToken}=UseToken()
   const [listWindow, setListWindow] = useState([]);
   const [listHiddenBubble, setListHiddenBubble] = useState([]);
   const [ConversationContext, setConversationContext] = useState([]);
@@ -49,7 +51,7 @@ export const DataProvider = ({ children }) => {
     if (auth) {
       const res = async () => {
         setLoading(true);
-        const data = await getConversation(auth);
+        const data = await getConversation(auth,AccessToken);
         const storedHiddenBubble = JSON.parse(
           localStorage.getItem("hiddenCounter")
         );
@@ -62,7 +64,7 @@ export const DataProvider = ({ children }) => {
             ...e,
             img: hehe?.cutImg || hehe?.img,
             Name: hehe?.Name,
-            MSSV: hehe.MSSV,
+            MSSV: id,
           };
         });
         const promies = await Promise.all(update);

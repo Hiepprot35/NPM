@@ -5,17 +5,19 @@ import parse from "html-react-parser";
 import useAuth from "../../hook/useAuth";
 import "./conversation.css";
 import { useSocket } from "../../context/socketContext";
-import {
-  fetchApiRes,
-  getStudentInfoByMSSV,
-  getUserinfobyID,
-} from "../../function/getApi";
+
 import { useData } from "../../context/dataContext";
-export const getMess = async (conversation) => {
+import UseToken from "../../hook/useToken";
+export const getMess = async (conversation, token) => {
   try {
     const url = `${process.env.REACT_APP_DB_HOST}/api/message/newest/${conversation.id}`;
-    console.log(url)
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
     const data2 = await res.json();
 
     return data2;
@@ -44,7 +46,7 @@ export default memo(function Conversation({
   const [updateContent, setUpdateContent] = useState();
   const [NewestMess, setNewestMesst] = useState(conversation);
   const data = [conversation.user1, conversation.user2];
-
+  const { AccessToken } = UseToken();
   const setOnlineUser = data.find((m) => m !== auth.userID);
   const ListusersOnline = (Online && Online.map((item) => item.userId)) || [];
   useEffect(() => {
@@ -61,7 +63,6 @@ export default memo(function Conversation({
       ? conversation.user2
       : conversation.user1;
 
-
   const checkMess = (mess) => {
     const data = mess.split("emojiLink");
 
@@ -74,12 +75,10 @@ export default memo(function Conversation({
     return processedData.join("");
   };
   const getNewestMess = async () => {
-    const data = await getMess(conversation);
+    const data = await getMess(conversation, AccessToken);
     setNewestMesst(data);
   };
-  useEffect(() => {
-    getNewestMess()
-  }, [conversation]);
+
   useEffect(() => {
     if (sendMess) {
       if (sendMess.conversation_id === conversation.id) {
@@ -162,28 +161,31 @@ export default memo(function Conversation({
                 <></>
               ) : (
                 <div className="messConversation flex ">
-                  {NewestMess && (
+                  {conversation && (
                     <>
                       {
                         <>
-                          {NewestMess.content && (
-                            <div className="">
-                              <span>
-                                {NewestMess.sender_id === auth.userID
-                                  ? NewestMess.content.startsWith(
-                                      "https://res.cloudinary.com"
-                                    )
-                                    ? "Bạn đã gửi một ảnh"
-                                    : parse(checkMess(NewestMess.content))
-                                  : NewestMess.content.startsWith(
-                                      "https://res.cloudinary.com"
-                                    )
-                                  ? "Đã gửi một ảnh"
-                                  : parse(checkMess(NewestMess.content))}
-                              </span>
+                          {conversation.content && (
+                            <div className="w-full center">
+                              <div className="w-3/4  ">
+                                <span
+                               className="truncate">
+                                  {conversation.sender_id === auth.userID
+                                    ? conversation.content.startsWith(
+                                        "https://res.cloudinary.com"
+                                      )
+                                      ? "Bạn đã gửi một ảnh"
+                                      : parse(checkMess(conversation.content))
+                                    : conversation.content.startsWith(
+                                        "https://res.cloudinary.com"
+                                      )
+                                    ? "Đã gửi một ảnh"
+                                    : parse(checkMess(conversation.content))}
+                                </span>
+                              </div>
 
                               <span>
-                                {timeUse.countTime(NewestMess.created_at)}
+                                {timeUse.countTime(conversation.mesCreatedAt)}
                               </span>
                             </div>
                           )}
@@ -191,9 +193,9 @@ export default memo(function Conversation({
                       }
                     </>
                   )}
-                  {NewestMess?.sender_id === auth.userID &&
-                    NewestMess.isSeen === 1 &&
-                    NewestMess && (
+                  {conversation?.sender_id === auth.userID &&
+                    conversation.isSeen === 1 &&
+                    conversation && (
                       <div className="Seen_field ml-4">
                         <img
                           style={{ width: "1rem", height: "1rem" }}

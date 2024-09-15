@@ -1,11 +1,7 @@
-import { useEffect, useState } from "react";
 import { useData } from "../../context/dataContext";
-import { useSocket } from "../../context/socketContext";
-import useAuth from "../../hook/useAuth";
-import Conversation from "../conversation/conversations";
-import { getConversation } from "../conversation/getConversation";
 import { useRealTime } from "../../context/useRealTime";
 import { getInforByUserID } from "../../function/getApi";
+import Conversation from "../conversation/conversations";
 export const findUserConversation = async (conversation, auth) => {
   const userConver =
     conversation?.user1 === auth.userID
@@ -29,16 +25,7 @@ export const findUserConversation = async (conversation, auth) => {
   };
 };
 export default function MessageMainLayout(props) {
-  const [onlineUser, setOnlineUser] = useState();
-  const socket = useSocket();
-  const { auth } = useAuth();
-  const [conversations, setConversation] = useState([]);
-
-  const {
-    LoadingConver,
-    Conversations,
-    ConversationContex,
-  } = useData();
+  const { LoadingConver, Conversations } = useData();
 
   const { Onlines } = useRealTime();
 
@@ -51,7 +38,7 @@ export default function MessageMainLayout(props) {
             <div className=" hover:overflow-y-scroll" style={{ height: "80%" }}>
               {
                 <>
-                  {Conversations && !LoadingConver? (
+                  {Conversations && !LoadingConver ? (
                     Conversations.map((c, i) => (
                       <div key={c.id} className="converrsation_chat center">
                         <Conversation

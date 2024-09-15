@@ -59,8 +59,6 @@ input[type=text]:focus {
     margin: 0;
 }
 .Container_ChatApp {
-    /* top: 7vh; */
-    padding-top: 7vh;
     width: 100vw;
     height: 100vh;
     display: flex;

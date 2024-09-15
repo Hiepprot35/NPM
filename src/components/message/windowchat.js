@@ -1,4 +1,4 @@
-import { Modal, Popover } from "antd";
+import { message, Modal, Popover } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { LuSticker } from "react-icons/lu";
 
@@ -28,6 +28,7 @@ import Message from "./Message";
 import "./windowchat.css";
 import ShowImgDialog from "./windowchat/ShowImgMess";
 import VehicleChat from "./windowchat/VehicleChat";
+import { RouteLink } from "../../lib/link";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 export const movieApi = async (videoID) => {
   const url = `https://api.themoviedb.org/3/movie/${videoID}`;
@@ -93,7 +94,7 @@ export default memo(function WindowChat(props) {
             conversation_id: conversation.id,
             content: `<div className="maskUserChange">${myInfor.Name} đã đổi biệt danh thành ${mask1}</div>`,
             sender_id: auth.userID,
-            created_at: Date.now(),
+            createdAt: Date.now(),
             isFile: 0,
           };
           await fetchApiRes("message", "POST", Mes);
@@ -103,7 +104,7 @@ export default memo(function WindowChat(props) {
             conversation_id: conversation.id,
             content: `<div className="maskUserChange">${myInfor.Name} đã đổi biệt danh thành ${mask2}</div>`,
             sender_id: auth.userID,
-            created_at: Date.now(),
+            createdAt: Date.now(),
             isFile: 0,
           };
           await fetchApiRes("message", "POST", Mes2);
@@ -131,7 +132,7 @@ export default memo(function WindowChat(props) {
         conversation_id: conversation.id,
         content: `<div className="center">${host.Name} đã đổi icon emojiLink${e.imageUrl}emojiLink </div>`,
         sender_id: auth.userID,
-        created_at: Date.now(),
+        createdAt: Date.now(),
         isFile: 0,
       };
       await fetchApiRes("message", "POST", Mes);
@@ -347,6 +348,7 @@ export default memo(function WindowChat(props) {
           setListHiddenBubble([]);
           setListWindow([]);
         } else {
+          console.log(data.result, "adadasdasadaaaaaaaaaaaaaaaaaa");
           setMessages(data.result);
           setIsMore(data.result.length <= data.totalCount);
         }
@@ -355,6 +357,7 @@ export default memo(function WindowChat(props) {
   }
   useEffect(() => {
     if (messages) {
+      console.log(messages)
       const hehe = messages.reduce((acc, e) => {
         if (e.isFile) {
           acc.push(...e.content.split(","));
@@ -459,18 +462,15 @@ export default memo(function WindowChat(props) {
           conversation: { ...conversation, img: myInfor.avtUrl },
           id: data.id,
           conversation_id: conversation.id,
-          sender_id: data.sender_id,
-          receiverId: userConver,
+          sender_id: Number(data.sender_id),
+          receiverId: Number(userConver),
           content: data.content,
           isFile: data.isFile,
-          created_at: data.created_at,
+          createdAt: data.createdAt,
         };
         // channel.postMessage(mess);
 
         socket.emit("sendMessage", mess);
-        if (props.chatApp === true) {
-          // props.setsendMess(mess);
-        }
       }
     } catch (error) {
       console.error("Error sending message:", error);
@@ -487,7 +487,7 @@ export default memo(function WindowChat(props) {
     const data = new FormData();
     const messObj = {
       sender_id: auth.userID,
-      created_at: Date.now(),
+      createdAt: Date.now(),
       conversation_id: conversation.id,
     };
     const content = conversation.iconConver
@@ -496,7 +496,6 @@ export default memo(function WindowChat(props) {
     data.set("isFile", 0);
     data.set("sender_id", auth.userID);
     data.set("conversation_id", conversation.id);
-    data.set("created_at", Date.now());
     data.set("content", content);
     channel.postMessage({ ...messObj, content: content, isFile: 0 });
     const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
@@ -522,10 +521,9 @@ export default memo(function WindowChat(props) {
       const emojiText = emoji;
       const ImageFile = fileImg;
       const viewImg = imgView;
-      let socketMess = [];
       const messObj = {
         sender_id: auth.userID,
-        created_at: Date.now(),
+        createdAt: Date.now(),
         conversation_id: conversation.id,
       };
       const update = [...messages];
@@ -575,33 +573,35 @@ export default memo(function WindowChat(props) {
       const imgData = new FormData();
       imgData.append("sender_id", auth.userID);
       imgData.append("conversation_id", conversation.id);
-      imgData.append("created_at", messObj.created_at);
       if (ImageFile.length > 0) {
         for (const file of ImageFile) {
           imgData.append("content", file);
         }
         imgData.set("isFile", 1);
-        const res = sendMessRes(imgData);
+        const res = await sendMessRes(imgData);
         const newMessage = await res.json();
+        console.log(newMessage, "newmesss");
         socketSend(newMessage);
       }
       if (messagesText.length > 0 && emojiText.length === 0) {
         imgData.set("isFile", 0);
         imgData.set("content", messagesText);
-        const res = sendMessRes(imgData);
+        const res = await sendMessRes(imgData);
 
         const newMessage = await res.json();
+        console.log(newMessage, "newmesss");
         socketSend(newMessage);
       }
       if (emojiText.length > 0) {
         imgData.set("isFile", 0);
         imgData.set("content", updatedInputMess);
-        const res = sendMessRes(imgData);
+        const res = await sendMessRes(imgData);
         const newMessage = await res.json();
         promises.push(newMessage);
         socketSend(newMessage);
       }
     } catch (err) {
+      console.log(err);
       setSending(true);
     } finally {
       setSending(false);
@@ -636,17 +636,14 @@ export default memo(function WindowChat(props) {
       if (
         arrivalMessage &&
         conversation &&
-        [conversation?.user1, conversation?.user2].includes(
-          arrivalMessage.sender_id
-        ) &&
         parseInt(arrivalMessage.conversation_id) === conversation.id
       ) {
-        setMessages((prev) => [arrivalMessage, ...prev]);
+        setMessages((prev) => [arrivalMessage ,...prev]);
       }
     };
 
     updateMessages();
-  }, [arrivalMessage]);
+  }, [arrivalMessage, conversation]);
 
   useEffect(() => {
     if (windowchat.current) {
@@ -654,7 +651,7 @@ export default memo(function WindowChat(props) {
         windowchat.current.style.display = "none";
       }
     }
-  }, [conversation?.id]);
+  }, [props.index]);
   useEffect(() => {
     setMessages([]);
     setImgMess([]);
@@ -745,16 +742,17 @@ export default memo(function WindowChat(props) {
     if (socket) {
       const handleUpdateNewSend = (data) => {
         if (props.chatApp === true) {
-          props.setsendMess({ ...data, created_at: Date.now() });
+          props.setsendMess({ ...data, createdAt: Date.now() });
         }
-        setArrivalMessage({ ...data, created_at: Date.now() });
+        setArrivalMessage({ ...data, createdAt: Date.now() });
       };
       const updateMess = (data) => {
+        console.log(data, "messsarrive");
         if (props.chatApp === true) {
-          props.setsendMess({ ...data, created_at: Date.now() });
+          props.setsendMess({ ...data, createdAt: Date.now() });
         }
 
-        setArrivalMessage({ ...data, created_at: Date.now() });
+        setArrivalMessage({ ...data, createdAt: Date.now() });
       };
       socket.on("isTyping", (data) => {
         setIsTyping(data.isTyping);
@@ -826,8 +824,8 @@ export default memo(function WindowChat(props) {
                             <div className=" center h-full px-2  hover:bg-gray-200 rounded-xl">
                               <div className="Avatar_status">
                                 <Link
-                                  to={`/${
-                                    conversation.MSSV || userInfor?.MSSV
+                                  to={`${RouteLink.profileLink}/${
+                                    conversation.MSSV || userInfor?.UserID
                                   }`}
                                 >
                                   <Image

@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
         {
             const data=async()=>
             {
+                console.log(auth)
                 const res=await getStudentInfoByMSSV(auth.username)
                 setMyInfor({...res,avtUrl:res?.cutImg||res?.img})
             }

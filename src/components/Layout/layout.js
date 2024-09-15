@@ -72,7 +72,10 @@ export default function Layout({ link, children, nvarbar }) {
         </div>
       )}{" "}
       {/* {children} */}
+      <div style={{paddingTop:"7vh"}}>
+
       <Outlet />
+      </div>
     </div>
   );
 }

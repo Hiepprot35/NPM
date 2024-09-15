@@ -9,7 +9,7 @@ export default function FriendList(props) {
   const [Users, setListUsers] = useState([]);
   const getData = async () => {
     try {
-      const response = await fetchApiRes('getallstudent', "GET");
+      const response = await fetchApiRes("getallstudent", "GET");
       console.log(response);
       console.log(response.result);
       setListUsers(response.result);
@@ -40,7 +40,7 @@ export default function FriendList(props) {
             <div className="loader"></div>
           </div>
         ) : (
-          Users.map((e) => <UserProfile User={e} MSSV={e.MSSV} />)
+          Users.map((e) => <UserProfile User={e} MSSV={e.UserID} />)
         )}
       </div>
     </>

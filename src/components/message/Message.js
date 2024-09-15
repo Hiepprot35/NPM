@@ -27,7 +27,7 @@ export default memo(function Message({
   const [listAnh, setListAnh] = useState();
 
   useEffect(() => {
-    if (message.isFile === 1) {
+    if (Number(message.isFile) === 1) {
       const data = message.content.split(",");
       setListAnh(data);
     }
@@ -140,18 +140,18 @@ export default memo(function Message({
 
   useEffect(() => {
     const processComment = async () => {
+      console.log(message);
       if (message.content) {
         const data = message.content.split("emojiLink");
-
         const processedData = data.map((e) => {
           if (e.includes("https://cdn.jsdelivr.net")) {
             return `<span><img alt="icon" style="width: 1rem; height: 1rem; margin: .1rem;" src="${e}"/></span>`;
           }
           return e; // Trả về phần tử gốc nếu không phải là URL cần kiểm tra
         });
-
+        const heasdsad = await checkComment(processedData.join(""));
         // Hợp nhất kết quả thành một chuỗi
-        setProcessedComment(await checkComment(processedData.join("")));
+        setProcessedComment(heasdsad);
       }
     };
 
@@ -189,28 +189,28 @@ export default memo(function Message({
                     )}
                   </>
                 )}
-                {message.content != null && (
+                {message.content && (
                   <Popover
+                    trigger={"hover"}
                     placement={own ? "left" : "right"}
                     overlayStyle={{ padding: 0 }}
                     content={
                       <p style={{ padding: 0 }} ref={time}>
-                        {timeUse.getTime(message.created_at)}
-                        {timeUse.getDate(message.created_at)}
+                        {timeUse.formatDate(message.createdAt)}
                       </p>
                     }
                   >
                     <div
                       className={`Mess_seen_text flex ${
-                        listAnh?.length > 1 && "grid grid-cols-3"
-                      }  `}
+                        listAnh?.length > 1 ? "grid grid-cols-3" : ""
+                      }`}
                       style={
                         message.content.includes(`className="maskUserChange"`)
                           ? { width: "100%" }
                           : {}
                       }
                     >
-                      {message.isFile ? (
+                      {Number(message.isFile) === 1 ? (
                         <>
                           {listAnh &&
                             listAnh.map((e, i) => (
@@ -234,10 +234,10 @@ export default memo(function Message({
                         message.content.includes(
                           `className="maskUserChange"`
                         ) ? (
-                        parse(message.content)
+                        <div>{parse(message.content)}</div>
                       ) : (
                         <div className="messageText center text-wrap break-all px-4 py-2">
-                          {parse(processedComment, options)}
+                          {parse(processedComment)}
                         </div>
                       )}
                     </div>
@@ -247,8 +247,8 @@ export default memo(function Message({
 
               {(student &&
                 listSeen &&
-                parseInt(message?.created_at) ===
-                  parseInt(listSeen?.created_at) &&
+                parseInt(message?.createdAt) ===
+                  parseInt(listSeen?.createdAt) &&
                 listSeen?.Seen_at) ||
               parseInt(message.id) === parseInt(listSeen?.id) ? (
                 <div className="Seen_field">
@@ -266,7 +266,7 @@ export default memo(function Message({
                   </p>
                 </div>
               ) : (
-                messages.indexOf(message) ===0 &&
+                messages.indexOf(message) === 0 &&
                 own && (
                   <div className="Seen_field">
                     <span

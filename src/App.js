@@ -29,6 +29,8 @@ import VideoPlayer from "./components/chatapp/VideoPlayer";
 import Profile from "./components/UserProfile/Profile";
 import PhotoPost from "./components/UserProfile/PhotoPost";
 import NewFeed from "./components/newfeed/NewFeed";
+import { RouteLink } from "./lib/link";
+import Blog from "./components/blog/Blog";
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   let location = useLocation();
@@ -86,6 +88,7 @@ function App() {
               <Route path="/" element={<Layout />}>
                 <Route index element={<NewFeed />} />
                 <Route path="dangkilop" element={<DangKiLopHoc />} />
+                <Route path="blog" element={<Blog />}/>
                 <Route
                   path="chuongtrinhdaotao"
                   element={<Chuongtrinhdaotao />}
@@ -94,14 +97,23 @@ function App() {
                   path="movie/moviedetail/:id"
                   element={<DeltailMovieFilms />}
                 />
+                <Route path="*" element={<NewFeed />}></Route>
+
                 <Route path="friends" element={<FriendList />} />
                 <Route path="films" element={<MoviesType />} />
                 <Route path="videocall" element={<VideoCall />} />
                 <Route path="message" element={<MessageRoute />} />
                 <Route path="lichhoc" element={<ViewTimetable />} />
+                <Route path="/message/:id" element={<ChatApp />} />
+
                 <Route path="setting" element={<SettingAccount />} />
                 <Route path="photo" element={<PhotoPost />} />
-                <Route path=":MSSV" element={<Profile />}></Route>
+                <Route path={RouteLink.homeFilmLink} element={<Home />} />
+
+                <Route
+                  path={`${RouteLink.profileLink}/:MSSV`}
+                  element={<Profile />}
+                ></Route>
               </Route>
             </Routes>
 

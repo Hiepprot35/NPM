@@ -34,7 +34,11 @@ export async function getInforByUserID(data, options = {}) {
     try {
       const studentApi = await fetch(
         URL2,
-        { method: "POST", headers: { "Content-type": "application/json" },body:JSON.stringify({UserID:data}) },
+        {
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({ UserID: data }),
+        },
         options
       );
       const student = await studentApi.json();
@@ -47,16 +51,21 @@ export async function getInforByUserID(data, options = {}) {
     }
   }
 }
-export async function fetchApiRes(url, method, body, options = {}) {
+export async function fetchApiRes(url, method, body, options = {}, token) {
   try {
     const urlApi = `${process.env.REACT_APP_DB_HOST}/api/${url}`;
     let requestOptions = {
       method: method,
-      headers: { "Content-type": "application/json" },
+      headers: {
+        "Content-type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: body instanceof FormData ? body : JSON.stringify(body),
-      ...options, 
+      ...options,
     };
-
+    if (token) {
+      console.log(token, "token");
+    }
     // Remove body if method is GET
     if (method === "GET") {
       delete requestOptions.body;

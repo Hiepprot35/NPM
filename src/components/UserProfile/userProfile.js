@@ -9,6 +9,7 @@ import useAuth from "../../hook/useAuth";
 import GerenalFriendComponent from "../home/gerenalFriendComponent";
 import { IsLoading } from "../Loading";
 import "./userProfile.css";
+import { RouteLink } from "../../lib/link";
 const getFriendList = async (userID) => {
   const checkID = (array, id) => {
     return array.user1 === id ? array.user2 : array.user1;
@@ -39,7 +40,6 @@ export default function UserProfile(props) {
         user1_mask: myInfor.Name,
         user2_mask: props.User.Name,
         Requesting: request ? 1 : 0,
-        created_at: Date.now(),
       };
       const res = await fetchApiRes("conversations", "POST", { ...obj });
       console.log(res);
@@ -58,9 +58,8 @@ export default function UserProfile(props) {
     const converFound = Conversations.find(
       (e) => e.user1 === id || e.user2 === id
     );
-    const data = await fetchApiRes("message/updateConversation", "POST", {
+    await fetchApiRes("message/updateConversation", "POST", {
       Requesting: 0,
-
       id: converFound.id,
     });
   };
@@ -101,21 +100,6 @@ export default function UserProfile(props) {
     }
   };
 
-  const replaceCover = (pre, data) => {
-    const index = pre.findIndex(
-      (e) =>
-        (e.user1 === data.user1 && e.user2 === data.user2) ||
-        (e.user2 === data.user1 && e.user1 === data.user2)
-    );
-
-    if (index !== -1) {
-      const newPre = [...pre];
-      newPre[index] = data;
-      return newPre;
-    }
-
-    return pre;
-  };
   const handleAddChat = async (id) => {
     try {
       const obj = {
@@ -124,7 +108,6 @@ export default function UserProfile(props) {
         user1_mask: myInfor.Name,
         user2_mask: props.User.Name,
         img: props.User.cutImg || props.User.img,
-        created_at: Date.now(),
       };
       const converFound = Conversations.find(
         (e) => e?.user1 === id || e?.user2 === id
@@ -162,21 +145,6 @@ export default function UserProfile(props) {
     }
   };
 
-  const foundConversation = async (user1, user2) => {
-    const conversations = await fetchApiRes("message/getConversation", "POST", {
-      user1: user1,
-      user2: user2,
-    });
-    if (conversations.result.length > 0) {
-      return conversations.result[0];
-    } else {
-      return false;
-    }
-  };
-  const checkID = (array, id) => {
-    return array.user1 === id ? array.user2 : array.user1;
-  };
-
   const [gerenalFriend, setgerenalFriend] = useState([]);
 
   useEffect(() => {
@@ -191,7 +159,7 @@ export default function UserProfile(props) {
       };
       getUserFriend();
     }
-  }, [props.User]);
+  }, [props.User, auth]);
 
   return (
     <>
@@ -219,11 +187,10 @@ export default function UserProfile(props) {
                       }
                     >
                       <NavLink
-                        to={`${process.env.REACT_APP_CLIENT_URL}/profile/${props.User.MSSV}`}
+                        to={`${RouteLink.profileLink}/${props.User.UserID}`}
                       >
                         <img
                           className="avatarImage"
-                          // style={{ width: "168px" }}
                           src={
                             props.User?.cutImg ||
                             props.User?.img ||

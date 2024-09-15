@@ -5,7 +5,11 @@ import { FiCamera, FiDelete, FiMove, FiSave, FiUpload } from "react-icons/fi";
 import { Link, NavLink, Outlet, useParams } from "react-router-dom";
 import { useData } from "../../context/dataContext";
 import { useRealTime } from "../../context/useRealTime";
-import { fetchApiRes, getStudentInfoByMSSV } from "../../function/getApi";
+import {
+  fetchApiRes,
+  getStudentInfoByMSSV,
+  getUserinfobyID,
+} from "../../function/getApi";
 import { formatDate } from "../../function/getTime";
 import useAuth from "../../hook/useAuth";
 import Layout from "../Layout/layout";
@@ -14,6 +18,7 @@ import Posts from "./Posts";
 import UserProfile from "./userProfile";
 import NotFoundPage from "../Layout/NotFound/NotFoundPage";
 import { IsLoading } from "../Loading";
+import UseToken from "../../hook/useToken";
 const ChangeImg = ({ img, MSSV, setUsers }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [ImageUpload, setImageUpload] = useState(img);
@@ -184,8 +189,9 @@ export default function Profile({ children }) {
 
   const getData = async (signal, currentRequestVersion) => {
     try {
+      const data = await getUserinfobyID(MSSVInput, { signal });
       console.log("send res");
-      const data = await getStudentInfoByMSSV(MSSVInput, { signal });
+      console.log(data);
       if (signal.aborted) return;
       if (data) {
         document.title = data?.Name + " | Profile";
@@ -197,7 +203,7 @@ export default function Profile({ children }) {
       }
     }
   };
-
+  const { AccessToken } = UseToken();
   const getPost = async (signal, currentRequestVersion) => {
     try {
       setIsLoading(true);
@@ -205,15 +211,17 @@ export default function Profile({ children }) {
         `getAllCommentPost/?userID=${MSSVInput}&replyID=-1`,
         "GET",
         null,
-        { signal }
+        { signal },
+        AccessToken
       );
       if (signal.aborted) return;
       setImgContent([]);
       setPost([]);
       if (data && data.result) {
         const dataUpdate = data.result.sort(
-          (a, b) => b.create_at - a.create_at
+          (a, b) => b.createdAt - a.createdAt
         );
+        console.log(dataUpdate);
         setIsLoading(false);
         const userId = data.result[0].userID;
         const imgs = data.result.flatMap((post) =>
@@ -222,7 +230,7 @@ export default function Profile({ children }) {
             img: e.url,
             id: e.id,
             type: e.type,
-            create_at: e.createdAt,
+            createdAt: e.createdAt,
           }))
         );
         setImgContent(imgs);
@@ -246,7 +254,7 @@ export default function Profile({ children }) {
 
       unMountComponent();
     };
-  }, [MSSVInput]);
+  }, [MSSVInput,AccessToken]);
   const unMountComponent = () => {
     setPost();
     setFriend([]);
@@ -271,7 +279,7 @@ export default function Profile({ children }) {
 
         const data = await Promise.all(
           dataMyFriend.map(async (e) => {
-            const info = await fetchApiRes("getStudentbyUserID", "POST", {
+            const info = await fetchApiRes("0", "POST", {
               UserID: e,
             });
             return info;
@@ -626,7 +634,7 @@ export default function Profile({ children }) {
                     <Avatar.Group>
                       {friends &&
                         friends.map((e) => (
-                          <Avatar src={`${e.cutImg || e.img}`} />
+                          <Avatar src={`${e?.cutImg || e?.img}`} />
                         ))}
                     </Avatar.Group>
                   </div>
@@ -688,7 +696,7 @@ export default function Profile({ children }) {
                       <p>
                         Tham gia vào:{" "}
                         <span className="text-2xl font-semibold">
-                          {formatDate(Users?.create_at)}
+                          {Users && formatDate(Users?.createdAt)}
                         </span>
                       </p>
                     </div>
@@ -728,16 +736,16 @@ export default function Profile({ children }) {
                           friends.map((e) => (
                             <Popover content={<UserProfile User={e} />}>
                               <Link
-                                to={`${process.env.REACT_APP_CLIENT_URL}/${e.MSSV}`}
+                                to={`${process.env.REACT_APP_CLIENT_URL}/${e?.UserID}`}
                               >
                                 <div className="flex-col w-full center">
                                   <img
                                     alt="ImageProfile"
                                     className="rounded-xl w-full  "
                                     style={{ aspectRatio: 1 }}
-                                    src={`${e.cutImg || e.img}`}
+                                    src={`${e?.cutImg || e?.img}`}
                                   ></img>
-                                  <p className="font-semibold">{e.Name}</p>
+                                  <p className="font-semibold">{e?.Name}</p>
                                 </div>
                               </Link>
                             </Popover>

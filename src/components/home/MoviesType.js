@@ -122,7 +122,6 @@ export default function MoviesType(props) {
     }
   }, [Movies]);
   return (
-    <Layout>
       <div style={{ paddingTop: "10vh" }} className="containerMoviesType">
         <div style={{ display: "flex" }}>
           <h1>Home</h1> <h1><FiChevronRight/></h1>
@@ -175,6 +174,5 @@ export default function MoviesType(props) {
           </>
         )}
       </div>
-    </Layout>
   );
 }

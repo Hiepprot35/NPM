@@ -1,55 +1,67 @@
 export function getTime(data) {
-  const timeSent = new Date(parseInt(data));
-  const timeNew=new Date(Date.now())
-  
+  const timeSent = new Date(data);
+  const timeNew = new Date(Date.now());
+
   const currentHours = timeSent.getHours();
   const currentMinutes = timeSent.getMinutes();
-  
-  const formatMinutes = currentMinutes < 10 ? `0${currentMinutes}` : currentMinutes;
+
+  const formatMinutes =
+    currentMinutes < 10 ? `0${currentMinutes}` : currentMinutes;
   return `${currentHours}:${formatMinutes}`;
 }
-const days = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
-    
-const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const days = [
+  "Chủ Nhật",
+  "Thứ Hai",
+  "Thứ Ba",
+  "Thứ Tư",
+  "Thứ Năm",
+  "Thứ Sáu",
+  "Thứ Bảy",
+];
+
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 export function getWeekdays(data) {
-  const time = new Date(parseInt(data));
+  const time = new Date(data);
   const weekday = days[time.getDay()];
   return weekday;
 }
-export function cauculatorTime(data)
-{
-  const int=parseInt(data)
-  const m=Math.floor(int/60)
-  const h=Math.floor(m/60)
+export function cauculatorTime(data) {
+  const int = parseInt(data);
+  const m = Math.floor(int / 60);
+  const h = Math.floor(m / 60);
 
-  if(int<60)
-    {
-      return `0 : ${data}s`
+  if (int < 60) {
+    return `0 : ${data}s`;
+  } else {
+    if (m < 60) {
+      return `${m}m : ${int - m * 60}s`;
     }
-  else{
-    if(m<60)
-      {
-        return `${m}m : ${int-m*60}s`
-      }
-      if(h>0)
-        {
-          return `${h}h:${m-h*60}m : ${int-h*60*60-m*60}`
-        }
+    if (h > 0) {
+      return `${h}h:${m - h * 60}m : ${int - h * 60 * 60 - m * 60}`;
+    }
   }
 }
-export const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString(undefined, options);
-};
 
-export function timeFilm(data)
-{
-  const hours=Math.floor(data/60)
-  const minutes=data-hours*60;
-  return `${hours}h ${minutes}m`
+export function timeFilm(data) {
+  const hours = Math.floor(data / 60);
+  const minutes = data - hours * 60;
+  return `${hours}h ${minutes}m`;
 }
 export function getDate(data) {
-  const timeSent = new Date(parseInt(data));
+  const timeSent = new Date(data);
   const year = timeSent.getUTCFullYear();
   const month = timeSent.getUTCMonth() + 1;
   const day = timeSent.getUTCDate();
@@ -57,10 +69,8 @@ export function getDate(data) {
   const formattedMonth = month < 10 ? `0${month}` : month;
   return `${year}-${formattedMonth}-${formattedDay}`;
 }
-export function detaiData(data)
-{
+export function detaiData(data) {
   const timeSent = new Date(data);
-
 }
 export function countDownToNow(startTimeMillis) {
   const currentTimeMillis = new Date().getTime();
@@ -68,26 +78,33 @@ export function countDownToNow(startTimeMillis) {
   const oneDayMillis = 24 * 60 * 60 * 1000;
 
   // Tính số ngày còn lại
-  const daysRemaining = Math.floor((oneDayMillis - timeDifferenceMillis) / (24 * 60 * 60 * 1000));
+  const daysRemaining = Math.floor(
+    (oneDayMillis - timeDifferenceMillis) / (24 * 60 * 60 * 1000)
+  );
 
   // Nếu còn ít hơn 1 ngày, in ra giờ và phút
   if (daysRemaining < 1) {
-      const hours = Math.floor((oneDayMillis - timeDifferenceMillis) / (60 * 60 * 1000));
-      const minutes = Math.floor(((oneDayMillis - timeDifferenceMillis) % (60 * 60 * 1000)) / (60 * 1000));
-      return `${hours} giờ ${minutes} phút`;
+    const hours = Math.floor(
+      (oneDayMillis - timeDifferenceMillis) / (60 * 60 * 1000)
+    );
+    const minutes = Math.floor(
+      ((oneDayMillis - timeDifferenceMillis) % (60 * 60 * 1000)) / (60 * 1000)
+    );
+    return `${hours} giờ ${minutes} phút`;
   }
 
   // Nếu còn nhiều hơn 1 ngày, in ra số ngày còn lại
   return `${daysRemaining} ngày`;
 }
 export function countTime(data) {
-  const timeSent = new Date(parseInt(data));
+  const timeSent = new Date(data);
   const date = new Date();
 
   const diffInSeconds = Math.floor((date - timeSent) / 1000);
   const hour = Math.floor(diffInSeconds / 3600);
   const minute = Math.floor((diffInSeconds % 3600) / 60);
   const second = diffInSeconds % 60;
+  const day = Math.floor(hour / 24);
 
   if (hour < 1) {
     if (minute >= 1) {
@@ -97,12 +114,14 @@ export function countTime(data) {
     }
   } else if (hour < 24) {
     return `${hour} hours`;
-  } else {
-    const day = Math.floor(hour / 24);
+  } else if (day < 10) {
     return `${day}d`;
   }
+  else {
+    return formatDate(data)
+  }
 }
-export const Month=(time)=>{
+export const Month = (time) => {
   let nameMonth;
   switch (parseInt(time)) {
     case 1:
@@ -142,14 +161,13 @@ export const Month=(time)=>{
       nameMonth = "Dec";
       break;
   }
-  return nameMonth
-}
+  return nameMonth;
+};
 export const getNameMonth = (time) => {
   if (time) {
-        
     const data = time.split("-");
     let nameMonth;
-        
+
     switch (parseInt(data[1])) {
       case 1:
         nameMonth = "Jan";
@@ -192,8 +210,20 @@ export const getNameMonth = (time) => {
     }
 
     return `${nameMonth} ${data[2]}, ${data[0]}`;
-  }
-  else{
-        return ""
+  } else {
+    return "";
   }
 };
+export function formatDate(dateString) {
+  const date = new Date(dateString);
+  const options = {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour12: false, // Thay đổi thành `true` nếu muốn định dạng 12 giờ
+  };
+  const formatter = new Intl.DateTimeFormat("vi-VN", options);
+  return formatter.format(date);
+}

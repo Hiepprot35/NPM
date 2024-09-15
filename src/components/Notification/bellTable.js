@@ -92,9 +92,9 @@ function BellTable() {
     <>
       <Popover
         trigger={"click"}
+        placement="bottomRight"
         content={
-          <div>
-            <div className="tableNotification">
+            <div className="">
               <div>
                 {users.length > 0 ? (
                   users.map((e, i) => (
@@ -135,7 +135,6 @@ function BellTable() {
                 )}
               </div>
             </div>
-          </div>
         }
       >
         <div className="circleButton notification" ref={notificationRef}>

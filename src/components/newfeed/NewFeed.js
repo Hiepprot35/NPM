@@ -9,7 +9,7 @@ export default function NewFeed() {
   const { AccessToken } = UseToken();
   const [newFeedPost, setNewFeedPost] = useState([]);
   const navigate = useNavigate();
-
+  window.document.title = "New Feed";
   const handleImageClick = (imageId) => {
     navigate(`/photo/${imageId}`); // Thay thế useHistory bằng useNavigate
   };
@@ -64,21 +64,21 @@ export default function NewFeed() {
 
   return (
     <>
-        <div className="content w-full center">
-          <div className="w-50vw ">
-            <div className={`mb-8 pl-12 w-full 	`}>
-              {newFeedPost.map((e) => (
-                <Comment
-                  key={e.id}
-                  comment={e}
-                  isPost={true}
-                  className={"PostComponent p-4  mb-4 theme rounded-xl w-full"}
-                />
-              ))}
-            </div>
+      <div className="content w-full center">
+        <div className="w-50vw ">
+          <div className={`mb-8 pl-12 w-full 	`}>
+            {newFeedPost.map((e) => (
+              <Comment
+                key={e.id}
+                comment={e}
+                isPost={true}
+                className={"PostComponent p-4  mb-4 theme rounded-xl w-full"}
+              />
+            ))}
           </div>
         </div>
-        <Outlet/>
+      </div>
+      <Outlet />
     </>
   );
 }

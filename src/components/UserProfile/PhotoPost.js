@@ -106,7 +106,7 @@ export default function PhotoPost({ UsersProfile }) {
   useEffect(() => {
     const getPost = async () => {
       // const data = await fetchApiRes(`getAllCommentPost/?id=${commentID}`);
-      const users = await getStudentInfoByMSSV(MSSVparam);
+      const users = await getUserinfobyID(MSSVparam);
       setUsers(users);
       // const comment = data.result[0].content.split("imgSplitLink");
       // setComment({
@@ -115,7 +115,7 @@ export default function PhotoPost({ UsersProfile }) {
       //   create_at: data.result[0].create_at,
       // });
     };
-    getPost()
+    getPost();
     return () => {
       setComment();
     };

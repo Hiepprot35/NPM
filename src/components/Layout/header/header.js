@@ -33,6 +33,7 @@ import { LogOut } from "../../logout";
 import SettingComponent from "../../setting/SettingComponent";
 import Search from "./Search";
 import "./header.css";
+import { RouteLink } from "../../../lib/link";
 function Header(props) {
   const socket = useSocket();
   const [weather, setWeather] = useState({
@@ -129,27 +130,50 @@ function Header(props) {
           const obj = { ...data?.conversation };
           setListHiddenBubble((prev) => prev.filter((e) => e.id !== obj.id));
           console.log(obj);
+
           const conversationExists = listWindow.some(
             (item) => item.id === obj.id
           );
           console.log(conversationExists);
+
           if (!conversationExists) {
-            setListWindow((pre) => [...pre, { id: obj.id }]);
+            setListWindow((prev) => [...prev, { id: obj.id }]);
           }
-          setConversationContext((pre) => {
-            const data = pre.filter((e) => e.id !== obj.id);
-            data.push(obj);
-            return data;
+
+          setConversationContext((prev) => {
+            const updatedConversations = prev.filter((e) => e.id !== obj.id);
+            updatedConversations.push(obj);
+            return updatedConversations;
           });
+
           updateTitle(
             obj.user1 === auth.userID ? obj.user2_mask : obj.user1_mask
           );
         }
+
+        // Play notification sound after user interaction
         try {
-          const audio = new Audio("/notifi.mp3");
-          audio.play();
-        } catch {
-          console.log("ok");
+          const playNotification = () => {
+            const audio = new Audio("/notifi.mp3");
+            audio.play().catch((error) => {
+              console.error("Audio playback failed:", error);
+            });
+          };
+
+          // Check if user has interacted with the document
+          if (document.body.userHasInteracted) {
+            playNotification();
+          } else {
+            // Add event listener for first interaction
+            const enableAudio = () => {
+              document.body.userHasInteracted = true;
+              playNotification();
+              document.removeEventListener("click", enableAudio); // Remove listener after interaction
+            };
+            document.addEventListener("click", enableAudio);
+          }
+        } catch (error) {
+          console.log("Error playing notification sound:", error);
         }
       };
 
@@ -160,6 +184,7 @@ function Header(props) {
       };
     }
   }, [socket, auth]);
+
   useEffect(() => {
     let isMounted = true;
     const tempApi = async (city) => {
@@ -215,7 +240,7 @@ function Header(props) {
         <div className="avatar_link">
           <NavLink
             className="Menu_a_link_profile "
-            to={`/${myInfor?.MSSV}`}
+            to={`${RouteLink.profileLink}/${myInfor?.UserID}`}
           >
             <div className="avatar_name hover">
               <Image
@@ -470,15 +495,16 @@ function Header(props) {
             <Popover content={<p>Message</p>}>
               <Popover
                 trigger="click"
+                placement="bottomRight"
                 content={
-                  <div className="w-full">
+                  <div className="w-30vw">
                     <h1>Đoạn chat</h1>
                     <input
                       placeholder="Search for friends"
                       className="chatMenuInput"
                     />
                     <div
-                      className="overfolow-hidden overflow-y-scroll"
+                      className="overfolow-hidden  overflow-y-scroll"
                       style={{ height: "60vh" }}
                     >
                       {Conversations && Conversations.length > 0 ? (
@@ -496,9 +522,13 @@ function Header(props) {
                         </div>
                       )}
                     </div>
-                    <NavLink to={`${process.env.REACT_APP_CLIENT_URL}/message`}>
-                      Xem thêm trong mes
-                    </NavLink>
+                    <div className="center">
+                      <NavLink
+                        to={`${process.env.REACT_APP_CLIENT_URL}/message`}
+                      >
+                        <span>Xem thêm trong messages</span>
+                      </NavLink>
+                    </div>
                   </div>
                 }
               >
@@ -508,7 +538,11 @@ function Header(props) {
               </Popover>
             </Popover>
             <Popover content={<p>All Users</p>}>
-              <Popover trigger={"click"} content={<FriendList></FriendList>}>
+              <Popover
+                trigger={"click"}
+                placement="bottomRight"
+                content={<FriendList></FriendList>}
+              >
                 <span className="circleButton">
                   <FiUser />
                 </span>

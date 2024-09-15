@@ -1,7 +1,19 @@
-import React, { memo, useEffect, useState } from "react";
-import { FiSettings, FiThumbsDown, FiThumbsUp, FiX } from "react-icons/fi";
+import React, { memo, useCallback, useEffect, useState } from "react";
+import {
+  FiCheck,
+  FiMoreHorizontal,
+  FiPenTool,
+  FiSettings,
+  FiThumbsDown,
+  FiThumbsUp,
+  FiX,
+} from "react-icons/fi";
 import useAuth from "../../hook/useAuth";
-import { fetchApiRes, getStudentInfoByMSSV } from "../../function/getApi";
+import {
+  fetchApiRes,
+  getStudentInfoByMSSV,
+  getUserinfobyID,
+} from "../../function/getApi";
 import parse, { domToReact } from "html-react-parser";
 import { Popconfirm, Popover } from "antd";
 import UserProfile from "../UserProfile/userProfile";
@@ -18,6 +30,8 @@ import parseUrl from "parse-url";
 import { NavLink } from "react-router-dom";
 import { useRealTime } from "../../context/useRealTime";
 import MediaGrid from "../imageView/MediaGrid";
+import { shareType } from "../../lib/data";
+import Select from "./Select";
 function Comment({
   comment,
   isReply,
@@ -51,7 +65,7 @@ function Comment({
     return prop;
   };
 
-  const getComment = async () => {
+  const getComment = useCallback(async () => {
     if (comment) {
       try {
         const res = await fetchApiRes(`getLike/${comment.id}`);
@@ -81,11 +95,11 @@ function Comment({
         console.log("ero", error);
       }
     }
-  };
+  }, []);
 
   useEffect(() => {
     getComment();
-  }, [comment, Clicked]);
+  }, [comment, Clicked, getComment]);
   const likeHandle = async (e) => {
     const res = await fetchApiRes("insertLike", "PUT", {
       commentID: e,
@@ -96,7 +110,7 @@ function Comment({
     setClicked(!Clicked);
   };
 
-  const checkComment = async (e) => {
+  const checkComment = useCallback(async (e) => {
     let updatedComment = e;
     const youtubeRegex = /(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
     const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
@@ -143,7 +157,7 @@ function Comment({
       updatedComment = data;
     }
     return updatedComment;
-  };
+  }, []);
 
   const options = {
     replace: ({ name, attribs, children }) => {
@@ -175,7 +189,8 @@ function Comment({
     };
 
     processComment();
-  }, [comment.content]);
+  }, [comment.content, checkComment]);
+  const [IsUpdating, setIsUpdating] = useState(false);
   const commentReactHandle = async (e, data) => {
     setmyReaction(data);
     const obj = {
@@ -195,15 +210,15 @@ function Comment({
   const [CountReaction, setCountReaction] = useState();
   const [User, setUser] = useState();
   const { Onlines } = useRealTime();
-
+  const [ShareTypeUpdate, setShareTypeUpdate] = useState();
   useEffect(() => {
-    console.log(comment, "commentcommentcommentcomment");
     if (comment) {
       const fetchData = async () => {
         if (users) {
           setUser(users);
         } else {
-          const userPromises = await getStudentInfoByMSSV(comment.userID);
+          const userPromises = await getUserinfobyID(comment.userID);
+          console.log(userPromises, "userPromises");
           setUser(userPromises);
         }
       };
@@ -212,20 +227,24 @@ function Comment({
       getCommentReply();
     }
   }, [comment]);
+  const foundShare = shareType.find((e) => e.value === Number(comment?.share));
+
   const deletePost = async (id) => {
     const url = `${process.env.REACT_APP_DB_HOST}/api/comment/delete/${id}`;
     await fetch(url, { method: "DELETE" });
   };
   return (
     <div
-      className={`comment ${className} ${isPost ? "shadow-xl" : "bg-white" } cursor-pointer hover:bg-slate-100	`}
+      className={`comment ${className} ${
+        isPost ? "shadow-xl" : "bg-white"
+      } cursor-pointer hover:bg-slate-100	`}
     >
       <div className={`containerComment mr-10`}>
         <div className="headerComment">
           <div className="AvatarComment w-10">
             <Popover
               content={
-                <UserProfile User={User} MSSV={User?.MSSV}></UserProfile>
+                <UserProfile User={User} MSSV={User?.UserID}></UserProfile>
               }
             >
               <div className="AvatarComment2">
@@ -260,63 +279,101 @@ function Comment({
               !isPost && "bg-slate-300	 rounded-xl"
             }`}
           >
-            <div className="px-2 ">
-              <div
-                className={`nameComment ${!isPost && "p-2"} `}
-              >
-                <div className="flex justify-between">
-                  <div className="flex">
+            <div className="px-2">
+              <div className={`nameComment ${!isPost && "p-2"}`}>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-4">
                     {User && (
                       <Popover
                         content={
-                          <UserProfile
-                            User={User}
-                            MSSV={User?.MSSV}
-                          ></UserProfile>
+                          <UserProfile User={User} MSSV={User?.UserID} />
                         }
                       >
-                        <span style={{ fontWeight: 600 }}>{User?.Name}</span>
+                        {/* Apply consistent vertical alignment */}
+                        <p style={{ fontWeight: 600 }}>{User?.Name}</p>
                       </Popover>
                     )}
-                    <span className="">
-                      <Popover
-                        content={
-                          <p>
-                            {getDate(comment.create_at)} lúc{" "}
-                            {getTime(comment.create_at)},{" "}
-                            {getWeekdays(comment.create_at)}
-                          </p>
-                        }
-                      >
-                        {"          "}
-
-                        <span className="cursor-pointer text-slate-500	pl-10 hover:underline">
-                          {countTime(comment.create_at)}
-                        </span>
+                    {foundShare && (
+                      <Popover trigger="hover" content={<>{foundShare.name}</>}>
+                        {/* Vertically align the share icon */}
+                        <div>{foundShare.icon}</div>
                       </Popover>
-                    </span>
+                    )}
+                    {IsUpdating && (
+                      <Select
+                        options={shareType}
+                        onChange={setShareTypeUpdate}
+                      ></Select>
+                    )}
+                    <Popover
+                      content={
+                        <p>
+                          {getDate(comment?.createdAt)} lúc{" "}
+                          {getTime(comment?.createdAt)},{" "}
+                          {getWeekdays(comment?.createdAt)}
+                        </p>
+                      }
+                    >
+                      <span className="cursor-pointer text-slate-500 hover:underline">
+                        {countTime(comment?.createdAt)}
+                      </span>
+                    </Popover>
                   </div>
-                  {isPost && comment?.userID === auth?.username && (
+                  {isPost && comment?.userID === auth?.userID && (
                     <div className="featPost">
-                      <ul className="flex ">
-                        <li className="">
-                          <span className="circleButton m-0">
-                            <FiSettings />
-                          </span>
-                        </li>
-                        <li className="mx-2">
-                          <Popconfirm
-                            title="Delete this post"
-                            description="Are you sure to delete this task?"
-                            okText="Yes"
-                            onConfirm={() => deletePost(comment.id)}
-                            cancelText="No"
-                          >
+                      <ul className="flex">
+                        <Popover
+                          trigger={"click"}
+                          title={<p>Setting comment</p>}
+                          content={
+                            <div className="flex">
+                              <ul>
+                                <li
+                                  className="flex center"
+                                  onClick={() => setIsUpdating(!IsUpdating)}
+                                >
+                                  <FiPenTool /> Chỉnh sửa bài viết
+                                </li>
+                              </ul>
+                            </div>
+                          }
+                        >
+                          <li>
                             <span className="circleButton m-0">
-                              <FiX />
+                              <FiMoreHorizontal />
                             </span>
-                          </Popconfirm>
-                        </li>
+                          </li>
+                        </Popover>
+                        {!IsUpdating && (
+                          <li className="mx-2">
+                            <Popconfirm
+                              title="Delete this post"
+                              description="Are you sure to delete this task?"
+                              okText="Yes"
+                              onConfirm={() => deletePost(comment.id)}
+                              cancelText="No"
+                            >
+                              <span className="circleButton m-0">
+                                <FiX />
+                              </span>
+                            </Popconfirm>
+                          </li>
+                        )}
+                        {IsUpdating && (
+                          <li className="mx-2">
+                            <Popconfirm
+                              title="Delete this post"
+                              description="Are you sure to delete this task?"
+                              okText="Yes"
+                              onConfirm={() => deletePost(comment.id)}
+                              cancelText="No"
+                            >
+                              <span className="circleButton m-0">
+                                <FiCheck />
+                              </span>
+                            </Popconfirm>
+                          </li>
+                        )}
                       </ul>
                     </div>
                   )}
@@ -324,12 +381,10 @@ function Comment({
               </div>
 
               <div className="contentComment shadow-indigo-500/40">
-                {/* {[comment.content].map((e) => (
-                  <span>{parse(processedComment, options)}</span>
-                ))} */}
                 <div className="pb-4">
-
-                <span className="text-lg" >{parse(comment.content || "", options)}</span>
+                  <span className="text-lg">
+                    {parse(comment.content || "", options)}
+                  </span>
                 </div>
                 {comment.media && comment.media.length > 0 && (
                   <div
@@ -340,6 +395,7 @@ function Comment({
                 )}
               </div>
             </div>
+
             <div className="likedislike items-center">
               <div>
                 <span

@@ -115,14 +115,13 @@ const ChatApp = ({ messageId }) => {
       setSearchResults(result);
     }
   }, [searchTerm]);
-  const [CurrentUser, setCurrentUser] = useState();
 
   return (
     <>
       {
           <div className="Container_ChatApp">
-            <div className="Narbar_ChatApp">
-              <h1>Đoạn chat</h1>
+            <div className="Narbar_ChatApp p-10">
+              <h1 className="text-2xl font-semibold">Conversations</h1>
               <input
                 placeholder="Search for friends"
                 className="chatMenuInput"

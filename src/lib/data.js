@@ -1,6 +1,10 @@
 import React from "react";
 import { FiMessageCircle, FiHome } from "react-icons/fi";
 import { IconsManifest } from "react-icons/lib";
+import { MdOutlinePrivateConnectivity, MdOutlinePublic } from "react-icons/md";
+import { FaMicroblog, FaUserFriends } from "react-icons/fa";
+
+import { RouteLink } from "./link";
 export const links = [
   {
     name: "Home",
@@ -1314,10 +1318,16 @@ export const header_Student = [
     return: <FiMessageCircle></FiMessageCircle>,
   },
   {
-    name: "Newfeed",
-    hash: "/newfeed",
+    name: "Films",
+    hash: RouteLink.homeFilmLink,
     role: [1, 2],
     return: <FiMessageCircle></FiMessageCircle>,
+  },
+  {
+    name: "Blogs",
+    hash: "/blog",
+    role: [1, 2],
+    return: <FaMicroblog></FaMicroblog>,
   },
   {
     name: "Xem lịch học",
@@ -1335,4 +1345,21 @@ export const header_Student = [
   //   role: [1, 2],
   //   return: <FiMessageCircle></FiMessageCircle>,
   // },
+];
+export const shareType = [
+  {
+    value: 0,
+    name: "public",
+    icon: <MdOutlinePublic />,
+  },
+  {
+    value: 1,
+    name: "friend",
+    icon: <FaUserFriends />,
+  },
+  {
+    value: 3,
+    name: "private",
+    icon: <MdOutlinePrivateConnectivity />,
+  },
 ];

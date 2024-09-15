@@ -8,6 +8,8 @@ import MediaGrid from "../imageView/MediaGrid.js";
 import Upload from "../imageView/Upload.js";
 import "./myComment.scss";
 import { IsLoading } from "../Loading.js";
+import { shareType } from "../../lib/data.js";
+import Select from "./Select.js";
 export default function MyComment(props) {
   const inputRef = useRef();
   const [FilterTag, setFilterTag] = useState();
@@ -126,7 +128,10 @@ export default function MyComment(props) {
       }
     }
   }, [myComment]);
-
+  const [ShareType, setShareType] = useState(0);
+  useEffect(() => {
+    console.log(ShareType)
+  }, [ShareType]);
   const sendComment = async (e) => {
     e.preventDefault();
     console.log("senddd");
@@ -144,25 +149,24 @@ export default function MyComment(props) {
         );
       }
       const form = new FormData();
-      form.append("userID", auth.username);
+      form.append("userID", auth.userID);
       form.append("content", updateContent || "");
       if (props.movieID) {
         form.append("movieID", props.movieID);
       }
       form.append("replyID", props.reply || -1);
-      form.append("create_at", Date.now());
+      form.append("share", ShareType);
       if (ImgFile) {
         for (const file of ImgFile) {
           form.append("images", file);
         }
       }
-      console.log(form,"Adddddddddddddddddddd");
       const res = await fetch(
         `${process.env.REACT_APP_DB_HOST}/api/insertComment`,
         { method: "POST", body: form }
       );
       const newComment = await res.json();
-      console.log(newComment);
+      console.log(newComment,"commeneeee")
       props.update((pre) => [
         {
           ...newComment,
@@ -278,6 +282,7 @@ export default function MyComment(props) {
                   </div>
                 </Popover>
                 <Upload pick_imageMess={pick_imageMess} />
+                <Select options={shareType} onChange={setShareType} />
                 <span
                   style={{
                     color: `rgb(${(255 * countText) / 200},${
