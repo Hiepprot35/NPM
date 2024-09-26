@@ -6,22 +6,11 @@ import UserProfile from "../UserProfile/userProfile";
 import HoverProfile from "../UserProfile/hoverProfile";
 
 export default function GerenalFriendComponent(props) {
-  const [Users, setUsers] = useState();
-  const getUser = async () => {
-    if (props.listGerenal) {
-      const result = await Promise.all(
-        props.listGerenal.map(async (e) => {
-          const data = await fetchApiRes(`username`, "POST", { UserID: e });
-          const user = await fetchApiRes(`getStudentbyID/${data[0]?.username}`);
-          return user;
-        })
-      );
-      setUsers(result);
-    }
-  };
+  const [Users, setUsers] = useState(props.listGerenal);
   useEffect(() => {
-    getUser();
-  }, [props.listGerenal]);
+    
+    console.log(props)
+  }, []);
 
   return (
     <div className="GerenalFriend">
@@ -42,6 +31,7 @@ export default function GerenalFriendComponent(props) {
                 </>
               }
             >
+              {e.user2_mask}
               <Avatar shape="circle" src={`${e.img}`}></Avatar>
             </Popover>
           ))}

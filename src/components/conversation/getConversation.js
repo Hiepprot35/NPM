@@ -1,6 +1,6 @@
 
 export const getConversation = async (auth,token) => {
-    const URL = `${process.env.REACT_APP_DB_HOST}/api/conversations/${auth.userID}`;
+    const URL = `${process.env.REACT_APP_DB_HOST}/api/conversations`;
     try {
       const res = await fetch(URL, {
         method: "get",

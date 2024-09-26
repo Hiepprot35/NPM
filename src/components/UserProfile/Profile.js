@@ -254,7 +254,7 @@ export default function Profile({ children }) {
 
       unMountComponent();
     };
-  }, [MSSVInput,AccessToken]);
+  }, [MSSVInput, AccessToken]);
   const unMountComponent = () => {
     setPost();
     setFriend([]);
@@ -269,23 +269,15 @@ export default function Profile({ children }) {
       userID: userID,
     });
     const data = result.result.map((e) => checkID(e, userID));
-    return data;
+    return result.result;
   };
   const [friends, setFriend] = useState();
   useEffect(() => {
     if (Users?.UserID) {
       const getUserFriend = async () => {
         const dataMyFriend = await getFriendList(Users?.UserID);
-
-        const data = await Promise.all(
-          dataMyFriend.map(async (e) => {
-            const info = await fetchApiRes("0", "POST", {
-              UserID: e,
-            });
-            return info;
-          })
-        );
-        setFriend(data);
+        console.log(dataMyFriend);
+        setFriend(dataMyFriend);
       };
 
       getUserFriend();
@@ -300,7 +292,13 @@ export default function Profile({ children }) {
         dataUserFriend = await getFriendList(auth.userID);
 
         const generalFriends = dataUserFriend.filter((userFriend) => {
-          return friends.some((e) => e === userFriend);
+          return friends.find(
+            (e) =>
+              e.user1 === userFriend.user1 ||
+              e.user1 === userFriend.user2 ||
+              e.user2 === userFriend.user1 ||
+              e.user2 === userFriend.user2
+          );
         });
         setgerenalFriend(generalFriends);
       };
@@ -736,7 +734,7 @@ export default function Profile({ children }) {
                           friends.map((e) => (
                             <Popover content={<UserProfile User={e} />}>
                               <Link
-                                to={`${process.env.REACT_APP_CLIENT_URL}/${e?.UserID}`}
+                                to={`${process.env.REACT_APP_CLIENT_URL}/profile/${e?.UserID}`}
                               >
                                 <div className="flex-col w-full center">
                                   <img

@@ -4,6 +4,8 @@ import { fetchApiRes } from "../../function/getApi";
 import UseToken from "../../hook/useToken";
 import Comment from "../home/Comment";
 import { Outlet, useNavigate } from "react-router-dom";
+import MyComment from "../home/MyComment";
+import MyPost from "../blog/myPost";
 
 export default function NewFeed() {
   const { AccessToken } = UseToken();
@@ -64,9 +66,15 @@ export default function NewFeed() {
 
   return (
     <>
-      <div className="content w-full center">
+      <div className=" w-full center flex-col">
         <div className="w-50vw ">
-          <div className={`mb-8 pl-12 w-full 	`}>
+        <div className="mb-4 w-full ">
+      <div className="w-full center  ">
+
+        <MyPost></MyPost>
+      </div>
+        </div>
+          <div className={`mb-8  w-full 	`}>
             {newFeedPost.map((e) => (
               <Comment
                 key={e.id}

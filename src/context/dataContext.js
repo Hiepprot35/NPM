@@ -59,11 +59,11 @@ export const DataProvider = ({ children }) => {
         const mergen = [...storedHiddenBubble, ...storedWindow];
         const update = data.map(async (e) => {
           let id = e.user1 === auth.userID ? e.user2 : e.user1;
-          const hehe = await getInforByUserID(id);
+          // const hehe = await getInforByUserID(id);
           return {
             ...e,
-            img: hehe?.cutImg || hehe?.img,
-            Name: hehe?.Name,
+            img: e.cutImg ||e.img,
+            Name: e.Name,
             MSSV: id,
           };
         });
