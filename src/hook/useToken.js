@@ -36,9 +36,11 @@ export default function UseToken() {
             
             return data.valid
         } else {
+          setAuth({})
             return 
         }
         } catch (error) {
+          setAuth({})
             return 
         }
       };

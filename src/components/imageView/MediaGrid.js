@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { insertSearch } from "../../function/addIntoSearch";
+import ReactPlayer from "react-player";
 
 const MediaGrid = ({ media, userID }) => {
   const [firstImageSize, setFirstImageSize] = useState(null);
@@ -17,17 +18,15 @@ const MediaGrid = ({ media, userID }) => {
             onClick={() =>
               insertSearch({ userId: userID, content: image.label })
             }
-            className={`${style ? style : "w-full h-full object-cover rounded-2xl"}`} // Thêm lớp rounded-lg
+            className={`${style ? style : "h-60vh w-full object-cover rounded-2xl"}`} // Thêm lớp rounded-lg
             src={image.url}
             alt={`Comment Media`}
           />
         )}
         {image.type && image.type.includes("video") && (
-          <video className={` ${style} h-full w-full `} alt={`Comment Media`} controls>
-            {" "}
-            {/* Thêm lớp rounded-lg */}
-            <source src={image.url} type="video/mp4"></source>
-          </video>
+          <ReactPlayer url={image?.url} className={` ${style} h-60vh w-full`} alt={`Comment Media`} controls>
+            {/* <source src={image.url} type="video/mp4"></source> */}
+          </ReactPlayer>
         )}
       </Link>
     );
@@ -39,7 +38,7 @@ const MediaGrid = ({ media, userID }) => {
           firstImageSize ? " grid-rows-2" : " grid-cols-2"
         } gap-1`}
       >
-        <div className="">
+        <div className="center">
           <Link
             to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${userID}&hid=${data[0].id}`}
             state={{ background: location }}
@@ -100,7 +99,7 @@ const MediaGrid = ({ media, userID }) => {
   if (media.length === 1) {
     return (
       <div
-        className={`w-full h-full ${
+        className={`center w-full h-full ${
           firstImageSize ? "flex justify-center" : ""
         }`}
       >

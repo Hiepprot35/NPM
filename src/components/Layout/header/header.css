@@ -7,7 +7,7 @@
   height: 7vh;
   display: flex;
   background-color: var(--themeColor);
-  z-index: 100;
+  z-index: 10;
 }
 @import url("https://fonts.cdnfonts.com/css/huntesla-gloficka");
 

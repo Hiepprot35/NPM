@@ -212,21 +212,23 @@ function Comment({
   const { Onlines } = useRealTime();
   const [ShareTypeUpdate, setShareTypeUpdate] = useState();
   useEffect(() => {
-    if (comment) {
-      const fetchData = async () => {
-        if (users) {
-          setUser(users);
-        } else {
-          const userPromises = await getUserinfobyID(comment.userID);
-          console.log(userPromises, "userPromises");
-          setUser(userPromises);
-        }
-      };
+    if (!comment) return;
 
-      fetchData();
-      getCommentReply();
-    }
+    const fetchData = async () => {
+      if (users) {
+        setUser(users);
+      } else {
+        const user = await getUserinfobyID(comment.userID);
+        if (user) {
+          setUser(user);
+        }
+      }
+    };
+
+    fetchData();
+    getCommentReply();
   }, [comment]);
+
   const foundShare = shareType.find((e) => e.value === Number(comment?.share));
 
   const deletePost = async (id) => {

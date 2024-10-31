@@ -13,7 +13,7 @@ export const DataProvider = ({ children }) => {
   const [listWindow, setListWindow] = useState([]);
   const [listHiddenBubble, setListHiddenBubble] = useState([]);
   const [ConversationContext, setConversationContext] = useState([]);
-  const [Conversations, setConversations] = useState();
+  const [Conversations, setConversations] = useState([]);
   const [Users, setUsers] = useState([]);
   const [themeColor, setThemeColor] = useState(
     localStorage.getItem("colorTheme") === "true"
@@ -47,34 +47,39 @@ export const DataProvider = ({ children }) => {
     localStorage.setItem("hiddenCounter", JSON.stringify(listHiddenBubble));
   }, [listHiddenBubble]);
   useEffect(() => {
-    console.log(auth);
-    if (auth) {
+    console.log(auth,auth);
+    if (Object.keys(auth).length>0) {
+      console.log("Adadads",auth)
       const res = async () => {
         setLoading(true);
-        const data = await getConversation(auth,AccessToken);
+        const data = await getConversation(auth,AccessToken)||[];
         const storedHiddenBubble = JSON.parse(
           localStorage.getItem("hiddenCounter")
         );
         const storedWindow = JSON.parse(localStorage.getItem("counter"));
         const mergen = [...storedHiddenBubble, ...storedWindow];
-        const update = data.map(async (e) => {
-          let id = e.user1 === auth.userID ? e.user2 : e.user1;
-          // const hehe = await getInforByUserID(id);
-          return {
-            ...e,
-            img: e.cutImg ||e.img,
-            Name: e.Name,
-            MSSV: id,
-          };
-        });
-        const promies = await Promise.all(update);
-        if (mergen.length > 0) {
-          const index = promies.filter((e) =>
-            mergen.some((v) => v.id === e.id)
+        if(data)
+        {
+
+          const update = data.map(async (e) => {
+            let id = e.user1 === auth.userID ? e.user2 : e.user1;
+            // const hehe = await getInforByUserID(id);
+            return {
+              ...e,
+              img: e.cutImg ||e.img,
+              Name: e.Name,
+              MSSV: id,
+            };
+          });
+          const promies = await Promise.all(update);
+          if (mergen.length > 0) {
+            const index = promies.filter((e) =>
+              mergen.some((v) => v.id === e.id)
           );
           setConversationContext(index);
         }
         setConversations(promies);
+      }
         setLoading(false);
       };
       res();
@@ -82,7 +87,7 @@ export const DataProvider = ({ children }) => {
       setConversationContext([]);
       setConversations([]);
     }
-  }, [auth]);
+  }, [AccessToken, auth]);
   return (
     <DataContext.Provider
       value={{

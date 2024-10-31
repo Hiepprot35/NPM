@@ -6,12 +6,13 @@ import {
   getStudentInfoByMSSV,
   getUserinfobyID,
 } from "../../function/getApi";
-import { cauculatorTime, countTime } from "../../function/getTime";
+import { cauculatorTime, countTime, getTime } from "../../function/getTime";
 import MyComment from "../home/MyComment";
 import { Popover } from "antd";
 import useAuth from "../../hook/useAuth";
 import { ReactComment } from "../../lib/useObject";
 import { useLocation, useNavigate } from "react-router-dom";
+import moment from "moment/moment";
 export default function PhotoPost({ UsersProfile }) {
   const findTrueProperties = (obj) => {
     const prop = ReactComment.find((e) => {
@@ -80,8 +81,8 @@ export default function PhotoPost({ UsersProfile }) {
     getComment();
   }, [commentID]);
   useEffect(() => {
-    console.log(CountReaction);
-  }, [CountReaction]);
+    console.log(Comment);
+  }, [Comment]);
   const [myReaction, setmyReaction] = useState();
   const likeHandle = async (e) => {
     const res = await fetchApiRes("insertLike", "PUT", {
@@ -126,7 +127,7 @@ export default function PhotoPost({ UsersProfile }) {
     navigate(-1, { state: { backgroundLocation: location } });
   };
   return (
-    <div className="content w-50 h-50  flex fixed inset-0 center">
+    <div className="z-50 w-50 h-50  flex fixed inset-0 center">
       <div className="h-full" style={{ width: "70%" }}>
         <div className="bg-black w-full center h-full relative ">
           {!Comment ? (
@@ -146,9 +147,9 @@ export default function PhotoPost({ UsersProfile }) {
                   <source src={Comment?.img} type="video/mp4"></source>
                 </video>
               )}
-              <div className="absolute right-3" style={{ top: "8vh" }}>
+              <div className="absolute left-3" style={{ top: "8vh" }}>
                 <span className="circleButton" onClick={() => close()}>
-                  X
+                  x
                 </span>
               </div>
             </>
@@ -172,7 +173,13 @@ export default function PhotoPost({ UsersProfile }) {
               )}
               <div className="flex-col m-2">
                 <p className="font-semibold">{Users?.Name}</p>
-                <p>{countTime(Comment?.create_at)}</p>
+                {
+                  Comment &&
+                  <Popover content={<p>{ moment(Comment.create_at).format('LLL')}</p>}>
+
+                <p>{ countTime(Comment.create_at)}</p>
+                </Popover>
+                }
               </div>
             </div>
           </div>

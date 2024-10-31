@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export function getTime(data) {
   const timeSent = new Date(data);
   const timeNew = new Date(Date.now());
@@ -77,12 +79,10 @@ export function countDownToNow(startTimeMillis) {
   const timeDifferenceMillis = currentTimeMillis - startTimeMillis;
   const oneDayMillis = 24 * 60 * 60 * 1000;
 
-  // Tính số ngày còn lại
   const daysRemaining = Math.floor(
     (oneDayMillis - timeDifferenceMillis) / (24 * 60 * 60 * 1000)
   );
 
-  // Nếu còn ít hơn 1 ngày, in ra giờ và phút
   if (daysRemaining < 1) {
     const hours = Math.floor(
       (oneDayMillis - timeDifferenceMillis) / (60 * 60 * 1000)
@@ -97,30 +97,28 @@ export function countDownToNow(startTimeMillis) {
   return `${daysRemaining} ngày`;
 }
 export function countTime(data) {
-  const timeSent = new Date(data);
-  const date = new Date();
+  const timeSent = moment(data);
+  const now = moment();
 
-  const diffInSeconds = Math.floor((date - timeSent) / 1000);
-  const hour = Math.floor(diffInSeconds / 3600);
-  const minute = Math.floor((diffInSeconds % 3600) / 60);
-  const second = diffInSeconds % 60;
-  const day = Math.floor(hour / 24);
+  const minutes = now.diff(timeSent, 'minutes');
+  const hours = now.diff(timeSent, 'hours');
+  const days = now.diff(timeSent, 'days');
 
-  if (hour < 1) {
-    if (minute >= 1) {
-      return `${minute} minutes`;
+  if (hours < 1) {
+    if (minutes >= 1) {
+      return `${minutes} minutes`;
     } else {
-      return `vừa xong`;
+      return `vừa xong`; // Just now
     }
-  } else if (hour < 24) {
-    return `${hour} hours`;
-  } else if (day < 10) {
-    return `${day}d`;
-  }
-  else {
-    return formatDate(data)
+  } else if (hours < 24) {
+    return `${hours} hours`;
+  } else if (days < 10) {
+    return `${days}d`;
+  } else {
+    return formatDate(data); // Assuming formatDate is a valid function
   }
 }
+
 export const Month = (time) => {
   let nameMonth;
   switch (parseInt(time)) {

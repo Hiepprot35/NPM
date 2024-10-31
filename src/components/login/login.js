@@ -44,7 +44,7 @@ export const LoginGoolge = ({ children  }) => {
         });
       }
     } catch (err) {
-      console.log(err);
+      setAuth({})
     }
   };
   useEffect(() => {

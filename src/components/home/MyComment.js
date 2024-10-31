@@ -97,7 +97,7 @@ export default function MyComment(props) {
     const imgMessFile = e.target.files;
     for (let i = 0; i < imgMessFile.length; i++) {
       console.log("type,", imgMessFile[i].type);
-      if (imgMessFile[i].type === "video/mp4") {
+      if (imgMessFile[i].type.includes('video')) {
         setVideosUpload((pre) => [...pre, URL.createObjectURL(imgMessFile[i])]);
       } else {
         setImgView((pre) => [...pre, URL.createObjectURL(imgMessFile[i])]);

@@ -16,18 +16,16 @@ function BellTable() {
   const [Clicked, setClicked] = useState(false);
   const [notification, setNotification] = useState([]);
   const [users, setUsers] = useState([]);
-  const data = async () => {
+  const getNoification = async () => {
     const res = await fetchApiRes("message/getRequestFriends", "POST", {
       user2: auth.userID,
     });
-    console.log(res)
     setNotification(res.result);
   };
   const getUsers = async () => {
     const promises = notification.map(async (element) => {
       let user = element.user1 !== auth.userID ? element.user1 : element.user2;
       console.log(user);
-      const MSSV = await getUserinfobyID(user);
       const data = await fetchApiRes("getStudentbyUserID", "POST", {
         UserID: parseInt(user),
       });
@@ -44,8 +42,9 @@ function BellTable() {
     setUsers(ListUsers);
   };
   useEffect(() => {
-    if (auth) {
-      data();
+    console.log(auth==null,'datadatadatadatadatadatadata')
+    if (Object.keys(auth).length>0) {
+      getNoification();
     }
     return () => {
       setUsers([]);
@@ -58,7 +57,7 @@ function BellTable() {
       socket.on("receiveRequest", async (values) => {
         console.log("reccc");
         document.title = `Một thông báo mới`;
-        data();
+        getNoification();
       });
     }
   }, [socket]);

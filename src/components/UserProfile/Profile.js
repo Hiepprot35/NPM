@@ -2,23 +2,17 @@ import { Avatar, Modal, Popover } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { FiCamera, FiDelete, FiMove, FiSave, FiUpload } from "react-icons/fi";
-import { Link, NavLink, Outlet, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useData } from "../../context/dataContext";
-import { useRealTime } from "../../context/useRealTime";
 import {
   fetchApiRes,
-  getStudentInfoByMSSV,
-  getUserinfobyID,
+  getUserinfobyID
 } from "../../function/getApi";
 import { formatDate } from "../../function/getTime";
 import useAuth from "../../hook/useAuth";
-import Layout from "../Layout/layout";
-import PhotoPost from "./PhotoPost";
+import UseToken from "../../hook/useToken";
 import Posts from "./Posts";
 import UserProfile from "./userProfile";
-import NotFoundPage from "../Layout/NotFound/NotFoundPage";
-import { IsLoading } from "../Loading";
-import UseToken from "../../hook/useToken";
 const ChangeImg = ({ img, MSSV, setUsers }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [ImageUpload, setImageUpload] = useState(img);
@@ -406,7 +400,7 @@ export default function Profile({ children }) {
         Users.backgroundimg.split("%hiep%")[0] + "%hiep%" + tinhtoan;
       setUserInfo((pre) => ({ ...pre, backgroundimg: update }));
       setMovingSetting(false);
-      const res = await fetchApiRes("UpdateUserID", "POST", {
+      await fetchApiRes("UpdateUserID", "POST", {
         backgroundimg: update,
         MSSV: Users?.MSSV,
       });
@@ -418,7 +412,6 @@ export default function Profile({ children }) {
         setIsLoading(true);
         const full = containerBackRef.current.getBoundingClientRect();
         const cut = dragBackRef.current.getBoundingClientRect();
-        const persent = full.height / cut.height;
         const tinhtoan = (-cut.top + full.top) / cut.height;
         const img = new FormData();
         if (BackgroundUpdate) {
@@ -481,7 +474,7 @@ export default function Profile({ children }) {
   return (
     <>
       {
-        <div className="center content flex-col">
+        <div className="center flex-col">
           <div
             style={{
               cursor: cursor,
@@ -509,10 +502,7 @@ export default function Profile({ children }) {
               }`}
             ></div>
             <div className="w-full h-full center relative">
-              <div
-                className="h-full center relative overflow-hidden  rounded-b-lg "
-                style={{ width: "80%" }}
-              >
+              <div className="h-full w-70 center relative overflow-hidden  rounded-b-lg ">
                 <div className="absolute right-10 bottom-20 z-10 rounded-b-lg">
                   {BackgroundUpdate && (
                     <>
@@ -593,51 +583,54 @@ export default function Profile({ children }) {
             {
               <>
                 <div
-                  className={`flex  px-52 pb-16 mb-8 ${
+                  className={`w-full center mb-12 ${
                     themeColor ? "bg-black" : "theme"
                   }`}
                 >
-                  <div style={{ marginTop: "-3rem" }}>
-                    <div className="flex">
-                      <div className="relative">
-                        <div class=" relative overflow-hidden rounded-full border-4 border-neutral-50 ">
-                          {!Users ? (
-                            <div
-                              className="center theme"
-                              style={{ width: "15rem", aspectRatio: "1" }}
-                            >
-                              <div className="loader"></div>
-                            </div>
-                          ) : (
-                            <img
-                              alt="avatar"
-                              className="cursor-pointer  relative z-0 rounded-full w-52 h-52 transition-all duration-300 hover:scale-110	"
-                              src={`${Users?.cutImg || Users?.img}`}
-                            ></img>
+                  <div className="flex w-70 pb-12">
+                    <div style={{ marginTop: "-3rem" }}>
+                      <div className="flex">
+                        <div className="relative">
+                          <div class=" relative overflow-hidden rounded-full border-4 border-neutral-50 ">
+                            {!Users ? (
+                              <div
+                                className="center theme"
+                                style={{ width: "15rem", aspectRatio: "1" }}
+                              >
+                                <div className="loader"></div>
+                              </div>
+                            ) : (
+                              <img
+                                alt="avatar"
+                                className="cursor-pointer  relative z-0 rounded-full w-52 h-52 transition-all duration-300 hover:scale-110	"
+                                src={`${Users?.cutImg || Users?.img}`}
+                              ></img>
+                            )}
+                          </div>
+                          {parseInt(auth?.username) === Users?.MSSV && (
+                            <ChangeImg
+                              img={`${Users?.img}`}
+                              MSSV={Users?.MSSV}
+                              setUsers={setUserInfo}
+                            ></ChangeImg>
                           )}
                         </div>
-                        {parseInt(auth?.username) === Users?.MSSV && (
-                          <ChangeImg
-                            img={`${Users?.img}`}
-                            MSSV={Users?.MSSV}
-                            setUsers={setUserInfo}
-                          ></ChangeImg>
-                        )}
                       </div>
                     </div>
-                  </div>
-                  <div className=" mx-4 flex-col content-center">
-                    <p className="text-4xl font-bold ">{Users?.Name}</p>
-                    <p>Bạn bè {friends?.length}</p>
-                    <Avatar.Group>
-                      {friends &&
-                        friends.map((e) => (
-                          <Avatar src={`${e?.cutImg || e?.img}`} />
-                        ))}
-                    </Avatar.Group>
+                    <div className=" mx-4 flex-col content-center">
+                      <p className="text-4xl font-bold ">{Users?.Name}</p>
+                      <p>Bạn bè {friends?.length}</p>
+                      <Avatar.Group>
+                        {friends &&
+                          friends.map((e) => (
+                            <Avatar src={`${e?.cutImg || e?.img}`} />
+                          ))}
+                      </Avatar.Group>
+                    </div>
                   </div>
                 </div>
-                <div className="w-full flex px-52 ">
+                <div className="center w-100">
+                <div className="w-70 flex">
                   <div className="h-screen " style={{ width: "40%" }}>
                     <div className="p-16 theme rounded-xl mb-8 ">
                       <p className="font-bold text-3xl">Giới thiệu</p>
@@ -769,6 +762,7 @@ export default function Profile({ children }) {
                       </div>
                     )}
                   </div>
+                </div>
                 </div>
               </>
             }

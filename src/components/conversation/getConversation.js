@@ -11,15 +11,14 @@ export const getConversation = async (auth,token) => {
       });
   
       if (!res.ok) {
-        throw new Error(`Failed to fetch conversation data. Status: ${res.status}`);
+        return []
       }
   
     const respon = await res.json();
     return respon;
     } catch (error) {
       console.error("Error in getConversation:", error.message);
-    
-      return { error: error.message };
+      return []
     }
   };
   

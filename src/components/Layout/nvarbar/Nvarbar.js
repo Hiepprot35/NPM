@@ -1,17 +1,14 @@
 import { Player } from "@lottiefiles/react-lottie-player";
+import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { FiCoffee, FiEdit, FiTag, FiTrendingUp, FiUsers } from "react-icons/fi";
 import { useData } from "../../../context/dataContext";
 import { useSession } from "../../../context/sectionProvider";
-import { useSocket } from "../../../context/socketContext";
-import BubbleConver from "../../conversation/bubbleConver";
 import MessageMainLayout from "../../message/messageMainLayout";
-import { motion } from "framer-motion";
 import Windowchat from "../../message/windowchat";
 import "./nvarbar.css";
 export default function Nvarbar(props) {
-  const { session, setSession } = useSession();
-  const { socket } = useSocket();
+  const { session } = useSession();
   const { ConversationContext } = useData();
 
   
@@ -111,6 +108,7 @@ export default function Nvarbar(props) {
         variants={sidebar}
         className="leftHome"
       >
+     
         <div className="newFeed h-auto">
           <span>
             <p className="text-4xl font-semibold">New feed</p>
