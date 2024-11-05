@@ -5,10 +5,10 @@ const mysql=()=>
 }
 const connection =mysql.createConnection(
     {
-        host:'localhost',
-        user:'root',
-        password:'',
-        database:'sinhvien',
+        host:process.env.DB_host || 'db4free.net',
+        user:process.env.DB_user || 'hiepprot3',
+        password:process.env.DB_password||'Tzuyu2407!',
+        database:process.env.DB_database ||'hiepprot35',
     }
 )
 async function connectDatabase()
