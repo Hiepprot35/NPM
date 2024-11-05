@@ -9,7 +9,6 @@ export const DataContext = createContext();
 
 // DataProvider component
 export const DataProvider = ({ children }) => {
-  const {AccessToken}=UseToken()
   const [listWindow, setListWindow] = useState([]);
   const [listHiddenBubble, setListHiddenBubble] = useState([]);
   const [ConversationContext, setConversationContext] = useState([]);
@@ -20,9 +19,7 @@ export const DataProvider = ({ children }) => {
   );
   const [LoadingConver, setLoading] = useState(false);
   const { auth } = useAuth();
-  useEffect(() => {
-    console.log(ConversationContext);
-  }, [ConversationContext]);
+
   useEffect(() => {
     const storedHiddenBubble = JSON.parse(
       localStorage.getItem("hiddenCounter")
@@ -46,13 +43,14 @@ export const DataProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("hiddenCounter", JSON.stringify(listHiddenBubble));
   }, [listHiddenBubble]);
+
   useEffect(() => {
-    console.log(auth,auth);
     if (Object.keys(auth).length>0) {
-      console.log("Adadads",auth)
       const res = async () => {
         setLoading(true);
-        const data = await getConversation(auth,AccessToken)||[];
+        const tokenString = localStorage.getItem('AccessToken');
+        const userToken = JSON?.parse(tokenString);
+        const data = await getConversation(auth,userToken);
         const storedHiddenBubble = JSON.parse(
           localStorage.getItem("hiddenCounter")
         );
@@ -87,7 +85,7 @@ export const DataProvider = ({ children }) => {
       setConversationContext([]);
       setConversations([]);
     }
-  }, [AccessToken, auth]);
+  }, [auth]);
   return (
     <DataContext.Provider
       value={{

@@ -256,13 +256,11 @@ export default function Profile({ children }) {
     setImgContent();
   };
   const getFriendList = async (userID) => {
-    const checkID = (array, id) => {
-      return array.user1 === id ? array.user2 : array.user1;
-    };
+ 
     const result = await fetchApiRes("message/getFriendList", "POST", {
       userID: userID,
     });
-    if(result)
+    if(result?.result)
     {
 
       return result.result;
@@ -271,20 +269,23 @@ export default function Profile({ children }) {
       return []
     }
   };
-  const [friends, setFriend] = useState();
+  const [friends, setFriend] = useState([]);
   useEffect(() => {
-    if (Users?.UserID) {
+    if (Users?.UserID && auth) {
+      console.log(Users,"okkkkkkkkkkkkkkkkkkkkkkkkk")
       const getUserFriend = async () => {
         const dataMyFriend = await getFriendList(Users?.UserID);
-        console.log(dataMyFriend);
-        setFriend(dataMyFriend);
+        if(dataMyFriend)
+        {
+
+          setFriend(dataMyFriend);
+        }
       };
 
       getUserFriend();
     }
-    console.log(Users);
-    return () => setFriend();
-  }, [Users]);
+    return () => setFriend([]);
+  }, [Users,auth]);
   useEffect(() => {
     if (friends && Users) {
       const getUserFriend = async () => {

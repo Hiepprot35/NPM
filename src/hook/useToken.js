@@ -26,7 +26,6 @@ export default function UseToken() {
           if (response.ok) {
             const data=await response.json();
             const user=data.user
-            console.log("token")
             if(user)
             {
 

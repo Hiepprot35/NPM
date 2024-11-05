@@ -9,7 +9,7 @@ export const getConversation = async (auth,token) => {
           'Authorization': `Bearer ${token}`
         },
       });
-  
+      console.log(res,"resssssssssssssssssss")
       if (!res.ok) {
         return []
       }
@@ -17,7 +17,6 @@ export const getConversation = async (auth,token) => {
     const respon = await res.json();
     return respon;
     } catch (error) {
-      console.error("Error in getConversation:", error.message);
       return []
     }
   };

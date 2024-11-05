@@ -26,13 +26,13 @@ export default function NewFeed() {
           },
         }
       );
-
+      console.log(res,"ressssssssssssssssss")
       if (!res.ok) {
         throw new Error("Failed to fetch new feed");
       }
 
       const { result } = await res.json();
-
+      
       // Fetch media for each comment
       const mediaPromises = result.map(async (e) => {
         try {
@@ -62,7 +62,7 @@ export default function NewFeed() {
 
   useEffect(() => {
     getNewfeed();
-  }, [AccessToken]); // Add AccessToken to dependencies if it can change
+  }, []); // Add AccessToken to dependencies if it can change
 
   return (
     <>
