@@ -262,8 +262,14 @@ export default function Profile({ children }) {
     const result = await fetchApiRes("message/getFriendList", "POST", {
       userID: userID,
     });
-    const data = result.result.map((e) => checkID(e, userID));
-    return result.result;
+    if(result)
+    {
+
+      return result.result;
+    }
+    else{
+      return []
+    }
   };
   const [friends, setFriend] = useState();
   useEffect(() => {

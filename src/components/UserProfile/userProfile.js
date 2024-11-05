@@ -17,8 +17,13 @@ const getFriendList = async (userID) => {
   const result = await fetchApiRes("message/getFriendList", "POST", {
     userID: userID,
   });
-  const data = result.result.map((e) => checkID(e, userID));
-  return data;
+  if(result)
+  {
+
+    const data = result.result.map((e) => checkID(e, userID));
+    return data;
+  }
+  return []
 };
 
 export default function UserProfile(props) {
