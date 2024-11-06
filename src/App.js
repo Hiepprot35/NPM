@@ -32,22 +32,17 @@ import NewFeed from "./components/newfeed/NewFeed";
 import { RouteLink } from "./lib/link";
 import Blog from "./components/blog/Blog";
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   let location = useLocation();
   const background = location.state && location.state.background;
-  const { auth, setAuth } = useAuth();
+  const { auth } = useAuth();
   const { RefreshToken } = UseRfLocal();
   const { AccessToken, checkAccessToken } = UseToken();
 
-  useEffect(() => {
-    if (AccessToken && !RefreshToken) {
-      setIsLoading(true)
-      checkAccessToken();
-      setIsLoading(false)
-    }
-  }, []);
+
   const refreshAccessToken = useRefresh();
   useEffect(() => {
+    console.log(RefreshToken,AccessToken,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     if (RefreshToken) {
       setIsLoading(true);
       async function fetchData() {
@@ -61,6 +56,11 @@ function App() {
         }
       }
       fetchData();
+    }
+    if (AccessToken && !RefreshToken) {
+      setIsLoading(true)
+      checkAccessToken();
+      setIsLoading(false)
     }
   }, []);
 
@@ -145,7 +145,7 @@ function App() {
       );
     }
   } else {
-    return <IsLoading></IsLoading>;
+    return <IsLoading className={'bg-black'}></IsLoading>;
   }
 }
 
