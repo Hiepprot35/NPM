@@ -40,7 +40,7 @@ function App() {
   const { AccessToken, checkAccessToken } = UseToken();
   useEffect(() => {
     setIsLoading(false);
-  }, [AccessToken]);
+  }, [auth]);
   useEffect(() => {
     if (AccessToken && !RefreshToken) {
       checkAccessToken();
