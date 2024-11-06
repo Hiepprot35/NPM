@@ -38,12 +38,12 @@ function App() {
   const { auth, setAuth } = useAuth();
   const { RefreshToken } = UseRfLocal();
   const { AccessToken, checkAccessToken } = UseToken();
-  useEffect(() => {
-    setIsLoading(false);
-  }, [auth]);
+
   useEffect(() => {
     if (AccessToken && !RefreshToken) {
+      setIsLoading(true)
       checkAccessToken();
+      setIsLoading(false)
     }
   }, []);
   const refreshAccessToken = useRefresh();
