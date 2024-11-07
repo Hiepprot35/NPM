@@ -6,7 +6,7 @@ import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/authProvider";
 import App from "./App";
-import "./index.css";
+import "./style.scss"
 import reportWebVitals from "./reportWebVitals";
 import { ActiveSectionContextProvider } from "./context/ActiveSectionContextProvider";
 import { SocketProvider } from "./context/socketContext";

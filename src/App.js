@@ -145,7 +145,7 @@ function App() {
       );
     }
   } else {
-    return <IsLoading className={'bg-black'}></IsLoading>;
+    return <IsLoading className={'top-0'} text="Please wait, the data may take a moment to load for the first time."></IsLoading>;
   }
 }
 

@@ -1,0 +1,26 @@
+.loading04 {
+    span {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 800;
+
+        font-size: 2rem;
+        display: inline-block;
+        margin: 0 0.5rem;
+        text-transform: uppercase;
+      animation: loading04 .7s infinite;
+      @for $i from 1 through 10000 {
+        &:nth-child(#{$i+1}) {
+          animation-delay: #{$i*.05}s;
+        }
+      }
+    }
+  }
+  @keyframes loading04 {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(15px);
+    }
+  }
+  
