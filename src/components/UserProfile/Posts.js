@@ -38,8 +38,9 @@ export default function Posts(props) {
     }
   };
   useEffect(() => {
+    setPost([])
     getPost();
-  }, [refreshPost]);
+  }, [refreshPost,props.username]);
   return (
     <>
       {auth && auth.userID === Number(props.username) && (
