@@ -4,15 +4,13 @@ import AvatarEditor from "react-avatar-editor";
 import { FiCamera, FiDelete, FiMove, FiSave, FiUpload } from "react-icons/fi";
 import { Link, useParams } from "react-router-dom";
 import { useData } from "../../context/dataContext";
-import {
-  fetchApiRes,
-  getUserinfobyID
-} from "../../function/getApi";
+import { fetchApiRes, getUserinfobyID } from "../../function/getApi";
 import { formatDate } from "../../function/getTime";
 import useAuth from "../../hook/useAuth";
 import UseToken from "../../hook/useToken";
 import Posts from "./Posts";
 import UserProfile from "./userProfile";
+import MyPost from "../blog/myPost";
 const ChangeImg = ({ img, MSSV, setUsers }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [ImageUpload, setImageUpload] = useState(img);
@@ -256,28 +254,22 @@ export default function Profile({ children }) {
     setImgContent();
   };
   const getFriendList = async (userID) => {
- 
     const result = await fetchApiRes("message/getFriendList", "POST", {
       userID: userID,
     });
-    if(result?.result)
-    {
-
+    if (result?.result) {
       return result.result;
-    }
-    else{
-      return []
+    } else {
+      return [];
     }
   };
   const [friends, setFriend] = useState([]);
   useEffect(() => {
     if (Users?.UserID && auth) {
-      console.log(Users,"okkkkkkkkkkkkkkkkkkkkkkkkk")
+      console.log(Users, "okkkkkkkkkkkkkkkkkkkkkkkkk");
       const getUserFriend = async () => {
         const dataMyFriend = await getFriendList(Users?.UserID);
-        if(dataMyFriend)
-        {
-
+        if (dataMyFriend) {
           setFriend(dataMyFriend);
         }
       };
@@ -285,7 +277,7 @@ export default function Profile({ children }) {
       getUserFriend();
     }
     return () => setFriend([]);
-  }, [Users,auth]);
+  }, [Users, auth]);
   useEffect(() => {
     if (friends && Users) {
       const getUserFriend = async () => {
@@ -351,9 +343,14 @@ export default function Profile({ children }) {
   const [BackgroundUpdate, setBackgroundUpdate] = useState();
   const backgroundImg = useRef();
   const changeBackImg = (e) => {
+    console.log('zooooooooooooooooo')
     const backgroundImg = URL.createObjectURL(e.target.files[0]);
+    console.log(backgroundImg)
     setBackgroundUpdate({ view: backgroundImg, src: e.target.files[0] });
   };
+  useEffect(() => {
+    console.log('BackgroundUpdateBackgroundUpdate',BackgroundUpdate)
+  }, [BackgroundUpdate]);
   const containerBackRef = useRef();
   const [startY, setStartY] = useState();
   const [isDragging, setIsDragging] = useState(false);
@@ -502,7 +499,7 @@ export default function Profile({ children }) {
               Setting && "cursor-move"
             }	`}
           >
-            <div className="w-full h-full absolute inset-0 backdrop-blur-xl  bg-white/30 z-0"></div>
+            <div className="w-full h-full absolute inset-0 backdrop-blur-xl  bg-white/30 "></div>
             <div
               className={`w-full h-1/2 absolute bottom-0 ${
                 !themeColor ? "blurwhiteback " : "blurblackback"
@@ -539,7 +536,7 @@ export default function Profile({ children }) {
                       </div>
                     }
                   >
-                    <div className="p-2 bg-white center z-10 rounded cursor-pointer shadow-md absolute right-10 bottom-10 hover:bg-gray-200">
+                    <div className="p-2 bg-white center  rounded cursor-pointer shadow-md absolute right-10 bottom-10 hover:bg-gray-200 z-10">
                       <FiCamera stroke="black" />
                       <p className="px-2 text-black	font-semibold">
                         Change Background Image
@@ -566,7 +563,7 @@ export default function Profile({ children }) {
                             }%)`,
                           }
                     }
-                    className="object-fill w-full absolute z-1"
+                    className="object-fill w-full absolute"
                     src={`${
                       BackgroundUpdate?.view ||
                       Users?.backgroundimg.split("%hiep%")[0]
@@ -581,7 +578,10 @@ export default function Profile({ children }) {
               ref={backgroundImg}
               type="file"
               hidden
-              onChange={(e) => changeBackImg(e)}
+              onChange={(e) =>{ changeBackImg(e)
+                e.target.value = null;
+              }
+              }
             ></input>
           </div>
           <div
@@ -637,139 +637,145 @@ export default function Profile({ children }) {
                   </div>
                 </div>
                 <div className="center w-100">
-                <div className="w-70 flex">
-                  <div className="h-screen " style={{ width: "40%" }}>
-                    <div className="p-16 theme rounded-xl mb-8 ">
-                      <p className="font-bold text-3xl">Giới thiệu</p>
+                  <div className="w-70 flex">
+                    <div className="h-screen " style={{ width: "40%" }}>
+                      <div className="p-16 theme rounded-xl mb-8 ">
+                        <p className="font-bold text-3xl">Giới thiệu</p>
 
-                      {!ChangeIntroduce && !isLoading && (
-                        <>
-                          <div className="center">
-                            <p className="m-3">{Users?.introduce}</p>
-                          </div>
-                          {Users?.MSSV === parseInt(auth.username) && (
-                            <p
-                              onClick={() => {
-                                showIntroduceHandle();
-                              }}
-                              className="p-2 w-full bg-gray-200 text-black	 font-semibold center rounded-xl my-2 cursor-pointer hover:bg-gray-100"
-                            >
-                              Chỉnh sửa mục đáng chú ý
-                            </p>
-                          )}
-                        </>
-                      )}
-                      {ChangeIntroduce && !isLoading && (
-                        <>
-                          <textarea
-                            ref={introduceRef}
-                            className="w-full"
-                            onChange={(e) => setIntroduceInput(e.target.value)}
-                            value={IntroduceInput}
-                            placeholder={`${Users?.introduce}`}
-                          ></textarea>
-                          <div className="flex flex-row-reverse">
-                            <span
-                              onClick={() =>
-                                updateUser({
-                                  introduce: IntroduceInput,
-                                  MSSV: Users?.MSSV,
-                                })
-                              }
-                              className="circleButton cursor-pointer  font-semiboldrounded-xl m-2 center"
-                            >
-                              <FiSave />
-                            </span>
-                            <span
-                              onClick={() => setChangeIntroduce(false)}
-                              className="circleButton cursor-pointer  font-semibold   m-2 center"
-                            >
-                              X
-                            </span>
-                          </div>
-                        </>
-                      )}
-                      {isLoading && <div className="">...............</div>}
-
-                      <p>
-                        Tham gia vào:{" "}
-                        <span className="text-2xl font-semibold">
-                          {Users && formatDate(Users?.createdAt)}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="p-8 theme rounded-xl my-8">
-                      <p className="font-bold text-3xl">Ảnh</p>
-                      <div className="grid grid-cols-3 gap-2">
-                        {ImgContent ? (
-                          ImgContent.map(
-                            (e) =>
-                              e.img &&
-                              e.type.includes("image") && (
-                                <Link
-                                  to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${e.userID}&hid=${e.id}`}
-                                >
-                                  <img
-                                    alt="ImageProfile"
-                                    className="object-cover rounded-xl"
-                                    style={{ aspectRatio: "1" }}
-                                    src={`${e.img}`}
-                                  />
-                                </Link>
-                              )
-                          )
-                        ) : (
-                          <div className="loader"></div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="p-16 theme rounded-xl my-8 shadow-md">
-                      <p className="font-bold text-3xl">Bạn bè</p>
-                      <p>
-                        {friends?.length} bạn bè ({gerenalFriend.length} bạn
-                        chung)
-                      </p>
-                      <div className="grid grid-cols-3 gap-3	">
-                        {friends ? (
-                          friends.map((e) => (
-                            <Popover content={<UserProfile User={e} />}>
-                              <Link
-                                to={`${process.env.REACT_APP_CLIENT_URL}/profile/${e?.UserID}`}
+                        {!ChangeIntroduce && !isLoading && (
+                          <>
+                            <div className="center">
+                              <p className="m-3">{Users?.introduce}</p>
+                            </div>
+                            {Users?.MSSV === parseInt(auth.username) && (
+                              <p
+                                onClick={() => {
+                                  showIntroduceHandle();
+                                }}
+                                className="p-2 w-full bg-gray-200 text-black	 font-semibold center rounded-xl my-2 cursor-pointer hover:bg-gray-100"
                               >
-                                <div className="flex-col w-full center">
-                                  <img
-                                    alt="ImageProfile"
-                                    className="rounded-xl w-full  "
-                                    style={{ aspectRatio: 1 }}
-                                    src={`${e?.cutImg || e?.img}`}
-                                  ></img>
-                                  <p className="font-semibold">{e?.Name}</p>
-                                </div>
-                              </Link>
-                            </Popover>
-                          ))
-                        ) : (
-                          <div className="loader"></div>
+                                Chỉnh sửa mục đáng chú ý
+                              </p>
+                            )}
+                          </>
                         )}
+                        {ChangeIntroduce && !isLoading && (
+                          <>
+                            <textarea
+                              ref={introduceRef}
+                              className="w-full"
+                              onChange={(e) =>
+                                setIntroduceInput(e.target.value)
+                              }
+                              value={IntroduceInput}
+                              placeholder={`${Users?.introduce}`}
+                            ></textarea>
+                            <div className="flex flex-row-reverse">
+                              <span
+                                onClick={() =>
+                                  updateUser({
+                                    introduce: IntroduceInput,
+                                    MSSV: Users?.MSSV,
+                                  })
+                                }
+                                className="circleButton cursor-pointer  font-semiboldrounded-xl m-2 center"
+                              >
+                                <FiSave />
+                              </span>
+                              <span
+                                onClick={() => setChangeIntroduce(false)}
+                                className="circleButton cursor-pointer  font-semibold   m-2 center"
+                              >
+                                X
+                              </span>
+                            </div>
+                          </>
+                        )}
+                        {isLoading && <div className="">...............</div>}
+
+                        <p>
+                          Tham gia vào:{" "}
+                          <span className="text-2xl font-semibold">
+                            {Users && formatDate(Users?.createdAt)}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="p-8 theme rounded-xl my-8">
+                        <p className="font-bold text-3xl">Ảnh</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {ImgContent ? (
+                            ImgContent.map(
+                              (e) =>
+                                e.img &&
+                                e.type.includes("image") && (
+                                  <Link
+                                    to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${e.userID}&hid=${e.id}`}
+                                  >
+                                    <img
+                                      alt="ImageProfile"
+                                      className="object-cover rounded-xl"
+                                      style={{ aspectRatio: "1" }}
+                                      src={`${e.img}`}
+                                    />
+                                  </Link>
+                                )
+                            )
+                          ) : (
+                            <div className="loader"></div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-16 theme rounded-xl my-8 shadow-md">
+                        <p className="font-bold text-3xl">Bạn bè</p>
+                        <p>
+                          {friends?.length} bạn bè ({gerenalFriend.length} bạn
+                          chung)
+                        </p>
+                        <div className="grid grid-cols-3 gap-3	">
+                          {friends ? (
+                            friends.map((e) => (
+                              <Popover content={<UserProfile User={e} />}>
+                                <Link
+                                  to={`${process.env.REACT_APP_CLIENT_URL}/profile/${e?.UserID}`}
+                                >
+                                  <div className="flex-col w-full center">
+                                    <img
+                                      alt="ImageProfile"
+                                      className="rounded-xl w-full  "
+                                      style={{ aspectRatio: 1 }}
+                                      src={`${e?.cutImg || e?.img}`}
+                                    ></img>
+                                    <p className="font-semibold">{e?.Name}</p>
+                                  </div>
+                                </Link>
+                              </Popover>
+                            ))
+                          ) : (
+                            <div className="loader"></div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="h-full" style={{ width: "60%" }}>
-                    {PostsData ? (
-                      <Posts
-                        setImgContent={setImgContent}
-                        Posts={PostsData}
-                        setPost={setPost}
-                        users={Users}
-                        username={Users && Users?.MSSV}
-                      />
-                    ) : (
-                      <div className=" w-full center">
-                        <div className="loader"></div>
+                    <div className="h-full px-8" style={{ width: "60%" }}>
+                      <div>
+                        <MyPost 
+                        ></MyPost>
                       </div>
-                    )}
+                      {PostsData ? (
+                        <Posts
+                          setImgContent={setImgContent}
+                          Posts={PostsData}
+                          setPost={setPost}
+                          users={Users}
+                          username={Users && Users?.MSSV}
+                        />
+                      ) : (
+                        <div className=" w-full center">
+                          <div className="loader"></div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
                 </div>
               </>
             }

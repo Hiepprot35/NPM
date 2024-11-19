@@ -11,8 +11,9 @@ import MyComment from "../home/MyComment";
 import { Popover } from "antd";
 import useAuth from "../../hook/useAuth";
 import { ReactComment } from "../../lib/useObject";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import moment from "moment/moment";
+import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 export default function PhotoPost({ UsersProfile }) {
   const findTrueProperties = (obj) => {
     const prop = ReactComment.find((e) => {
@@ -36,10 +37,10 @@ export default function PhotoPost({ UsersProfile }) {
 
   useEffect(() => {
     const getMediaRes = async () => {
-      const res = await fetchApiRes(`comment/getMedia/?id=${commentID}`, "GET");
-      if (res.result.length > 0) {
-        const { url, createdAt, id, type } = res.result[0];
-        setComment({ img: url, create_at: createdAt, id: id, type: type });
+      const res = await fetchApiRes(`getMediaById/?id=${commentID}`, "GET");
+      if (res.result) {
+        const { url, createdAt, id, type ,prev,next} = res.result[0];
+        setComment({ img: url, create_at: createdAt, id: id, type: type ,prev,next});
       }
     };
     if (commentID) {
@@ -135,12 +136,28 @@ export default function PhotoPost({ UsersProfile }) {
           ) : (
             <>
               {Comment.type.includes("image") && (
+                <>
+
+                {
+                Comment.prev &&
+                <Link to={`./?MSSV=${MSSVparam}&hid=${Comment.prev}`}>
+
+                <span className="circleButton"><FiArrowLeft></FiArrowLeft></span>
+                </Link>
+                }
                 <img
                   alt="imageAvatar"
-                  className="object-contain w-full h-full"
+                  className="object-contain w-70"
                   style={{ width: "auto", height: "auto" }}
                   src={`${Comment?.img}`}
                 />
+                  {
+                Comment.next &&
+                <Link to={`./?MSSV=${MSSVparam}&hid=${Comment.next}`}>
+                <span className="circleButton"><FiArrowRight/></span>
+                </Link>
+                }
+                </>
               )}
               {Comment.type && Comment.type.includes("video") && (
                 <video className="h-full" alt={`Comment Media `} controls>

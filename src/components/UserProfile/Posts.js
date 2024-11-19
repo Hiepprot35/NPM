@@ -8,10 +8,8 @@ export default function Posts(props) {
   const [gridView, setGridView] = useState(false);
   return (
     <>
-      <div>
-        <MyComment update={props.setPost} className="PostProfile w-full"></MyComment>
-      </div>
-      <div className="pl-12 w-full mt-8">
+  
+      <div className=" w-full mt-8">
         <div className="w-full theme rounded-xl p-4 mb-8 flex center justify-between	">
           <div>
             <p className="font-semibold text-3xl">Bài viết</p>
@@ -32,7 +30,7 @@ export default function Posts(props) {
 
       <div
       
-        className={`mb-8 pl-12 w-full    ${gridView && "grid grid-cols-2 gap-2"}	`}
+        className={`mb-8 w-full    ${gridView && "grid grid-cols-2 gap-2"}	`}
       >
         {
           props.Posts.map((e) => (

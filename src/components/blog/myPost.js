@@ -1,7 +1,7 @@
 import { Popover } from "antd";
 import EmojiPicker from "emoji-picker-react";
 import { default as React, useEffect, useRef, useState } from "react";
-import { FiSend, FiSmile } from "react-icons/fi";
+import { FiSend, FiSmile, FiX, FiXCircle } from "react-icons/fi";
 import { fetchApiRes } from "../../function/getApi.js";
 import useAuth from "../../hook/useAuth.js";
 import MediaGrid from "../imageView/MediaGrid.js";
@@ -104,7 +104,10 @@ export default function MyPost(props) {
       setImgFile((pre) => [...pre, imgMessFile[i]]);
     }
   }
-
+  const handleRemoveImage = () => {
+    setImgFile([]);
+    setImgView([]);
+  };
   useEffect(() => {
     console.log(myComment);
     if (inputRef.current) {
@@ -216,7 +219,6 @@ export default function MyPost(props) {
         >
           <div className="h-1/2">
             <img
-            
               alt="avatar"
               className="rounded-full h-12"
               src={`${myInfor?.avtUrl}`}
@@ -228,7 +230,10 @@ export default function MyPost(props) {
           >
             <div className="w-full h-full relative">
               {(myComment === "<br>" || !myComment) && (
-                <div className="w-full absolute flex items-center ml-4 h-full  z-10" onClick={()=>inputRef.current.focus()}>
+                <div
+                  className="w-full absolute flex items-center ml-4 h-full  z-10"
+                  onClick={() => inputRef.current.focus()}
+                >
                   <p className="text-black	">
                     {myInfor.Name} ơi đang nghĩ gì thế
                   </p>
@@ -244,17 +249,26 @@ export default function MyPost(props) {
                 suppressContentEditableWarning={true}
               ></div>
             </div>
-            {ImgView && (
-              <div className="w-30vh">
-                <MediaGrid
-                  media={ImgView.map((e, index) => ({
-                    url: e,
-                    id: index,
-                    type: "image",
-                  }))}
-                ></MediaGrid>
+            {ImgView.length>0 && (
+              <div className="relative group">
+                <div
+                  onClick={() => handleRemoveImage()}
+                  className="circleButton opacity-0 absolute right-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <FiX />
+                </div>
+                <div className="w-30vh center w-full">
+                  <MediaGrid
+                    isView={true}
+                    media={ImgView.map((e) => ({
+                      url: e,
+                      type: "image",
+                    }))}
+                  />
+                </div>
               </div>
             )}
+
             <div className="featureComment">
               <div className="flex items-center">
                 <Popover
