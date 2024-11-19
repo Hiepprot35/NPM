@@ -125,6 +125,7 @@ export default function PhotoPost({ UsersProfile }) {
   const location = useLocation();
 
   const close = () => {
+    console.log(location.state,"ehehehehehasaaaaaaaaaa")
     navigate(-1, { state: { backgroundLocation: location } });
   };
   return (

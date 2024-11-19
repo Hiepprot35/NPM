@@ -8,6 +8,7 @@ const MediaGrid = ({ media, userID }) => {
   const location = useLocation();
 
   const ImageLink = ({ image, style }) => {
+    console.log(image,"okeeeee")
     const isImage = image.type?.includes("image");
     const isVideo = image.type?.includes("video");
 
@@ -37,12 +38,15 @@ const MediaGrid = ({ media, userID }) => {
     };
 
     return userID && image.id ? (
+      <div className="w-full h-full">
+
       <Link
         to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${userID}&hid=${image.id}`}
         state={{ background: location }}
-      >
+        >
         {renderContent()}
       </Link>
+        </div>
     ) : (
       renderContent()
     );
@@ -73,9 +77,12 @@ const MediaGrid = ({ media, userID }) => {
               <div key={index} className="relative w-full h-full">
                 <ImageLink image={e} style={`object-cover w-full h-full ${roundedStyle}`} />
                 {index === 1 && data.length > 3 && (
+                  <a href={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${userID}&hid=${e.id}`}>
+
                   <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <span className="text-white text-xl uppercase">+{data.length - 3} more</span>
+                    <span className="text-white text-xl font-semibold	 uppercase">+{data.length - 3} more</span>
                   </div>
+                  </a>
                 )}
               </div>
             );
@@ -104,7 +111,7 @@ const MediaGrid = ({ media, userID }) => {
       );
     case 2:
       return (
-        <div className="grid grid-cols-2 gap-1">
+        <div className="grid grid-cols-2 gap-1 h-60vh">
           {media.map((e, index) => (
             <ImageLink
               key={index}

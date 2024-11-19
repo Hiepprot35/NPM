@@ -15,7 +15,7 @@ import {
   getUserinfobyID,
 } from "../../function/getApi";
 import parse, { domToReact } from "html-react-parser";
-import { Popconfirm, Popover } from "antd";
+import { notification, Popconfirm, Popover } from "antd";
 import UserProfile from "../UserProfile/userProfile";
 import { ReactComment } from "../../lib/useObject";
 import MyComment from "./MyComment";
@@ -32,13 +32,14 @@ import { useRealTime } from "../../context/useRealTime";
 import MediaGrid from "../imageView/MediaGrid";
 import { shareType } from "../../lib/data";
 import Select from "./Select";
+import useNoti from "../../hook/useNoti";
 function Comment({
   comment,
   isReply,
   className,
   users,
   setCurrentImg,
-  isPost,
+  isPost,setRefeshPost
 }) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState([]);
@@ -230,12 +231,18 @@ function Comment({
   }, [comment]);
 
   const foundShare = shareType.find((e) => e.value === Number(comment?.share));
-
+  const {setNotiText}= useNoti()
   const deletePost = async (id) => {
     const url = `${process.env.REACT_APP_DB_HOST}/api/comment/delete/${id}`;
-    await fetch(url, { method: "DELETE" });
+    const res=await fetch(url, { method: "DELETE" });
+    const message= await res.json()
+    const type=message.deleted ? 'success':'error'
+    console.log({type,message},"heheehheeeeeeeeeee")
+    setNotiText({message:message.message,title:'Delete notification',type:type})
+    setRefeshPost(pre=>!pre)
   };
   return (
+    <>
     <div
       className={`comment ${className} ${
         isPost ? "shadow-xl" : "bg-white"
@@ -536,6 +543,7 @@ function Comment({
         )}
       </div>
     </div>
+    </>
   );
 }
 

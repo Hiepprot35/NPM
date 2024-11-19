@@ -6,7 +6,7 @@ import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/authProvider";
 import App from "./App";
-import "./style.scss"
+import "./style.scss";
 import reportWebVitals from "./reportWebVitals";
 import { ActiveSectionContextProvider } from "./context/ActiveSectionContextProvider";
 import { SocketProvider } from "./context/socketContext";
@@ -16,6 +16,7 @@ import { SessionProvider } from "./context/sectionProvider";
 import { WidthProvider } from "./context/widthProvider";
 import { RealTimeContextProvider } from "./context/useRealTime";
 import { CurrentCommentProvider } from "./context/CurrentComment";
+import { NotiProvider } from "./hook/useNoti";
 
 document.title = "Login";
 window.global = window;
@@ -24,23 +25,25 @@ window.Buffer = [];
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <AuthProvider>
-    <DataProvider>
-      <ActiveSectionContextProvider>
-        <SessionProvider>
-          <SocketProvider>
-            <RealTimeContextProvider>
-              <WidthProvider>
-                <CurrentCommentProvider>
-                  <BrowserRouter>
-                    <App></App>
-                  </BrowserRouter>
-                </CurrentCommentProvider>
-              </WidthProvider>
-            </RealTimeContextProvider>
-          </SocketProvider>
-        </SessionProvider>
-      </ActiveSectionContextProvider>
-    </DataProvider>
+    <NotiProvider>
+      <DataProvider>
+        <ActiveSectionContextProvider>
+          <SessionProvider>
+            <SocketProvider>
+              <RealTimeContextProvider>
+                <WidthProvider>
+                  <CurrentCommentProvider>
+                    <BrowserRouter>
+                      <App></App>
+                    </BrowserRouter>
+                  </CurrentCommentProvider>
+                </WidthProvider>
+              </RealTimeContextProvider>
+            </SocketProvider>
+          </SessionProvider>
+        </ActiveSectionContextProvider>
+      </DataProvider>
+    </NotiProvider>
   </AuthProvider>
 );
 

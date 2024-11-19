@@ -9,6 +9,7 @@ import Upload from "../imageView/Upload.js";
 import { IsLoading } from "../Loading.js";
 import { shareType } from "../../lib/data.js";
 import Select from "../home/Select.js";
+import useNoti from "../../hook/useNoti.js";
 export default function MyPost(props) {
   const inputRef = useRef();
   const [FilterTag, setFilterTag] = useState();
@@ -131,12 +132,12 @@ export default function MyPost(props) {
     }
   }, [myComment]);
   const [ShareType, setShareType] = useState(0);
+  const {setNotiText}=useNoti()
   useEffect(() => {
     console.log(ShareType);
   }, [ShareType]);
   const sendComment = async (e) => {
     e.preventDefault();
-    console.log("senddd");
     setisLoading(true);
     try {
       let content = myComment;
@@ -168,24 +169,29 @@ export default function MyPost(props) {
         { method: "POST", body: form }
       );
       const newComment = await res.json();
-      console.log(newComment, "commeneeee");
-      props.update((pre) => [
-        {
-          ...newComment,
-        },
-        ...pre,
-      ]);
-      inputRef.current.innerHTML = "";
-      setCountText(0);
-      setImgFile([]);
-      setImgView([]);
-      setVideosUpload([]);
-      setMyComment("");
-      if (props.setRender) {
-        props.setRender((pre) => !pre);
-      }
+   
+    
+        props.update((pre) => [
+          {
+            ...newComment,
+          },
+          ...pre,
+        ]);
+        setNotiText({message:'Post success',title:'Post Notificantion',type:'success'})
+        inputRef.current.innerHTML = "";
+        setCountText(0);
+        setImgFile([]);
+        setImgView([]);
+        setVideosUpload([]);
+        setMyComment("");
+        if (props.setRender) {
+          props.setRender((pre) => !pre);
+        }
+        
+      
+    
     } catch (error) {
-      console.log(error);
+      setNotiText({message:'Post error, someting is wrong. :((',title:'Post Notificantion',type:'error'})
     } finally {
       setisLoading(false);
     }

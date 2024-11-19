@@ -117,7 +117,6 @@ export default function UserProfile(props) {
       const converFound = Conversations.find(
         (e) => e?.user1 === id || e?.user2 === id
       );
-      console.log(converFound,'converFoundconverFoundconverFound',Conversations)
       if (!converFound) {
         try {
           setCursor("wait");

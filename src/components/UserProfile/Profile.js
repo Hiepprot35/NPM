@@ -2,7 +2,7 @@ import { Avatar, Modal, Popover } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 import { FiCamera, FiDelete, FiMove, FiSave, FiUpload } from "react-icons/fi";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useData } from "../../context/dataContext";
 import { fetchApiRes, getUserinfobyID } from "../../function/getApi";
 import { formatDate } from "../../function/getTime";
@@ -11,6 +11,7 @@ import UseToken from "../../hook/useToken";
 import Posts from "./Posts";
 import UserProfile from "./userProfile";
 import MyPost from "../blog/myPost";
+import moment from "moment";
 const ChangeImg = ({ img, MSSV, setUsers }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [ImageUpload, setImageUpload] = useState(img);
@@ -196,51 +197,13 @@ export default function Profile({ children }) {
     }
   };
   const { AccessToken } = UseToken();
-  const getPost = async (signal, currentRequestVersion) => {
-    try {
-      setIsLoading(true);
-      const data = await fetchApiRes(
-        `getAllCommentPost/?userID=${MSSVInput}&replyID=-1`,
-        "GET",
-        null,
-        { signal },
-        AccessToken
-      );
-      if (signal.aborted) return;
-      setImgContent([]);
-      setPost([]);
-      if (data && data.result) {
-        const dataUpdate = data.result.sort(
-          (a, b) => b.createdAt - a.createdAt
-        );
-        console.log(dataUpdate);
-        setIsLoading(false);
-        const userId = data.result[0].userID;
-        const imgs = data.result.flatMap((post) =>
-          post.media.map((e) => ({
-            userID: userId,
-            img: e.url,
-            id: e.id,
-            type: e.type,
-            createdAt: e.createdAt,
-          }))
-        );
-        setImgContent(imgs);
-        setPost(dataUpdate);
-      }
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        console.error("Error occurred:", error);
-      }
-    }
-  };
+ 
   useEffect(() => {
     unMountComponent();
     const controller = new AbortController();
     const { signal } = controller;
 
     getData(signal);
-    getPost(signal);
     return () => {
       controller.abort();
 
@@ -248,7 +211,6 @@ export default function Profile({ children }) {
     };
   }, [MSSVInput, AccessToken]);
   const unMountComponent = () => {
-    setPost();
     setFriend([]);
     setUserInfo(null);
     setImgContent();
@@ -266,7 +228,6 @@ export default function Profile({ children }) {
   const [friends, setFriend] = useState([]);
   useEffect(() => {
     if (Users?.UserID && auth) {
-      console.log(Users, "okkkkkkkkkkkkkkkkkkkkkkkkk");
       const getUserFriend = async () => {
         const dataMyFriend = await getFriendList(Users?.UserID);
         if (dataMyFriend) {
@@ -337,7 +298,7 @@ export default function Profile({ children }) {
       setIntroduceInput(Users.introduce);
     }
   }, [Users]);
-  const [PostsData, setPost] = useState();
+  const [refreshPost, setRefeshPost] = useState(false);
 
   const [ImgContent, setImgContent] = useState();
   const [BackgroundUpdate, setBackgroundUpdate] = useState();
@@ -456,6 +417,11 @@ export default function Profile({ children }) {
   const MovingHandle = () => {
     setMovingSetting(true);
   };
+  const navigate=useNavigate()
+  const clickUrlLink=(e)=>
+  {
+    navigate(`/photo/?MSSV=${e.userID}&hid=${e.id}` , { state: { from: window.location.href } }    )
+  }
   const handleChange = [
     { text: ` Moving`, icon: <FiMove />, click: MovingHandle },
     { text: ` Change`, icon: <FiUpload />, click: backChange },
@@ -463,7 +429,9 @@ export default function Profile({ children }) {
   ];
   const Setting = BackgroundUpdate || MovingSetting;
   const { themeColor } = useData();
-
+  useEffect(() => {
+    console.log(auth,"keeee")
+  }, [auth]);
   const backGroundHandle = (data) => {
     return (
       <button
@@ -507,7 +475,30 @@ export default function Profile({ children }) {
             ></div>
             <div className="w-full h-full center relative">
               <div className="h-full w-70 center relative overflow-hidden  rounded-b-lg ">
-                <div className="absolute right-10 bottom-20 z-10 rounded-b-lg">
+              {Users?.backgroundimg || BackgroundUpdate ? (
+                  <img
+                    alt="background"
+                    ref={dragBackRef}
+                    style={
+                      Setting
+                        ? {}
+                        : {
+                            top: 0,
+                            transform: `translateY(${
+                              -Users?.backgroundimg.split("%hiep%")[1] * 100
+                            }%)`,
+                          }
+                    }
+                    className="object-fill w-full absolute z-0"
+                    src={`${
+                      BackgroundUpdate?.view ||
+                      Users?.backgroundimg.split("%hiep%")[0]
+                    }`}
+                  ></img>
+                ) : (
+                  <div className="w-full h-full bg-black"></div>
+                )}
+              {(BackgroundUpdate || MovingSetting) &&  <div className="absolute right-10 bottom-20 z-10 rounded-b-lg">
                   {BackgroundUpdate && (
                     <>
                       <span className="circleButton" onClick={saveBackHandle}>
@@ -526,7 +517,7 @@ export default function Profile({ children }) {
                       <FiSave />
                     </span>
                   )}
-                </div>
+                  </div>}
                 {Users?.UserID === auth.userID && (
                   <Popover
                     trigger={"click"}
@@ -536,9 +527,9 @@ export default function Profile({ children }) {
                       </div>
                     }
                   >
-                    <div className="p-2 bg-white center  rounded cursor-pointer shadow-md absolute right-10 bottom-10 hover:bg-gray-200 z-10">
+                    <div className="p-2 bg-white center  rounded cursor-pointer shadow-md absolute right-10 bottom-10 hover:bg-gray-200">
                       <FiCamera stroke="black" />
-                      <p className="px-2 text-black	font-semibold">
+                      <p className="px-2 text-black	font-semibold ">
                         Change Background Image
                       </p>
                     </div>
@@ -549,29 +540,8 @@ export default function Profile({ children }) {
                     <h1 className="text-3xl">Uploading . . . . </h1>
                   </div>
                 )}
-                {Users?.backgroundimg || BackgroundUpdate ? (
-                  <img
-                    alt="background"
-                    ref={dragBackRef}
-                    style={
-                      Setting
-                        ? {}
-                        : {
-                            top: 0,
-                            transform: `translateY(${
-                              -Users?.backgroundimg.split("%hiep%")[1] * 100
-                            }%)`,
-                          }
-                    }
-                    className="object-fill w-full absolute"
-                    src={`${
-                      BackgroundUpdate?.view ||
-                      Users?.backgroundimg.split("%hiep%")[0]
-                    }`}
-                  ></img>
-                ) : (
-                  <div className="w-full h-full bg-black"></div>
-                )}
+
+                
               </div>
             </div>
             <input
@@ -693,10 +663,10 @@ export default function Profile({ children }) {
                         )}
                         {isLoading && <div className="">...............</div>}
 
-                        <p>
+                        <p className="uppercase">
                           Tham gia vào:{" "}
-                          <span className="text-2xl font-semibold">
-                            {Users && formatDate(Users?.createdAt)}
+                          <span className="text-2xl font-bold ">
+                            {Users && moment(Users?.createdAt).format('DD-MMM-YYYY')}
                           </span>
                         </p>
                       </div>
@@ -705,19 +675,17 @@ export default function Profile({ children }) {
                         <div className="grid grid-cols-3 gap-2">
                           {ImgContent ? (
                             ImgContent.map(
-                              (e) =>
-                                e.img &&
+                              (e,index) =>
+                                e.img && index<9 &&
                                 e.type.includes("image") && (
-                                  <Link
-                                    to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${e.userID}&hid=${e.id}`}
-                                  >
+                                  
                                     <img
+                                    onClick={()=>clickUrlLink(e)}
                                       alt="ImageProfile"
                                       className="object-cover rounded-xl"
                                       style={{ aspectRatio: "1" }}
                                       src={`${e.img}`}
                                     />
-                                  </Link>
                                 )
                             )
                           ) : (
@@ -757,23 +725,8 @@ export default function Profile({ children }) {
                       </div>
                     </div>
                     <div className="h-full px-8" style={{ width: "60%" }}>
-                      <div>
-                        <MyPost 
-                        ></MyPost>
-                      </div>
-                      {PostsData ? (
-                        <Posts
-                          setImgContent={setImgContent}
-                          Posts={PostsData}
-                          setPost={setPost}
-                          users={Users}
-                          username={Users && Users?.MSSV}
-                        />
-                      ) : (
-                        <div className=" w-full center">
-                          <div className="loader"></div>
-                        </div>
-                      )}
+                  
+                    <Posts username={MSSVInput}/>
                     </div>
                   </div>
                 </div>

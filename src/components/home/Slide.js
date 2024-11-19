@@ -150,6 +150,7 @@ export default function SlideMovie({ list, perPage, card, isPage }) {
       >
         {list &&
           list.map((e, i) => (
+            i===0&&
             <CardSlide
               e={e}
               i={i}

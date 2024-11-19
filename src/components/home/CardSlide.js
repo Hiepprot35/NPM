@@ -90,6 +90,7 @@ export const CardSlide = ({ e, i, card, className }) => {
               )}
               <img
                 className="imgSlide"
+                alt="imgSlide"
                 style={{
                   height: `100%`,
                   width: `${card.width}vw`,
@@ -99,7 +100,6 @@ export const CardSlide = ({ e, i, card, className }) => {
                   borderBottomLeftRadius: "1rem",
                   borderTopRightRadius: `${isHover ? 0 : "1rem"}`,
                   borderBottomRightRadius: `${isHover ? 0 : "1rem"}`,
-
                   filter: isHover ? "brightness(0.7) invert(0.19)" : "none",
                 }}
                 src={`${url}/${e.poster_path}`}
@@ -107,7 +107,7 @@ export const CardSlide = ({ e, i, card, className }) => {
             </div>
             {
               <motion.div
-                className="detailSlide"
+                className="detailSlide theme"
                 style={{ width: `${card.width*1.5}vw`, height: "100%" }}
                 animate={isHover ? "open" : "closed"}
                 variants={variants}

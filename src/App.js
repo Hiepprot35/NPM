@@ -31,6 +31,8 @@ import PhotoPost from "./components/UserProfile/PhotoPost";
 import NewFeed from "./components/newfeed/NewFeed";
 import { RouteLink } from "./lib/link";
 import Blog from "./components/blog/Blog";
+import { notification } from "antd";
+import useNoti from "./hook/useNoti";
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   let location = useLocation();
@@ -63,7 +65,19 @@ function App() {
       setIsLoading(false)
     }
   }, []);
+  const {NotiText}=useNoti()
+  const [api,contextHolder]=notification.useNotification()
+  useEffect(() => {
+    if(NotiText?.message)
+    {
 
+      api[NotiText.type]({
+        message:NotiText?.title || 'Notification',
+        description:NotiText.message,
+        duration: 3,
+      });
+    }
+  }, [NotiText]);
   if (!isLoading) {
     if (auth.userID) {
       if (auth.role === 1) {
@@ -83,6 +97,8 @@ function App() {
         );
       } else if (auth.role === 2) {
         return (
+          <>
+              {contextHolder}
           <div>
             <Routes location={background || location}>
               <Route path="/" element={<Layout />}>
@@ -123,6 +139,7 @@ function App() {
               </Routes>
             )}
           </div>
+          </>
         );
       }
     } else {
