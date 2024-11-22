@@ -1083,6 +1083,8 @@ export default memo(function WindowChat(props) {
                           ref={inputValue}
                           contentEditable="true"
                           onPaste={pasteImg}
+                          onKeyDown={handleKeyDown}
+
                           onInput={(e) => inputChange(e)}
                           onClick={() =>
                             clickConversation({
@@ -1109,7 +1111,6 @@ export default memo(function WindowChat(props) {
                             className="features_hover"
                             onClick={(e) => handleSubmit(e)}
                             style={{ cursor: "pointer" }}
-                            onKeyDown={handleKeyDown}
                           >
                             <FiSend></FiSend>
                           </div>
