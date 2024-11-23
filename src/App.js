@@ -33,6 +33,7 @@ import { RouteLink } from "./lib/link";
 import Blog from "./components/blog/Blog";
 import { notification } from "antd";
 import useNoti from "./hook/useNoti";
+import DetailPost from "./components/UserProfile/DetailPost";
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   let location = useLocation();
@@ -125,10 +126,13 @@ function App() {
                 <Route path="setting" element={<SettingAccount />} />
                 <Route path="photo" element={<PhotoPost />} />
                 <Route path={RouteLink.homeFilmLink} element={<Home />} />
-
                 <Route
                   path={`${RouteLink.profileLink}/:MSSV`}
                   element={<Profile />}
+                ></Route>
+                  <Route
+                  path={`${RouteLink.profileLink}/:MSSV/post/:id`}
+                  element={<DetailPost />}
                 ></Route>
               </Route>
             </Routes>

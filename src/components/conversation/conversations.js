@@ -166,7 +166,7 @@ export default memo(function Conversation({
                       {
                         <>
                           {conversation.content && (
-                            <div className="w-full center">
+                            <div className="w-full">
                               <div className="w-3/4  ">
                                 <span
                                className="truncate">

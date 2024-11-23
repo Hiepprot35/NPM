@@ -314,7 +314,7 @@ function Header(props) {
     <>
       <div className="header_user center">
         <div className="header_container">
-          <div className="rightHeader" style={{ width: "30%" }}>
+          <div className="rightHeader">
             <ul className="list">
               <li>
                 {Clock && city && (
@@ -355,16 +355,17 @@ function Header(props) {
                 .map((element, index) => (
                   <li
                     key={index}
-                    className={`hrefLink  ${
+                    className={`hrefLink mx-4 ${
                       element.hash === props.hash ? "ActiveLink" : "notActive"
                     }`}
                   >
                     <NavLink
                       to={element.hash}
-                      className="Link  font-semibold mx-4"
+                      className="Link font-bold text-lg mx-4"
                     >
                       {element.name}
                     </NavLink>
+
                   </li>
                 ))}
               <li>
@@ -374,7 +375,7 @@ function Header(props) {
                     onClick={() => setShowGenres((pre) => !pre)}
                     className="center"
                   >
-                    <span className=" font-semibold mx-4">Thể loại</span>
+                    <span className=" mx-4">Thể loại</span>
                     {
                       <span
                         className="chevron"
@@ -497,7 +498,7 @@ function Header(props) {
                 trigger="click"
                 placement="bottomRight"
                 content={
-                  <div className="w-30vw">
+                  <div className="w-20vw">
                     <h1>Đoạn chat</h1>
                     <input
                       placeholder="Search for friends"
@@ -526,7 +527,7 @@ function Header(props) {
                       <NavLink
                         to={`${process.env.REACT_APP_CLIENT_URL}/message`}
                       >
-                        <span>Xem thêm trong messages</span>
+                        <p className=" text-blue-600 font-semibold hover:underline">Xem thêm trong messages</p>
                       </NavLink>
                     </div>
                   </div>

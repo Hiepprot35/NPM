@@ -10,6 +10,7 @@ import "./myComment.scss";
 import { IsLoading } from "../Loading.js";
 import { shareType } from "../../lib/data.js";
 import Select from "./Select.js";
+import useNoti from "../../hook/useNoti.js";
 export default function MyComment(props) {
   const inputRef = useRef();
   const [FilterTag, setFilterTag] = useState();
@@ -128,13 +129,13 @@ export default function MyComment(props) {
       }
     }
   }, [myComment]);
+  const {setNotiText} = useNoti()
   const [ShareType, setShareType] = useState(0);
   useEffect(() => {
     console.log(ShareType)
   }, [ShareType]);
   const sendComment = async (e) => {
     e.preventDefault();
-    console.log("senddd");
     setisLoading(true);
     try {
       let content = myComment;
@@ -166,7 +167,7 @@ export default function MyComment(props) {
         { method: "POST", body: form }
       );
       const newComment = await res.json();
-      console.log(newComment,"commeneeee")
+      setNotiText({message:'Post success',title:'Post Notificantion',type:'success'})
       props.update((pre) => [
         {
           ...newComment,

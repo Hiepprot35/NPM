@@ -17,7 +17,7 @@ const MediaGrid = ({ media, userID }) => {
         return (
           <img
             onClick={() => insertSearch({ userId: userID, content: image.label })}
-            className={style || "h-60vh w-full object-cover rounded-2xl"}
+            className={style || "w-full object-cover rounded-2xl"}
             src={image.url}
             alt="Comment Media"
           />
@@ -28,7 +28,7 @@ const MediaGrid = ({ media, userID }) => {
         return (
           <ReactPlayer
             url={image.url}
-            className={style || "h-60vh w-full"}
+            className={style || "w-full"}
             controls
           />
         );
@@ -55,27 +55,21 @@ const MediaGrid = ({ media, userID }) => {
   const renderMediaGrid = (data) => {
     const gridStyle = isFirstImageWide ? "grid-rows-2" : "grid-cols-2";
     const firstImageStyle = isFirstImageWide
-      ? "object-cover h-full rounded-t-2xl"
-      : "h-full rounded-l-2xl";
+      ? "object-cover h-full"
+      : "h-full";
 
     return (
       <div className={`grid h-full ${gridStyle} gap-1`}>
         <div className="center">
-          <ImageLink image={data[0]} style={`w-full ${firstImageStyle}`} />
+          <ImageLink image={data[0]} style={`w-full ${firstImageStyle} object-cover`} />
         </div>
-        <div className={`grid ${isFirstImageWide ? "grid-cols-2" : "grid-rows-2"} gap-1`}>
+        <div className={`grid h-60vh ${isFirstImageWide ? "grid-cols-2" : "grid-rows-2"} gap-1`}>
           {data.slice(1, 3).map((e, index) => {
-            const roundedStyle = !isFirstImageWide
-              ? index === 0
-                ? "rounded-tr-2xl"
-                : "rounded-br-2xl"
-              : index === 0
-              ? "rounded-bl-2xl"
-              : "rounded-br-2xl";
+         
 
             return (
               <div key={index} className="relative w-full h-full">
-                <ImageLink image={e} style={`object-cover w-full h-full ${roundedStyle}`} />
+                <ImageLink image={e} style={`object-cover w-full h-full`} />
                 {index === 1 && data.length > 3 && (
                   <a href={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${userID}&hid=${e.id}`}>
 
@@ -111,14 +105,12 @@ const MediaGrid = ({ media, userID }) => {
       );
     case 2:
       return (
-        <div className="grid grid-cols-2 gap-1 h-60vh">
+        <div className="grid grid-cols-2 gap-1">
           {media.map((e, index) => (
             <ImageLink
               key={index}
               image={e}
-              style={`w-full h-full object-cover ${
-                index === 1 ? "rounded-r-2xl" : "rounded-l-2xl"
-              }`}
+              style={`w-full h-full object-cover`}
             />
           ))}
         </div>

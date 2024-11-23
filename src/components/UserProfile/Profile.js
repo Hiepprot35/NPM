@@ -183,8 +183,7 @@ export default function Profile({ children }) {
   const getData = async (signal, currentRequestVersion) => {
     try {
       const data = await getUserinfobyID(MSSVInput, { signal });
-      console.log("send res");
-      console.log(data);
+  
       if (signal.aborted) return;
       if (data) {
         document.title = data?.Name + " | Profile";
@@ -213,7 +212,7 @@ export default function Profile({ children }) {
   const unMountComponent = () => {
     setFriend([]);
     setUserInfo(null);
-    setImgContent();
+    setImgContent([]);
   };
   const getFriendList = async (userID) => {
     const result = await fetchApiRes("message/getFriendList", "POST", {

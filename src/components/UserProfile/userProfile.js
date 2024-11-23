@@ -4,7 +4,7 @@ import { FiMessageCircle, FiUserMinus, FiUserPlus } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
 import { useData } from "../../context/dataContext";
 import { useSocket } from "../../context/socketContext";
-import { fetchApiRes } from "../../function/getApi";
+import { fetchApiRes, getStudentInfoByMSSV } from "../../function/getApi";
 import useAuth from "../../hook/useAuth";
 import GerenalFriendComponent from "../home/gerenalFriendComponent";
 import { IsLoading } from "../Loading";
@@ -17,7 +17,7 @@ const getFriendList = async (userID) => {
   const result = await fetchApiRes("message/getFriendList", "POST", {
     userID: userID,
   });
-  if(result)
+  if(result.result?.leng)
   {
 
     const data = result.result.map((e) => checkID(e, userID));
@@ -37,13 +37,25 @@ export default function UserProfile(props) {
     Conversations,
   } = useData();
   const { auth, myInfor } = useAuth();
+  const [UserProfile, setUserProfile] = useState();
+  useEffect(() => {
+    const getUserInfo=async(e)=>
+      {
+        const res=await getStudentInfoByMSSV(e)
+        setUserProfile(res)
+      } 
+      if(props.MSSV)
+      {
+        getUserInfo(props.MSSV)
+      }
+  }, [props.MSSV]);
   const AddConver = async (id, request) => {
     try {
       const obj = {
         user1: auth.userID,
         user2: id,
         user1_mask: myInfor.Name,
-        user2_mask: props.User.Name,
+        user2_mask: UserProfile.Name,
         Requesting: request ? 1 : 0,
       };
       const res = await fetchApiRes("conversations", "POST", { ...obj });
@@ -111,8 +123,8 @@ export default function UserProfile(props) {
         user1: auth.userID,
         user2: id,
         user1_mask: myInfor.Name,
-        user2_mask: props.User.Name,
-        img: props.User.cutImg || props.User.img,
+        user2_mask: UserProfile.Name,
+        img: UserProfile.cutImg || UserProfile.img,
       };
       const converFound = Conversations.find(
         (e) => e?.user1 === id || e?.user2 === id
@@ -136,7 +148,7 @@ export default function UserProfile(props) {
         }
       } else {
         setConversationContext((prev) => [
-          { ...converFound, img: props.User.cutImg || props.User.img },
+          { ...converFound, img: UserProfile.cutImg || UserProfile.img },
           ...prev.filter((e) => e.id !== converFound.id),
         ]);
         setListHiddenBubble((pre) => [
@@ -152,10 +164,10 @@ export default function UserProfile(props) {
   const [gerenalFriend, setgerenalFriend] = useState([]);
 
   useEffect(() => {
-    if (props.User) {
+    if (UserProfile) {
       const getUserFriend = async () => {
         const dataMyFriend = await getFriendList(auth?.userID);
-        const dataUserFriend = await getFriendList(props.User?.UserID);
+        const dataUserFriend = await getFriendList(UserProfile?.UserID);
         const generalFriends = dataUserFriend.filter((userFriend) => {
           return dataMyFriend.some((e) => e === userFriend);
         });
@@ -163,14 +175,14 @@ export default function UserProfile(props) {
       };
       getUserFriend();
     }
-  }, [props.User, auth]);
+  }, [UserProfile, auth]);
 
   return (
     <>
       {
         <div className="UserProfile" style={{ width: "100%", cursor: Cursor }}>
           <div className="">
-            {props.User && (
+            {UserProfile && (
               <div>
                 <div
                   className="center"
@@ -184,20 +196,20 @@ export default function UserProfile(props) {
                     <Popover
                       content={
                         <UserProfile
-                          User={props.User}
-                          MSSV={props.User.MSSV}
+                          User={UserProfile}
+                          MSSV={UserProfile.MSSV}
                           isHover={true}
                         ></UserProfile>
                       }
                     >
                       <NavLink
-                        to={`${RouteLink.profileLink}/${props.User.UserID}`}
+                        to={`${RouteLink.profileLink}/${UserProfile.UserID}`}
                       >
                         <img
                           className="avatarImage"
                           src={
-                            props.User?.cutImg ||
-                            props.User?.img ||
+                            UserProfile?.cutImg ||
+                            UserProfile?.img ||
                             "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg"
                           }
                           alt="avatar"
@@ -210,7 +222,7 @@ export default function UserProfile(props) {
                   >
                     <div>
                       <b>
-                        {props.User.Name} {auth.userID}
+                        {UserProfile.Name} {auth.userID}
                       </b>
                       <p>Có {gerenalFriend.length} bạn chung</p>
                       {gerenalFriend && (
@@ -228,7 +240,7 @@ export default function UserProfile(props) {
                         className="sendButton"
                         onClick={() => {
                           if (auth.userID) {
-                            handleAddChat(props.User.UserID);
+                            handleAddChat(UserProfile.UserID);
                           } else {
                             window.open(
                               `${process.env.REACT_APP_CLIENT_URL}/login`,
@@ -250,8 +262,8 @@ export default function UserProfile(props) {
                     )}
                     {Conversations.some(
                       (e) =>
-                        (e.user1 === props.User.UserID ||
-                          e.user2 === props.User.UserID) &&
+                        (e.user1 === UserProfile.UserID ||
+                          e.user2 === UserProfile.UserID) &&
                         e.Friend
                     ) ? (
                       <Button
@@ -261,7 +273,7 @@ export default function UserProfile(props) {
                           margin: ".2rem",
                           cursor: Cursor,
                         }}
-                        onClick={() => deleteRequestFriend(props.User.UserID)}
+                        onClick={() => deleteRequestFriend(UserProfile.UserID)}
                         icon={<FiUserMinus></FiUserMinus>}
                       ></Button>
                     ) : (
@@ -272,7 +284,7 @@ export default function UserProfile(props) {
                           margin: ".2rem",
                           cursor: Cursor,
                         }}
-                        onClick={() => sendRequestFriend(props.User.UserID)}
+                        onClick={() => sendRequestFriend(UserProfile.UserID)}
                         icon={<FiUserPlus></FiUserPlus>}
                       ></Button>
                     )}

@@ -25,7 +25,7 @@ export default memo(function Message({
   const { auth } = useAuth();
   const seen_text = useRef(null);
   const messageRef = useRef(null);
-  const [listAnh, setListAnh] = useState();
+  const [listAnh, setListAnh] = useState([]);
 
   useEffect(() => {
     if (Number(message.isFile) === 1) {
@@ -101,76 +101,75 @@ export default memo(function Message({
   useEffect(() => {
     console.log(updateMessage);
   }, [updateMessage]);
-  const checkComment = async (e) => {
-    let updatedComment = e;
-    const youtubeRegex =
-      /http(?:s)?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w\-]{11})(?:&[\w;=]*)*/;
+  // const checkComment = async (e) => {
+  //   let updatedComment = e;
+  //   const youtubeRegex =
+  //     /http(?:s)?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w\-]{11})(?:&[\w;=]*)*/;
 
-    const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
-    if (youtubeRegex.test(e)) {
-      const url = e.match(youtubeRegex);
-      const videoId = url[1];
-      const videoTitle = await fetchVideoTitle(videoId);
-      const imgUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-      const newUrl = `
-      <div className="flex-column ">
-        <a href=${url[0]}">
-        <p className="text-white underline py-3 font-bold">
-        ${url[0]}
-        </p>
-          <div className="cardMess">
-            <img className="w-full aspect-[16/9] rounded object-cover" src="${imgUrl}"></img>
-            <div className="titleMess">
-              <p className="hiddenText font-bold text-lg hover:underline">${videoTitle}</p>
-            </div>
-          </div>
-          </a>
-          </div>
-        `;
-      updatedComment = `
+  //   const movieFilmsRegex = /\/movie\/moviedetail\/.+$/;
+  //   if (youtubeRegex.test(e)) {
+  //     const url = e.match(youtubeRegex);
+  //     const videoId = url[1];
+  //     const videoTitle = await fetchVideoTitle(videoId);
+  //     const imgUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  //     const newUrl = `
+  //     <div className="flex-column ">
+  //       <a href=${url[0]}">
+  //       <p className="text-white underline py-3 font-bold">
+  //       ${url[0]}
+  //       </p>
+  //         <div className="cardMess">
+  //           <img className="w-full aspect-[16/9] rounded object-cover" src="${imgUrl}"></img>
+  //           <div className="titleMess">
+  //             <p className="hiddenText font-bold text-lg hover:underline">${videoTitle}</p>
+  //           </div>
+  //         </div>
+  //         </a>
+  //         </div>
+  //       `;
+  //     updatedComment = `
    
-      ${newUrl}
-      `;
-    } else if (movieFilmsRegex.test(e)) {
-      const paramUrl = e.split("movie/moviedetail/")[1];
-      const pics = await movieApi(paramUrl);
-      const data = `
-        <div className="columnFlex">
-          <a href="${e}">
-          <p className="white ">
-          ${e}
-          </p>
-            <div className="cardMess">
-              <img className="commentImg" src="https://image.tmdb.org/t/p/original/${pics.img}"></img>
-              <div className="titleMess">
-                <p className="hiddenText">${pics.title}</p>
-              </div>
-            </div>
-          </a>
-        </div>`;
-      updatedComment = data;
-    }
-    return updatedComment;
-  };
+  //     ${newUrl}
+  //     `;
+  //   } else if (movieFilmsRegex.test(e)) {
+  //     const paramUrl = e.split("movie/moviedetail/")[1];
+  //     const pics = await movieApi(paramUrl);
+  //     const data = `
+  //       <div className="columnFlex">
+  //         <a href="${e}">
+  //         <p className="white ">
+  //         ${e}
+  //         </p>
+  //           <div className="cardMess">
+  //             <img className="commentImg" src="https://image.tmdb.org/t/p/original/${pics.img}"></img>
+  //             <div className="titleMess">
+  //               <p className="hiddenText">${pics.title}</p>
+  //             </div>
+  //           </div>
+  //         </a>
+  //       </div>`;
+  //     updatedComment = data;
+  //   }
+  //   return updatedComment;
+  // };
   const [processedComment, setProcessedComment] = useState("");
-  const options = {
-    replace: ({ name, attribs, children }) => {
-      if (name === "div" && attribs && attribs.classname === "callMess") {
-        return (
-          <div className="callMess bg-gray pr-4 flex center">
-            <div className="circleButton center">
-              <FiVideo></FiVideo>
-            </div>
-            {domToReact(children)}
-          </div>
-        );
-      }
-    },
-  };
+  // const options = {
+  //   replace: ({ name, attribs, children }) => {
+  //     if (name === "div" && attribs && attribs.classname === "callMess") {
+  //       return (
+  //         <div className="callMess bg-gray pr-4 flex center">
+  //           <div className="circleButton center">
+  //             <FiVideo></FiVideo>
+  //           </div>
+  //           {domToReact(children)}
+  //         </div>
+  //       );
+  //     }
+  //   },
+  // };
 
   useEffect(() => {
     const processComment = async () => {
-      console.log(message);
       if (message.content) {
         const data = message.content.split("emojiLink");
         const processedData = data.map((e) => {
@@ -186,7 +185,7 @@ export default memo(function Message({
     };
 
     processComment();
-  }, [message.content]);
+  }, [message]);
 
   return (
     <>
@@ -232,7 +231,7 @@ export default memo(function Message({
                   >
                     <div
                       className={`Mess_seen_text flex ${
-                        listAnh?.length > 1 ? "grid grid-cols-3" : ""
+                        listAnh?.length > 3 ? `gridMessImg grid grid-cols-3` : listAnh?.length===2? ` gridMessImg grid grid-cols-${listAnh?.length}`:''
                       }`}
                       style={
                         message.content.includes(`className="maskUserChange"`)

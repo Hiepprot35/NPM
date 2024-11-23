@@ -17,13 +17,12 @@ export default function Posts(props) {
   const getPost = async () => {
     try {
       const data = await fetchApiRes(
-        `getAllCommentPost/?userID=${props.username}&replyID=-1`,
+        `comment/getAllCommentPostByID/?userID=${props.username}&replyID=-1`,
         "GET",
         null,
         null,
         AccessToken
       );
-      console.log(data, "dataaaaaaaa");
       if (data && data.result) {
         const dataUpdate = data.result.sort(
           (a, b) => b.createdAt - a.createdAt

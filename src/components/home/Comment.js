@@ -1,19 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
-import {
-  FiCheck,
-  FiMoreHorizontal,
-  FiPenTool,
-  FiSettings,
-  FiThumbsDown,
-  FiThumbsUp,
-  FiX,
-} from "react-icons/fi";
+import { FiCheck, FiMoreHorizontal, FiPenTool, FiX } from "react-icons/fi";
 import useAuth from "../../hook/useAuth";
-import {
-  fetchApiRes,
-  getStudentInfoByMSSV,
-  getUserinfobyID,
-} from "../../function/getApi";
+import { fetchApiRes } from "../../function/getApi";
 import parse, { domToReact } from "html-react-parser";
 import { notification, Popconfirm, Popover } from "antd";
 import UserProfile from "../UserProfile/userProfile";
@@ -27,7 +15,7 @@ import {
 } from "../../function/getTime";
 import { fetchVideoTitle, movieApi } from "../message/windowchat";
 import parseUrl from "parse-url";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useRealTime } from "../../context/useRealTime";
 import MediaGrid from "../imageView/MediaGrid";
 import { shareType } from "../../lib/data";
@@ -39,11 +27,11 @@ function Comment({
   className,
   users,
   setCurrentImg,
-  isPost,setRefeshPost
+  isPost,
+  setRefeshPost,
 }) {
   const { auth } = useAuth();
   const [CommentsRep, setCommentsRep] = useState([]);
-  const [ComemntDetail, setComemntDetail] = useState([]);
   const [myReaction, setmyReaction] = useState();
   const countReactionHeight = 2.5;
   const [Clicked, setClicked] = useState(false);
@@ -51,12 +39,16 @@ function Comment({
     const url =
       comment.movieID > 0
         ? `/gettAllCommentFilms/?movieID=${comment.movieID}&replyID=${comment.id}`
-        : `/getAllCommentPost/?replyID=${comment.id}`;
+        : `comment/getAllCommentPostByID/?replyID=${comment.id}`;
     const res = await fetchApiRes(url);
+    console.log(res, "heheeeeeeeeeeeeeeee");
     if (res?.result.length > 0) {
       setCommentsRep(res.result);
     }
   };
+  useEffect(() => {
+    getCommentReply();
+  }, [comment]);
   const findTrueProperties = (obj) => {
     const prop = ReactComment.find((e) => {
       if (obj[e.action] === 1) {
@@ -209,340 +201,355 @@ function Comment({
   };
   const [SeeMoreComment, setSeeMoreComment] = useState(false);
   const [CountReaction, setCountReaction] = useState();
-  const [User, setUser] = useState();
   const { Onlines } = useRealTime();
   const [ShareTypeUpdate, setShareTypeUpdate] = useState();
-  useEffect(() => {
-    if (!comment) return;
-
-    const fetchData = async () => {
-      if (users) {
-        setUser(users);
-      } else {
-        const user = await getUserinfobyID(comment.userID);
-        if (user) {
-          setUser(user);
-        }
-      }
-    };
-
-    fetchData();
-    getCommentReply();
-  }, [comment]);
-
   const foundShare = shareType.find((e) => e.value === Number(comment?.share));
-  const {setNotiText}= useNoti()
+  const { setNotiText } = useNoti();
   const deletePost = async (id) => {
     const url = `${process.env.REACT_APP_DB_HOST}/api/comment/delete/${id}`;
-    const res=await fetch(url, { method: "DELETE" });
-    const message= await res.json()
-    const type=message.deleted ? 'success':'error'
-    console.log({type,message},"heheehheeeeeeeeeee")
-    setNotiText({message:message.message,title:'Delete notification',type:type})
-    setRefeshPost(pre=>!pre)
+    const res = await fetch(url, { method: "DELETE" });
+    const message = await res.json();
+    const type = message.deleted ? "success" : "error";
+    setNotiText({
+      message: message.message,
+      title: "Delete notification",
+      type: type,
+    });
+    setRefeshPost((pre) => !pre);
   };
   return (
     <>
-    <div
-      className={`comment ${className} ${
-        isPost ? "shadow-xl" : "bg-white"
-      } cursor-pointer hover:bg-slate-100	`}
-    >
-      <div className={`containerComment mr-10`}>
-        <div className="headerComment">
-          <div className="AvatarComment w-10">
-            <Popover
-              content={
-                <UserProfile User={User} MSSV={User?.UserID}></UserProfile>
-              }
-            >
-              <div className="AvatarComment2">
-                {!User ? (
-                  <div className="loader w-1/2 h-1/2"></div>
-                ) : (
-                  <div>
-                    <img
-                      alt="commentImg"
-                      className="avatarImage shadow-lg"
-                      style={{ maxWidth: "unset" }}
-                      src={`${(User && User?.cutImg) || User?.img}`}
-                    ></img>
-                    <span
-                      className={`dot ${
-                        Onlines &&
-                        Onlines.some((e) => e.userId === User?.UserID)
-                          ? "activeOnline"
-                          : {}
-                      }`}
-                    ></span>
-                  </div>
-                )}
-              </div>
-            </Popover>
-            {((CommentsRep?.length > 0 && SeeMoreComment) || ReplyOpen) && (
-              <div className="linearComment"></div>
-            )}
-          </div>
-          <div
-            className={`bodyComment w-full ${
-              !isPost && "bg-slate-300	 rounded-xl"
-            }`}
-          >
-            <div className="px-2">
-              <div className={`nameComment ${!isPost && "p-2"}`}>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-4">
-                    {User && (
-                      <Popover
-                        content={
-                          <UserProfile User={User} MSSV={User?.UserID} />
-                        }
-                      >
-                        {/* Apply consistent vertical alignment */}
-                        <p style={{ fontWeight: 600 }}>{User?.Name}</p>
-                      </Popover>
-                    )}
-                    {foundShare && (
-                      <Popover trigger="hover" content={<>{foundShare.name}</>}>
-                        {/* Vertically align the share icon */}
-                        <div>{foundShare.icon}</div>
-                      </Popover>
-                    )}
-                    {IsUpdating && (
-                      <Select
-                        options={shareType}
-                        onChange={setShareTypeUpdate}
-                      ></Select>
-                    )}
-                    <Popover
-                      content={
-                        <p>
-                          {getDate(comment?.createdAt)} lúc{" "}
-                          {getTime(comment?.createdAt)},{" "}
-                          {getWeekdays(comment?.createdAt)}
-                        </p>
-                      }
-                    >
-                      <span className="cursor-pointer text-slate-500 hover:underline">
-                        {countTime(comment?.createdAt)}
-                      </span>
-                    </Popover>
-                  </div>
-                  {isPost && comment?.userID === auth?.userID && (
-                    <div className="featPost">
-                      <ul className="flex">
-                        <Popover
-                          trigger={"click"}
-                          title={<p>Setting comment</p>}
-                          content={
-                            <div className="flex">
-                              <ul>
-                                <li
-                                  className="flex center"
-                                  onClick={() => setIsUpdating(!IsUpdating)}
-                                >
-                                  <FiPenTool /> Chỉnh sửa bài viết
-                                </li>
-                              </ul>
-                            </div>
-                          }
-                        >
-                          <li>
-                            <span className="circleButton m-0">
-                              <FiMoreHorizontal />
-                            </span>
-                          </li>
-                        </Popover>
-                        {!IsUpdating && (
-                          <li className="mx-2">
-                            <Popconfirm
-                              title="Delete this post"
-                              description="Are you sure to delete this task?"
-                              okText="Yes"
-                              onConfirm={() => deletePost(comment.id)}
-                              cancelText="No"
-                            >
-                              <span className="circleButton m-0">
-                                <FiX />
-                              </span>
-                            </Popconfirm>
-                          </li>
-                        )}
-                        {IsUpdating && (
-                          <li className="mx-2">
-                            <Popconfirm
-                              title="Delete this post"
-                              description="Are you sure to delete this task?"
-                              okText="Yes"
-                              onConfirm={() => deletePost(comment.id)}
-                              cancelText="No"
-                            >
-                              <span className="circleButton m-0">
-                                <FiCheck />
-                              </span>
-                            </Popconfirm>
-                          </li>
-                        )}
-                      </ul>
+      <div
+        className={`comment ${className} ${
+          isPost ? "shadow-xl" : "bg-white"
+        } cursor-pointer hover:bg-slate-100	`}
+      >
+        <div className={`containerComment mr-10`}>
+          <div className="headerComment">
+            <div className="AvatarComment w-10">
+              <Popover
+                content={<UserProfile MSSV={comment?.userID}></UserProfile>}
+              >
+                <div className="AvatarComment2">
+                  {!comment?.img || !comment?.cutImg ? (
+                    <div className="loader w-1/2 h-1/2"></div>
+                  ) : (
+                    <div>
+                      <img
+                        alt="commentImg"
+                        className="avatarImage shadow-lg"
+                        style={{ maxWidth: "unset" }}
+                        src={`${comment?.cutImg || comment?.img}`}
+                      ></img>
+                      <span
+                        className={`dot ${
+                          Onlines &&
+                          Onlines.some((e) => e.userId === comment?.UserID)
+                            ? "activeOnline"
+                            : {}
+                        }`}
+                      ></span>
                     </div>
                   )}
                 </div>
-              </div>
-
-              <div className="contentComment shadow-indigo-500/40">
-                <div className="pb-4">
-                  <span className="text-lg">
-                    {parse(comment.content || "", options)}
-                  </span>
-                </div>
-                {comment.media && comment.media.length > 0 && (
-                  <div
-                    className={(isPost && ``) || (isReply && `h-30vh w-1/2`)}
-                  >
-                    <MediaGrid userID={comment.userID} media={comment.media} />
-                  </div>
-                )}
-              </div>
+              </Popover>
+              {((CommentsRep?.length > 0 && SeeMoreComment) || ReplyOpen) && (
+                <div className="linearComment"></div>
+              )}
             </div>
-
-            <div className="likedislike items-center">
-              <div>
-                <span
-                  className="likeButton replyButton"
-                  style={{ margin: "0 1rem" }}
-                  onClick={ReplyHandle}
-                >
-                  Reply to
-                </span>
-                <Popover
-                  content={
-                    <div
-                      className="center"
-                      style={{ display: "flex", listStyleType: "none" }}
-                    >
-                      {ReactComment.map((e, i) => (
-                        <Popover content={e.name}>
-                          <span
-                            key={i}
-                            style={{
-                              background:
-                                myReaction?.action === e.action
-                                  ? "gray"
-                                  : "none",
-                            }}
-                            className="reactionComment circleButton"
-                            onClick={() => commentReactHandle(comment.id, e)}
-                          >
-                            {e.icon}
-                          </span>
+            <div className={`bodyComment w-full ${!isPost && "rounded-xl"}`}>
+              <div className="px-2">
+                <div className={`nameComment ${!isPost && "p-2"}`}>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-4">
+                      {comment && (
+                        <Popover content={<UserProfile MSSV={comment.MSSV} />}>
+                          {/* Apply consistent vertical alignment */}
+                          <p style={{ fontWeight: 600 }}>{comment.Name}</p>
                         </Popover>
-                      ))}
-                    </div>
-                  }
-                >
-                  <span
-                    className=""
-                    style={{
-                      fontSize: "1.1rem",
-                      borderRadius: "50%",
-                      padding: ".5rem",
-                      background: myReaction ? "gray" : "none",
-                    }}
-                    onClick={() => (myReaction ? likeHandle(comment.id) : null)}
-                  >
-                    {myReaction?.icon || "👍"}
-                  </span>
-                </Popover>
-              </div>
-
-              <div
-                className="reactionCountComment"
-                style={{ display: "flex" }}
-                onMouseEnter={() => setHoverReaction(true)}
-                onMouseLeave={() => setHoverReaction(false)}
-              >
-                {CountReaction &&
-                  CountReaction.map((e, i) => {
-                    return (
-                      e.count > 0 && (
-                        <div
-                          className=" countReaction"
-                          style={{
-                            position: "absolute",
-                            left: hoverReaction
-                              ? `${i * countReactionHeight + 0.5}rem`
-                              : `${(i * countReactionHeight) / 2}rem`,
-                            zIndex: `${5 - i}`,
-                          }}
+                      )}
+                      {comment.media.length > 0 && comment.typePost === 1 && (
+                        <>
+                          <span>đã thay đổi ảnh đại diện </span>
+                        </>
+                      )}
+                      {foundShare && (
+                        <Popover
+                          trigger="hover"
+                          content={<>{foundShare.name}</>}
                         >
-                          <span style={{ fontSize: "1.1rem" }}>
-                            {
-                              ReactComment.find((v) => v.action === e.action)
-                                .icon
-                            }
+                          {/* Vertically align the share icon */}
+                          <div>{foundShare.icon}</div>
+                        </Popover>
+                      )}
+                      {IsUpdating && (
+                        <Select
+                          options={shareType}
+                          onChange={setShareTypeUpdate}
+                        ></Select>
+                      )}
+                      <Popover
+                        content={
+                          <p>
+                            {getDate(comment?.createdAt)} lúc{" "}
+                            {getTime(comment?.createdAt)},{" "}
+                            {getWeekdays(comment?.createdAt)}
+                          </p>
+                        }
+                      >
+                        <Link
+                          to={`${process.env.REACT_APP_CLIENT_URL}/profile/${comment?.userID}/post/${comment?.id}`}
+                        >
+                          <span className="cursor-pointer text-slate-500 hover:underline">
+                            {countTime(comment?.createdAt)}
                           </span>
-
-                          {hoverReaction && (
-                            <span style={{ color: "black" }}>{e.count}</span>
+                        </Link>
+                      </Popover>
+                    </div>
+                    {isPost && comment?.userID === auth?.userID && (
+                      <div className="featPost">
+                        <ul className="flex">
+                          <Popover
+                            trigger={"click"}
+                            title={<p>Setting comment</p>}
+                            content={
+                              <div className="flex">
+                                <ul>
+                                  <li
+                                    className="flex center"
+                                    onClick={() => setIsUpdating(!IsUpdating)}
+                                  >
+                                    <FiPenTool /> Chỉnh sửa bài viết
+                                  </li>
+                                </ul>
+                              </div>
+                            }
+                          >
+                            <li>
+                              <span className="circleButton m-0">
+                                <FiMoreHorizontal />
+                              </span>
+                            </li>
+                          </Popover>
+                          {!IsUpdating && (
+                            <li className="mx-2">
+                              <Popconfirm
+                                title="Delete this post"
+                                description="Are you sure to delete this task?"
+                                okText="Yes"
+                                onConfirm={() => deletePost(comment.id)}
+                                cancelText="No"
+                              >
+                                <span className="circleButton m-0">
+                                  <FiX />
+                                </span>
+                              </Popconfirm>
+                            </li>
                           )}
-                        </div>
-                      )
-                    );
-                  })}{" "}
+                          {IsUpdating && (
+                            <li className="mx-2">
+                              <Popconfirm
+                                title="Delete this post"
+                                description="Are you sure to delete this task?"
+                                okText="Yes"
+                                onConfirm={() => deletePost(comment.id)}
+                                cancelText="No"
+                              >
+                                <span className="circleButton m-0">
+                                  <FiCheck />
+                                </span>
+                              </Popconfirm>
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="contentComment shadow-indigo-500/40">
+                  <div className="pb-4">
+                    <span className="text-lg">
+                      {parse(comment.content || "", options)}
+                    </span>
+                  </div>
+
+                  {comment.typePost === 1 && comment.media.length > 0 && (
+                    <div className="w-full center">
+                      <Link
+                        to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${comment?.MSSV}&hid=${comment.media[0].id}`}
+                      >
+                        <img
+                          className="rounded-full  object-cover"
+                          src={comment.media[0].url}
+                          alt="Media Preview"
+                        />
+                      </Link>
+                    </div>
+                  )}
+
+                  {Array.isArray(comment.media) &&
+                    !comment.typePost &&
+                    comment.media.length > 0 && (
+                      <div
+                        className={
+                          isPost
+                            ? "rounded-2xl overflow-hidden"
+                            : isReply
+                            ? "h-30vh w-1/2"
+                            : "rounded-xl"
+                        }
+                      >
+                        <MediaGrid
+                          userID={comment.userID}
+                          media={comment.media}
+                        />
+                      </div>
+                    )}
+                </div>
+              </div>
+
+              <div className="likedislike items-center">
+                <div>
+                  <span
+                    className="likeButton replyButton"
+                    style={{ margin: "0 1rem" }}
+                    onClick={ReplyHandle}
+                  >
+                    Reply to
+                  </span>
+                  <Popover
+                    content={
+                      <div
+                        className="center"
+                        style={{ display: "flex", listStyleType: "none" }}
+                      >
+                        {ReactComment.map((e, i) => (
+                          <Popover content={e.name}>
+                            <span
+                              key={i}
+                              style={{
+                                background:
+                                  myReaction?.action === e.action
+                                    ? "gray"
+                                    : "none",
+                              }}
+                              className="reactionComment circleButton"
+                              onClick={() => commentReactHandle(comment.id, e)}
+                            >
+                              {e.icon}
+                            </span>
+                          </Popover>
+                        ))}
+                      </div>
+                    }
+                  >
+                    <span
+                      className=""
+                      style={{
+                        fontSize: "1.1rem",
+                        borderRadius: "50%",
+                        padding: ".5rem",
+                        background: myReaction ? "gray" : "none",
+                      }}
+                      onClick={() =>
+                        myReaction ? likeHandle(comment.id) : null
+                      }
+                    >
+                      {myReaction?.icon || "👍"}
+                    </span>
+                  </Popover>
+                </div>
+
+                <div
+                  className="reactionCountComment"
+                  style={{ display: "flex" }}
+                  onMouseEnter={() => setHoverReaction(true)}
+                  onMouseLeave={() => setHoverReaction(false)}
+                >
+                  {CountReaction &&
+                    CountReaction.map((e, i) => {
+                      return (
+                        e.count > 0 && (
+                          <div
+                            className=" countReaction"
+                            style={{
+                              position: "absolute",
+                              left: hoverReaction
+                                ? `${i * countReactionHeight + 0.5}rem`
+                                : `${(i * countReactionHeight) / 2}rem`,
+                              zIndex: `${5 - i}`,
+                            }}
+                          >
+                            <span style={{ fontSize: "1.1rem" }}>
+                              {
+                                ReactComment.find((v) => v.action === e.action)
+                                  .icon
+                              }
+                            </span>
+
+                            {hoverReaction && (
+                              <span style={{ color: "black" }}>{e.count}</span>
+                            )}
+                          </div>
+                        )
+                      );
+                    })}{" "}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        {CommentsRep && SeeMoreComment && (
-          <div className="CommentReply">
-            {CommentsRep.map((e, i) =>
-              i < CommentsRep.length - 1 ? (
-                <Comment
-                  comment={e}
-                  isReply={true}
-                  className={"notLastComment"}
-                ></Comment>
-              ) : (
-                <Comment
-                  isReply={true}
-                  comment={e}
-                  className={ReplyOpen ? "notLastComment" : `lastComment`}
-                ></Comment>
-              )
-            )}
-          </div>
-        )}
-
-        {!isReply && ReplyOpen && comment && (
-          <>
-            <div className="MyReplyComment CommentReply ">
-              <MyComment
-                setRender={setClicked}
-                movieID={comment.movieID}
-                className={"LastComment"}
-                style={{ margin: 0, padding: 0 }}
-                reply={comment.id}
-                user={User?.Name}
-                update={setCommentsRep}
-              ></MyComment>
+          {CommentsRep && SeeMoreComment && (
+            <div className="CommentReply">
+              {CommentsRep.map((e, i) => (
+                <React.Fragment key={i}>
+                  {i < CommentsRep.length - 1 ? (
+                    <Comment
+                      comment={e}
+                      isReply={true}
+                      className="notLastComment"
+                    />
+                  ) : (
+                    <Comment
+                      comment={e}
+                      isReply={true}
+                      className={ReplyOpen ? "notLastComment" : "lastComment"}
+                    />
+                  )}
+                </React.Fragment>
+              ))}
             </div>
-          </>
-        )}
-        {CommentsRep?.length > 0 && (
-          <p
-            className="textUnderline"
-            style={{ margin: "0 0 2rem 4rem" }}
-            onClick={() => setSeeMoreComment((pre) => !pre)}
-          >
-            <p className="font-semibold text-teal-300	">
-              {!SeeMoreComment
-                ? `Total ${CommentsRep.length} comments. Show all`
-                : `Hidden`}
+          )}
+
+          {!isReply && ReplyOpen && comment && (
+            <>
+              <div className="MyReplyComment CommentReply ">
+                <MyComment
+                  setRender={setClicked}
+                  movieID={comment.movieID}
+                  className={"LastComment"}
+                  style={{ margin: 0, padding: 0 }}
+                  reply={comment.id}
+                  user={comment?.Name}
+                  update={setCommentsRep}
+                ></MyComment>
+              </div>
+            </>
+          )}
+          {CommentsRep?.length > 0 && (
+            <p
+              className="textUnderline"
+              style={{ margin: "0 0 2rem 4rem" }}
+              onClick={() => setSeeMoreComment((pre) => !pre)}
+            >
+              <p className="font-semibold 	">
+                {!SeeMoreComment
+                  ? `Total ${CommentsRep.length} comments. Show all`
+                  : `Hidden`}
+              </p>
             </p>
-          </p>
-        )}
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }

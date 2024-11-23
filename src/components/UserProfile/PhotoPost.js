@@ -13,7 +13,7 @@ import useAuth from "../../hook/useAuth";
 import { ReactComment } from "../../lib/useObject";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import moment from "moment/moment";
-import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight, FiChevronLeft, FiChevronRight, FiX, FiXCircle } from "react-icons/fi";
 export default function PhotoPost({ UsersProfile }) {
   const findTrueProperties = (obj) => {
     const prop = ReactComment.find((e) => {
@@ -32,6 +32,8 @@ export default function PhotoPost({ UsersProfile }) {
 
   const commentID = queryParameters.get("hid");
   const MSSVparam = queryParameters.get("MSSV");
+  const line_num = queryParameters.get("line_num");
+
   const { auth } = useAuth();
   const [Users, setUsers] = useState(UsersProfile);
 
@@ -40,7 +42,7 @@ export default function PhotoPost({ UsersProfile }) {
       const res = await fetchApiRes(`getMediaById/?id=${commentID}`, "GET");
       if (res.result) {
         const { url, createdAt, id, type ,prev,next} = res.result[0];
-        setComment({ img: url, create_at: createdAt, id: id, type: type ,prev,next});
+        setComment({ img: url, create_at: createdAt, id, type ,prev,next,...res.result[0]});
       }
     };
     if (commentID) {
@@ -122,12 +124,8 @@ export default function PhotoPost({ UsersProfile }) {
       setComment();
     };
   }, [MSSVparam]);
-  const location = useLocation();
 
-  const close = () => {
-    console.log(location.state,"ehehehehehasaaaaaaaaaa")
-    navigate(-1, { state: { backgroundLocation: location } });
-  };
+ 
   return (
     <div className="z-50 w-50 h-50  flex fixed inset-0 center">
       <div className="h-full" style={{ width: "70%" }}>
@@ -141,21 +139,22 @@ export default function PhotoPost({ UsersProfile }) {
 
                 {
                 Comment.prev &&
-                <Link to={`./?MSSV=${MSSVparam}&hid=${Comment.prev}`}>
 
-                <span className="circleButton"><FiArrowLeft></FiArrowLeft></span>
+                <Link className="absolute top-50 left-10" to={`./?MSSV=${MSSVparam}&hid=${Comment.prev}&line_num=${Comment.line_num-1}`}>
+
+                <span className="circleButton w-16"><FiChevronLeft size={25}></FiChevronLeft></span>
                 </Link>
                 }
                 <img
                   alt="imageAvatar"
-                  className="object-contain w-70"
+                  className="object-contain h-full"
                   style={{ width: "auto", height: "auto" }}
                   src={`${Comment?.img}`}
                 />
                   {
                 Comment.next &&
-                <Link to={`./?MSSV=${MSSVparam}&hid=${Comment.next}`}>
-                <span className="circleButton"><FiArrowRight/></span>
+                <Link className="absolute top-50 right-10" to={`./?MSSV=${MSSVparam}&hid=${Comment.next}&line_num=${Comment.line_num+1}`}>
+                <span className="circleButton w-16"><FiChevronRight  size={25}/></span>
                 </Link>
                 }
                 </>
@@ -166,9 +165,11 @@ export default function PhotoPost({ UsersProfile }) {
                 </video>
               )}
               <div className="absolute left-3" style={{ top: "8vh" }}>
-                <span className="circleButton" onClick={() => close()}>
-                  x
+                <Link to={`${process.env.REACT_APP_CLIENT_URL}/profile/${MSSVparam}`}>
+                <span className="circleButton w-16">
+                  <FiX size={20}/>
                 </span>
+                </Link>
               </div>
             </>
           )}

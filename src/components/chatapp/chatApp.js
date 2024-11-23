@@ -120,8 +120,8 @@ const ChatApp = ({ messageId }) => {
     <>
       {
           <div className="Container_ChatApp">
-            <div className="Narbar_ChatApp p-10">
-              <h1 className="text-2xl font-semibold">Conversations</h1>
+            <div className="Narbar_ChatApp ">
+              <h1 className="text-2xl font-semibold m-4">Conversations</h1>
               <input
                 placeholder="Search for friends"
                 className="chatMenuInput"
