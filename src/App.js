@@ -34,6 +34,7 @@ import Blog from "./components/blog/Blog";
 import { notification } from "antd";
 import useNoti from "./hook/useNoti";
 import DetailPost from "./components/UserProfile/DetailPost";
+import CreateBlog from "./components/blog/CreateBlog";
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   let location = useLocation();
@@ -134,6 +135,7 @@ function App() {
                   path={`${RouteLink.profileLink}/:MSSV/post/:id`}
                   element={<DetailPost />}
                 ></Route>
+                <Route path={'/createPost'} element={<CreateBlog/>}></Route>
               </Route>
             </Routes>
 

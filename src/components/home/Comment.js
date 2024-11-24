@@ -231,7 +231,7 @@ function Comment({
                 content={<UserProfile MSSV={comment?.userID}></UserProfile>}
               >
                 <div className="AvatarComment2">
-                  {!comment?.img || !comment?.cutImg ? (
+                  {!comment?.img && !comment?.cutImg ? (
                     <div className="loader w-1/2 h-1/2"></div>
                   ) : (
                     <div>
@@ -271,6 +271,11 @@ function Comment({
                       {comment.media.length > 0 && comment.typePost === 1 && (
                         <>
                           <span>đã thay đổi ảnh đại diện </span>
+                        </>
+                      )}
+                      {comment.media.length > 0 && comment.typePost === 2 && (
+                        <>
+                          <span>đã thay đổi ảnh bìa </span>
                         </>
                       )}
                       {foundShare && (
@@ -374,12 +379,25 @@ function Comment({
                   </div>
 
                   {comment.typePost === 1 && comment.media.length > 0 && (
-                    <div className="w-full center">
+                    <div className="w-full center h-30vh relative">
+                      <div className="bg-cover  w-full h-1/2 absolute top-0 z-0">
+                        <img
+                          alt="background"
+                          className="w-full h-full"
+                          style={{
+                            transform: `translateY(${
+                              comment.backgroundimg.split("%hiep%")[1]
+                            })`,
+                          }}
+                          src={comment.backgroundimg.split("%hiep%")[0]}
+                        ></img>
+                      </div>
                       <Link
+                        className="z-10"
                         to={`${process.env.REACT_APP_CLIENT_URL}/photo/?MSSV=${comment?.MSSV}&hid=${comment.media[0].id}`}
                       >
                         <img
-                          className="rounded-full  object-cover"
+                          className="rounded-full  object-cover z-3 border-4	border-solid border-#0a0a0a"
                           src={comment.media[0].url}
                           alt="Media Preview"
                         />
@@ -388,7 +406,7 @@ function Comment({
                   )}
 
                   {Array.isArray(comment.media) &&
-                    !comment.typePost &&
+                    comment.typePost !== 1 &&
                     comment.media.length > 0 && (
                       <div
                         className={

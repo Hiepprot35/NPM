@@ -27,7 +27,7 @@ export default function Posts(props) {
         const dataUpdate = data.result.sort(
           (a, b) => b.createdAt - a.createdAt
         );
-
+        console.log(dataUpdate,'dataUpdatedataUpdatedataUpdate')
         setPost(dataUpdate);
       }
     } catch (error) {

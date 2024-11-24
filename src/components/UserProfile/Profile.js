@@ -12,6 +12,7 @@ import Posts from "./Posts";
 import UserProfile from "./userProfile";
 import MyPost from "../blog/myPost";
 import moment from "moment";
+import { IsLoading } from "../Loading";
 const ChangeImg = ({ img, MSSV, setUsers }) => {
   const [OpenModal, setOpenModal] = useState(false);
   const [ImageUpload, setImageUpload] = useState(img);
@@ -303,14 +304,10 @@ export default function Profile({ children }) {
   const [BackgroundUpdate, setBackgroundUpdate] = useState();
   const backgroundImg = useRef();
   const changeBackImg = (e) => {
-    console.log('zooooooooooooooooo')
     const backgroundImg = URL.createObjectURL(e.target.files[0]);
     console.log(backgroundImg)
     setBackgroundUpdate({ view: backgroundImg, src: e.target.files[0] });
   };
-  useEffect(() => {
-    console.log('BackgroundUpdateBackgroundUpdate',BackgroundUpdate)
-  }, [BackgroundUpdate]);
   const containerBackRef = useRef();
   const [startY, setStartY] = useState();
   const [isDragging, setIsDragging] = useState(false);
@@ -535,9 +532,7 @@ export default function Profile({ children }) {
                   </Popover>
                 )}
                 {isLoading && BackgroundUpdate && (
-                  <div className=" center w-full h-full absolute inset-0 z-50 bg-white-500/50">
-                    <h1 className="text-3xl">Uploading . . . . </h1>
-                  </div>
+                  <IsLoading  className={"bg-indigo-600 bg-opacity-25 z-1000"} ></IsLoading>
                 )}
 
                 
