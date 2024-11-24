@@ -46,7 +46,6 @@ function App() {
 
   const refreshAccessToken = useRefresh();
   useEffect(() => {
-    console.log(RefreshToken,AccessToken,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     if (RefreshToken) {
       setIsLoading(true);
       async function fetchData() {
@@ -135,7 +134,7 @@ function App() {
                   path={`${RouteLink.profileLink}/:MSSV/post/:id`}
                   element={<DetailPost />}
                 ></Route>
-                <Route path={'/createPost'} element={<CreateBlog/>}></Route>
+                <Route path={'/createBlog'} element={<CreateBlog/>}></Route>
               </Route>
             </Routes>
 
