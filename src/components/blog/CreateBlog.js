@@ -10,6 +10,7 @@ export default function CreateBlog() {
       setImageView((e) => [...e, { url, index }]);
     }
   };
+  const [InputSend, setInputSend] = useState([]);
   const [userInput, setUserInput] = useState("");
   const [isInputText, setIsInputText] = useState(false);
   const [DragItem, setDragItem] = useState();
@@ -27,24 +28,31 @@ export default function CreateBlog() {
   const handleDragStart = (e, img) => {
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/html", e.target.parentNode);
-    setDragItem(img)
+    setDragItem(img);
     e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
   };
-  const handleDragOver = (e, img,index) => {
+  const handleDragOver = (e, img, index) => {
+    e.preventDefault();
 
     try {
-      const draggedData = DragItem;
+      const draggedData = DragItem; // Phần tử đang kéo
       if (draggedData.index === img.index) {
         return;
       }
 
-      const newItems = ImageView.filter(
-        (item) => item.index !== draggedData.index
-      );
-      newItems.splice(index, 0, draggedData); 
-      setImageView(newItems); // Cập nhật state
+      const fromIndex = draggedData.index;
+      const toIndex = img.index;
+
+      const from=ImageView.findIndex(e=>e.url===draggedData.url)
+      const to=ImageView.findIndex(e=>e.url===img.url)
+ 
+      const newItems = [...ImageView];
+      newItems[from].index=toIndex
+      newItems[to].index=fromIndex
+
+      setImageView(newItems);
     } catch (error) {
-      console.error("Không thể đọc dữ liệu draggedItem:", error);
+      console.error("Không thể xử lý kéo thả:", error);
     }
   };
 
@@ -80,32 +88,37 @@ export default function CreateBlog() {
                 ></p>
               )}
             </div>
-            {ImageView.map((img, index) => {
-              return (
-                <div
-                  className="m-4 transition-all	"
-                  key={index}
-                  onDragOver={(e) => handleDragOver(e, img,index)}
-                >
+            <div
+              className="relative flex flex-col-reverse	my-10"
+              style={{ height: 30 * ImageView.length + "vh" }}
+            >
+              {ImageView.map((img, index) => {
+                return (
                   <div
-                    className="relative group "
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, img)}
-                    onDragEnd={handleDragEnd}
-                    
+                    className="transition-all duration-1000		absolute w-full"
+                    key={index}
+                    style={{ top: 30 * img.index + "vh" }}
+                    onDragOver={(e) => handleDragOver(e, img, index)}
                   >
-                    <span className="circleButton absolute top-8 right-12 hidden group-hover:flex cursor-pointer">
-                      X
-                    </span>
-                    <img
-                      src={img.url}
-                      alt="BlogImage"
-                      className="w-full h-30vh object-cover hover:cursor-pointer"
-                    />
+                    <div
+                      className="relative group "
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, img)}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <span className="circleButton absolute top-8 right-12 hidden group-hover:flex cursor-pointer">
+                        X
+                      </span>
+                      <img
+                        src={img.url}
+                        alt="BlogImage"
+                        className="w-full py-2 h-30vh object-cover hover:cursor-pointer"
+                      />
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
 
             <div class="flex items-center justify-center w-full">
               <label
