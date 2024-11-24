@@ -45,12 +45,9 @@ export default function CreateBlog() {
     { id: 1, items: [] },
     { id: 2, items: [] },
   ]);
-useEffect(() => {
-  console.log(Cols,"dmmmmmmmm")
-}, [Cols]);
+
   const handleDragEnd = (e) => {
     const { destination, source, draggableId } = e;
-    console.log(e,'eeeeeeeee')
     try {
       // Nếu không có vị trí đích (kéo ra ngoài vùng droppable)
       if (!destination) {
