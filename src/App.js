@@ -150,6 +150,8 @@ function App() {
     } else {
       return (
         <Routes>
+                          <Route path={'/createBlog'} element={<CreateBlog/>}></Route>
+
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Layout></Layout>}>
             <Route index element={<Home />} />
