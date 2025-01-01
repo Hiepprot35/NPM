@@ -6,10 +6,8 @@ import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import Item from "antd/es/list/Item";
 import debounce from "lodash.debounce";
 import { v4 as uuidv4 } from "uuid";
-import ColumnBlog from "./ColumnBlog";
 
-export default function CreateBlog() {
-  document.title='Create Blog'
+export default function ColumnBlog({Cols,setCols,col}) {
   const handleSetImage = (e, cols, item) => {
     if (e.target.files && e.target.files[0]) {
       const url = URL.createObjectURL(e.target.files[0]);
@@ -35,18 +33,15 @@ export default function CreateBlog() {
     setCols(newCols);
   };
 
-  const [Cols, setCols] = useState([
-    { id:  uuidv4(), items: [{ type: 1, content: "", id: uuidv4() }] },
-  ]);
+
 
   const handleDragEnd = (e) => {
     const { destination, source, draggableId } = e;
     try {
-      // Nếu không có vị trí đích (kéo ra ngoài vùng droppable)
       if (!destination) {
         setCols((prevCols) => [
           ...prevCols,
-          { id:  uuidv4(), items: [{ type: 1, content: "", id: uuidv4() }] },
+          { id: Cols.length + 1, items: [] },
         ]);
         return;
       }
@@ -60,13 +55,14 @@ export default function CreateBlog() {
       }
 
       const startCol = Cols.find(
-        (col) => col.id === source.droppableId
+        (col) => col.id === Number(source.droppableId)
       );
       const finishCol = Cols.find(
-        (col) => col.id === destination.droppableId
+        (col) => col.id === Number(destination.droppableId)
       );
       if (!startCol || !finishCol) return;
       if (startCol === finishCol) {
+        console.log(source.index, destination.index, "eeeeeeeeee");
         const newItems = [...startCol.items];
         const [movedItem] = newItems.splice(source.index, 1);
         newItems.splice(destination.index, 0, movedItem);
@@ -103,7 +99,7 @@ export default function CreateBlog() {
     setOpen(false);
   };
   const handleOpenChange = (newOpen) => {
-    setOpen(newOpen);
+    setOpen(!open);
   };
   const updateColsFunction=(updateItem)=>
     {
@@ -253,27 +249,131 @@ export default function CreateBlog() {
     setIsResizing(false);
   };
   return (
-    <>
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="content">
-          <div>CreateBlog</div>
-
-          <div className="w-full flex flex-col items-center	">
-            <div className="w-3/4 ">
-              <textarea
-                placeholder="Title"
-                className=" px-4 text-5xl py-2 placeholder:text-5xl  border-none focus:outline-none bg-transparent dark:text-gray-200 resize-none"
-              />
+    <div className="flex h-full w-full">
+    <div
+      className="flex flex-col"
+      style={{ width: 100 / Cols.length + "%" }}
+    >
+      <div className="relative">
+        <div className="w-full">
+          <Popover
+            content={
+              <div className="flex-col">
+                <div
+                  onClick={(e) => handleInputChange(e, col.id, 1)}
+                >
+                  Text
+                </div>
+                <div
+                  onClick={(e) => handleInputChange(e, col.id, 2)}
+                >
+                  Image
+                </div>
+              </div>
+            }
+            title="Add object"
+            trigger="click"
+            open={open}
+            onOpenChange={()=>handleOpenChange(col)}
+          >
+            <div className="circleButton">
+              <FiPlusCircle></FiPlusCircle>
             </div>
+          </Popover>
 
-            <div className="flex min-h-75vh h-75vh w-70vw ">
-              {Cols.map((col,index) => (
-               <ColumnBlog Cols={Cols} setCols={setCols} col={col}></ColumnBlog>
-              ))}
-            </div>
-          </div>
+          <Droppable droppableId={col.id.toString()}>
+            {(provided, snapshot) => (
+              <>
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="relative  z-10"
+                >
+                  {col.items &&
+                    col.items.map((img, index) => (
+                      <Draggable
+                        key={img.id}
+                        draggableId={img.id.toString()}
+                        index={index}
+                      >
+                        {(provided, snapshot) => {
+                          return (
+                            <>
+                              {img.type === 1 && (
+                                <InputText2
+                                  hidden={img.hidden}
+                                  id={img.id}
+                                  snapshot={snapshot}
+                                  col={col}
+                                  index={index}
+                                  placeholder={img.content}
+                                  provided={provided}
+                                />
+                              )}
+                              {img.type === 2 &&
+                                (img.content ? (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    className="w-20vw"
+                                  >
+                                    <div className="relative group m-4">
+                                      <span className="circleButton absolute top-8 right-12 hidden group-hover:flex cursor-pointer">
+                                        X
+                                      </span>
+                                      <img
+                                        src={img.content}
+                                        alt="BlogImage"
+                                        className="w-full py-2 h-30vh object-cover hover:cursor-pointer"
+                                      />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <InputImg
+                                    item={img}
+                                    col={col}
+                                  ></InputImg>
+                                ))}
+                            </>
+                          );
+                        }}
+                      </Draggable>
+                    ))}
+                  {provided.placeholder}{" "}
+                  {/* Đây là placeholder cho Droppable */}
+                </div>
+              </>
+            )}
+          </Droppable>
         </div>
-      </DragDropContext>
-    </>
-  );
+        {/* <div
+        className="w-full h-20 justify-center border-2 opacity-0	 border-transparent rounded-lg cursor-pointer bg-gray-50 
+        hover:border-gray-400 hover:border-dashed hover:shadow-lg 
+        dark:bg-gray-700 hover:opacity-100	 dark:hover:border-gray-600  transition-all duration-300"
+      onClick={(e) => handleInputChange(e, col.id, 1)}
+    >Write something</div> */}
+      </div>
+      <div
+        className="h-full w-full"
+        onClick={() => handleAddColumnElement(col.id)}
+      ></div>
+    </div>
+    <div className="h-48 w-8 relative ">
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: "100vw",
+          height: "100vh",
+          cursor: "ew-resize",
+        }}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        class="absolute top-0 bottom-0 left-[21px] w-[4px] h-full bg-[rgba(55,53,47,0.16)]"
+      ></div>
+    </div>
+  </div>  )
 }
+
