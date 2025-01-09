@@ -29,6 +29,7 @@ import "./windowchat.css";
 import ShowImgDialog from "./windowchat/ShowImgMess";
 import VehicleChat from "./windowchat/VehicleChat";
 import { RouteLink } from "../../lib/link";
+import Upload from "../imageView/Upload";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 export const movieApi = async (videoID) => {
   const url = `https://api.themoviedb.org/3/movie/${videoID}`;
@@ -144,13 +145,13 @@ export default memo(function WindowChat(props) {
       <ul>
         <li>
           <div
-            className="center p-4 rounded-lg cursor-pointer hover:bg-gray-700"
+            className="flex items-center p-4 rounded-lg cursor-pointer hover:bg-gray-200"
             onClick={() => {
               setOpenMask(true);
             }}
           >
             <FiEdit></FiEdit>
-            <p>Cài đặt biệt danh</p>
+            <p className="pl-2">Cài đặt biệt danh</p>
           </div>
           <Modal
             open={OpenMask}
@@ -204,11 +205,11 @@ export default memo(function WindowChat(props) {
         </li>
         <li>
           <div
-            className="center p-4 rounded-lg cursor-pointer hover:bg-gray-700"
+            className="flex items-center p-4 rounded-lg cursor-pointer hover:bg-gray-200"
             onClick={() => setOpenIcon(true)}
           >
             <FiSmile></FiSmile>
-            <p>Cài đặt biểu tượng</p>
+            <p className="pl-2">Cài đặt biểu tượng</p>
           </div>
           <Modal
             open={OpenIcon}
@@ -221,6 +222,14 @@ export default memo(function WindowChat(props) {
               className="w-full"
             />
           </Modal>
+        </li>
+        <li>
+          <Upload
+            divChildren={<p className="pl-2">Cài đặt hình nền</p>}
+            className={
+              "flex items-center p-4 rounded-lg cursor-pointer hover:bg-gray-200"
+            }
+          ></Upload>
         </li>
       </ul>
     );
@@ -357,7 +366,7 @@ export default memo(function WindowChat(props) {
   }
   useEffect(() => {
     if (messages) {
-      console.log(messages)
+      console.log(messages);
       const hehe = messages.reduce((acc, e) => {
         if (e.isFile) {
           acc.push(...e.content.split(","));
@@ -638,7 +647,7 @@ export default memo(function WindowChat(props) {
         conversation &&
         parseInt(arrivalMessage.conversation_id) === conversation.id
       ) {
-        setMessages((prev) => [arrivalMessage ,...prev]);
+        setMessages((prev) => [arrivalMessage, ...prev]);
       }
     };
 
@@ -926,7 +935,7 @@ export default memo(function WindowChat(props) {
 
                 <div
                   className="Body_Chatpp relative flex flex-col justify-evenly	  "
-                  style={props.chatApp ? { height: "93%" } : { height: "60vh" }}
+                  style={props.chatApp ? { height: "93%" } : { height: "45vh" }}
                 >
                   <div
                     className="overflow-y-auto h-full flex flex-col-reverse p-4 border border-gray-300"
@@ -1084,7 +1093,6 @@ export default memo(function WindowChat(props) {
                           contentEditable="true"
                           onPaste={pasteImg}
                           onKeyDown={handleKeyDown}
-
                           onInput={(e) => inputChange(e)}
                           onClick={() =>
                             clickConversation({

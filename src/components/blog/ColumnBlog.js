@@ -177,7 +177,7 @@ export default function ColumnBlog({Cols,setCols,col}) {
       <div class="flex items-center justify-center w-full">
         <label
           for={item.id}
-          class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+          class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-200 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
         >
           <div class="flex flex-col items-center justify-center pt-5 pb-6">
             <FiImage size={20} className="m-4"></FiImage>
@@ -350,7 +350,7 @@ export default function ColumnBlog({Cols,setCols,col}) {
         {/* <div
         className="w-full h-20 justify-center border-2 opacity-0	 border-transparent rounded-lg cursor-pointer bg-gray-50 
         hover:border-gray-400 hover:border-dashed hover:shadow-lg 
-        dark:bg-gray-700 hover:opacity-100	 dark:hover:border-gray-600  transition-all duration-300"
+        dark:bg-gray-200 hover:opacity-100	 dark:hover:border-gray-600  transition-all duration-300"
       onClick={(e) => handleInputChange(e, col.id, 1)}
     >Write something</div> */}
       </div>
