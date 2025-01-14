@@ -39,6 +39,7 @@ const ChatApp = ({ messageId }) => {
             }
           );
           const data = await res.json();
+          console.log(data,'hahahahaha')
           setCurrentChat({ ...data });
         } catch (err) {
           console.log(err);

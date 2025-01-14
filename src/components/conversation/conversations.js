@@ -112,7 +112,6 @@ export default memo(function Conversation({
       Name: user?.Name,
       MSSV: user.MSSV,
     };
-    console.log(obj);
     if (setCurrentChat) {
       setCurrentChat({ ...obj });
     } else {

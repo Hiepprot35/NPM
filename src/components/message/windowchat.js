@@ -29,6 +29,8 @@ import "./windowchat.css";
 import ShowImgDialog from "./windowchat/ShowImgMess";
 import VehicleChat from "./windowchat/VehicleChat";
 import { RouteLink } from "../../lib/link";
+import Upload from "../imageView/Upload";
+import useNoti from "../../hook/useNoti";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 export const movieApi = async (videoID) => {
   const url = `https://api.themoviedb.org/3/movie/${videoID}`;
@@ -51,106 +53,128 @@ export const fetchVideoTitle = async (videoID) => {
 };
 
 export default memo(function WindowChat(props) {
+  const {setNotiText}=useNoti()
   const { auth, myInfor } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const socket = useSocket();
   const [inputMess, setInputmess] = useState("");
   const conversation = props?.count;
-  const SettingConversation = ({ conversation, user }) => {
-    const { auth, myInfor } = useAuth();
-    const [OpenMask, setOpenMask] = useState(false);
-    const [OpenIcon, setOpenIcon] = useState(false);
-    const [host, setHost] = useState();
-    const [mask1, setMask1] = useState(null);
-    const [mask2, setMask2] = useState(null);
-    const { setListWindow } = useData();
-    const updateConver = async () => {
-      if (mask1 || mask2) {
-        const obj =
-          conversation.user1 === auth.userID
-            ? {
-                id: conversation.id,
-                user1_mask: mask1 || conversation.user1_mask,
-                user2_mask: mask2 || conversation.user2_mask,
-              }
-            : {
-                id: conversation.id,
-                user1_mask: mask2 || conversation.user1_mask,
-                user2_mask: mask1 || conversation.user2_mask,
-              };
-        setListWindow((pre) =>
-          pre.map((e) =>
-            e.id === conversation.id ? { ...e, ...obj } : { ...e }
-          )
-        );
-        setOpenMask(false);
-        const res = await fetchApiRes(
-          "message/updateConversation",
-          "POST",
-          obj
-        );
-        if (mask1) {
-          const Mes = {
-            conversation_id: conversation.id,
-            content: `<div className="maskUserChange">${myInfor.Name} đã đổi biệt danh thành ${mask1}</div>`,
-            sender_id: auth.userID,
-            createdAt: Date.now(),
-            isFile: 0,
-          };
-          await fetchApiRes("message", "POST", Mes);
-        }
-        if (mask2) {
-          const Mes2 = {
-            conversation_id: conversation.id,
-            content: `<div className="maskUserChange">${myInfor.Name} đã đổi biệt danh thành ${mask2}</div>`,
-            sender_id: auth.userID,
-            createdAt: Date.now(),
-            isFile: 0,
-          };
-          await fetchApiRes("message", "POST", Mes2);
-        }
-      }
-    };
-
-    useEffect(() => {
-      if (!OpenMask) {
-        setMask1();
-        setMask2();
-      }
-    }, [OpenMask]);
-    const clickEmoji = async (e) => {
+  const [OpenMask, setOpenMask] = useState(false);
+  const [OpenIcon, setOpenIcon] = useState(false);
+  const [host, setHost] = useState();
+  const [mask1, setMask1] = useState(null);
+  const [mask2, setMask2] = useState(null);
+  const [imgBackGroundConversation, setImgBackGroundConversation] = useState();
+  const updateConver = async () => {
+    if (mask1 || mask2) {
+      const obj =
+        conversation.user1 === auth.userID
+          ? {
+              id: conversation.id,
+              user1_mask: mask1 || conversation.user1_mask,
+              user2_mask: mask2 || conversation.user2_mask,
+            }
+          : {
+              id: conversation.id,
+              user1_mask: mask2 || conversation.user1_mask,
+              user2_mask: mask1 || conversation.user2_mask,
+            };
       setListWindow((pre) =>
-        pre.map((v) =>
-          v.id === conversation.id ? { ...v, iconConver: e.imageUrl } : { ...v }
+        pre.map((e) =>
+          e.id === conversation.id ? { ...e, ...obj } : { ...e }
         )
       );
-      const res = await fetchApiRes("message/updateConversation", "POST", {
-        id: conversation.id,
-        iconConver: e.imageUrl,
-      });
-      const Mes = {
-        conversation_id: conversation.id,
-        content: `<div className="center">${host.Name} đã đổi icon emojiLink${e.imageUrl}emojiLink </div>`,
-        sender_id: auth.userID,
-        createdAt: Date.now(),
-        isFile: 0,
+      setOpenMask(false);
+      const res = await fetchApiRes(
+        "message/updateConversation",
+        "POST",
+        obj
+      );
+      if (mask1) {
+        const Mes = {
+          conversation_id: conversation.id,
+          content: `<div className="maskUserChange">${myInfor.Name} đã đổi biệt danh thành ${mask1}</div>`,
+          sender_id: auth.userID,
+          createdAt: Date.now(),
+          isFile: 0,
+        };
+        await fetchApiRes("message", "POST", Mes);
+      }
+      if (mask2) {
+        const Mes2 = {
+          conversation_id: conversation.id,
+          content: `<div className="maskUserChange">${myInfor.Name} đã đổi biệt danh thành ${mask2}</div>`,
+          sender_id: auth.userID,
+          createdAt: Date.now(),
+          isFile: 0,
+        };
+        await fetchApiRes("message", "POST", Mes2);
+      }
+    }
+  };
+  useEffect(() => {
+    if (imgBackGroundConversation) {
+      const updateConversationBackground = async () => {
+        try {
+          const data=new FormData()
+          data.append('image',imgBackGroundConversation.imageObject)
+          data.append('id',conversation.id)
+          const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/updateConversation`, {
+            method: "POST",
+            body: data, // FormData is used directly as the body
+          });
+          const resJson=await res.json()
+          conversation.background=resJson.url
+          setNotiText({message:'Update thành công',title:'Update Success',type:'success'})
+        } catch (error) {
+          console.error("Failed to update background:", error);
+        }
       };
-      await fetchApiRes("message", "POST", Mes);
-      socketSend(Mes);
-      setOpenIcon(false);
+  
+      updateConversationBackground();
+    }
+  }, [imgBackGroundConversation]);
+  
+  useEffect(() => {
+    if (!OpenMask) {
+      setMask1();
+      setMask2();
+    }
+  }, [OpenMask]);
+  const clickEmoji = async (e) => {
+    setListWindow((pre) =>
+      pre.map((v) =>
+        v.id === conversation.id ? { ...v, iconConver: e.imageUrl } : { ...v }
+      )
+    );
+    const res = await fetchApiRes("message/updateConversation", "POST", {
+      id: conversation.id,
+      iconConver: e.imageUrl,
+    });
+    const Mes = {
+      conversation_id: conversation.id,
+      content: `<div className="center">${host.Name} đã đổi icon emojiLink${e.imageUrl}emojiLink </div>`,
+      sender_id: auth.userID,
+      createdAt: Date.now(),
+      isFile: 0,
     };
-    const updateIcon = (second) => {};
+    await fetchApiRes("message", "POST", Mes);
+    socketSend(Mes);
+    setOpenIcon(false);
+  };
+  const SettingConversation = ({ conversation, user }) => {
+    const updateIcon={}
     return (
       <ul>
         <li>
           <div
-            className="center p-4 rounded-lg cursor-pointer hover:bg-gray-700"
+            className="flex items-center p-4 rounded-lg cursor-pointer hover:bg-gray-200"
             onClick={() => {
               setOpenMask(true);
             }}
           >
             <FiEdit></FiEdit>
-            <p>Cài đặt biệt danh</p>
+            <p className="pl-2">Cài đặt biệt danh</p>
           </div>
           <Modal
             open={OpenMask}
@@ -204,11 +228,11 @@ export default memo(function WindowChat(props) {
         </li>
         <li>
           <div
-            className="center p-4 rounded-lg cursor-pointer hover:bg-gray-700"
+            className="flex items-center p-4 rounded-lg cursor-pointer hover:bg-gray-200"
             onClick={() => setOpenIcon(true)}
           >
             <FiSmile></FiSmile>
-            <p>Cài đặt biểu tượng</p>
+            <p className="pl-2">Cài đặt biểu tượng</p>
           </div>
           <Modal
             open={OpenIcon}
@@ -221,6 +245,15 @@ export default memo(function WindowChat(props) {
               className="w-full"
             />
           </Modal>
+        </li>
+        <li>
+          <Upload
+            divChildren={<p className="pl-2">Cài đặt hình nền</p>}
+            className={
+              "flex items-center p-4 rounded-lg cursor-pointer hover:bg-gray-200"
+            }
+            setImage={setImgBackGroundConversation}
+          ></Upload>
         </li>
       </ul>
     );
@@ -269,7 +302,7 @@ export default memo(function WindowChat(props) {
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const loadMessages = useCallback(async () => {
-    if (isGettingScroll) return;
+    if (isGettingScroll && !IsMore) return;
     try {
       setisGettingScroll(true);
       const res = await fetch(
@@ -283,17 +316,20 @@ export default memo(function WindowChat(props) {
           },
           body: JSON.stringify({
             userID: auth.userID,
-            offset: offset * 10,
+            offset: offset * 10 ,
           }),
         }
       );
 
       const { result, totalCount } = await res.json();
+      
       const loadMess = [...messages, ...result];
-      console.log(loadMess, messages, totalCount);
-      setOffset((pre) => pre + 1);
-      setIsMore(loadMess.length <= totalCount);
-      setMessages(loadMess);
+      if(loadMess.length<=totalCount)
+        {
+        setOffset((pre) => pre + 1);
+        setIsMore(loadMess.length < totalCount);
+        setMessages(loadMess);
+      }
     } catch (error) {
       console.error("Error fetching messages:", error);
     } finally {
@@ -357,7 +393,7 @@ export default memo(function WindowChat(props) {
   }
   useEffect(() => {
     if (messages) {
-      console.log(messages)
+      console.log(messages);
       const hehe = messages.reduce((acc, e) => {
         if (e.isFile) {
           acc.push(...e.content.split(","));
@@ -614,11 +650,15 @@ export default memo(function WindowChat(props) {
 
   function inputChange(e) {
     if (inputValue.current) {
-      if (inputValue.current.innerHTML.length >= 0) {
-        setInputmess(inputValue.current.innerHTML);
+      let currentHTML = inputValue.current.innerHTML;
+      if (currentHTML === "<br>" || currentHTML.trim() === "") {
+        setInputmess("");
+        inputValue.current.innerHTML = ""; // Xóa <br> khỏi DOM
+      } else {
+        setInputmess(currentHTML.replace(/<br\s*\/?>/gi, "\n")); // Chuyển đổi <br> thành \n nếu cần
       }
     } else {
-      console.log(inputMess);
+      console.log("Input element is not available:", inputMess);
     }
   }
 
@@ -638,7 +678,7 @@ export default memo(function WindowChat(props) {
         conversation &&
         parseInt(arrivalMessage.conversation_id) === conversation.id
       ) {
-        setMessages((prev) => [arrivalMessage ,...prev]);
+        setMessages((prev) => [arrivalMessage, ...prev]);
       }
     };
 
@@ -925,13 +965,25 @@ export default memo(function WindowChat(props) {
                 </div>
 
                 <div
-                  className="Body_Chatpp relative flex flex-col justify-evenly	  "
-                  style={props.chatApp ? { height: "93%" } : { height: "60vh" }}
+                  className="Body_Chatpp relative flex flex-col justify-evenly relative	  "
+                  style={props.chatApp ? { height: "93%" } : { height: "45vh" }}
                 >
+                     <div className="w-full absolute inset-0 z-0 bg-contain"
+                     style={{
+                      height:'90%',
+                      background: `url(${conversation.background})`,
+                      filter: " blur(1px)",
+                    }}
+                     >
+                      </div>
+                      <div className="w-full h-full z-10 flex-col	justify-between	">
+
                   <div
-                    className="overflow-y-auto h-full flex flex-col-reverse p-4 border border-gray-300"
+                    className="z-10 overflow-y-auto  flex flex-col-reverse p-4 border border-gray-300 	"
                     ref={main_windowchat}
+                    style={{height:'90%'}}
                   >
+                 
                     {messages.length > 0 ? (
                       <>
                         {messages.map((message, index) => (
@@ -968,7 +1020,7 @@ export default memo(function WindowChat(props) {
                       </div>
                     )}
                   </div>
-                  <div className="inputValue windowchat_feature center">
+                  <div className="inputValue windowchat_feature center" style={{height:'10%'}}>
                     <div className="feature_left center">
                       <input
                         onChange={(e) => {
@@ -1084,7 +1136,6 @@ export default memo(function WindowChat(props) {
                           contentEditable="true"
                           onPaste={pasteImg}
                           onKeyDown={handleKeyDown}
-
                           onInput={(e) => inputChange(e)}
                           onClick={() =>
                             clickConversation({
@@ -1104,7 +1155,7 @@ export default memo(function WindowChat(props) {
                         )}
                       </div>
                     </div>
-                    {inputMess.length > 0 || fileImg.length > 0 ? (
+                    {inputMess.trim().length > 0 || fileImg.length > 0 ? (
                       <div>
                         <div>
                           <div
@@ -1129,6 +1180,8 @@ export default memo(function WindowChat(props) {
                       </div>
                     )}
                   </div>
+                  </div>
+
                 </div>
               </div>
               {props.chatApp && (

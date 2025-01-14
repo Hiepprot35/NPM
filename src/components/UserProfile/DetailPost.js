@@ -30,7 +30,7 @@ export default function DetailPost() {
         </div>
 
         {/* Nội dung bài viết */}
-        <p className="mb-4 text-gray-700 text-ellipsis">
+        <p className="mb-4 text-gray-200 text-ellipsis">
           {content || "Không có nội dung."}
         </p>
 

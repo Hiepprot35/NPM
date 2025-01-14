@@ -9,19 +9,19 @@ export default function Blog() {
       {
         content: "Xin chào các bạn heheheheheheh, img",
         line_num: 1,
-        type: "text",
+        type: 1,
       },
       {
         content:
           "https://scontent.fhan20-1.fna.fbcdn.net/v/t39.30808-6/468096955_3818599325021801_70167998306230317_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=_KPpOO7vD3MQ7kNvgHIsVRx&_nc_zt=23&_nc_ht=scontent.fhan20-1.fna&_nc_gid=AI63Zcf4V7GRunrPCcrgrB4&oh=00_AYAnERm-1IFIfXBI1WnW86ySaeB2nz7UE2G3kit7zidAEw&oe=674761A1",
         line_num: 2,
         description: "Xin chào mọi người",
-        type: "img",
+        type: 2,
       },
       {
         content: "Xin chào các bạn heheheheheheh, img",
         line_num: 1,
-        type: "text",
+        type: 1,
       },
     ],
     user: {
@@ -65,8 +65,8 @@ export default function Blog() {
           {blog.body.map((e) => {
             return (
               <div>
-                {e.type === "text" && e.content}
-                {e.type === "img" && (
+                {e.type === 1 && e.content}
+                {e.type === 2 && (
                   <div className="w-full center my-6">
                     <div className="w-1/2">
                       <img src={e.content}></img>
