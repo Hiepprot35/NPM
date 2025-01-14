@@ -8,14 +8,15 @@ import io from "socket.io-client";
 import UseToken from "../../hook/useToken";
 import "./login.css";
 import VerifyCodeEmail from "../sendEmail/verifyCodeEmail";
+import useNoti from "../../hook/useNoti";
 const host = process.env.REACT_APP_DB_HOST;
 const imgLinkBasic = {
   link: "https://pbs.twimg.com/media/EnOnhlSWEAEeYB3?format=jpg&name=large",
 };
-export const LoginGoolge = ({ children  }) => {
+export const LoginGoolge = ({ children }) => {
   const { setRefreshToken } = UseRfLocal();
   const { setAccessToken } = UseToken();
-  const { auth,setAuth } = useAuth();
+  const { auth, setAuth } = useAuth();
   const GoogleAuth = () => {
     window.location.href = `${process.env.REACT_APP_DB_HOST}/api/auth/google/callback`;
   };
@@ -29,35 +30,34 @@ export const LoginGoolge = ({ children  }) => {
           "Content-Type": "application/json",
         },
       });
-      
+
       const dataRes = await res.json();
+      console.log(dataRes, "dataaaaaaaaaaaa");
       if (dataRes.AccessToken) {
         setAccessToken(dataRes.AccessToken);
         setRefreshToken(dataRes.RefreshToken);
         const { Role, Username, UserID, avtUrl } = dataRes;
-        console.log("setAuth",dataRes)
+        console.log("setAuth", dataRes);
         setAuth({
           role: Role,
           username: Username,
           userID: UserID,
-          avtUrl: auth?.avtUrl||avtUrl,
+          avtUrl: auth?.avtUrl || avtUrl,
         });
       }
     } catch (err) {
-      setAuth({})
+      setAuth({});
     }
   };
   useEffect(() => {
-    if(!auth?.userID)
-      {
-        console.log("getUser")
-        getUser();
-      }
+    if (!auth?.userID) {
+      getUser();
+    }
   }, []);
 
   return (
     <div className="login_google" onClick={GoogleAuth}>
-      {children }
+      {children}
     </div>
   );
 };
@@ -72,7 +72,13 @@ export default function Login() {
   const { setAccessToken } = UseToken();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState();
+  const [user, setUser] = useState({ Email: "", password: "" });
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUser((prev) => ({ ...prev, [name]: value }));
+  };
+  const {setNotiText} =useNoti()
   const [loginImgBackground, setLoginImgBackground] = useState(imgLinkBasic);
   const [verifyCode, setverifyCode] = useState({ code: "", SentTime: 0 });
   const [infoToSendGmail, setinfoToSendGmail] = useState();
@@ -107,48 +113,61 @@ export default function Login() {
   }, [infoToSendGmail]);
   async function handleSubmit(e) {
     e.preventDefault();
-    setIsLoading(false);
+    setIsLoading(true);
+    setMessage("");
+
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
     headers.append("Accept", "application/json");
-    const data = Array.from(e.target.elements)
-      .filter((input) => input.name)
-      .reduce(
-        (obj, input) => Object.assign(obj, { [input.name]: input.value }),
-        {}
-      );
-    const URL = `${host}/api/login`;
 
-    const resoponse = await fetch(URL, {
-      method: "POST",
-      credentials: "include",
-      headers: headers,
+    try {
+      // Collect and validate form data
+      // API Request
+      const URL = `${host}/api/login`;
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(user),
+      });
 
-      body: JSON.stringify(data),
-    });
-
-    const dataRes = await resoponse.json();
-    console.log("Login", dataRes);
-    if (dataRes.AccessToken) {
-      const user = dataRes;
-      setResApi(dataRes);
-      const role = dataRes.Role;
-      const username = dataRes.Username;
-      const userID = dataRes.UserID;
-      if (dataRes?.isVerify === 1) {
-        setAccessToken(dataRes.AccessToken);
-        setRefreshToken(dataRes.RefreshToken);
-      } else if (dataRes?.isVerify === 0) {
-        setinfoToSendGmail({ to: dataRes.Email });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      setAuth({ role, username, userID });
-      setMessage("");
-      // navigate('/home', { state: { user } });
-    } else {
-      setIsLoading(false);
-      setMessage(dataRes.message);
+
+      const dataRes = await response.json();
+      // setNotiText({message:dataRes.message,title:'Login Notification',type:'success'})
+      console.log(dataRes,'dataResdataResdataRes')
+      if (dataRes?.AccessToken) {
+        const {
+          Role: role,
+          Username: username,
+          UserID: userID,
+          isVerify,
+          Email,
+        } = dataRes;
+
+        if (isVerify === 1) {
+          setAccessToken(dataRes.AccessToken);
+          setRefreshToken(dataRes.RefreshToken);
+        } else if (isVerify === 0) {
+          setinfoToSendGmail({ to: Email });
+        }
+
+        setAuth({ role, username, userID });
+        setMessage("");
+        // Uncomment this to navigate
+        // navigate('/home', { state: { user: dataRes } });
+      } else {
+        setMessage(dataRes?.message ?? "Login failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      setMessage(error.message || "An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false); // Ensure loading state is reset
     }
   }
+
   //-------------------------------------------------------------------------------//
 
   //-------------------------------------------------------------------------------//
@@ -219,12 +238,6 @@ export default function Login() {
 
   return (
     <>
-      <meta charSet="UTF-8" />
-      <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>ĐĂNG NHẬP</title>
-      <link rel="stylesheet" href="/css/login.css" />
-
       <div
         className="container login_layout"
         style={{
@@ -250,7 +263,7 @@ export default function Login() {
                 submitVerifycode={submitVerifycode}
               ></VerifyCodeEmail>
             ) : (
-              <form className="form_dn" onSubmit={handleSubmit}>
+              <div className="form_dn">
                 <div className="input_login">
                   <div style={{ width: "70%" }}>
                     <div className="dangnhap_input_div taikhoan_input">
@@ -261,6 +274,7 @@ export default function Login() {
                         id="input_tk"
                         required
                         ref={input_username}
+                        onChange={handleInputChange}
                       />
                       <label
                         className="username"
@@ -278,6 +292,7 @@ export default function Login() {
                         required
                         id="input_mk"
                         ref={input_password}
+                        onChange={handleInputChange}
                       />
                       <label
                         className="username"
@@ -303,16 +318,29 @@ export default function Login() {
                   </div>
                 </div>
                 <div className="forget_save_div">
+                  <div className="forget_pass">
+                    <a ref={forget_pass_text} className="forget_pass_text">
+                      Forgot Password?
+                    </a>
+                  </div>
+                  <div className="checkbox_div">
+                    <input type="checkbox" />
+                    <span className="checkbox_mk" ref={save_pass_text}>
+                      Lưu mật khẩu
+                    </span>
+                  </div>
+                </div>
+                <div className="forget_save_div">
                   <div className="sumbit_button">
-                    <button
-                      type="submit"
+                    <div
+                      onClick={handleSubmit}
                       className="sumbit"
                       id="sumbit_btn"
                       defaultValue="Đăng nhập"
                     >
                       {" "}
                       Login{" "}
-                    </button>
+                    </div>
                   </div>
                   <div className="forget_pass dangky_href">
                     <a
@@ -347,7 +375,7 @@ export default function Login() {
                     </div>
                   </>
                 </LoginGoolge>
-              </form>
+              </div>
             )}
             <div className="warning">
               {message ? (
