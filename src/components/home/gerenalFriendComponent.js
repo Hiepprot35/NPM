@@ -9,7 +9,7 @@ export default function GerenalFriendComponent(props) {
   const [Users, setUsers] = useState(props.listGerenal);
   useEffect(() => {
     
-    console.log(props)
+   console.log(props)
   }, []);
 
   return (

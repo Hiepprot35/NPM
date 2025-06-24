@@ -41,7 +41,7 @@ function Comment({
         ? `/gettAllCommentFilms/?movieID=${comment.movieID}&replyID=${comment.id}`
         : `comment/getAllCommentPostByID/?replyID=${comment.id}`;
     const res = await fetchApiRes(url);
-    console.log(res, "heheeeeeeeeeeeeeeee");
+   console.log(res, "heheeeeeeeeeeeeeeee");
     if (res?.result.length > 0) {
       setCommentsRep(res.result);
     }
@@ -85,7 +85,7 @@ function Comment({
           setCountReaction(data.sort((a, b) => b.count - a.count));
         }
       } catch (error) {
-        console.log("ero", error);
+       console.log("ero", error);
       }
     }
   }, []);
@@ -381,16 +381,18 @@ function Comment({
                   {comment.typePost === 1 && comment.media.length > 0 && (
                     <div className="w-full center h-30vh relative">
                       <div className="bg-cover  w-full h-1/2 absolute top-0 z-0">
-                        <img
-                          alt="background"
-                          className="w-full h-full"
-                          style={{
-                            transform: `translateY(${
-                              comment.backgroundimg.split("%hiep%")[1]
-                            })`,
-                          }}
-                          src={comment.backgroundimg.split("%hiep%")[0]}
-                        ></img>
+                        {comment.backgroundimg && (
+                          <img
+                            alt="background"
+                            className="w-full h-full"
+                            style={{
+                              transform: `translateY(${
+                                comment.backgroundimg.split("%hiep%")[1]
+                              })`,
+                            }}
+                            src={comment.backgroundimg.split("%hiep%")[0]}
+                          ></img>
+                        )}
                       </div>
                       <Link
                         className="z-10"

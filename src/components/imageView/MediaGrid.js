@@ -8,7 +8,7 @@ const MediaGrid = ({ media, userID }) => {
   const location = useLocation();
 
   const ImageLink = ({ image, style }) => {
-    console.log(image,"okeeeee")
+   console.log(image,"okeeeee")
     const isImage = image.type?.includes("image");
     const isVideo = image.type?.includes("video");
 

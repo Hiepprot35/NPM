@@ -51,7 +51,7 @@ export default function MyPost(props) {
         setCountText(inputRef.current.innerHTML.length);
       }
     } else {
-      console.log(myComment);
+     console.log(myComment);
     }
   };
 
@@ -96,7 +96,7 @@ export default function MyPost(props) {
   function pick_imageMess(e) {
     const imgMessFile = e.target.files;
     for (let i = 0; i < imgMessFile.length; i++) {
-      console.log("type,", imgMessFile[i].type);
+     console.log("type,", imgMessFile[i].type);
       if (imgMessFile[i].type === "video/mp4") {
         setVideosUpload((pre) => [...pre, URL.createObjectURL(imgMessFile[i])]);
       } else {
@@ -110,7 +110,7 @@ export default function MyPost(props) {
     setImgView([]);
   };
   useEffect(() => {
-    console.log(myComment);
+   console.log(myComment);
     if (inputRef.current) {
       if (myComment) {
         if (myComment.includes("@")) {
@@ -134,7 +134,7 @@ export default function MyPost(props) {
   const [ShareType, setShareType] = useState(0);
   const {setNotiText}=useNoti()
   useEffect(() => {
-    console.log(ShareType);
+   console.log(ShareType);
   }, [ShareType]);
   const sendComment = async (e) => {
     e.preventDefault();
@@ -169,8 +169,6 @@ export default function MyPost(props) {
         { method: "POST", body: form }
       );
       const newComment = await res.json();
-   
-    
         props.update((pre) => [
           {
             ...newComment,
@@ -198,7 +196,7 @@ export default function MyPost(props) {
   };
   const [Emoji, setEmoji] = useState([]);
   useEffect(() => {
-    console.log(
+   console.log(
       ImgView.map((e, index) => ({ url: e, id: index, type: "image" }))
     );
   }, [ImgView]);

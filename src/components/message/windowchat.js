@@ -19,7 +19,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useData } from "../../context/dataContext";
 import { useSocket } from "../../context/socketContext";
 import { useRealTime } from "../../context/useRealTime";
-import { TheMovieApi, fetchApiRes } from "../../function/getApi";
+import { TheMovieApi, fetchApiRes, getInforByUserID } from "../../function/getApi";
 import useAuth from "../../hook/useAuth";
 import UseRfLocal from "../../hook/useRFLocal";
 import UseToken from "../../hook/useToken";
@@ -31,6 +31,7 @@ import VehicleChat from "./windowchat/VehicleChat";
 import { RouteLink } from "../../lib/link";
 import Upload from "../imageView/Upload";
 import useNoti from "../../hook/useNoti";
+import Typing from "./windowchat/Typing";
 const ClientURL = process.env.REACT_APP_CLIENT_URL;
 export const movieApi = async (videoID) => {
   const url = `https://api.themoviedb.org/3/movie/${videoID}`;
@@ -53,7 +54,7 @@ export const fetchVideoTitle = async (videoID) => {
 };
 
 export default memo(function WindowChat(props) {
-  const {setNotiText}=useNoti()
+  const { setNotiText } = useNoti();
   const { auth, myInfor } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const socket = useSocket();
@@ -80,16 +81,10 @@ export default memo(function WindowChat(props) {
               user2_mask: mask1 || conversation.user2_mask,
             };
       setListWindow((pre) =>
-        pre.map((e) =>
-          e.id === conversation.id ? { ...e, ...obj } : { ...e }
-        )
+        pre.map((e) => (e.id === conversation.id ? { ...e, ...obj } : { ...e }))
       );
       setOpenMask(false);
-      const res = await fetchApiRes(
-        "message/updateConversation",
-        "POST",
-        obj
-      );
+      const res = await fetchApiRes("message/updateConversation", "POST", obj);
       if (mask1) {
         const Mes = {
           conversation_id: conversation.id,
@@ -116,25 +111,32 @@ export default memo(function WindowChat(props) {
     if (imgBackGroundConversation) {
       const updateConversationBackground = async () => {
         try {
-          const data=new FormData()
-          data.append('image',imgBackGroundConversation.imageObject)
-          data.append('id',conversation.id)
-          const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message/updateConversation`, {
-            method: "POST",
-            body: data, // FormData is used directly as the body
+          const data = new FormData();
+          data.append("image", imgBackGroundConversation.imageObject);
+          data.append("id", conversation.id);
+          const res = await fetch(
+            `${process.env.REACT_APP_DB_HOST}/api/message/updateConversation`,
+            {
+              method: "POST",
+              body: data, // FormData is used directly as the body
+            }
+          );
+          const resJson = await res.json();
+          conversation.background = resJson.url;
+          setNotiText({
+            message: "Update thành công",
+            title: "Update Success",
+            type: "success",
           });
-          const resJson=await res.json()
-          conversation.background=resJson.url
-          setNotiText({message:'Update thành công',title:'Update Success',type:'success'})
         } catch (error) {
           console.error("Failed to update background:", error);
         }
       };
-  
+
       updateConversationBackground();
     }
   }, [imgBackGroundConversation]);
-  
+
   useEffect(() => {
     if (!OpenMask) {
       setMask1();
@@ -151,9 +153,10 @@ export default memo(function WindowChat(props) {
       id: conversation.id,
       iconConver: e.imageUrl,
     });
+    console.log(myInfor,"heheheheheh")
     const Mes = {
       conversation_id: conversation.id,
-      content: `<div className="center">${host.Name} đã đổi icon emojiLink${e.imageUrl}emojiLink </div>`,
+      content: `<div className="center">${myInfor.Name} đã đổi icon emojiLink${e.imageUrl}emojiLink </div>`,
       sender_id: auth.userID,
       createdAt: Date.now(),
       isFile: 0,
@@ -162,14 +165,18 @@ export default memo(function WindowChat(props) {
     socketSend(Mes);
     setOpenIcon(false);
   };
+  useEffect(() => {
+    console.log(OpenMask)
+  }, [OpenMask]);
   const SettingConversation = ({ conversation, user }) => {
-    const updateIcon={}
+    const updateIcon = {};
     return (
       <ul>
         <li>
           <div
             className="flex items-center p-4 rounded-lg cursor-pointer hover:bg-gray-200"
             onClick={() => {
+              console.log('clock')
               setOpenMask(true);
             }}
           >
@@ -316,16 +323,15 @@ export default memo(function WindowChat(props) {
           },
           body: JSON.stringify({
             userID: auth.userID,
-            offset: offset * 10 ,
+            offset: offset * 10,
           }),
         }
       );
 
       const { result, totalCount } = await res.json();
-      
+
       const loadMess = [...messages, ...result];
-      if(loadMess.length<=totalCount)
-        {
+      if (loadMess.length <= totalCount) {
         setOffset((pre) => pre + 1);
         setIsMore(loadMess.length < totalCount);
         setMessages(loadMess);
@@ -365,26 +371,18 @@ export default memo(function WindowChat(props) {
   async function getMessages(signal) {
     if (conversation?.id) {
       try {
-        const res = await fetch(
-          `${process.env.REACT_APP_DB_HOST}/api/message/conversation/${conversation?.id}`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${AccessToken}`,
-              "Content-Type": "application/json",
-              RefreshToken: RefreshToken,
-            },
-            body: JSON.stringify({ userID: auth.userID }),
-            signal: signal,
-          }
+        const data = await fetchApiRes(
+          `message/conversation/${conversation?.id}`,
+          "GET",
+          null,
+          { signal }
         );
-        const data = await res.json();
+
         if (data.error) {
           setErrorMess("Vui lòng đăng nhập để thực hiện");
           setListHiddenBubble([]);
           setListWindow([]);
         } else {
-          console.log(data.result, "adadasdasadaaaaaaaaaaaaaaaaaa");
           setMessages(data.result);
           setIsMore(data.result.length <= data.totalCount);
         }
@@ -393,7 +391,6 @@ export default memo(function WindowChat(props) {
   }
   useEffect(() => {
     if (messages) {
-      console.log(messages);
       const hehe = messages.reduce((acc, e) => {
         if (e.isFile) {
           acc.push(...e.content.split(","));
@@ -491,6 +488,7 @@ export default memo(function WindowChat(props) {
   }, [conversation]);
 
   const socketSend = async (data) => {
+    console.log(data, "da->>>>>>>>>");
     try {
       if (socket && !isSetting) {
         isSetting = true;
@@ -534,19 +532,12 @@ export default memo(function WindowChat(props) {
     data.set("conversation_id", conversation.id);
     data.set("content", content);
     channel.postMessage({ ...messObj, content: content, isFile: 0 });
-    const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
-      method: "POST",
-      body: data,
-    });
-    const result = await res.json();
+    const result = await fetchApiRes("message", "POST", data);
     socketSend(result);
   };
   const [ImgMess, setImgMess] = useState([]);
   const sendMessRes = async (imgData) => {
-    const res = await fetch(`${process.env.REACT_APP_DB_HOST}/api/message`, {
-      method: "POST",
-      body: imgData,
-    });
+    const res = await fetchApiRes("message", "POST", imgData);
     return res;
   };
   async function handleSubmit(e) {
@@ -607,41 +598,34 @@ export default memo(function WindowChat(props) {
       inputValue.current.innerHTML = "";
       const promises = [];
       const imgData = new FormData();
-      imgData.append("sender_id", auth.userID);
       imgData.append("conversation_id", conversation.id);
       if (ImageFile.length > 0) {
         for (const file of ImageFile) {
           imgData.append("content", file);
         }
         imgData.set("isFile", 1);
-        const res = await sendMessRes(imgData);
-        const newMessage = await res.json();
-        console.log(newMessage, "newmesss");
+        const newMessage = await sendMessRes(imgData);
         socketSend(newMessage);
       }
       if (messagesText.length > 0 && emojiText.length === 0) {
         imgData.set("isFile", 0);
         imgData.set("content", messagesText);
-        const res = await sendMessRes(imgData);
+        const newMessage = await sendMessRes(imgData);
 
-        const newMessage = await res.json();
-        console.log(newMessage, "newmesss");
         socketSend(newMessage);
       }
       if (emojiText.length > 0) {
         imgData.set("isFile", 0);
         imgData.set("content", updatedInputMess);
-        const res = await sendMessRes(imgData);
-        const newMessage = await res.json();
+        const newMessage = await sendMessRes(imgData);
         promises.push(newMessage);
         socketSend(newMessage);
       }
+      setSending(false);
     } catch (err) {
       console.log(err);
       setSending(true);
-    } finally {
-      setSending(false);
-    }
+    } 
   }
   function setEmtyImg() {
     setFileImg([]);
@@ -658,14 +642,14 @@ export default memo(function WindowChat(props) {
         setInputmess(currentHTML.replace(/<br\s*\/?>/gi, "\n")); // Chuyển đổi <br> thành \n nếu cần
       }
     } else {
-      console.log("Input element is not available:", inputMess);
+      throw ("Input element is not available:", inputMess);
     }
   }
 
   useEffect(() => {
     async function fetchData() {
-      // const data= await getInforByUserID(userConver)
-      // setUserInfo(data);
+      const data= await getInforByUserID(userConver)
+      setUserInfo(data);
     }
     fetchData();
     return () => setUserInfo();
@@ -710,33 +694,18 @@ export default memo(function WindowChat(props) {
     setListWindow(listWindow.filter((item) => item.id !== conversation.id));
   };
   const clickConversation = async (data) => {
+    const user12 = [data?.conver?.user1, data?.conver?.user2];
+    const receiverId = user12.find((member) => member !== auth.userID);
+    const sentToApi = {
+      conversation_id: data?.conver.id,
+      sender_id: receiverId,
+    };
+    await fetchApiRes("message/seen", "POST", sentToApi);
     if (arrivalMessage) {
-      const user12 = [data?.conver?.user1, data?.conver?.user2];
-      const receiverId = user12.find((member) => member !== auth.userID);
-      const sentToApi = {
-        Seen_at: Date.now(),
-        conversation_id: data?.conver.id,
-        sender_id: receiverId,
-      };
       if (document.title.includes(data.name)) {
         document.title = "Xin chàooo";
       }
       setArrivalMessage();
-      try {
-        const res = await fetch(
-          `${process.env.REACT_APP_DB_HOST}/api/message/seen`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(sentToApi),
-          }
-        );
-      } catch (err) {
-        console.log(err);
-      }
-
       if (socket) {
         const sendSocket = {
           converid: data?.conver.id,
@@ -754,17 +723,10 @@ export default memo(function WindowChat(props) {
     inputMess && setRowcount(Math.ceil(inputMess.length / 20));
     !inputMess && setRowcount(1);
   }, [inputMess]);
-  const [userSeenAt, setuserSeenAt] = useState();
   const getNewstMess = async (data) => {
     try {
       if (data) {
-        const res = await fetch(
-          `${process.env.REACT_APP_DB_HOST}/api/message/newest/seen/${data}/${auth?.userID}`
-        );
-        const getMess = await res.json();
-        if (getMess) {
-          setuserSeenAt(getMess);
-        }
+        await getMessages();
       }
     } catch (error) {
       console.log(error);
@@ -787,7 +749,6 @@ export default memo(function WindowChat(props) {
         setArrivalMessage({ ...data, createdAt: Date.now() });
       };
       const updateMess = (data) => {
-        console.log(data, "messsarrive");
         if (props.chatApp === true) {
           props.setsendMess({ ...data, createdAt: Date.now() });
         }
@@ -968,220 +929,232 @@ export default memo(function WindowChat(props) {
                   className="Body_Chatpp relative flex flex-col justify-evenly relative	  "
                   style={props.chatApp ? { height: "93%" } : { height: "45vh" }}
                 >
-                     <div className="w-full absolute inset-0 z-0 bg-contain"
-                     style={{
-                      height:'90%',
+                  <div
+                    className="w-full absolute inset-0 z-0 bg-contain"
+                    style={{
+                      height: "90%",
                       background: `url(${conversation.background})`,
                       filter: " blur(1px)",
                     }}
-                     >
-                      </div>
-                      <div className="w-full h-full z-10 flex-col	justify-between	">
-
-                  <div
-                    className="z-10 overflow-y-auto  flex flex-col-reverse p-4 border border-gray-300 	"
-                    ref={main_windowchat}
-                    style={{height:'90%'}}
-                  >
-                 
-                    {messages.length > 0 ? (
-                      <>
-                        {messages.map((message, index) => (
-                          <div className="message_content" key={message.id}>
-                            <Message
-                              i={index}
-                              key={message.id}
-                              message={message}
-                              updateMess={Sending}
-                              own={message.sender_id === auth.userID}
-                              student={{
-                                img:
-                                  conversation?.img ||
-                                  userInfor?.cutImg ||
-                                  userInfor?.img,
-                              }}
-                              messages={messages}
-                              userID={userConver}
-                              listSeen={userSeenAt}
-                              Online={Onlines}
-                              setShowImgMess={setShowImgMess}
-                            ></Message>
-                          </div>
-                        ))}
-                      </>
-                    ) : (
-                      <div className="w-full h-full center">
-                        <div className="loader"></div>
-                      </div>
-                    )}
-                    {isGettingScroll && IsMore && (
-                      <div className="center ">
-                        <div className="loader "></div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="inputValue windowchat_feature center" style={{height:'10%'}}>
-                    <div className="feature_left center">
-                      <input
-                        onChange={(e) => {
-                          pick_imageMess(e);
-                        }}
-                        type="file"
-                        ref={image_message}
-                        multiple
-                        hidden
-                      ></input>
-                      {imgView.length > 0 ? (
+                  ></div>
+                  <div className="w-full h-full z-10 flex-col	justify-between	">
+                    <div
+                      className="z-10 overflow-y-auto  flex flex-col-reverse p-4 border border-gray-300 	"
+                      ref={main_windowchat}
+                      style={{ height: "90%" }}
+                    >
+                            <Typing visible={IsTyping} />
+                        {messages.length > 0 ? (
                         <>
-                          <div onClick={setEmtyImg} className="features_hover">
-                            <img
-                              alt="Arrow"
-                              src={`${ClientURL}/images/arrow-left.svg`}
-                              style={{ width: "1.5rem", height: "1.5rem" }}
-                            ></img>
-                          </div>
+                          {messages.map((message, index) => (
+                            <div className="message_content" key={message.id}>
+                              <Message
+                                i={index}
+                                key={message.id}
+                                message={message}
+                                updateMess={Sending}
+                                own={message.sender_id === auth.userID}
+                                student={{
+                                  img:
+                                    conversation?.img ||
+                                    userInfor?.cutImg ||
+                                    userInfor?.img,
+                                }}
+                                isTyping={IsTyping}
+                                messages={messages}
+                                userID={userConver}
+                                Online={Onlines}
+                                setShowImgMess={setShowImgMess}
+                              ></Message>
+                            </div>
+                          ))}
                         </>
                       ) : (
-                        <ul
-                          style={{ display: "flex", padding: "0", margin: "0" }}
-                        >
-                          <li className="features_hover stokeTheme">
-                            <FiImage
-                              onClick={() => {
-                                image_message.current.click();
-                              }}
-                            />
-                          </li>
+                        <div className="w-full h-full center">
+                          <div className="loader"></div>
+                        </div>
+                      )}
 
-                          <li
-                            className="features_hover stokeTheme"
-                            style={
-                              inputMess?.length > 0
-                                ? { display: "none" }
-                                : { opacity: 1 }
-                            }
-                          >
-                            <LuSticker></LuSticker>
-                          </li>
-                          <Popover
-                            content={
-                              <EmojiPicker
-                                width={350}
-                                height={450}
-                                onEmojiClick={(e, i) => {
-                                  onClickEmoji(e);
-                                }}
-                                trigger="click"
-                                emojiStyle="facebook"
-                              />
-                            }
+                      {isGettingScroll && IsMore && (
+                        <div className="center ">
+                          <div className="loader "></div>
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      className="inputValue windowchat_feature center"
+                      style={{ height: "10%" }}
+                    >
+                      <div className="feature_left center">
+                        <input
+                          onChange={(e) => {
+                            pick_imageMess(e);
+                          }}
+                          type="file"
+                          ref={image_message}
+                          multiple
+                          hidden
+                        ></input>
+                        {imgView.length > 0 ? (
+                          <>
+                            <div
+                              onClick={setEmtyImg}
+                              className="features_hover"
+                            >
+                              <img
+                                alt="Arrow"
+                                src={`${ClientURL}/images/arrow-left.svg`}
+                                style={{ width: "1.5rem", height: "1.5rem" }}
+                              ></img>
+                            </div>
+                          </>
+                        ) : (
+                          <ul
+                            style={{
+                              display: "flex",
+                              padding: "0",
+                              margin: "0",
+                            }}
                           >
                             <li className="features_hover stokeTheme">
-                              <FiSmile />
+                              <FiImage
+                                onClick={() => {
+                                  image_message.current.click();
+                                }}
+                              />
                             </li>
-                          </Popover>
-                        </ul>
-                      )}
-                    </div>
 
-                    <div
-                      className=" windowchat_input  "
-                      style={imgView?.length > 0 ? { width: "75%" } : {}}
-                      ref={windowchat_input}
-                    >
-                      {imgView.length > 0 && (
-                        <div className={`multiFile_layout`}>
-                          <div className="circleButton">
-                            <FiImage
-                              style={{ fontSize: "1.3rem" }}
-                              onClick={() => {
-                                image_message.current.click();
-                              }}
-                            />
-                          </div>
-                          <div
-                            className={`flex ${
-                              imgView.length >= 3 &&
-                              "overflow-x-scroll overflow-y-hidden"
-                            }`}
-                          >
-                            {imgView.map((e, i) => (
-                              <div
-                                className="listImgDiv"
-                                style={{ position: "relative" }}
-                              >
-                                <div key={i} className="listImgMess w-16 h-16">
-                                  <img
-                                    alt="Hello"
-                                    className="rounded-xl  w-full h-full object-cover"
-                                    src={e}
-                                  ></img>
-                                </div>
-                                <span
-                                  onClick={() => remove_imageMess(e)}
-                                  className="circleButton buttonImgView w-4 m-0 "
-                                >
-                                  <FiX />
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      <div style={{ position: "relative", width: "100%" }}>
-                        <div
-                          style={{ resize: "none", paddingLeft: ".8rem" }}
-                          id="send_window_input"
-                          ref={inputValue}
-                          contentEditable="true"
-                          onPaste={pasteImg}
-                          onKeyDown={handleKeyDown}
-                          onInput={(e) => inputChange(e)}
-                          onClick={() =>
-                            clickConversation({
-                              conver: props?.count,
-                              name: userInfor?.Name,
-                            })
-                          }
-                          suppressContentEditableWarning={true}
-                        ></div>
-                        {!inputMess && (
-                          <div
-                            className="placehoder"
-                            style={{ top: ".4rem", left: "1rem" }}
-                          >
-                            <p>Aa</p>
-                          </div>
+                            <li
+                              className="features_hover stokeTheme"
+                              style={
+                                inputMess?.length > 0
+                                  ? { display: "none" }
+                                  : { opacity: 1 }
+                              }
+                            >
+                              <LuSticker></LuSticker>
+                            </li>
+                            <Popover
+                              content={
+                                <EmojiPicker
+                                  width={350}
+                                  height={450}
+                                  onEmojiClick={(e, i) => {
+                                    onClickEmoji(e);
+                                  }}
+                                  trigger="click"
+                                  emojiStyle="facebook"
+                                />
+                              }
+                            >
+                              <li className="features_hover stokeTheme">
+                                <FiSmile />
+                              </li>
+                            </Popover>
+                          </ul>
                         )}
                       </div>
-                    </div>
-                    {inputMess.trim().length > 0 || fileImg.length > 0 ? (
-                      <div>
-                        <div>
-                          <div
-                            className="features_hover"
-                            onClick={(e) => handleSubmit(e)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <FiSend></FiSend>
+
+                      <div
+                        className=" windowchat_input  "
+                        style={imgView?.length > 0 ? { width: "75%" } : {}}
+                        ref={windowchat_input}
+                      >
+                        {imgView.length > 0 && (
+                          <div className={`multiFile_layout`}>
+                            <div className="circleButton">
+                              <FiImage
+                                style={{ fontSize: "1.3rem" }}
+                                onClick={() => {
+                                  image_message.current.click();
+                                }}
+                              />
+                            </div>
+                            <div
+                              className={`flex ${
+                                imgView.length >= 3 &&
+                                "overflow-x-scroll overflow-y-hidden"
+                              }`}
+                            >
+                              {imgView.map((e, i) => (
+                                <div
+                                  className="listImgDiv"
+                                  style={{ position: "relative" }}
+                                >
+                                  <div
+                                    key={i}
+                                    className="listImgMess w-16 h-16"
+                                  >
+                                    <img
+                                      alt="Hello"
+                                      className="rounded-xl  w-full h-full object-cover"
+                                      src={e}
+                                    ></img>
+                                  </div>
+                                  <span
+                                    onClick={() => remove_imageMess(e)}
+                                    className="circleButton buttonImgView w-4 m-0 "
+                                  >
+                                    <FiX />
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
+                        )}
+                        <div style={{ position: "relative", width: "100%" }}>
+                          <div
+                            style={{ resize: "none", paddingLeft: ".8rem" }}
+                            id="send_window_input"
+                            ref={inputValue}
+                            contentEditable="true"
+                            onPaste={pasteImg}
+                            onKeyDown={handleKeyDown}
+                            onInput={(e) => inputChange(e)}
+                            onClick={() =>
+                              clickConversation({
+                                conver: props?.count,
+                                name: userInfor?.Name,
+                              })
+                            }
+                            suppressContentEditableWarning={true}
+                          ></div>
+                          {!inputMess && (
+                            <div
+                              className="placehoder"
+                              style={{ top: ".4rem", left: "1rem" }}
+                            >
+                              <p>Aa</p>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    ) : (
-                      <div
-                        className="features_hover"
-                        onClick={(e) => sendFastHandle(e)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        {(conversation.iconConver && (
-                          <img src={`${conversation.iconConver}`} />
-                        )) ||
-                          "😆"}
-                      </div>
-                    )}
+                      {inputMess.trim().length > 0 || fileImg.length > 0 ? (
+                        <div>
+                          <div>
+                            <div
+                              className="features_hover"
+                              onClick={(e) => handleSubmit(e)}
+                              style={{ cursor: "pointer" }}
+                            >
+                              <FiSend></FiSend>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          className="features_hover"
+                          onClick={(e) => sendFastHandle(e)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          {(conversation.iconConver && (
+                            <img src={`${conversation.iconConver}`} />
+                          )) ||
+                            "😆"}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  </div>
-
                 </div>
               </div>
               {props.chatApp && (

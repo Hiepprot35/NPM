@@ -11,7 +11,7 @@ export default function Layout({ link, children, nvarbar }) {
   const { requestCall, setRequestCall } = useRealTime();
   const socket = useSocket();
   const handleVideoCall = (userID) => {
-    console.log("openchat");
+   console.log("openchat");
     const url = `${process.env.REACT_APP_CLIENT_URL}/videocall/${userID}`;
     window.open(url, "_blank");
   };

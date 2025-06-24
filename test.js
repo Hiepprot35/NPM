@@ -15,4 +15,4 @@ const sort=(array)=>
             }
     }
 sort(array)
-console.log(array)
+throw(array)

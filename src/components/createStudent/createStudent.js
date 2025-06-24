@@ -22,7 +22,7 @@ export default function CreateStudent() {
   const [dataimg, setDataimg] = useState();
   const host = process.env.REACT_APP_DB_HOST;
   useEffect(() => {
-    console.log(auth);
+   console.log(auth);
   }, []);
 
   const [values, setValues] = useState({
@@ -66,7 +66,7 @@ export default function CreateStudent() {
     getCity();
   }, []);
   useEffect(() => {
-    console.log(CityName);
+   console.log(CityName);
   }, [CityName]);
   const sendData = async (data) => {
     try {
@@ -87,7 +87,7 @@ export default function CreateStudent() {
       } else {
         setIsMounted(false);
         setMessRes(resJson.message || "Lỗi");
-        console.log(resJson);
+       console.log(resJson);
       }
       
     } catch (error) {
@@ -129,7 +129,7 @@ export default function CreateStudent() {
     const formData = new FormData();
     if (values) {
       Object.entries(values).forEach(([key, value]) => {
-        // console.log(`${key}: ${value}`);
+        //console.log(`${key}: ${value}`);
         formData.append(key, value);
       });
     }
@@ -204,7 +204,7 @@ export default function CreateStudent() {
 
   const [HuyenFollowCity, setHuyenFollowCity] = useState();
   const setHuyen = (e) => {
-    console.log(e);
+   console.log(e);
     const data = huyen.filter((v, m) => v.CityCode === e);
     setHuyenFollowCity(data);
   };

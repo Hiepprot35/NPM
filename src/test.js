@@ -12,7 +12,7 @@
 //       const newAccessToken = await refresh();
 //       setRefreshedToken(newAccessToken);
 //     } catch (error) {
-//       console.log('Error:', error.message);
+//      console.log('Error:', error.message);
 //       // Xử lý lỗi, ví dụ hiển thị thông báo lỗi cho người dùng
 //     } finally {
 //       setIsRefreshing(false);

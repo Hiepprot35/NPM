@@ -55,7 +55,7 @@ function App() {
         } catch (error) {
           setIsLoading(false);
 
-          console.log(error);
+         console.log(error);
         }
       }
       fetchData();

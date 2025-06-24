@@ -9,7 +9,7 @@ import { FiEye, FiX } from "react-icons/fi";
   const [Report, setReport] = useState(false);
   const watchMovieHandle = async () => {
     try {
-      console.log("click")
+     console.log("click")
       const res = await fetch(
         `https://api.themoviedb.org/3/movie/${id}/videos`,
         {
@@ -23,7 +23,7 @@ import { FiEye, FiX } from "react-icons/fi";
       );
       const data = await res.json();
       if (data?.results?.length>0) {
-        console.log(data)
+       console.log(data)
         setBackImg(
           `url(https://image.tmdb.org/t/p/original/${background}})`
         );
@@ -32,7 +32,7 @@ import { FiEye, FiX } from "react-icons/fi";
         setReport("Xin lỗi. Hệ thông chưa cập nhập phim này");
       }
     } catch (error) {
-      console.log(error)
+     console.log(error)
     }
   
   };

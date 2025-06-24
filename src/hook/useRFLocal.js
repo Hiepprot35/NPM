@@ -4,8 +4,12 @@ import { useState } from "react";
 export default function UseRfLocal() {
     const getRfToken = () => {
         const tokenString = localStorage.getItem('RefreshToken');
-        const userToken = JSON.parse(tokenString);
-        return userToken
+        if(tokenString)
+        {
+            const userToken = JSON.parse(tokenString);
+            return userToken
+        }
+        return null
     }
     const [token, setToken] = useState(getRfToken())
     const saveToken = (userToken) => {

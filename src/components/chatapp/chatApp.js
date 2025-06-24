@@ -25,7 +25,6 @@ const ChatApp = ({ messageId }) => {
   const [isSeen, setisSeen] = useState(false);
   useEffect(() => {
     if (messageId) {
-      console.log("zoo mess");
       const senApi = async () => {
         try {
           const res = await fetch(
@@ -39,10 +38,9 @@ const ChatApp = ({ messageId }) => {
             }
           );
           const data = await res.json();
-          console.log(data,'hahahahaha')
           setCurrentChat({ ...data });
         } catch (err) {
-          console.log(err);
+         console.log(err);
         }
       };
       senApi();
@@ -97,7 +95,7 @@ const ChatApp = ({ messageId }) => {
         const data = await res.json();
         setSearchTerm(data);
       } catch (err) {
-        console.log(err);
+       console.log(err);
       }
     }
     if (e.target.value == "") {

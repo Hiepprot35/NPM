@@ -1,12 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import Upload from "../imageView/Upload";
-import { Popover } from "antd";
+import { Button, Col, Popover } from "antd";
 import { FiImage, FiList, FiPlusCircle } from "react-icons/fi";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import Item from "antd/es/list/Item";
 import debounce from "lodash.debounce";
 import { v4 as uuidv4 } from "uuid";
 import ColumnBlog from "./ColumnBlog";
+import { FaSearch } from "react-icons/fa";
+import { fetchApiRes } from "../../function/getApi";
+import { title } from "process";
 
 export default function CreateBlog() {
   document.title='Create Blog'
@@ -252,17 +255,31 @@ export default function CreateBlog() {
   const handleMouseUp = () => {
     setIsResizing(false);
   };
+  const [BlogTitle, setBlogTitle] = useState();
+  const blogChange=(e)=>
+  {
+    setBlogTitle(e.target.value)
+   console.log(e.target.value)
+  }
+  const addBlog=async ()=>{
+    const res= await fetchApiRes('blog/createBlog','POST',{title:BlogTitle,cols:Cols})
+  }
+  useEffect(() => {
+   console.log(Cols)
+  }, [Cols]);
   return (
     <>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="content">
-          <div>CreateBlog</div>
-
-          <div className="w-full flex flex-col items-center	">
+        <h1 class="mb-9 p-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-red-50">Create Blog</h1>
+        <Button  onClick={()=>addBlog()} shape="circle" icon={<FaSearch />} />
+        <div className="w-full flex flex-col items-center	">
             <div className="w-3/4 ">
               <textarea
+              onChange={(e)=>blogChange(e)}
+              spellCheck='false'
                 placeholder="Title"
-                className=" px-4 text-5xl py-2 placeholder:text-5xl  border-none focus:outline-none bg-transparent dark:text-gray-200 resize-none"
+                className=" px-4 text-5xl py-2 placeholder:text-5xl  border-none focus:outline-none bg-transparent dark:text-white resize-none"
               />
             </div>
 

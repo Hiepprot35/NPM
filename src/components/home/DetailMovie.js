@@ -447,7 +447,7 @@ export default function DetailMovie(props) {
     }
   }, [ShowMiniRp]);
   useEffect(() => {
-    console.log(comments, "aaaaaaaaaaaaaaaaaaaaa");
+   console.log(comments, "aaaaaaaaaaaaaaaaaaaaa");
   }, [comments]);
   const getActors = async () => {
     try {
@@ -464,7 +464,7 @@ export default function DetailMovie(props) {
         }
       );
       const data = await res.json();
-      console.log(data);
+     console.log(data);
       setActors(data);
     } catch (error) {
     } finally {

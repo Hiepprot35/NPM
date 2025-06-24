@@ -156,12 +156,12 @@ const VideoPlayer = (props) => {
       });
 
       peer.on("close", () => {
-        console.log("peer closed");
+       console.log("peer closed");
         socket.off("callAccepted");
       });
       connectionRef.current = peer;
     } catch (error) {
-      console.log(error);
+     console.log(error);
     }
   };
   useEffect(() => {
@@ -187,7 +187,7 @@ const VideoPlayer = (props) => {
       });
 
       peer.on("signal", (data) => {
-        console.log("AnswerCall");
+       console.log("AnswerCall");
         socket.emit("answerCall", {
           signal: data,
           to: parseInt(userID),
@@ -200,7 +200,7 @@ const VideoPlayer = (props) => {
           userVideo.current.srcObject = currentStream;
         }
       });
-      console.log(call);
+     console.log(call);
       peer.signal(call.signal);
 
       connectionRef.current = peer;
@@ -212,7 +212,7 @@ const VideoPlayer = (props) => {
 
   useEffect(() => {
     if (call?.signal) {
-      console.log(call);
+     console.log(call);
       answerCall();
     }
   }, [stream, call]);
@@ -224,7 +224,7 @@ const VideoPlayer = (props) => {
       }, 1000);
     }
     if (CallEnded) {
-      console.log("Callended", CallEnded);
+     console.log("Callended", CallEnded);
       clearInterval(intervalId); // Hủy bỏ interval khi component unmounts hoặc callAccepted thay đổi
     }
     return () => {

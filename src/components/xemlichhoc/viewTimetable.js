@@ -66,7 +66,7 @@ export default function ViewTimetable() {
       setListKiHoc(result);
 
     } catch (error) {
-      console.log(error);
+     console.log(error);
     }
   };
   const getAllMonHoc = async () => {
@@ -78,7 +78,7 @@ export default function ViewTimetable() {
       setAllMonHoc(result);
       setIsLoading(false)
     } catch (error) {
-      console.log(error);
+     console.log(error);
     }
   };
 
@@ -102,7 +102,7 @@ const getLichHocSV = async () => {
     setLichHoc(result);
 
   } catch (error) {
-    console.log(error);
+   console.log(error);
   }
 };
 useEffect(() => {
@@ -111,11 +111,11 @@ useEffect(() => {
 }, []);
 useEffect(() => {
   getLichHocSV();
-  console.log(kiHoc);
+ console.log(kiHoc);
 }, [kiHoc]);
 useEffect
 (()=>{
-  console.log(lichhoc)
+ console.log(lichhoc)
 },[AllMonHoc])
 return (
   <>

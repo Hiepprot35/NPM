@@ -6,7 +6,6 @@ try {
                 'Authorization': `Bearer ${AccessToken}`
             }
         })
-    console.log(respon.status)
     if (respon.status === 401) {
 
         await refreshAccessToken()
@@ -17,5 +16,5 @@ try {
         sendData(data, AccessToken)
     }
 } catch (error) {
-    console.log(error)
+   console.log(error)
 }

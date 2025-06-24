@@ -22,7 +22,7 @@ export default function HoverProfile(props) {
     getData();
   }, []);
   useEffect(() => {
-    console.log("userinfo",UserInfo);
+   console.log("userinfo",UserInfo);
   }, [UserInfo]);
 
   return (

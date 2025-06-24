@@ -32,12 +32,12 @@ export const LoginGoolge = ({ children }) => {
       });
 
       const dataRes = await res.json();
-      console.log(dataRes, "dataaaaaaaaaaaa");
-      if (dataRes.AccessToken) {
+     console.log(dataRes, "dataaaaaaaaaaaa");
+      if (dataRes.AccessToken && dataRes.RefreshToken) {
         setAccessToken(dataRes.AccessToken);
         setRefreshToken(dataRes.RefreshToken);
         const { Role, Username, UserID, avtUrl } = dataRes;
-        console.log("setAuth", dataRes);
+       console.log("setAuth", dataRes);
         setAuth({
           role: Role,
           username: Username,
@@ -131,35 +131,36 @@ export default function Login() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+       throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const dataRes = await response.json();
       // setNotiText({message:dataRes.message,title:'Login Notification',type:'success'})
-      console.log(dataRes,'dataResdataResdataRes')
-      if (dataRes?.AccessToken) {
-        const {
-          Role: role,
-          Username: username,
-          UserID: userID,
-          isVerify,
-          Email,
-        } = dataRes;
+      const {isVerify,Email}=dataRes
+        if (!isVerify) {
+          const {
+            Role: role,
+            Username: username,
+            UserID: userID,
+            isVerify,
+            Email,
+          } = dataRes;
+          if(dataRes.AccessToken && dataRes.RefreshToken)
+          {
 
-        if (isVerify === 1) {
-          setAccessToken(dataRes.AccessToken);
-          setRefreshToken(dataRes.RefreshToken);
-        } else if (isVerify === 0) {
+            setAccessToken(dataRes.AccessToken);
+            setRefreshToken(dataRes.RefreshToken);
+          }
+          setAuth({ role, username, userID });
+        } else if (isVerify) {
           setinfoToSendGmail({ to: Email });
+          setMessage("Send message to your email");
+
         }
 
-        setAuth({ role, username, userID });
-        setMessage("");
         // Uncomment this to navigate
         // navigate('/home', { state: { user: dataRes } });
-      } else {
-        setMessage(dataRes?.message ?? "Login failed. Please try again.");
-      }
+   
     } catch (error) {
       console.error("Error during login:", error);
       setMessage(error.message || "An error occurred. Please try again.");
@@ -176,7 +177,7 @@ export default function Login() {
   const submitVerifycode = () => {
     const currenttime = new Date().getTime();
     if (verifyCodeInput) {
-      console.log(typeof verifyCode.SentTime);
+     console.log(typeof verifyCode.SentTime);
       if (
         verifyCodeInput === verifyCode.code.toString() &&
         currenttime - verifyCode.SentTime < 60 * 1000
@@ -196,7 +197,7 @@ export default function Login() {
     }
   };
 
-  // useEffect(console.log(infoToSendGmail?.to),[infoToSendGmail])
+  // useEffect(throw(infoToSendGmail?.to),[infoToSendGmail])
   //-------------------------------------------------------------------------------//
   const dangnhap_layer = useRef(null);
   const login_text = useRef(null);

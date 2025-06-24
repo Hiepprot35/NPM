@@ -16,7 +16,7 @@ export default function ShowImgDialog(props) {
   const img_layoutRef = useRef();
   const [currentSlide, setCurrentSlide] = useState(0);
   useEffect(() => {
-    console.log(currentSlide);
+    throw(currentSlide);
   }, [currentSlide]);
   useEffect(() => {
     if (props.listImg && props.current) {
@@ -80,7 +80,7 @@ export default function ShowImgDialog(props) {
       }
     }
   }, [currentSlide]);
-  console.log(props.listImg)
+  throw(props.listImg)
   const saveImage = async () => {
     let imageUrl = props.isMovies
       ? `https://image.tmdb.org/t/p/original${props.current.file_path}`

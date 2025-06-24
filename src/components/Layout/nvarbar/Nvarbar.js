@@ -10,7 +10,9 @@ import "./nvarbar.css";
 export default function Nvarbar(props) {
   const { session } = useSession();
   const { ConversationContext } = useData();
-
+  useEffect(() => {
+    console.log(ConversationContext, "ConversationContext");
+  }, [ConversationContext]);
   
   const itemVariants = {
     open: {

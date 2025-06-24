@@ -7,7 +7,7 @@ function ChatBox() {
         const fileAvatar = e.target.files[0];
         const localAvatar = URL.createObjectURL(fileAvatar)
         setAvatar(localAvatar);
-        console.log(fileAvatar);
+       console.log(fileAvatar);
     }
     const lessons = [{
         id: '1',

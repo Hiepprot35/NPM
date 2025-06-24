@@ -31,9 +31,7 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
     setOpenModal(true);
     setImageUpload(img);
   };
-  useEffect(() => {
-    console.log("render");
-  }, []);
+
   const closeHandle = () => {
     setImageUpload();
     setImageSend();
@@ -46,7 +44,6 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
     if (ImageUpload) {
       const img = new Image();
       img.src = ImageUpload;
-      console.log(ImageUpload);
       img.onload = () => {
         setImageDimensions({
           width: img.naturalWidth,
@@ -91,8 +88,6 @@ const ChangeImg = ({ img, MSSV, setUsers }) => {
       setLoading(false);
     } catch (error) {
       setLoading(false);
-
-      console.log(error);
     }
   };
 
@@ -184,7 +179,7 @@ export default function Profile({ children }) {
   const getData = async (signal, currentRequestVersion) => {
     try {
       const data = await getUserinfobyID(MSSVInput, { signal });
-  
+
       if (signal.aborted) return;
       if (data) {
         document.title = data?.Name + " | Profile";
@@ -197,7 +192,7 @@ export default function Profile({ children }) {
     }
   };
   const { AccessToken } = UseToken();
- 
+
   useEffect(() => {
     unMountComponent();
     const controller = new AbortController();
@@ -216,9 +211,10 @@ export default function Profile({ children }) {
     setImgContent([]);
   };
   const getFriendList = async (userID) => {
-    const result = await fetchApiRes("message/getFriendList", "POST", {
-      userID: userID,
-    });
+    const result = await fetchApiRes(
+      `message/getFriendList?user=${userID}`,
+      "GET"
+    );
     if (result?.result) {
       return result.result;
     } else {
@@ -305,7 +301,6 @@ export default function Profile({ children }) {
   const backgroundImg = useRef();
   const changeBackImg = (e) => {
     const backgroundImg = URL.createObjectURL(e.target.files[0]);
-    console.log(backgroundImg)
     setBackgroundUpdate({ view: backgroundImg, src: e.target.files[0] });
   };
   const containerBackRef = useRef();
@@ -324,7 +319,6 @@ export default function Profile({ children }) {
   const [cursor, setCursor] = useState();
   const dragBackHandle = (e) => {
     if (isDragging && dragBackRef.current && containerBackRef.current) {
-      console.log("ok");
       const ref = dragBackRef.current;
       const container = containerBackRef.current;
       const clientY = e.clientY;
@@ -344,7 +338,6 @@ export default function Profile({ children }) {
         finaltop = newTop;
         ref.style.top = `${newTop}px`;
       }
-      console.log(finaltop / ref.height);
       setStartY(clientY); // Up
     }
   };
@@ -396,7 +389,6 @@ export default function Profile({ children }) {
         setBackgroundUpdate();
         setIsLoading(false);
       } catch (error) {
-        console.log(error);
         setIsLoading(false);
       }
     }
@@ -413,11 +405,12 @@ export default function Profile({ children }) {
   const MovingHandle = () => {
     setMovingSetting(true);
   };
-  const navigate=useNavigate()
-  const clickUrlLink=(e)=>
-  {
-    navigate(`/photo/?MSSV=${e.userID}&hid=${e.id}` , { state: { from: window.location.href } }    )
-  }
+  const navigate = useNavigate();
+  const clickUrlLink = (e) => {
+    navigate(`/photo/?MSSV=${e.userID}&hid=${e.id}`, {
+      state: { from: window.location.href },
+    });
+  };
   const handleChange = [
     { text: ` Moving`, icon: <FiMove />, click: MovingHandle },
     { text: ` Change`, icon: <FiUpload />, click: backChange },
@@ -425,9 +418,7 @@ export default function Profile({ children }) {
   ];
   const Setting = BackgroundUpdate || MovingSetting;
   const { themeColor } = useData();
-  useEffect(() => {
-    console.log(auth,"keeee")
-  }, [auth]);
+
   const backGroundHandle = (data) => {
     return (
       <button
@@ -471,7 +462,7 @@ export default function Profile({ children }) {
             ></div>
             <div className="w-full h-full center relative">
               <div className="h-full w-70 center relative overflow-hidden  rounded-b-lg ">
-              {Users?.backgroundimg || BackgroundUpdate ? (
+                {Users?.backgroundimg || BackgroundUpdate ? (
                   <img
                     alt="background"
                     ref={dragBackRef}
@@ -494,26 +485,28 @@ export default function Profile({ children }) {
                 ) : (
                   <div className="w-full h-full bg-black"></div>
                 )}
-              {(BackgroundUpdate || MovingSetting) &&  <div className="absolute right-10 bottom-20 z-10 rounded-b-lg">
-                  {BackgroundUpdate && (
-                    <>
-                      <span className="circleButton" onClick={saveBackHandle}>
+                {(BackgroundUpdate || MovingSetting) && (
+                  <div className="absolute right-10 bottom-20 z-10 rounded-b-lg">
+                    {BackgroundUpdate && (
+                      <>
+                        <span className="circleButton" onClick={saveBackHandle}>
+                          <FiSave />
+                        </span>
+                        <span
+                          className="circleButton"
+                          onClick={() => setBackgroundUpdate()}
+                        >
+                          X
+                        </span>
+                      </>
+                    )}
+                    {MovingSetting && (
+                      <span className="circleButton" onClick={saveMovingHandle}>
                         <FiSave />
                       </span>
-                      <span
-                        className="circleButton"
-                        onClick={() => setBackgroundUpdate()}
-                      >
-                        X
-                      </span>
-                    </>
-                  )}
-                  {MovingSetting && (
-                    <span className="circleButton" onClick={saveMovingHandle}>
-                      <FiSave />
-                    </span>
-                  )}
-                  </div>}
+                    )}
+                  </div>
+                )}
                 {Users?.UserID === auth.userID && (
                   <Popover
                     trigger={"click"}
@@ -532,20 +525,20 @@ export default function Profile({ children }) {
                   </Popover>
                 )}
                 {isLoading && BackgroundUpdate && (
-                  <IsLoading  className={"bg-indigo-600 bg-opacity-25 z-1000"} ></IsLoading>
+                  <IsLoading
+                    className={"bg-indigo-600 bg-opacity-25 z-1000"}
+                  ></IsLoading>
                 )}
-
-                
               </div>
             </div>
             <input
               ref={backgroundImg}
               type="file"
               hidden
-              onChange={(e) =>{ changeBackImg(e)
+              onChange={(e) => {
+                changeBackImg(e);
                 e.target.value = null;
-              }
-              }
+              }}
             ></input>
           </div>
           <div
@@ -618,7 +611,7 @@ export default function Profile({ children }) {
                                 }}
                                 className="p-2 w-full bg-gray-200 text-black	 font-semibold center rounded-xl my-2 cursor-pointer hover:bg-gray-100"
                               >
-                                Chỉnh sửa mục đáng chú ý
+                                Edit Featured Section
                               </p>
                             )}
                           </>
@@ -657,10 +650,11 @@ export default function Profile({ children }) {
                         )}
                         {isLoading && <div className="">...............</div>}
 
-                        <p className="uppercase">
-                          Tham gia vào:{" "}
-                          <span className="text-2xl font-bold ">
-                            {Users && moment(Users?.createdAt).format('DD-MMM-YYYY')}
+                        <p className="text-gray-700 text-base">
+                          Joined on:{" "}
+                          <span className="text-xl font-semibold text-gray-900">
+                            {Users &&
+                              moment(Users.createdAt).format("DD MMM, YYYY")}
                           </span>
                         </p>
                       </div>
@@ -669,17 +663,17 @@ export default function Profile({ children }) {
                         <div className="grid grid-cols-3 gap-2">
                           {ImgContent ? (
                             ImgContent.map(
-                              (e,index) =>
-                                e.img && index<9 &&
+                              (e, index) =>
+                                e.img &&
+                                index < 9 &&
                                 e.type.includes("image") && (
-                                  
-                                    <img
-                                    onClick={()=>clickUrlLink(e)}
-                                      alt="ImageProfile"
-                                      className="object-cover rounded-xl"
-                                      style={{ aspectRatio: "1" }}
-                                      src={`${e.img}`}
-                                    />
+                                  <img
+                                    onClick={() => clickUrlLink(e)}
+                                    alt="ImageProfile"
+                                    className="object-cover rounded-xl"
+                                    style={{ aspectRatio: "1" }}
+                                    src={`${e.img}`}
+                                  />
                                 )
                             )
                           ) : (
@@ -719,8 +713,7 @@ export default function Profile({ children }) {
                       </div>
                     </div>
                     <div className="h-full px-8" style={{ width: "60%" }}>
-                  
-                    <Posts username={MSSVInput}/>
+                      <Posts username={MSSVInput} />
                     </div>
                   </div>
                 </div>

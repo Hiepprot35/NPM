@@ -9,7 +9,6 @@ export const getConversation = async (auth,token) => {
           'Authorization': `Bearer ${token}`
         },
       });
-      console.log(res,"resssssssssssssssssss")
       if (!res.ok) {
         return []
       }

@@ -156,7 +156,7 @@ export default function FistHomePage() {
             progress = -99;
             let count = 0;
             [...document.getElementsByClassName("active_text")][0] && [...document.getElementsByClassName("active_text")][0].classList.remove("active_text");
-            console.log([...document.getElementsByClassName("active")][0]);
+           console.log([...document.getElementsByClassName("active")][0]);
             [...document.getElementsByClassName("active")][0] && [...document.getElementsByClassName("active")][0].classList.remove("active");
             [...document.getElementsByClassName("animate")][0] && [...document.getElementsByClassName("animate")][0].classList.remove("animate");
 

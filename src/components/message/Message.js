@@ -15,18 +15,15 @@ export default memo(function Message({
   own,
   student,
   Online,
-  listSeen,
   messages,
   userID,
   setShowImgMess,
   updateMess,
 }) {
   const time = useRef(null);
-  const { auth } = useAuth();
   const seen_text = useRef(null);
   const messageRef = useRef(null);
   const [listAnh, setListAnh] = useState([]);
-
   useEffect(() => {
     if (Number(message.isFile) === 1) {
       const data = message.content.split(",");
@@ -98,9 +95,7 @@ export default memo(function Message({
       checkMessage(message);
     }
   }, [message]);
-  useEffect(() => {
-    console.log(updateMessage);
-  }, [updateMessage]);
+
   // const checkComment = async (e) => {
   //   let updatedComment = e;
   //   const youtubeRegex =
@@ -128,7 +123,7 @@ export default memo(function Message({
   //         </div>
   //       `;
   //     updatedComment = `
-   
+
   //     ${newUrl}
   //     `;
   //   } else if (movieFilmsRegex.test(e)) {
@@ -190,13 +185,13 @@ export default memo(function Message({
   return (
     <>
       <div className="containerMessage" ref={messageRef}>
+       
         {message ? (
           <div
             className={
               own ? `message own own_${messName()}` : `message ${messName()}`
             }
           >
-            {}
             <div className="Mess_seen_container">
               <div className="messageTop">
                 {!own && student && message.content !== null && (
@@ -231,7 +226,11 @@ export default memo(function Message({
                   >
                     <div
                       className={`Mess_seen_text flex ${
-                        listAnh?.length > 3 ? `gridMessImg grid grid-cols-3` : listAnh?.length===2? ` gridMessImg grid grid-cols-${listAnh?.length}`:''
+                        listAnh?.length > 3
+                          ? `gridMessImg grid grid-cols-3`
+                          : listAnh?.length === 2
+                          ? ` gridMessImg grid grid-cols-${listAnh?.length}`
+                          : ""
                       }`}
                       style={
                         message.content.includes(`className="maskUserChange"`)
@@ -266,29 +265,29 @@ export default memo(function Message({
                         <div>{parse(message.content)}</div>
                       ) : updateMessage.linkImg ? (
                         <div className="m-3">
-                        <a href={`${updateMessage.url}`}>
-                          <Card
-                          hoverable
-                            headStyle={{
-                              backgroundColor: "##0084FF",
-                            }}
-                            bodyStyle={{ backgroundColor: "##0084FF" }}
-                            bordered={false}
-                            style={{ width: 300 }}
-                            cover={
-                              <img
-                              alt="ok"
-                                className="w-full object-contain	h-full	"
-                                src={`${updateMessage.linkImg}`}
-                              ></img>
-                            }
-                          >
-                            <Meta
-                              title={updateMessage.linkTitle}
-                              description={updateMessage.url}
-                            ></Meta>
-                          </Card>
-                        </a>
+                          <a href={`${updateMessage.url}`}>
+                            <Card
+                              hoverable
+                              headStyle={{
+                                backgroundColor: "##0084FF",
+                              }}
+                              bodyStyle={{ backgroundColor: "##0084FF" }}
+                              bordered={false}
+                              style={{ width: 300 }}
+                              cover={
+                                <img
+                                  alt="ok"
+                                  className="w-full object-contain	h-full	"
+                                  src={`${updateMessage.linkImg}`}
+                                ></img>
+                              }
+                            >
+                              <Meta
+                                title={updateMessage.linkTitle}
+                                description={updateMessage.url}
+                              ></Meta>
+                            </Card>
+                          </a>
                         </div>
                       ) : (
                         <div className="messageText center text-wrap break-all px-4 py-2">
@@ -300,12 +299,7 @@ export default memo(function Message({
                 )}
               </div>
 
-              {(student &&
-                listSeen &&
-                parseInt(message?.createdAt) ===
-                  parseInt(listSeen?.createdAt) &&
-                listSeen?.Seen_at) ||
-              parseInt(message.id) === parseInt(listSeen?.id) ? (
+              {message.isSeen === 1 && i === 0 && own ? (
                 <div className="Seen_field">
                   <img
                     className="avatarImage"
@@ -317,7 +311,7 @@ export default memo(function Message({
                     ref={seen_text}
                     style={{ fontSize: "0.9rem", color: "gray" }}
                   >
-                    Seen at {timeUse.getTime(listSeen?.Seen_at)}
+                    Seen at {timeUse.getTime(message.Seen_at)}
                   </p>
                 </div>
               ) : (
@@ -328,11 +322,7 @@ export default memo(function Message({
                       ref={seen_text}
                       style={{ fontSize: "0.9rem", color: "gray" }}
                     >
-                      {!message.Seen_at &&
-                        message.content &&
-                        !message.content.includes(
-                          `className="maskUserChange"`
-                        ) &&
+                      {
                         (updateMess ? "Đang gửi" : "Đã gửi")}
                     </span>
                   </div>

@@ -40,6 +40,7 @@ export default function Blog() {
           backgroundImage: `url(${blog.background})`,
         }}
       >
+        <a href="/createBlog">Create Blog</a>
         <div
           className="text-6xl w-full h-full  flex justify-between items-end "
           style={{ backgroundColor: "#00000070" }}

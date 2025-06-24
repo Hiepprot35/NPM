@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import useAuth from "../hook/useAuth";
-import { getConversation } from "../components/conversation/getConversation";
-import { getInforByUserID } from "../function/getApi";
-import UseToken from "../hook/useToken";
+import { fetchApiRes, getInforByUserID } from "../function/getApi";
+import { isArray } from "lodash";
 
 // Tạo context
 export const DataContext = createContext();
@@ -48,15 +47,15 @@ export const DataProvider = ({ children }) => {
     if (Object.keys(auth).length>0) {
       const res = async () => {
         setLoading(true);
-        const tokenString = localStorage.getItem('AccessToken');
-        const userToken = JSON?.parse(tokenString);
-        const data = await getConversation(auth,userToken);
+
+        const data = await fetchApiRes('conversations','GET');
+        console.log(data, "data conversation");
         const storedHiddenBubble = JSON.parse(
           localStorage.getItem("hiddenCounter")
         );
         const storedWindow = JSON.parse(localStorage.getItem("counter"));
         const mergen = [...storedHiddenBubble, ...storedWindow];
-        if(data)
+        if(isArray(data))
         {
 
           const update = data.map(async (e) => {

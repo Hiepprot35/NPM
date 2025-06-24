@@ -2,6 +2,7 @@ const { spaceChildren } = require("antd/es/button");
 
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
+   darkMode: 'class',
   theme: {
     extend: {
       zIndex: {
