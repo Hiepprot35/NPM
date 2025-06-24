@@ -48,7 +48,7 @@ function TVMovie(props) {
       const res2 = await TheMovieApi(
         "https://api.themoviedb.org/3/trending/tv/week"
       );
-      console.log(res2);
+     console.log(res2);
       if (res.results) {
         const update = await getDetailMovie(res.results);
         setListTV(update);

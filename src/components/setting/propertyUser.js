@@ -36,7 +36,6 @@ export default function PropertyUser(props) {
         }
       );
       const resJson = await res.json();
-      console.log(resJson);
       setCursor('')
       noti.open({
         message: ' 🥳 Notification update',
@@ -44,7 +43,7 @@ export default function PropertyUser(props) {
           `${resJson.message}`,
         duration: 0,
       });    } catch (error) {
-      console.log(error);
+     console.log(error);
     }
   }
   async function saveUserProperty(value) {
@@ -60,7 +59,6 @@ export default function PropertyUser(props) {
   }
 
   useEffect(() => {
-    console.log(property);
     if (button_save.current) {
       if (property !== props.propertyUser.value) {
         button_save.current.classList.add("invaild_ButtonSave");

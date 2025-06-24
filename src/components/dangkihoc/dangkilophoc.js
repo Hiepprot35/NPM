@@ -60,7 +60,7 @@ export default function DangKiLopHoc(props) {
             const result = await res.json();
             setLichHoc(result);
         } catch (error) {
-            console.log(error);
+           console.log(error);
         }
     };
     useEffect(() => {
@@ -161,14 +161,14 @@ export default function DangKiLopHoc(props) {
                 const data = await sendToApi.json()
                 setdsachlop(data)
             } catch (error) {
-                console.log(error)
+               console.log(error)
             }
 
         }
         sendDataApi()
     }, [])
     // useEffect(() => {
-    // console.log(check.current.value)
+    //console.log(check.current.value)
     //   });
     function handleDangKy(e) {
         const data = {
@@ -192,22 +192,22 @@ export default function DangKiLopHoc(props) {
                     setdsachlop(pre => [...pre, { "CLASSID": respon.CLASSID, "MonHocID": respon.MonHocID }])
                 }
                 else if (sendToApi.status === 200) {
-                    console.log(danhlopdadangky);
+                   console.log(danhlopdadangky);
                     const newData = danhlopdadangky.filter((element) =>
                         element.CLASSID != e.target.value
                     )
                     setdsachlop(newData)
                 }
             } catch (error) {
-                console.log(error)
+               console.log(error)
             }
 
         }
         sendDataApi()
 
     }
-    useEffect(() => { console.log("Lichhoc", isChecked) }, [isChecked])
-    useEffect(() => { console.log("LopDangKi", danhlopdadangky) }, [danhlopdadangky])
+    useEffect(() => {console.log("Lichhoc", isChecked) }, [isChecked])
+    useEffect(() => {console.log("LopDangKi", danhlopdadangky) }, [danhlopdadangky])
     const viewTrungLichHoc = (title) => {
         setIsChecked(monHoc.find(e => e.MonHocID == (danhlopdadangky.find(monhoc => monhoc.CLASSID == findMonHoc(lichhoc, title).CLASSID)?.MonHocID)))
     }

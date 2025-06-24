@@ -17,16 +17,7 @@ export default function NewFeed() {
   };
   const getNewfeed = async () => {
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_DB_HOST}/api/getNewfeed`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${AccessToken}`,
-          },
-        }
-      );
-      console.log(res,"ressssssssssssssssss")
+      const res = await fetchApiRes('/getNewfeed')
       if (!res.ok) {
         throw new Error("Failed to fetch new feed");
       }
@@ -36,7 +27,6 @@ export default function NewFeed() {
       // Fetch media for each comment
       const mediaPromises = result.map(async (e) => {
         try {
-          console.log(e.id);
           const data = await fetchApiRes(`comment/getMedia/?commentId=${e.id}`);
           return data.result;
         } catch (error) {

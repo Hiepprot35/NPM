@@ -25,7 +25,7 @@ document.addEventListener("click", (evt) => {
     labelUserName.classList.remove("change1");
     spanUsername.classList.remove("show1");
     input_tk.classList.remove("background_input")
-    console.log()
+   console.log()
 
 
   }
@@ -40,7 +40,7 @@ document.addEventListener("click", (e) => {
   let sumbit_target = e.target;
   if (sumbit_target == sumbit_btn) {
     sumbit_btn.classList.add("sumbit_jsad");
-    console.log("a")
+   console.log("a")
     return;
   }
 });

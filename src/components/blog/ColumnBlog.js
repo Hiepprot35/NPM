@@ -62,7 +62,7 @@ export default function ColumnBlog({Cols,setCols,col}) {
       );
       if (!startCol || !finishCol) return;
       if (startCol === finishCol) {
-        console.log(source.index, destination.index, "eeeeeeeeee");
+       console.log(source.index, destination.index, "eeeeeeeeee");
         const newItems = [...startCol.items];
         const [movedItem] = newItems.splice(source.index, 1);
         newItems.splice(destination.index, 0, movedItem);
@@ -229,27 +229,53 @@ export default function ColumnBlog({Cols,setCols,col}) {
   const lastItemRef = useRef(null);
   const BORDER_SIZE = 4;
   const panelRef = useRef(null);
-  const [isResizing, setIsResizing] = useState(false);
-  // Khi thêm hoặc cập nhật phần tử
+  const [isDragging, setIsDragging] = useState(false);
+  let YPos = 0;
+  let initPos = 0;
+
   const handleMouseDown = (e) => {
-    if (e.nativeEvent.offsetX < BORDER_SIZE) {
-      setIsResizing(true);
-    }
+    if (!panelRef.current) return;
+
+    YPos = e.offsetX;
+    setIsDragging(true);
+
+    const resizeElement = panelRef.current;
+    initPos = parseInt(resizeElement.style.width, 10) || 
+              parseInt(window.getComputedStyle(resizeElement).width, 10);
+
+   console.log("Mouse Down - initPos:", initPos, "YPos:", YPos);
   };
 
   const handleMouseMove = (e) => {
-    if (!isResizing || !panelRef.current) return;
-    const panel = panelRef.current;
-    const dx = panel.dataset.mPos - e.clientX;
-    panel.dataset.mPos = e.clientX;
-    panel.style.width = `${parseInt(getComputedStyle(panel).width) + dx}px`;
+    if (!panelRef.current || !isDragging) return;
+
+    const newWidth =  e.offsetX;
+    if (newWidth > 50) {
+      panelRef.current.style.width = newWidth + "px";
+    }
   };
 
   const handleMouseUp = () => {
-    setIsResizing(false);
+    setIsDragging(false);
   };
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    } else {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging]);
+
   return (
-    <div className="flex h-full w-full">
+    <>
+    <div className="flex h-full justify-between " style={{width:'200px'}} ref={panelRef}>
     <div
       className="flex flex-col"
       style={{ width: 100 / Cols.length + "%" }}
@@ -258,20 +284,21 @@ export default function ColumnBlog({Cols,setCols,col}) {
         <div className="w-full">
           <Popover
             content={
-              <div className="flex-col">
-                <div
+              <div >
+                <div 
+                className="flex-col w-full rounded-md hover:bg-sky-700 "
                   onClick={(e) => handleInputChange(e, col.id, 1)}
                 >
-                  Text
+                  Add text field
                 </div>
-                <div
+                <div className="w-full rounded-md hover:bg-sky-700"
                   onClick={(e) => handleInputChange(e, col.id, 2)}
                 >
-                  Image
-                </div>
+                  Add image field
+                  </div>
               </div>
             }
-            title="Add object"
+            title="Add"
             trigger="click"
             open={open}
             onOpenChange={()=>handleOpenChange(col)}
@@ -316,7 +343,7 @@ export default function ColumnBlog({Cols,setCols,col}) {
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
-                                    className="w-20vw"
+                                    className="w-full"
                                   >
                                     <div className="relative group m-4">
                                       <span className="circleButton absolute top-8 right-12 hidden group-hover:flex cursor-pointer">
@@ -360,7 +387,7 @@ export default function ColumnBlog({Cols,setCols,col}) {
       ></div>
     </div>
     <div className="h-48 w-8 relative ">
-      <div
+    <div
         style={{
           position: "absolute",
           top: 0,
@@ -369,11 +396,14 @@ export default function ColumnBlog({Cols,setCols,col}) {
           height: "100vh",
           cursor: "ew-resize",
         }}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        class="absolute top-0 bottom-0 left-[21px] w-[4px] h-full bg-[rgba(55,53,47,0.16)]"
+        onMouseDown={handleMouseDown}
+        className="absolute top-0 bottom-0 left-[21px] w-[4px] h-full bg-[rgba(55,53,47,0.16)]"
       ></div>
     </div>
-  </div>  )
+  
+  </div>  
+ 
+  </>
+)
 }
 

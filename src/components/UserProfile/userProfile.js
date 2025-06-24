@@ -14,16 +14,9 @@ const getFriendList = async (userID) => {
   const checkID = (array, id) => {
     return array.user1 === id ? array.user2 : array.user1;
   };
-  const result = await fetchApiRes("message/getFriendList", "POST", {
-    userID: userID,
-  });
-  if(result.result?.leng)
-  {
+  const result = await fetchApiRes(`message/getFriendList?user=${userID}`, "GET");
 
-    const data = result.result.map((e) => checkID(e, userID));
-    return data;
-  }
-  return []
+  return result?.result || [];
 };
 
 export default function UserProfile(props) {
@@ -37,17 +30,15 @@ export default function UserProfile(props) {
     Conversations,
   } = useData();
   const { auth, myInfor } = useAuth();
-  const [UserProfile, setUserProfile] = useState();
+  const [UserProfileState, setUserProfileState] = useState();
   useEffect(() => {
-    const getUserInfo=async(e)=>
-      {
-        const res=await getStudentInfoByMSSV(e)
-        setUserProfile(res)
-      } 
-      if(props.MSSV)
-      {
-        getUserInfo(props.MSSV)
-      }
+    const getUserInfo = async (e) => {
+      const res = await getStudentInfoByMSSV(e);
+      setUserProfileState(res);
+    };
+    if (props.MSSV) {
+      getUserInfo(props.MSSV);
+    }
   }, [props.MSSV]);
   const AddConver = async (id, request) => {
     try {
@@ -55,11 +46,10 @@ export default function UserProfile(props) {
         user1: auth.userID,
         user2: id,
         user1_mask: myInfor.Name,
-        user2_mask: UserProfile.Name,
+        user2_mask: UserProfileState.Name,
         Requesting: request ? 1 : 0,
       };
       const res = await fetchApiRes("conversations", "POST", { ...obj });
-      console.log(res);
       if (res.result) {
         return {
           id: res.result,
@@ -123,8 +113,8 @@ export default function UserProfile(props) {
         user1: auth.userID,
         user2: id,
         user1_mask: myInfor.Name,
-        user2_mask: UserProfile.Name,
-        img: UserProfile.cutImg || UserProfile.img,
+        user2_mask: UserProfileState.Name,
+        img: UserProfileState.cutImg || UserProfileState.img,
       };
       const converFound = Conversations.find(
         (e) => e?.user1 === id || e?.user2 === id
@@ -148,7 +138,10 @@ export default function UserProfile(props) {
         }
       } else {
         setConversationContext((prev) => [
-          { ...converFound, img: UserProfile.cutImg || UserProfile.img },
+          {
+            ...converFound,
+            img: UserProfileState.cutImg || UserProfileState.img,
+          },
           ...prev.filter((e) => e.id !== converFound.id),
         ]);
         setListHiddenBubble((pre) => [
@@ -164,10 +157,10 @@ export default function UserProfile(props) {
   const [gerenalFriend, setgerenalFriend] = useState([]);
 
   useEffect(() => {
-    if (UserProfile) {
+    if (UserProfileState) {
       const getUserFriend = async () => {
         const dataMyFriend = await getFriendList(auth?.userID);
-        const dataUserFriend = await getFriendList(UserProfile?.UserID);
+        const dataUserFriend = await getFriendList(UserProfileState?.UserID);
         const generalFriends = dataUserFriend.filter((userFriend) => {
           return dataMyFriend.some((e) => e === userFriend);
         });
@@ -175,14 +168,14 @@ export default function UserProfile(props) {
       };
       getUserFriend();
     }
-  }, [UserProfile, auth]);
+  }, [UserProfileState, auth]);
 
   return (
     <>
       {
         <div className="UserProfile" style={{ width: "100%", cursor: Cursor }}>
           <div className="">
-            {UserProfile && (
+            {UserProfileState && (
               <div>
                 <div
                   className="center"
@@ -195,21 +188,23 @@ export default function UserProfile(props) {
                   <div>
                     <Popover
                       content={
-                        <UserProfile
-                          User={UserProfile}
-                          MSSV={UserProfile.MSSV}
-                          isHover={true}
-                        ></UserProfile>
+                        <>
+                          <UserProfile
+                            User={UserProfileState}
+                            MSSV={UserProfileState.MSSV}
+                            isHover={true}
+                          ></UserProfile>
+                        </>
                       }
                     >
                       <NavLink
-                        to={`${RouteLink.profileLink}/${UserProfile.UserID}`}
+                        to={`${RouteLink.profileLink}/${UserProfileState.UserID}`}
                       >
                         <img
                           className="avatarImage"
                           src={
-                            UserProfile?.cutImg ||
-                            UserProfile?.img ||
+                            UserProfileState?.cutImg ||
+                            UserProfileState?.img ||
                             "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg"
                           }
                           alt="avatar"
@@ -222,7 +217,7 @@ export default function UserProfile(props) {
                   >
                     <div>
                       <b>
-                        {UserProfile.Name} {auth.userID}
+                        {UserProfileState.Name} {auth.userID}
                       </b>
                       <p>Có {gerenalFriend.length} bạn chung</p>
                       {gerenalFriend && (
@@ -240,7 +235,7 @@ export default function UserProfile(props) {
                         className="sendButton"
                         onClick={() => {
                           if (auth.userID) {
-                            handleAddChat(UserProfile.UserID);
+                            handleAddChat(UserProfileState.UserID);
                           } else {
                             window.open(
                               `${process.env.REACT_APP_CLIENT_URL}/login`,
@@ -262,8 +257,8 @@ export default function UserProfile(props) {
                     )}
                     {Conversations.some(
                       (e) =>
-                        (e.user1 === UserProfile.UserID ||
-                          e.user2 === UserProfile.UserID) &&
+                        (e.user1 === UserProfileState.UserID ||
+                          e.user2 === UserProfileState.UserID) &&
                         e.Friend
                     ) ? (
                       <Button
@@ -273,7 +268,9 @@ export default function UserProfile(props) {
                           margin: ".2rem",
                           cursor: Cursor,
                         }}
-                        onClick={() => deleteRequestFriend(UserProfile.UserID)}
+                        onClick={() =>
+                          deleteRequestFriend(UserProfileState.UserID)
+                        }
                         icon={<FiUserMinus></FiUserMinus>}
                       ></Button>
                     ) : (
@@ -284,7 +281,9 @@ export default function UserProfile(props) {
                           margin: ".2rem",
                           cursor: Cursor,
                         }}
-                        onClick={() => sendRequestFriend(UserProfile.UserID)}
+                        onClick={() =>
+                          sendRequestFriend(UserProfileState.UserID)
+                        }
                         icon={<FiUserPlus></FiUserPlus>}
                       ></Button>
                     )}

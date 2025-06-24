@@ -10,11 +10,11 @@ export default function FriendList(props) {
   const getData = async () => {
     try {
       const response = await fetchApiRes("getallstudent", "GET");
-      console.log(response);
-      console.log(response.result);
+     console.log(response);
+     console.log(response.result);
       setListUsers(response.result);
     } catch (error) {
-      console.log(error);
+     console.log(error);
     }
   };
   useEffect(() => {

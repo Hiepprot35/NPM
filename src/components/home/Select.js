@@ -8,7 +8,7 @@ const Select = ({ options, onChange }) => {
 
   const handleSelect = (option) => {
     setSelected(option); // Cập nhật lựa chọn
-    console.log(option.value,'otion')
+   console.log(option.value,'otion')
     onChange(option.value); // Gọi hàm onChange với lựa chọn mới
     setIsOpen(false); // Đóng menu sau khi chọn
   };

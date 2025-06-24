@@ -13,7 +13,7 @@ export default function MoviesType(props) {
   const type = queryParameters.get("type");
   const id = queryParameters.get("id");
   const page = queryParameters.get("page") || 1;
-  console.log(page)
+ console.log(page)
   document.title = type;
   const [Movies, setMovies] = useState([]);
   const [Loading, setLoading] = useState();
@@ -118,7 +118,7 @@ export default function MoviesType(props) {
 
   useEffect(() => {
     if (Movies) {
-      console.log(Movies);
+     console.log(Movies);
     }
   }, [Movies]);
   return (

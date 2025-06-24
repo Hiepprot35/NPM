@@ -99,7 +99,7 @@ function Header(props) {
     };
   }, [socket, auth]);
   const updateTitle = async (id) => {
-    console.log("id");
+   console.log("id");
     document.title = `${id} gửi tin nhắn`;
   };
 
@@ -112,16 +112,7 @@ function Header(props) {
     },
     closed: { zIndex: 0, opacity: 0, y: 20, transition: { duration: 0.2 } },
   };
-  const foundConversation = async (user1, user2) => {
-    const conversations = await fetchApiRes("message/getConversation", "POST", {
-      user1: user1,
-      user2: user2,
-    });
-    // const conversations=await getConversation(auth)
-    if (conversations.result.length > 0) {
-      return conversations.result[0];
-    }
-  };
+
 
   useEffect(() => {
     if (socket && auth?.userID) {
@@ -129,13 +120,9 @@ function Header(props) {
         if (data.sender_id !== auth?.userID) {
           const obj = { ...data?.conversation };
           setListHiddenBubble((prev) => prev.filter((e) => e.id !== obj.id));
-          console.log(obj);
-
           const conversationExists = listWindow.some(
             (item) => item.id === obj.id
           );
-          console.log(conversationExists);
-
           if (!conversationExists) {
             setListWindow((prev) => [...prev, { id: obj.id }]);
           }
@@ -173,7 +160,7 @@ function Header(props) {
             document.addEventListener("click", enableAudio);
           }
         } catch (error) {
-          console.log("Error playing notification sound:", error);
+         console.log("Error playing notification sound:", error);
         }
       };
 
@@ -216,6 +203,8 @@ function Header(props) {
 
   const ChangeColorTheme = (event) => {
     setThemeColor((pre) => !pre);
+    document.documentElement.classList.toggle('dark');
+
   };
   const refSearchButton = useRef();
   const searchHandle = () => {
@@ -227,7 +216,7 @@ function Header(props) {
     setSearchQuery(e.target.value);
   };
   useEffect(() => {
-    console.log(SearchQuery);
+   console.log(SearchQuery);
   }, [SearchQuery]);
   const debouncedHandleSearch = useCallback(
     debounce(searchQueryHandle, 500),
@@ -293,7 +282,7 @@ function Header(props) {
   }, [themeColor]);
   const [Clock, setClock] = useState();
   useEffect(() => {
-    console.log(auth);
+   console.log(auth);
   }, [auth]);
   useEffect(() => {
     const intel = setInterval(() => {

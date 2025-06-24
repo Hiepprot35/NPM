@@ -20,12 +20,12 @@ function BellTable() {
     const res = await fetchApiRes("message/getRequestFriends", "POST", {
       user2: auth.userID,
     });
+    console.log(res,"hahaha")
     setNotification(res.result);
   };
   const getUsers = async () => {
     const promises = notification.map(async (element) => {
       let user = element.user1 !== auth.userID ? element.user1 : element.user2;
-      console.log(user);
       const data = await fetchApiRes("getStudentbyUserID", "POST", {
         UserID: parseInt(user),
       });
@@ -42,7 +42,6 @@ function BellTable() {
     setUsers(ListUsers);
   };
   useEffect(() => {
-    console.log(auth==null,'datadatadatadatadatadatadata')
     if (Object.keys(auth).length>0) {
       getNoification();
     }
@@ -55,7 +54,6 @@ function BellTable() {
   useEffect(() => {
     if (socket) {
       socket.on("receiveRequest", async (values) => {
-        console.log("reccc");
         document.title = `Một thông báo mới`;
         getNoification();
       });

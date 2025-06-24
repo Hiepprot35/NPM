@@ -76,16 +76,14 @@ export default function PhotoPost({ UsersProfile }) {
           setCountReaction(data.sort((a, b) => b.count - a.count));
         }
       } catch (error) {
-        console.log("ero", error);
+       console.log("ero", error);
       }
     }
   };
   useEffect(() => {
     getComment();
   }, [commentID]);
-  useEffect(() => {
-    console.log(Comment);
-  }, [Comment]);
+
   const [myReaction, setmyReaction] = useState();
   const likeHandle = async (e) => {
     const res = await fetchApiRes("insertLike", "PUT", {

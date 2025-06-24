@@ -62,11 +62,10 @@ export default function SettingAccount() {
       const resJson = await res.json();
       setMessRes(resJson.message);
     } catch (error) {
-      console.log(error);
+     console.log(error);
     }
   }
   useEffect(() => {
-    saved && console.log(userInfo)
     // saved && updateUser(userInfo);
     setSaved(false);
   }, [saved, userInfo]);
@@ -77,9 +76,7 @@ export default function SettingAccount() {
       setInputs(map);
     }
   }, [userInfo]);
-  useEffect(() => {
-    console.log(userInfo);
-  }, [userInfo]);
+
   const clickProperty = (data) => {
     setClicked(true);
     setChoosenProperty({ key: data.key, value: data.value });

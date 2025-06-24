@@ -9,10 +9,9 @@ function TimeCount() {
     useEffect(() => {
 
         const timeId=setInterval(()=>setTime(pre=>pre-1),1000);
-        console.log('Openup')
 
         // return(
-        //    ()=> console.log('Clearup')
+        //    ()=>console.log('Clearup')
         // )
     }, []
     )

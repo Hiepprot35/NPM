@@ -234,7 +234,7 @@ function ListPlay(props) {
     getFilmList();
   }, [auth.userID]);
   useEffect(() => {
-    console.log("auth", auth);
+   console.log("auth", auth);
   }, []);
   const token = `eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxYTMxMjY0M2U3MzQ5YjAyM2Q4YWE0NzViMzUyMzYwMSIsInN1YiI6IjY1ZTZkOGMzOGQxYjhlMDE4NzY3MjEwOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.IhIe9_G8KXIFkM2bHAhWYkZy_uaOvUolfJrfI1YQZm4`;
 
@@ -249,7 +249,7 @@ function ListPlay(props) {
     };
     fetchDataForList();
     if (filmData) {
-      console.log(filmData);
+     console.log(filmData);
     }
   }, [ListFilm]);
   const listMovieRef = useRef();

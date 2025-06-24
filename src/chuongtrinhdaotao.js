@@ -30,7 +30,7 @@ export default function Chuongtrinhdaotao() {
         getAPi()
     }, [])
     useEffect(() => {
-        console.log(dsmon)
+       console.log(dsmon)
     }, [Loadng])
     return (
         <>
