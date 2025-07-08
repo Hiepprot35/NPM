@@ -8,9 +8,9 @@ import MediaGrid from "../imageView/MediaGrid.js";
 import Upload from "../imageView/Upload.js";
 import "./myComment.scss";
 import { IsLoading } from "../Loading.js";
-import { shareType } from "../../lib/data.js";
 import Select from "./Select.js";
 import useNoti from "../../hook/useNoti.js";
+import { shareType } from "../../public/enum/enum.js";
 export default function MyComment(props) {
   const inputRef = useRef();
   const [FilterTag, setFilterTag] = useState();
@@ -168,12 +168,7 @@ export default function MyComment(props) {
       );
       const newComment = await res.json();
       setNotiText({message:'Post success',title:'Post Notificantion',type:'success'})
-      props.update((pre) => [
-        {
-          ...newComment,
-        },
-        ...pre,
-      ]);
+   
       inputRef.current.innerHTML = "";
       setCountText(0);
       setImgFile([]);

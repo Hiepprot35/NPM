@@ -154,17 +154,14 @@ export default function UserProfile(props) {
     }
   };
 
-  const [gerenalFriend, setgerenalFriend] = useState([]);
-
+  const [gerenalFriend, setgerenalFriend] = useState({result:[],mutualFriends:0});
+ 
   useEffect(() => {
-    if (UserProfileState) {
+    if (UserProfileState?.UserID) {
       const getUserFriend = async () => {
-        const dataMyFriend = await getFriendList(auth?.userID);
-        const dataUserFriend = await getFriendList(UserProfileState?.UserID);
-        const generalFriends = dataUserFriend.filter((userFriend) => {
-          return dataMyFriend.some((e) => e === userFriend);
-        });
-        setgerenalFriend(generalFriends);
+        const dataUserFriend = await fetchApiRes(`message/getFriendList?user=${UserProfileState?.UserID}`, "GET");;
+     
+        setgerenalFriend(dataUserFriend);
       };
       getUserFriend();
     }
@@ -219,10 +216,10 @@ export default function UserProfile(props) {
                       <b>
                         {UserProfileState.Name} {auth.userID}
                       </b>
-                      <p>Có {gerenalFriend.length} bạn chung</p>
+                      <p>Có {gerenalFriend.mutualFriends} bạn chung</p>
                       {gerenalFriend && (
                         <GerenalFriendComponent
-                          listGerenal={gerenalFriend}
+                          listGerenal={gerenalFriend.result}
                         ></GerenalFriendComponent>
                       )}
                     </div>

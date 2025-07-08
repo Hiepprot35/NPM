@@ -195,7 +195,9 @@ export default function MovieFilms(props) {
     target: ref,
     offset: ["start center", "end center"],
   });
-
+  useEffect(() => {
+    console.log(BackImg,MovieLink)
+  }, [BackImg,MovieLink]);
   return (
     <>
       {
@@ -369,7 +371,7 @@ export default function MovieFilms(props) {
                               }}
                               className="center filmHandle"
                             >
-                              <div>
+                              <div className="filmListHhehehe">
                                 <WatchFilms
                                   id={e.id}
                                   background={e.backdrop_path}
@@ -382,7 +384,7 @@ export default function MovieFilms(props) {
                                 className="popover"
                                 content={
                                   <div>
-                                    <NavLink to={`movie/moviedetail/${e.id}`}>
+                                    <NavLink to={`./moviedetail/${e.id}`}>
                                       <div
                                         className="center"
                                         style={{ margin: ".5rem" }}

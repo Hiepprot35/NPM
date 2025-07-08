@@ -1,6 +1,11 @@
 import React from "react";
+import WatchRoom from "../watchRoom/watchRoom";
+import useAuth from "../../hook/useAuth";
+import WatchParty from "../watchRoom/watchRoom";
+
 
 export default function Blog() {
+  const {auth}=useAuth()
   const blog = {
     title: "Turn on your device from distraction into time saver either",
     background:
@@ -30,6 +35,11 @@ export default function Blog() {
     },
     timeRead: "10 minutes",
   };
+  return (
+    <div>
+    <WatchParty username={auth}></WatchParty>
+    </div>
+  )
   return (
     <div className=" w-screen text-wrap	 ">
       <div

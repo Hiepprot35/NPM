@@ -10,7 +10,7 @@ export default function MyReactPlayer({ BackImg, MovieLink,setMovieLink }) {
   const closeWindowHandle = () => {
     setMovieLink();
   };
-
+  console.log(MovieLink,"heheheh")
   return (
     BackImg && MovieLink && MovieLink.length>0 && (
       <motion.div

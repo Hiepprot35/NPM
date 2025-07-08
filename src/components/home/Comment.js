@@ -18,9 +18,9 @@ import parseUrl from "parse-url";
 import { Link, NavLink } from "react-router-dom";
 import { useRealTime } from "../../context/useRealTime";
 import MediaGrid from "../imageView/MediaGrid";
-import { shareType } from "../../lib/data";
 import Select from "./Select";
 import useNoti from "../../hook/useNoti";
+import { shareType } from "../../public/enum/enum.js";
 function Comment({
   comment,
   isReply,
@@ -41,7 +41,6 @@ function Comment({
         ? `/gettAllCommentFilms/?movieID=${comment.movieID}&replyID=${comment.id}`
         : `comment/getAllCommentPostByID/?replyID=${comment.id}`;
     const res = await fetchApiRes(url);
-   console.log(res, "heheeeeeeeeeeeeeeee");
     if (res?.result.length > 0) {
       setCommentsRep(res.result);
     }
@@ -94,7 +93,7 @@ function Comment({
     getComment();
   }, [comment, Clicked, getComment]);
   const likeHandle = async (e) => {
-    const res = await fetchApiRes("insertLike", "PUT", {
+    const res = await fetchApiRes("comments/updateCommentDetail", "PUT", {
       commentID: e,
       disLike: false,
       Like: true,
@@ -191,10 +190,12 @@ function Comment({
       [data.action]: true,
       userID: auth.username,
     };
-    await fetchApiRes("insertLike", "PUT", obj);
+    await fetchApiRes("comments/updateCommentDetail", "PUT", obj);
     setClicked(!Clicked);
   };
-
+  useEffect(() => {
+    console.log(comment)
+  }, [comment]);
   const [ReplyOpen, setReplyOpen] = useState(false);
   const ReplyHandle = () => {
     setReplyOpen(!ReplyOpen);
@@ -202,17 +203,27 @@ function Comment({
   const [SeeMoreComment, setSeeMoreComment] = useState(false);
   const [CountReaction, setCountReaction] = useState();
   const { Onlines } = useRealTime();
-  const [ShareTypeUpdate, setShareTypeUpdate] = useState();
+  const [share, setShareTypeUpdate] = useState();
   const foundShare = shareType.find((e) => e.value === Number(comment?.share));
   const { setNotiText } = useNoti();
   const deletePost = async (id) => {
-    const url = `${process.env.REACT_APP_DB_HOST}/api/comment/delete/${id}`;
-    const res = await fetch(url, { method: "DELETE" });
-    const message = await res.json();
-    const type = message.deleted ? "success" : "error";
+    const url = `comment/delete/${id}`;
+    const message = await fetchApiRes(url, 'DELETE');
+    const type = message.result ? "success" : "error";
     setNotiText({
       message: message.message,
       title: "Delete notification",
+      type: type,
+    });
+    setRefeshPost((pre) => !pre);
+  };
+    const updatePost = async (id) => {
+    const url = `comment/updateComment/${id}`;
+    const message = await fetchApiRes(url,'PUT',{share});
+    const type = message.result ? "success" : "error";
+    setNotiText({
+      message: message.message,
+      title: "Update notification",
       type: type,
     });
     setRefeshPost((pre) => !pre);
@@ -354,10 +365,10 @@ function Comment({
                           {IsUpdating && (
                             <li className="mx-2">
                               <Popconfirm
-                                title="Delete this post"
-                                description="Are you sure to delete this task?"
+                                title="Update this post"
+                                description="Are you sure to update this task?"
                                 okText="Yes"
-                                onConfirm={() => deletePost(comment.id)}
+                                onConfirm={() => updatePost(comment.id)}
                                 cancelText="No"
                               >
                                 <span className="circleButton m-0">

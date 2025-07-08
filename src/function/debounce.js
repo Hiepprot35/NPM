@@ -15,20 +15,4 @@ export const debounce = (fn, delay) => {
     }, delay);
   };
 };
-export const shareType = [
-  {
-    value: 0,
-    name: "public",
-    icon: <MdOutlinePublic />,
-  },
-  {
-    value: 1,
-    name: "friend",
-    icon: <FaUserFriends />,
-  },
-  {
-    value: 3,
-    name: "private",
-    icon: <MdOutlinePrivateConnectivity />,
-  },
-];
+

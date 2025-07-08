@@ -38,6 +38,7 @@ import { delay } from "lodash";
 import { fetchVideoTitle } from "../message/windowchat.js";
 import MiniRp from "./MiniRp.js";
 import ShowImgDialog from "../message/windowchat/ShowImgMess.js";
+import { Link } from "react-router-dom";
 const TitleVideo = ({ videoID, isCurrent }) => {
   const [Title, setTitle] = useState();
   const [ClickVideo, setClickVideo] = useState();
@@ -108,7 +109,6 @@ export function InViewAnimate({ children, variants, setCurrent }) {
   );
 }
 export default function DetailMovie(props) {
-  const { auth } = useAuth();
   const videoWidth = 30;
 
   const [Movies, setMovies] = useState([]);
@@ -203,7 +203,8 @@ export default function DetailMovie(props) {
       transition: { staggerChildren: 0, staggerDirection: 0 },
     },
   };
-
+  const { auth } = useAuth();
+  const [roomDetail, setroomDetail] = useState();
   const variantSectionRight = {
     openSection: {
       opacity: 1,
@@ -294,6 +295,23 @@ export default function DetailMovie(props) {
       setLoading(false);
     }
   };
+  const [listRoom, setlistRoom] = useState([]);
+  useEffect(() => {
+    const fetchRoom = async () => {
+      try {
+        const data = await fetchApiRes(
+          `zoomroom/getRoom?movieId=${props.movieID}`,
+          "GET"
+        );
+        setlistRoom(data.result);
+      } catch (error) {
+        console.error("Failed to fetch room list:", error);
+      }
+    };
+
+    fetchRoom();
+  }, [props.movieID]);
+
   const videosSlideRef = useRef();
   const ImagesSlideRef = useRef();
   useEffect(() => {
@@ -447,7 +465,7 @@ export default function DetailMovie(props) {
     }
   }, [ShowMiniRp]);
   useEffect(() => {
-   console.log(comments, "aaaaaaaaaaaaaaaaaaaaa");
+    console.log(comments, "aaaaaaaaaaaaaaaaaaaaa");
   }, [comments]);
   const getActors = async () => {
     try {
@@ -464,7 +482,7 @@ export default function DetailMovie(props) {
         }
       );
       const data = await res.json();
-     console.log(data);
+      console.log(data);
       setActors(data);
     } catch (error) {
     } finally {
@@ -648,6 +666,39 @@ export default function DetailMovie(props) {
                           </motion.p>
                         </motion.div>
                         <p>ADD TO WATCHLIST</p>
+                        <Link to={`./${auth.userID}/party`}>
+                          <p className="cursor-pointer text-blue-500 hover:underline">
+                            WATCH PARTY
+                          </p>
+                        </Link>{" "}
+                        <p className="font-bold text-lg mb-2">Rooms</p>
+                        <div className="space-y-2">
+                          {listRoom && listRoom.length > 0 ? (
+                            listRoom.map((room, index) => (
+                              <Link
+                                key={index}
+                                to={`./${room.hostId}/party`}
+                                className="block p-3 border rounded-md hover:bg-gray-100 cursor-pointer flex justify-between items-center"
+                              >
+                                <div>
+                                  <p className="font-medium">
+                                    {room.roomName || `Phòng #${index + 1}`}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    ID: {room.roomId}
+                                  </p>
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                  👤 {room.viewers || 1} người
+                                </div>{" "}
+                              </Link>
+                            ))
+                          ) : (
+                            <p className="text-gray-500 italic">
+                              Không có phòng nào
+                            </p>
+                          )}
+                        </div>
                       </motion.div>
                     </div>
                   </div>

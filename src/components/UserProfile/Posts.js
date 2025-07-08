@@ -5,23 +5,18 @@ import "./Posts.css";
 import { fetchApiRes } from "../../function/getApi";
 import UseToken from "../../hook/useToken";
 import useAuth from "../../hook/useAuth";
-import MyPost from '../blog/myPost'
-
+import MyPost from "../blog/myPost";
 
 export default function Posts(props) {
   const [gridView, setGridView] = useState(false);
-  const { AccessToken } = UseToken();
   const [Post, setPost] = useState([]);
-  const [refreshPost,setRefeshPost]=useState(false)
+  const [refreshPost, setRefeshPost] = useState(false);
   const { auth } = useAuth();
   const getPost = async () => {
     try {
       const data = await fetchApiRes(
         `comment/getAllCommentPostByID/?userID=${props.username}&replyID=-1`,
-        "GET",
-        null,
-        null,
-        AccessToken
+        "GET"
       );
       if (data && data.result) {
         const dataUpdate = data.result.sort(
@@ -36,9 +31,9 @@ export default function Posts(props) {
     }
   };
   useEffect(() => {
-    setPost([])
+    setPost([]);
     getPost();
-  }, [refreshPost,props.username]);
+  }, [refreshPost, props.username]);
   return (
     <>
       {auth && auth.userID === Number(props.username) && (

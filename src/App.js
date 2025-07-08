@@ -35,6 +35,7 @@ import { notification } from "antd";
 import useNoti from "./hook/useNoti";
 import DetailPost from "./components/UserProfile/DetailPost";
 import CreateBlog from "./components/blog/CreateBlog";
+import WatchParty from "./components/watchRoom/watchRoom";
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   let location = useLocation();
@@ -111,9 +112,10 @@ function App() {
                   element={<Chuongtrinhdaotao />}
                 />
                 <Route
-                  path="movie/moviedetail/:id"
+                  path="filmHome/moviedetail/:id"
                   element={<DeltailMovieFilms />}
                 />
+                <Route path="filmHome/moviedetail/:id/:user/party" element={<WatchParty></WatchParty>}></Route>
                 <Route path="*" element={<NewFeed />}></Route>
 
                 <Route path="friends" element={<FriendList />} />

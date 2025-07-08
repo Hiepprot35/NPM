@@ -35,7 +35,7 @@
   overflow: hidden;
   transition: 300ms ease-out;
   height: 100vh;
-  width: var(--widthContentHome);
+  /* width: var(--widthContentHome); */
   position: relative;
 
 }

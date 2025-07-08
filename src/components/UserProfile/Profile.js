@@ -210,22 +210,15 @@ export default function Profile({ children }) {
     setUserInfo(null);
     setImgContent([]);
   };
-  const getFriendList = async (userID) => {
-    const result = await fetchApiRes(
-      `message/getFriendList?user=${userID}`,
-      "GET"
-    );
-    if (result?.result) {
-      return result.result;
-    } else {
-      return [];
-    }
-  };
-  const [friends, setFriend] = useState([]);
+
+  const [friends, setFriend] = useState({result:[],mutualFriends:0});
   useEffect(() => {
     if (Users?.UserID && auth) {
       const getUserFriend = async () => {
-        const dataMyFriend = await getFriendList(Users?.UserID);
+        const dataMyFriend = await fetchApiRes(
+          `message/getFriendList?user=${Users?.UserID }`,
+          "GET"
+        );
         if (dataMyFriend) {
           setFriend(dataMyFriend);
         }
@@ -235,26 +228,7 @@ export default function Profile({ children }) {
     }
     return () => setFriend([]);
   }, [Users, auth]);
-  useEffect(() => {
-    if (friends && Users) {
-      const getUserFriend = async () => {
-        let dataUserFriend;
-        dataUserFriend = await getFriendList(auth.userID);
 
-        const generalFriends = dataUserFriend.filter((userFriend) => {
-          return friends.find(
-            (e) =>
-              e.user1 === userFriend.user1 ||
-              e.user1 === userFriend.user2 ||
-              e.user2 === userFriend.user1 ||
-              e.user2 === userFriend.user2
-          );
-        });
-        setgerenalFriend(generalFriends);
-      };
-      getUserFriend();
-    }
-  }, [friends]);
   const introduceRef = useRef();
   const [ChangeIntroduce, setChangeIntroduce] = useState();
   const [IntroduceInput, setIntroduceInput] = useState();
@@ -419,9 +393,10 @@ export default function Profile({ children }) {
   const Setting = BackgroundUpdate || MovingSetting;
   const { themeColor } = useData();
 
-  const backGroundHandle = (data) => {
+  const backGroundHandle = (data, index) => {
     return (
       <button
+        key={index}
         className="flex px-4 rounded-xl items-center hover:bg-gray-200"
         onClick={data.click}
       >
@@ -512,7 +487,9 @@ export default function Profile({ children }) {
                     trigger={"click"}
                     content={
                       <div className="">
-                        {handleChange.map((e) => backGroundHandle(e))}
+                        {handleChange.map((e, index) =>
+                          backGroundHandle(e, index)
+                        )}
                       </div>
                     }
                   >
@@ -555,7 +532,7 @@ export default function Profile({ children }) {
                     <div style={{ marginTop: "-3rem" }}>
                       <div className="flex">
                         <div className="relative">
-                          <div class=" relative overflow-hidden rounded-full border-4 border-neutral-50 ">
+                          <div className=" relative overflow-hidden rounded-full border-4 border-neutral-50 ">
                             {!Users ? (
                               <div
                                 className="center theme"
@@ -583,11 +560,13 @@ export default function Profile({ children }) {
                     </div>
                     <div className=" mx-4 flex-col content-center">
                       <p className="text-4xl font-bold ">{Users?.Name}</p>
-                      <p>Bạn bè {friends?.length}</p>
+                      <p>Bạn bè {friends?.result?.length}</p> 
                       <Avatar.Group>
-                        {friends &&
-                          friends.map((e) => (
-                            <Avatar src={`${e?.cutImg || e?.img}`} />
+                        {friends?.result &&
+                          friends.result.map((e, index) => (
+                            <div key={index}>
+                              <Avatar src={`${e?.cutImg || e?.img}`} />
+                            </div>
                           ))}
                       </Avatar.Group>
                     </div>
@@ -684,13 +663,15 @@ export default function Profile({ children }) {
                       <div className="p-16 theme rounded-xl my-8 shadow-md">
                         <p className="font-bold text-3xl">Bạn bè</p>
                         <p>
-                          {friends?.length} bạn bè ({gerenalFriend.length} bạn
-                          chung)
+                          {friends?.result?.length} bạn bè ({friends.mutualFriends} bạn chung)
                         </p>
                         <div className="grid grid-cols-3 gap-3	">
-                          {friends ? (
-                            friends.map((e) => (
-                              <Popover content={<UserProfile User={e} />}>
+                          {friends.result ? (
+                            friends.result.map((e, index) => (
+                              <Popover
+                                key={index}
+                                content={<UserProfile User={e} />}
+                              >
                                 <Link
                                   to={`${process.env.REACT_APP_CLIENT_URL}/profile/${e?.UserID}`}
                                 >

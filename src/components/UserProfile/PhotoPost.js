@@ -86,7 +86,7 @@ export default function PhotoPost({ UsersProfile }) {
 
   const [myReaction, setmyReaction] = useState();
   const likeHandle = async (e) => {
-    const res = await fetchApiRes("insertLike", "PUT", {
+    const res = await fetchApiRes("comments/updateCommentDetail", "PUT", {
       commentID: e,
       disLike: false,
       Like: true,
@@ -103,7 +103,7 @@ export default function PhotoPost({ UsersProfile }) {
       [data.action]: true,
       userID: auth.username,
     };
-    const res = await fetchApiRes("insertLike", "PUT", obj);
+    const res = await fetchApiRes("comments/updateCommentDetail", "PUT", obj);
   };
   useEffect(() => {
     const getPost = async () => {

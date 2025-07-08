@@ -32,7 +32,6 @@ export const LoginGoolge = ({ children }) => {
       });
 
       const dataRes = await res.json();
-     console.log(dataRes, "dataaaaaaaaaaaa");
       if (dataRes.AccessToken && dataRes.RefreshToken) {
         setAccessToken(dataRes.AccessToken);
         setRefreshToken(dataRes.RefreshToken);

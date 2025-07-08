@@ -1323,12 +1323,7 @@ export const header_Student = [
     role: [1, 2],
     return: <FiMessageCircle></FiMessageCircle>,
   },
-  {
-    name: "Blogs",
-    hash: "/blog",
-    role: [1, 2],
-    return: <FaMicroblog></FaMicroblog>,
-  },
+
   {
     name: "Xem lịch học",
     hash: "/lichhoc",
@@ -1345,21 +1340,4 @@ export const header_Student = [
   //   role: [1, 2],
   //   return: <FiMessageCircle></FiMessageCircle>,
   // },
-];
-export const shareType = [
-  {
-    value: 0,
-    name: "public",
-    icon: <MdOutlinePublic />,
-  },
-  {
-    value: 1,
-    name: "friend",
-    icon: <FaUserFriends />,
-  },
-  {
-    value: 3,
-    name: "private",
-    icon: <MdOutlinePrivateConnectivity />,
-  },
 ];
