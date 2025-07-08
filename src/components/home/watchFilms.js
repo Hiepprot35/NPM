@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { FiEye, FiX } from "react-icons/fi";
  function WatchFilms({setBackImg,setMovieLink,id,background}) {
-  const token = `eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxYTMxMjY0M2U3MzQ5YjAyM2Q4YWE0NzViMzUyMzYwMSIsInN1YiI6IjY1ZTZkOGMzOGQxYjhlMDE4NzY3MjEwOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.IhIe9_G8KXIFkM2bHAhWYkZy_uaOvUolfJrfI1YQZm4`;
   const [Report, setReport] = useState(false);
   const watchMovieHandle = async () => {
     try {
@@ -17,7 +16,7 @@ import { FiEye, FiX } from "react-icons/fi";
           headers: {
             accept:"application/json",
             'Content-type':"application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxYTMxMjY0M2U3MzQ5YjAyM2Q4YWE0NzViMzUyMzYwMSIsIm5iZiI6MTcwOTYyNzU4Ny44ODQsInN1YiI6IjY1ZTZkOGMzOGQxYjhlMDE4NzY3MjEwOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.E-lHmBEJfzOIKKhgLmhkTHJEo93Hty66USQqJeAsp60`,
           },
         }
       );
@@ -36,13 +35,16 @@ import { FiEye, FiX } from "react-icons/fi";
     }
   
   };
-
+  const navigate = (id, background) => {
+    // Có thể lưu background vào context/localStorage nếu cần
+    navigate(`/watch/${id}`);
+  };
   return (
     <>
       <div>
         {!Report ? (
           <Button
-            onClick={() => watchMovieHandle(id,background)}
+            href={`./filmHome/movieDetail/${id}`}
             className="buttonFilmHandle buttonFilm theme"
             icon={<FiEye />}
           >

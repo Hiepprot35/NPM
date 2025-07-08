@@ -34,7 +34,6 @@ export default function MessageMainLayout(props) {
       <div className="main_layout25 linearBefore h-full ">
         {!props.isHidden && (
           <>
-            <h1 className="text-4xl font-semibold"> Tin nhắn </h1>
             <div className=" hover:overflow-y-scroll" style={{ height: "80%" }}>
               {
                 <>

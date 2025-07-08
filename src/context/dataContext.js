@@ -49,7 +49,6 @@ export const DataProvider = ({ children }) => {
         setLoading(true);
 
         const data = await fetchApiRes('conversations','GET');
-        console.log(data, "data conversation");
         const storedHiddenBubble = JSON.parse(
           localStorage.getItem("hiddenCounter")
         );

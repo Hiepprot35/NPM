@@ -7,10 +7,11 @@ import useAuth from "../../hook/useAuth.js";
 import MediaGrid from "../imageView/MediaGrid.js";
 import Upload from "../imageView/Upload.js";
 import { IsLoading } from "../Loading.js";
-import { shareType } from "../../lib/data.js";
 import Select from "../home/Select.js";
 import useNoti from "../../hook/useNoti.js";
+import { shareType } from "../../public/enum/enum.js";
 export default function MyPost(props) {
+  const { update } = props;
   const inputRef = useRef();
   const [FilterTag, setFilterTag] = useState();
   const [OpenTag, setOpenTag] = useState(false);
@@ -51,7 +52,7 @@ export default function MyPost(props) {
         setCountText(inputRef.current.innerHTML.length);
       }
     } else {
-     console.log(myComment);
+      console.log(myComment);
     }
   };
 
@@ -96,7 +97,7 @@ export default function MyPost(props) {
   function pick_imageMess(e) {
     const imgMessFile = e.target.files;
     for (let i = 0; i < imgMessFile.length; i++) {
-     console.log("type,", imgMessFile[i].type);
+      console.log("type,", imgMessFile[i].type);
       if (imgMessFile[i].type === "video/mp4") {
         setVideosUpload((pre) => [...pre, URL.createObjectURL(imgMessFile[i])]);
       } else {
@@ -110,7 +111,7 @@ export default function MyPost(props) {
     setImgView([]);
   };
   useEffect(() => {
-   console.log(myComment);
+    console.log(myComment);
     if (inputRef.current) {
       if (myComment) {
         if (myComment.includes("@")) {
@@ -132,9 +133,9 @@ export default function MyPost(props) {
     }
   }, [myComment]);
   const [ShareType, setShareType] = useState(0);
-  const {setNotiText}=useNoti()
+  const { setNotiText } = useNoti();
   useEffect(() => {
-   console.log(ShareType);
+    console.log(ShareType);
   }, [ShareType]);
   const sendComment = async (e) => {
     e.preventDefault();
@@ -169,34 +170,42 @@ export default function MyPost(props) {
         { method: "POST", body: form }
       );
       const newComment = await res.json();
-        props.update((pre) => [
+      if (update) {
+        update((pre) => [
           {
             ...newComment,
           },
           ...pre,
         ]);
-        setNotiText({message:'Post success',title:'Post Notificantion',type:'success'})
-        inputRef.current.innerHTML = "";
-        setCountText(0);
-        setImgFile([]);
-        setImgView([]);
-        setVideosUpload([]);
-        setMyComment("");
-        if (props.setRender) {
-          props.setRender((pre) => !pre);
-        }
-        
-      
-    
+      }
+      setNotiText({
+        message: "Post success",
+        title: "Post Notificantion",
+        type: "success",
+      });
+      inputRef.current.innerHTML = "";
+      setCountText(0);
+      setImgFile([]);
+      setImgView([]);
+      setVideosUpload([]);
+      setMyComment("");
+      if (props.setRender) {
+        props.setRender((pre) => !pre);
+      }
     } catch (error) {
-      setNotiText({message:'Post error, someting is wrong. :((',title:'Post Notificantion',type:'error'})
+      console.log(error);
+      setNotiText({
+        message: "Post error, someting is wrong. :((",
+        title: "Post Notificantion",
+        type: "error",
+      });
     } finally {
       setisLoading(false);
     }
   };
   const [Emoji, setEmoji] = useState([]);
   useEffect(() => {
-   console.log(
+    console.log(
       ImgView.map((e, index) => ({ url: e, id: index, type: "image" }))
     );
   }, [ImgView]);
@@ -253,7 +262,7 @@ export default function MyPost(props) {
                 suppressContentEditableWarning={true}
               ></div>
             </div>
-            {ImgView.length>0 && (
+            {ImgView.length > 0 && (
               <div className="relative group">
                 <div
                   onClick={() => handleRemoveImage()}

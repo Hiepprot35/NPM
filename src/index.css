@@ -73,11 +73,7 @@ span {
 }
 .linear {
 }
-.leftHome {
-  
-  transition: 500ms ease-out;
-  padding-top: 7vh;
-}
+
 table,
 th,
 td {

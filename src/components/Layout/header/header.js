@@ -99,7 +99,7 @@ function Header(props) {
     };
   }, [socket, auth]);
   const updateTitle = async (id) => {
-   console.log("id");
+    console.log("id");
     document.title = `${id} gửi tin nhắn`;
   };
 
@@ -112,7 +112,6 @@ function Header(props) {
     },
     closed: { zIndex: 0, opacity: 0, y: 20, transition: { duration: 0.2 } },
   };
-
 
   useEffect(() => {
     if (socket && auth?.userID) {
@@ -160,7 +159,7 @@ function Header(props) {
             document.addEventListener("click", enableAudio);
           }
         } catch (error) {
-         console.log("Error playing notification sound:", error);
+          console.log("Error playing notification sound:", error);
         }
       };
 
@@ -203,8 +202,7 @@ function Header(props) {
 
   const ChangeColorTheme = (event) => {
     setThemeColor((pre) => !pre);
-    document.documentElement.classList.toggle('dark');
-
+    document.documentElement.classList.toggle("dark");
   };
   const refSearchButton = useRef();
   const searchHandle = () => {
@@ -216,7 +214,7 @@ function Header(props) {
     setSearchQuery(e.target.value);
   };
   useEffect(() => {
-   console.log(SearchQuery);
+    console.log(SearchQuery);
   }, [SearchQuery]);
   const debouncedHandleSearch = useCallback(
     debounce(searchQueryHandle, 500),
@@ -282,7 +280,7 @@ function Header(props) {
   }, [themeColor]);
   const [Clock, setClock] = useState();
   useEffect(() => {
-   console.log(auth);
+    console.log(auth);
   }, [auth]);
   useEffect(() => {
     const intel = setInterval(() => {
@@ -302,7 +300,7 @@ function Header(props) {
   return (
     <>
       <div className="header_user center">
-        <div className="header_container">
+        <div className="header_container dark:shadow-xl shadow-white ">
           <div className="rightHeader">
             <ul className="list">
               <li>
@@ -354,7 +352,6 @@ function Header(props) {
                     >
                       {element.name}
                     </NavLink>
-
                   </li>
                 ))}
               <li>
@@ -364,7 +361,7 @@ function Header(props) {
                     onClick={() => setShowGenres((pre) => !pre)}
                     className="center"
                   >
-                    <span className=" mx-4">Thể loại</span>
+                    <span className=" mx-4">Type</span>
                     {
                       <span
                         className="chevron"
@@ -416,7 +413,7 @@ function Header(props) {
                 animate={{ opacity: 1, x: 0, transition: { duration: 1 } }}
                 className="homeText"
               >
-                TuanHiep
+                KiSocical{" "}
               </motion.p>
             </NavLink>
           </div>
@@ -516,7 +513,9 @@ function Header(props) {
                       <NavLink
                         to={`${process.env.REACT_APP_CLIENT_URL}/message`}
                       >
-                        <p className=" text-blue-600 font-semibold hover:underline">Xem thêm trong messages</p>
+                        <p className=" text-blue-600 font-semibold hover:underline">
+                          Xem thêm trong messages
+                        </p>
                       </NavLink>
                     </div>
                   </div>

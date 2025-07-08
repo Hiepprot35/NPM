@@ -153,7 +153,6 @@ export default memo(function WindowChat(props) {
       id: conversation.id,
       iconConver: e.imageUrl,
     });
-    console.log(myInfor,"heheheheheh")
     const Mes = {
       conversation_id: conversation.id,
       content: `<div className="center">${myInfor.Name} đã đổi icon emojiLink${e.imageUrl}emojiLink </div>`,
@@ -161,77 +160,28 @@ export default memo(function WindowChat(props) {
       createdAt: Date.now(),
       isFile: 0,
     };
-    await fetchApiRes("message", "POST", Mes);
+    const result=await fetchApiRes("message", "POST", Mes);
     socketSend(Mes);
+    setMessages(messages.unshift(result))
     setOpenIcon(false);
   };
   useEffect(() => {
     console.log(OpenMask)
   }, [OpenMask]);
   const SettingConversation = ({ conversation, user }) => {
-    const updateIcon = {};
     return (
       <ul>
         <li>
           <div
             className="flex items-center p-4 rounded-lg cursor-pointer hover:bg-gray-200"
             onClick={() => {
-              console.log('clock')
               setOpenMask(true);
             }}
           >
             <FiEdit></FiEdit>
             <p className="pl-2">Cài đặt biệt danh</p>
           </div>
-          <Modal
-            open={OpenMask}
-            onCancel={() => setOpenMask(false)}
-            title={"Biệt danh"}
-            onOk={updateConver}
-          >
-            <div className="flex m-2">
-              <div className="center">
-                <img
-                  alt="Avatar"
-                  className="avatarImage"
-                  src={`${myInfor?.cutImg || myInfor?.img}`}
-                ></img>
-              </div>
-              <div className="m-4">
-                <p>{myInfor?.Name}</p>
-                <input
-                  value={mask1}
-                  onChange={(e) => setMask1(e.target.value)}
-                  placeholder={`${
-                    conversation.user1 === auth.userID
-                      ? conversation.user1_mask
-                      : conversation.user2_mask
-                  }`}
-                ></input>
-              </div>
-            </div>
-            <div className="flex m-2">
-              <div className="center">
-                <img
-                  alt="Avatar"
-                  className="avatarImage"
-                  src={`${user?.cutImg || user?.img}`}
-                ></img>
-              </div>
-              <div className="m-4">
-                <p>{user?.Name}</p>
-                <input
-                  value={mask2}
-                  onChange={(e) => setMask2(e.target.value)}
-                  placeholder={`${
-                    conversation.user1 === auth.userID
-                      ? conversation.user2_mask
-                      : conversation.user1_mask
-                  }`}
-                ></input>
-              </div>
-            </div>
-          </Modal>
+        
         </li>
         <li>
           <div
@@ -241,17 +191,7 @@ export default memo(function WindowChat(props) {
             <FiSmile></FiSmile>
             <p className="pl-2">Cài đặt biểu tượng</p>
           </div>
-          <Modal
-            open={OpenIcon}
-            onCancel={() => setOpenIcon(false)}
-            title={"Icon"}
-            onOk={updateIcon}
-          >
-            <EmojiPicker
-              onEmojiClick={(e) => clickEmoji(e)}
-              className="w-full"
-            />
-          </Modal>
+        
         </li>
         <li>
           <Upload
@@ -312,23 +252,14 @@ export default memo(function WindowChat(props) {
     if (isGettingScroll && !IsMore) return;
     try {
       setisGettingScroll(true);
-      const res = await fetch(
-        `${process.env.REACT_APP_DB_HOST}/api/message/conversation/${conversation?.id}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${AccessToken}`,
-            "Content-Type": "application/json",
-            RefreshToken: RefreshToken,
-          },
-          body: JSON.stringify({
+      const res = await fetchApiRes(
+       `message/conversation/${conversation?.id}`,"POST",{
             userID: auth.userID,
             offset: offset * 10,
-          }),
-        }
+          }
       );
 
-      const { result, totalCount } = await res.json();
+      const { result, totalCount } = res;
 
       const loadMess = [...messages, ...result];
       if (loadMess.length <= totalCount) {
@@ -1263,6 +1194,68 @@ export default memo(function WindowChat(props) {
       ) : (
         <Modal open={ErrorMess ? true : false}>{ErrorMess}</Modal>
       )}
+      {
+        OpenMask &&
+        <Modal
+            open={OpenMask}
+            onCancel={() => setOpenMask(false)}
+            title={"Biệt danh"}
+            onOk={updateConver}
+          >
+            <div className="flex m-2">
+              <div className="center">
+                <img
+                  alt="Avatar"
+                  className="avatarImage"
+                  src={`${myInfor?.cutImg || myInfor?.img}`}
+                ></img>
+              </div>
+              <div className="m-4">
+                <p>{myInfor?.Name}</p>
+                <input
+                  value={mask1}
+                  onChange={(e) => setMask1(e.target.value)}
+                  placeholder={`${
+                    conversation.user1 === auth.userID
+                      ? conversation.user1_mask
+                      : conversation.user2_mask
+                  }`}
+                ></input>
+              </div>
+            </div>
+            <div className="flex m-2">
+              <div className="center">
+                <img
+                  alt="Avatar"
+                  className="avatarImage"
+                  src={`${userInfor?.cutImg || userInfor?.img}`}
+                ></img>
+              </div>
+              <div className="m-4">
+                <p>{userInfor?.Name}</p>
+                <input
+                  value={mask2}
+                  onChange={(e) => setMask2(e.target.value)}
+                  placeholder={`${
+                    conversation.user1 === auth.userID
+                      ? conversation.user2_mask
+                      : conversation.user1_mask
+                  }`}
+                ></input>
+              </div>
+            </div>
+          </Modal>
+}
+{OpenIcon &&     <Modal
+            open={OpenIcon}
+            onCancel={() => setOpenIcon(false)}
+            title={"Icon"}
+          >
+            <EmojiPicker
+              onEmojiClick={(e) => clickEmoji(e)}
+              className="w-full"
+            />
+          </Modal>}
     </>
   );
 });
