@@ -100,9 +100,9 @@ export function countTime(data) {
   const timeSent = moment(data);
   const now = moment();
 
-  const minutes = now.diff(timeSent, 'minutes');
-  const hours = now.diff(timeSent, 'hours');
-  const days = now.diff(timeSent, 'days');
+  const minutes = now.diff(timeSent, "minutes");
+  const hours = now.diff(timeSent, "hours");
+  const days = now.diff(timeSent, "days");
 
   if (hours < 1) {
     if (minutes >= 1) {
@@ -225,3 +225,20 @@ export function formatDate(dateString) {
   const formatter = new Intl.DateTimeFormat("vi-VN", options);
   return formatter.format(date);
 }
+
+export const truncateText = (text, max = 50) =>
+  text.length > max ? text.slice(0, max) + "..." : text;
+
+export const parseMessage = (message) => {
+  if (message) {
+    const data = message.split("emojiLink");
+    const processedData = data.map((e) => {
+      if (e.includes("https://cdn.jsdelivr.net")) {
+        return `<span><img alt="icon" style="width: 1rem; height: 1rem; margin-left:.3rem;" src="${e}"/></span>`;
+      }
+      return e;
+    });
+    const parse = processedData.join("");
+    return parse;
+  }
+};

@@ -19,7 +19,11 @@ import { Link, NavLink } from "react-router-dom";
 import { useData } from "../../context/dataContext";
 import { useSocket } from "../../context/socketContext";
 import { useRealTime } from "../../context/useRealTime";
-import { TheMovieApi, fetchApiRes, getInforByUserID } from "../../function/getApi";
+import {
+  TheMovieApi,
+  fetchApiRes,
+  getInforByUserID,
+} from "../../function/getApi";
 import useAuth from "../../hook/useAuth";
 import UseRfLocal from "../../hook/useRFLocal";
 import UseToken from "../../hook/useToken";
@@ -53,7 +57,7 @@ export const fetchVideoTitle = async (videoID) => {
   }
 };
 
-export default memo(function WindowChat(props) {
+  export default memo(function WindowChat(props) {
   const { setNotiText } = useNoti();
   const { auth, myInfor } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
@@ -114,15 +118,12 @@ export default memo(function WindowChat(props) {
           const data = new FormData();
           data.append("image", imgBackGroundConversation.imageObject);
           data.append("id", conversation.id);
-          const res = await fetch(
-            `${process.env.REACT_APP_DB_HOST}/api/message/updateConversation`,
-            {
-              method: "POST",
-              body: data, // FormData is used directly as the body
-            }
+          const res = await fetchApiRes(
+            `message/updateConversation`,
+            "POST",
+            data // FormData is used directly as the body
           );
-          const resJson = await res.json();
-          conversation.background = resJson.url;
+          conversation.background = res.url;
           setNotiText({
             message: "Update thành công",
             title: "Update Success",
@@ -160,13 +161,13 @@ export default memo(function WindowChat(props) {
       createdAt: Date.now(),
       isFile: 0,
     };
-    const result=await fetchApiRes("message", "POST", Mes);
+    const result = await fetchApiRes("message", "POST", Mes);
     socketSend(Mes);
-    setMessages(messages.unshift(result))
+    setMessages(messages.unshift(result));
     setOpenIcon(false);
   };
   useEffect(() => {
-    console.log(OpenMask)
+    console.log(OpenMask);
   }, [OpenMask]);
   const SettingConversation = ({ conversation, user }) => {
     return (
@@ -181,7 +182,6 @@ export default memo(function WindowChat(props) {
             <FiEdit></FiEdit>
             <p className="pl-2">Cài đặt biệt danh</p>
           </div>
-        
         </li>
         <li>
           <div
@@ -191,7 +191,6 @@ export default memo(function WindowChat(props) {
             <FiSmile></FiSmile>
             <p className="pl-2">Cài đặt biểu tượng</p>
           </div>
-        
         </li>
         <li>
           <Upload
@@ -253,10 +252,12 @@ export default memo(function WindowChat(props) {
     try {
       setisGettingScroll(true);
       const res = await fetchApiRes(
-       `message/conversation/${conversation?.id}`,"POST",{
-            userID: auth.userID,
-            offset: offset * 10,
-          }
+        `message/conversation/${conversation?.id}`,
+        "POST",
+        {
+          userID: auth.userID,
+          offset: offset * 10,
+        }
       );
 
       const { result, totalCount } = res;
@@ -556,7 +557,7 @@ export default memo(function WindowChat(props) {
     } catch (err) {
       console.log(err);
       setSending(true);
-    } 
+    }
   }
   function setEmtyImg() {
     setFileImg([]);
@@ -579,7 +580,7 @@ export default memo(function WindowChat(props) {
 
   useEffect(() => {
     async function fetchData() {
-      const data= await getInforByUserID(userConver)
+      const data = await getInforByUserID(userConver);
       setUserInfo(data);
     }
     fetchData();
@@ -600,13 +601,7 @@ export default memo(function WindowChat(props) {
     updateMessages();
   }, [arrivalMessage, conversation]);
 
-  useEffect(() => {
-    if (windowchat.current) {
-      if (props.index > 3) {
-        windowchat.current.style.display = "none";
-      }
-    }
-  }, [props.index]);
+
   useEffect(() => {
     setMessages([]);
     setImgMess([]);
@@ -727,9 +722,9 @@ export default memo(function WindowChat(props) {
         <>
           {(listWindow.some((e) => e.id === conversation.id) ||
             props.chatApp) && (
-            <div className="flex  h-full">
+            <div className="flex  h-full w-full">
               <div
-                className={`h-full windowchat`}
+                className={`h-full windowchat w-full`}
                 ref={windowchat}
                 style={props.chatApp ? { width: "100%" } : {}}
               >
@@ -870,12 +865,12 @@ export default memo(function WindowChat(props) {
                   ></div>
                   <div className="w-full h-full z-10 flex-col	justify-between	">
                     <div
-                      className="z-10 overflow-y-auto  flex flex-col-reverse p-4 border border-gray-300 	"
+                      className="z-10 overflow-y-auto  flex flex-col-reverse p-4 border border-gray-300 flex-1	"
                       ref={main_windowchat}
                       style={{ height: "90%" }}
                     >
-                            <Typing visible={IsTyping} />
-                        {messages.length > 0 ? (
+                      <Typing visible={IsTyping} />
+                      {messages.length > 0 ? (
                         <>
                           {messages.map((message, index) => (
                             <div className="message_content" key={message.id}>
@@ -914,7 +909,6 @@ export default memo(function WindowChat(props) {
                     </div>
                     <div
                       className="inputValue windowchat_feature center"
-                      style={{ height: "10%" }}
                     >
                       <div className="feature_left center">
                         <input
@@ -1194,68 +1188,66 @@ export default memo(function WindowChat(props) {
       ) : (
         <Modal open={ErrorMess ? true : false}>{ErrorMess}</Modal>
       )}
-      {
-        OpenMask &&
+      {OpenMask && (
         <Modal
-            open={OpenMask}
-            onCancel={() => setOpenMask(false)}
-            title={"Biệt danh"}
-            onOk={updateConver}
-          >
-            <div className="flex m-2">
-              <div className="center">
-                <img
-                  alt="Avatar"
-                  className="avatarImage"
-                  src={`${myInfor?.cutImg || myInfor?.img}`}
-                ></img>
-              </div>
-              <div className="m-4">
-                <p>{myInfor?.Name}</p>
-                <input
-                  value={mask1}
-                  onChange={(e) => setMask1(e.target.value)}
-                  placeholder={`${
-                    conversation.user1 === auth.userID
-                      ? conversation.user1_mask
-                      : conversation.user2_mask
-                  }`}
-                ></input>
-              </div>
+          open={OpenMask}
+          onCancel={() => setOpenMask(false)}
+          title={"Biệt danh"}
+          onOk={updateConver}
+        >
+          <div className="flex m-2">
+            <div className="center">
+              <img
+                alt="Avatar"
+                className="avatarImage"
+                src={`${myInfor?.cutImg || myInfor?.img}`}
+              ></img>
             </div>
-            <div className="flex m-2">
-              <div className="center">
-                <img
-                  alt="Avatar"
-                  className="avatarImage"
-                  src={`${userInfor?.cutImg || userInfor?.img}`}
-                ></img>
-              </div>
-              <div className="m-4">
-                <p>{userInfor?.Name}</p>
-                <input
-                  value={mask2}
-                  onChange={(e) => setMask2(e.target.value)}
-                  placeholder={`${
-                    conversation.user1 === auth.userID
-                      ? conversation.user2_mask
-                      : conversation.user1_mask
-                  }`}
-                ></input>
-              </div>
+            <div className="m-4">
+              <p>{myInfor?.Name}</p>
+              <input
+                value={mask1}
+                onChange={(e) => setMask1(e.target.value)}
+                placeholder={`${
+                  conversation.user1 === auth.userID
+                    ? conversation.user1_mask
+                    : conversation.user2_mask
+                }`}
+              ></input>
             </div>
-          </Modal>
-}
-{OpenIcon &&     <Modal
-            open={OpenIcon}
-            onCancel={() => setOpenIcon(false)}
-            title={"Icon"}
-          >
-            <EmojiPicker
-              onEmojiClick={(e) => clickEmoji(e)}
-              className="w-full"
-            />
-          </Modal>}
+          </div>
+          <div className="flex m-2">
+            <div className="center">
+              <img
+                alt="Avatar"
+                className="avatarImage"
+                src={`${userInfor?.cutImg || userInfor?.img}`}
+              ></img>
+            </div>
+            <div className="m-4">
+              <p>{userInfor?.Name}</p>
+              <input
+                value={mask2}
+                onChange={(e) => setMask2(e.target.value)}
+                placeholder={`${
+                  conversation.user1 === auth.userID
+                    ? conversation.user2_mask
+                    : conversation.user1_mask
+                }`}
+              ></input>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {OpenIcon && (
+        <Modal
+          open={OpenIcon}
+          onCancel={() => setOpenIcon(false)}
+          title={"Icon"}
+        >
+          <EmojiPicker onEmojiClick={(e) => clickEmoji(e)} className="w-full" />
+        </Modal>
+      )}
     </>
   );
 });

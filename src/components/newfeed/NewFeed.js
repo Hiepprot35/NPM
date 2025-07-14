@@ -22,8 +22,7 @@ export default function NewFeed() {
   const getNewfeed = async (pageNumber = 1) => {
     try {
       setLoading(true);
-      const { result } = await fetchApiRes(`getNewfeed?page=${pageNumber}&limit=2`, "GET");
-
+      const {result}  = await fetchApiRes(`getNewfeed?page=${pageNumber}&limit=2`, "GET");
       const mediaPromises = result.map(async (e) => {
         try {
           const data = await fetchApiRes(`comment/getMedia/?commentId=${e.id}`);

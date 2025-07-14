@@ -296,296 +296,179 @@ function Header(props) {
       clearInterval(intel);
     };
   }, []);
+  const [showHeader, setShowHeader] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setShowHeader(currentScrollY < lastScrollY.current);
+      lastScrollY.current = currentScrollY;
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   const typeMoviesRef = useOutsideClick(() => setShowGenres(false));
   return (
-    <>
-      <div className="header_user center">
-        <div className="header_container dark:shadow-xl shadow-white ">
-          <div className="rightHeader">
-            <ul className="list">
-              <li>
-                {Clock && city && (
-                  <div className="inline-flex TempText p-0 h-12 w-32 overflow-hidden">
-                    <div className="w-64 center animationTemp">
-                      <div className=" center w-32">
-                        <div>
-                          <p className="text-xs">
-                            {Clock?.day + "," + Month(Clock?.month)}
-                          </p>
-                          <p className="uppercase font-semibold text-xs">
-                            {city}
-                          </p>
-                        </div>
-                        <div className=" h-full px-2">
-                          <p>{Clock?.h + ":" + Clock?.m}</p>
-                        </div>
-                      </div>
-                      <div className="center w-32">
-                        <p className="City citytemp"> {weather.temp}°C</p>
-                        <div className="w-8 h-8">
-                          <img
-                            className="w-full"
-                            src={`${weather.icon}`}
-                            alt={weather.weather}
-                          />
-                        </div>
-                      </div>
-                    </div>
+    <header
+      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${
+        showHeader ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
+      <div className="w-full flex justify-center py-3">
+        <div className="relative w-[90%] bg-white text-black rounded-full shadow-lg px-8 py-3">
+          <div className="flex items-center justify-between">
+            {/* LEFT */}
+            <div className="flex items-center space-x-6">
+              {Clock && city && (
+                <div className="flex items-center space-x-4 text-sm">
+                  <div>
+                    <p className="text-xs">{Clock.day + ", " + Clock.month}</p>
+                    <p className="uppercase font-semibold">{city}</p>
                   </div>
-                )}
-              </li>
-              {header_Student
-                .filter(
-                  (element) =>
-                    element.role.includes(auth.role) && element.return
-                )
-                .map((element, index) => (
-                  <li
-                    key={index}
-                    className={`hrefLink mx-4 ${
-                      element.hash === props.hash ? "ActiveLink" : "notActive"
-                    }`}
-                  >
-                    <NavLink
-                      to={element.hash}
-                      className="Link font-bold text-lg mx-4"
-                    >
-                      {element.name}
-                    </NavLink>
-                  </li>
-                ))}
-              <li>
-                <div className="geresList">
-                  <div
-                    ref={typeMoviesRef}
-                    onClick={() => setShowGenres((pre) => !pre)}
-                    className="center"
-                  >
-                    <span className=" mx-4">Type</span>
-                    {
-                      <span
-                        className="chevron"
-                        style={
-                          showGenres
-                            ? {
-                                transform: "rotate(180deg)",
-                                marginTop: "-.2rem",
-                              }
-                            : {}
-                        }
-                      >
-                        <FiChevronDown></FiChevronDown>
-                      </span>
-                    }
+                  <div>{Clock.h + ":" + Clock.m}</div>
+                  <div className="flex items-center space-x-2">
+                    <p>{weather.temp}°C</p>
+                    <img src={weather.icon} alt={weather.weather} className="w-6 h-6" />
                   </div>
-                  {
-                    <motion.div
-                      variants={sidebar}
-                      animate={showGenres ? "open" : "closed"}
-                      className="genres"
-                    >
-                      {GenresList &&
-                        GenresList.map((e, i) => (
-                          <NavLink
-                            key={i}
-                            to={`${process.env.REACT_APP_CLIENT_URL}/films/?id=${e.id}&type=${e.name}`}
-                            style={{ color: "white" }}
-                          >
-                            <motion.div
-                              key={i}
-                              variants={itemVariants}
-                              className="Pergenres center hover"
-                            >
-                              {e.name}
-                            </motion.div>
-                          </NavLink>
-                        ))}
-                    </motion.div>
-                  }
                 </div>
-              </li>
-            </ul>
-          </div>
-          <div className="center">
+              )}
+
+              {/* Menu Link */}
+              <ul className="flex items-center space-x-6">
+                {header_Student
+                  .filter((element) => element.role.includes(auth.role) && element.return)
+                  .map((element, index) => (
+                    <li key={index}>
+                      <NavLink
+                        to={element.hash}
+                        className={`text-sm font-medium ${
+                          element.hash === props.hash
+                            ? "text-blue-600 underline"
+                            : "text-gray-800 hover:underline"
+                        }`}
+                      >
+                        {element.name}
+                      </NavLink>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+
+            {/* CENTER */}
             <NavLink to="/">
               <motion.p
-                initial={{ opacity: 0, x: -200, transition: { duration: 1 } }}
-                animate={{ opacity: 1, x: 0, transition: { duration: 1 } }}
-                className="homeText"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 text-transparent bg-clip-text"
               >
-                KiSocical{" "}
+                KiSocical
               </motion.p>
             </NavLink>
-          </div>
-          <div className="header_home_user" style={{ width: "30%" }}>
-            <Popover content={<p>Search Films/Movies</p>}>
-              <div
-                className=" searchInput"
-                style={{ margin: "1rem" }}
-                ref={refSearchButton}
-              >
-                <input
-                  onChange={debouncedHandleSearch}
-                  placeholder="Search everything"
-                ></input>
-                <div onClick={searchHandle} className="circleButton">
-                  <FiSearch></FiSearch>
-                </div>
-                {
-                  <div
-                    style={{ position: "absolute", top: "100%", left: "1rem" }}
-                  >
-                    <Search query={SearchQuery}></Search>
-                  </div>
-                }
-              </div>
-            </Popover>
 
-            {
-              <Popover
-                content={
-                  themeColor ? (
-                    <p className="text-white">Light</p>
-                  ) : (
-                    <p className="text-black">Dark</p>
-                  )
-                }
-              >
-                <div className="h-8 w-8 mx-4 overflow-hidden">
-                  <div
-                    className="h-32 transition-all ease-linear duration-300"
-                    style={
-                      themeColor
-                        ? { transform: "translateY(-2rem)" }
-                        : { transform: "translateY(0)" }
-                    }
-                  >
-                    <span
-                      className="circleButton transition-all ease-linear duration-300 m-0"
-                      style={themeColor ? { opacity: 0 } : { opacity: 1 }}
-                      onClick={ChangeColorTheme}
-                    >
-                      <FiSunrise></FiSunrise>
-                    </span>
-                    <span
-                      className="circleButton transition-all ease-linear duration-300 m-0"
-                      style={themeColor ? { opacity: 1 } : { opacity: 0 }}
-                      onClick={ChangeColorTheme}
-                    >
-                      <FiMoon></FiMoon>
-                    </span>
+            {/* RIGHT */}
+            <div className="flex items-center space-x-4">
+              {/* Search */}
+              <Popover content={<p>Search Films/Movies</p>}>
+                <div className="relative" ref={refSearchButton}>
+                  <input
+                    onChange={debouncedHandleSearch}
+                    placeholder="Search everything"
+                    className="px-4 py-1 w-52 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+                  />
+                  <button onClick={searchHandle} className="absolute right-2 top-1 text-gray-700">
+                    <FiSearch />
+                  </button>
+                  <div className="absolute left-0 top-full">
+                    <Search query={SearchQuery} />
                   </div>
                 </div>
               </Popover>
-            }
 
-            <Popover content={<p>Message</p>}>
+              {/* Theme Toggle */}
+              <Popover content={<p>{themeColor ? "Light" : "Dark"}</p>}>
+                <button
+                  onClick={ChangeColorTheme}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
+                >
+                  {themeColor ? <FiMoon /> : <FiSunrise />}
+                </button>
+              </Popover>
+
+              {/* Message */}
               <Popover
                 trigger="click"
                 placement="bottomRight"
                 content={
-                  <div className="w-20vw">
-                    <h1>Đoạn chat</h1>
+                  <div className="w-80 max-h-[60vh] overflow-y-auto p-2">
+                    <h1 className="text-lg font-semibold mb-2">Đoạn chat</h1>
                     <input
                       placeholder="Search for friends"
-                      className="chatMenuInput"
+                      className="w-full px-2 py-1 mb-2 border rounded"
                     />
-                    <div
-                      className="overfolow-hidden  overflow-y-scroll"
-                      style={{ height: "60vh" }}
-                    >
-                      {Conversations && Conversations.length > 0 ? (
-                        Conversations.map((c, index) => (
-                          <div key={c.id} className="converrsation_chat">
-                            <Conversation
-                              conversation={c}
-                              currentUser={auth.userID}
-                            />
-                          </div>
-                        ))
-                      ) : (
-                        <div className="converrsation_chat">
-                          <div className="loader"></div>
+                    {Conversations?.length > 0 ? (
+                      Conversations.map((c) => (
+                        <div key={c.id} className="py-1">
+                          <Conversation conversation={c} currentUser={auth.userID} />
                         </div>
-                      )}
-                    </div>
-                    <div className="center">
-                      <NavLink
-                        to={`${process.env.REACT_APP_CLIENT_URL}/message`}
-                      >
-                        <p className=" text-blue-600 font-semibold hover:underline">
-                          Xem thêm trong messages
-                        </p>
+                      ))
+                    ) : (
+                      <p>Loading...</p>
+                    )}
+                    <div className="text-center mt-2">
+                      <NavLink to={`${process.env.REACT_APP_CLIENT_URL}/message`} className="text-blue-600 hover:underline">
+                        Xem thêm trong messages
                       </NavLink>
                     </div>
                   </div>
                 }
               >
-                <div className="circleButton">
+                <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
                   <FiMessageCircle />
-                </div>
+                </button>
               </Popover>
-            </Popover>
-            <Popover content={<p>All Users</p>}>
-              <Popover
-                trigger={"click"}
-                placement="bottomRight"
-                content={<FriendList></FriendList>}
-              >
-                <span className="circleButton">
-                  <FiUser />
-                </span>
-              </Popover>
-            </Popover>
-            <BellTable></BellTable>
 
-            {isLoading ? (
-              <IsLoading />
-            ) : (
-              <>
-                {auth.userID ? (
-                  <>
-                    <div className="">
-                      {
-                        <Popover
-                          color="none"
-                          align={{ offset: [-20, -10] }}
-                          trigger={"click"}
-                          content={content}
-                        >
-                          {!myInfor?.avtUrl ? (
-                            <div className=" w-8 he-8 loader"></div>
-                          ) : (
-                            <img
-                              className="avatarImage"
-                              src={`${myInfor?.avtUrl}`}
-                              alt="User Avatar"
-                            />
-                          )}
-                        </Popover>
-                      }
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <LoginGoolge>
-                      <span className="circleButton">
-                        <IoLogoGoogle />
-                      </span>
-                    </LoginGoolge>
-                    <p>OR</p>
-                    <span> </span>
-                    <NavLink style={{ padding: "1rem" }} to="/login">
-                      <p>Login</p>
-                    </NavLink>
-                  </>
-                )}
-              </>
-            )}
+              {/* Friends */}
+              <Popover trigger="click" content={<FriendList />}>
+                <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+                  <FiUser />
+                </button>
+              </Popover>
+
+              <BellTable />
+
+              {/* Auth */}
+              {isLoading ? (
+                <IsLoading />
+              ) : auth.userID ? (
+                <Popover trigger="click" content={content}>
+                  {myInfor?.avtUrl ? (
+                    <img
+                      src={myInfor.avtUrl}
+                      alt="Avatar"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 loader" />
+                  )}
+                </Popover>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <LoginGoolge>
+                    <span className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200">
+                      <IoLogoGoogle />
+                    </span>
+                  </LoginGoolge>
+                  <NavLink to="/login" className="text-sm font-medium text-blue-600 hover:underline">
+                    Login
+                  </NavLink>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </>
+    </header>
   );
 }
 export default memo(Header);

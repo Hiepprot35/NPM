@@ -121,9 +121,9 @@ function App() {
                 <Route path="friends" element={<FriendList />} />
                 <Route path="films" element={<MoviesType />} />
                 <Route path="videocall" element={<VideoCall />} />
-                <Route path="message" element={<MessageRoute />} />
+                <Route path="message/:UserID" element={<MessageRoute />} />
                 <Route path="lichhoc" element={<ViewTimetable />} />
-                <Route path="/message/:id" element={<ChatApp />} />
+                {/* <Route path="/message/:id" element={<ChatApp />} /> */}
 
                 <Route path="setting" element={<SettingAccount />} />
                 <Route path="photo" element={<PhotoPost />} />
@@ -186,8 +186,8 @@ function DeltailMovieFilms() {
   return <DetailMovie movieID={id} />;
 }
 function MessageRoute() {
-  const { messageId } = useParams();
+  const { UserID } = useParams();
 
-  return <ChatApp messageId={messageId} />;
+  return <ChatApp UserID={UserID} />;
 }
 export default App;

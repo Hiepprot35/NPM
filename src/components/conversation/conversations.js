@@ -8,20 +8,7 @@ import { useSocket } from "../../context/socketContext";
 
 import { useData } from "../../context/dataContext";
 import UseToken from "../../hook/useToken";
-import { fetchApiRes } from "../../function/getApi";
-export const getMess = async (conversation, token) => {
-  try {
-    const newMess = await fetchApiRes(
-      `message/newest/${conversation.id}`,
-      "GET"
-    );
-    console.log(newMess, "");
-    return newMess;
-  } catch (err) {
-    console.log(err);
-    console.log("Không có giá trí");
-  }
-};
+
 export default memo(function Conversation({
   conversation,
   Online,

@@ -10,10 +10,7 @@ import "./nvarbar.css";
 export default function Nvarbar(props) {
   const { session } = useSession();
   const { ConversationContext } = useData();
-  useEffect(() => {
-    console.log(ConversationContext, "ConversationContext");
-  }, [ConversationContext]);
-  
+
   const itemVariants = {
     open: {
       opacity: 1,
@@ -88,6 +85,10 @@ export default function Nvarbar(props) {
       playerClose.current.play();
     }
   };
+  useEffect(() => {
+    console.log(ConversationContext);
+  }, [ConversationContext]);
+
   return (
     <div className="w-full">
       <div
@@ -110,7 +111,6 @@ export default function Nvarbar(props) {
         variants={sidebar}
         className="leftHome"
       >
-     
         <div className="newFeed h-auto">
           <span>
             <p className="text-4xl font-semibold">New feed</p>
@@ -131,21 +131,15 @@ export default function Nvarbar(props) {
             </motion.a>
           ))}
         </div>
-        
-        <div className="h-3/4">
-        <div className="center" style={{ margin: "1rem" }}>
-          <div className="linear"></div>
-        </div>
-        <MessageMainLayout />
-        </div>
 
+        <div className="h-3/4">
+          <div className="center" style={{ margin: "1rem" }}>
+            <div className="linear"></div>
+          </div>
+          {/* <MessageMainLayout /> */}
+        </div>
       </motion.div>
-      <div className="windowchat_container">
-        {ConversationContext &&
-          ConversationContext.map((e, i) => (
-            <Windowchat key={e.id} count={e} index={i} isHidden={false} />
-          ))}
-      </div>
+   
       <div className="newMessage center">
         <span>
           <FiEdit></FiEdit>

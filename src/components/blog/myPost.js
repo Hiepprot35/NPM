@@ -11,7 +11,7 @@ import Select from "../home/Select.js";
 import useNoti from "../../hook/useNoti.js";
 import { shareType } from "../../public/enum/enum.js";
 export default function MyPost(props) {
-  const { update } = props;
+  const { update,className } = props;
   const inputRef = useRef();
   const [FilterTag, setFilterTag] = useState();
   const [OpenTag, setOpenTag] = useState(false);
@@ -222,150 +222,122 @@ export default function MyPost(props) {
     });
   };
   return (
-    <>
-      {isLoading && (
-        <IsLoading className={"bg-indigo-600 bg-opacity-25"}></IsLoading>
-      )}
-      {
-        <div
-          className={`flex rounded-3xl bg-slate-50	mb-8  w-full  h-full p-8  ${props.className}`}
-        >
-          <div className="h-1/2">
-            <img
-              alt="avatar"
-              className="rounded-full h-12"
-              src={`${myInfor?.avtUrl}`}
-            ></img>
-          </div>
-          <div
-            className="inputDiv bg-inherit	"
-            style={{ width: "90%", flexDirection: "column" }}
-          >
-            <div className="w-full h-full relative">
-              {(myComment === "<br>" || !myComment) && (
-                <div
-                  className="w-full absolute flex items-center ml-4 h-full  z-10"
-                  onClick={() => inputRef.current.focus()}
-                >
-                  <p className="text-black	">
-                    {myInfor.Name} ơi đang nghĩ gì thế
-                  </p>
-                </div>
-              )}
+      <>
+      {isLoading && <div className="bg-indigo-600 bg-opacity-25">Loading...</div>}
+
+      <div
+        className={`w-full h-full p-6 bg-white dark:bg-slate-800 rounded-3xl shadow-md flex gap-4 ${className}`}
+      >
+        <img
+          alt="avatar"
+          className="rounded-full w-12 h-12 object-cover"
+          src={myInfor?.avtUrl}
+        />
+
+        <div className="flex flex-col w-full gap-3">
+          <div className="relative">
+            {(!myComment || myComment === "<br>") && (
               <div
-                className="commentDiv bg-slate-200 rounded-3xl"
-                ref={inputRef}
-                onPaste={pastImg}
-                contentEditable="true"
-                onInput={(e) => handleInputChange(e)}
-                onClick={getPreviousCharacter}
-                suppressContentEditableWarning={true}
-              ></div>
-            </div>
-            {ImgView.length > 0 && (
-              <div className="relative group">
-                <div
-                  onClick={() => handleRemoveImage()}
-                  className="circleButton opacity-0 absolute right-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <FiX />
-                </div>
-                <div className="w-30vh center w-full">
-                  <MediaGrid
-                    isView={true}
-                    media={ImgView.map((e) => ({
-                      url: e,
-                      type: "image",
-                    }))}
-                  />
-                </div>
+                className="absolute inset-0 flex items-center px-4 text-gray-400 cursor-text"
+                onClick={() => inputRef.current.focus()}
+              >
+                {myInfor.Name} ơi đang nghĩ gì thế
               </div>
             )}
+            <div
+              ref={inputRef}
+              onPaste={pastImg}
+              onInput={handleInputChange}
+              onClick={getPreviousCharacter}
+              contentEditable
+              suppressContentEditableWarning
+              className="min-h-[3rem] max-h-32 overflow-y-auto bg-slate-100 dark:bg-slate-700 rounded-3xl px-4 py-2 text-sm"
+            />
+          </div>
 
-            <div className="featureComment">
-              <div className="flex items-center">
-                <Popover
-                  trigger={"click"}
-                  content={
-                    <EmojiPicker
-                      width={350}
-                      height={450}
-                      onEmojiClick={(e, i) => {
-                        onClickEmoji(e);
-                      }}
-                      emojiStyle="facebook"
-                    />
-                  }
-                >
-                  <div>
-                    <span className="circleButton">
-                      <FiSmile></FiSmile>
-                    </span>
-                  </div>
-                </Popover>
-                <Upload pick_imageMess={pick_imageMess} />
-                <Select options={shareType} onChange={setShareType} />
-                <span
-                  style={{
-                    color: `rgb(${(255 * countText) / 200},${
-                      255 - (255 * countText) / 200
-                    },${255 - (255 * countText) / 200}`,
-                    marginLeft: "1rem",
-                  }}
-                >
-                  {`${countText}/200`}{" "}
-                  {countText === 200 && ` vượt quá kí tự quy định`}
-                </span>
-                {/* <div className="multiFile_layout w-48">
-                  <ImageView imgView={ImgView} setImgView={setImgView} />
-                </div> */}
-                <div>
-                  {VideosUpload &&
-                    VideosUpload.map((e, index) => {
-                      return (
-                        <video
-                          key={index}
-                          src={
-                            typeof e === "string" ? e : URL.createObjectURL(e)
-                          }
-                          controls
-                          width="500"
-                        ></video>
-                      );
-                    })}
-                </div>
+          {ImgView.length > 0 && (
+            <div className="relative group">
+              <button
+                onClick={handleRemoveImage}
+                className="absolute right-0 top-0 m-2 p-1 rounded-full bg-white/70 group-hover:opacity-100 opacity-0 transition"
+              >
+                <FiX />
+              </button>
+              <div className="w-full flex justify-center">
+                <MediaGrid
+                  isView={true}
+                  media={ImgView.map((url) => ({ url, type: "image" }))}
+                />
               </div>
-
-              {((myComment && myComment !== "<br>") || ImgFile) && (
-                <div className="center">
-                  <span className="circleButton" onClick={sendComment}>
-                    <FiSend />
-                  </span>
-                </div>
-              )}
             </div>
+          )}
+
+          <div className="flex items-center flex-wrap gap-2">
+            <Popover
+              trigger="click"
+              content={
+                <EmojiPicker
+                  width={350}
+                  height={450}
+                  onEmojiClick={onClickEmoji}
+                  emojiStyle="facebook"
+                />
+              }
+            >
+              <button className="circleButton">
+                <FiSmile />
+              </button>
+            </Popover>
+
+            <Upload pick_imageMess={pick_imageMess} />
+            <Select options={shareType} onChange={setShareType} />
+
+            <span
+              style={{
+                color: `rgb(${(255 * countText) / 200}, ${255 - (255 * countText) / 200}, ${255 - (255 * countText) / 200})`,
+              }}
+              className="text-sm"
+            >
+              {`${countText}/200`} {countText === 200 && `vượt quá kí tự quy định`}
+            </span>
+
+            {VideosUpload &&
+              VideosUpload.map((e, i) => (
+                <video
+                  key={i}
+                  src={typeof e === "string" ? e : URL.createObjectURL(e)}
+                  controls
+                  className="w-64 rounded"
+                ></video>
+              ))}
+
+            {(myComment && myComment !== "<br>") || ImgFile ? (
+              <button className="circleButton ml-auto" onClick={sendComment}>
+                <FiSend />
+              </button>
+            ) : null}
           </div>
 
           {FilterTag && OpenTag && (
-            <div className="tagList">
+            <div className="flex flex-wrap gap-2 mt-2">
               {FilterTag.map((e) => (
                 <div
-                  className="tag"
-                  style={{ margin: ".5rem" }}
+                  key={e.id}
+                  className="flex items-center gap-2 bg-slate-200 dark:bg-slate-700 rounded-full px-3 py-1 cursor-pointer"
                   onClick={() => tagHandle(e)}
                 >
                   <img
+                    src={e.img}
                     alt="avatar"
-                    className="avatarImage"
-                    src={`${e.img}`}
-                  ></img>
-                  <p style={{ margin: ".3rem" }}>{e.Name}</p>
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                  <p className="text-sm">{e.Name}</p>
                 </div>
               ))}
             </div>
           )}
         </div>
-      }
+      </div>
     </>
   );
 }

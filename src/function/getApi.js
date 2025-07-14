@@ -1,4 +1,3 @@
-import { Exception } from "sass";
 
 export const getUserinfobyID = async (data) => {
   try {
@@ -10,7 +9,7 @@ export const getUserinfobyID = async (data) => {
     const data2 = await res.json();
     return data2[0];
   } catch (err) {
-   console.log("Không có giá trí");
+    console.log("Không có giá trí");
   }
 };
 export async function getStudentInfoByMSSV(data, options = {}) {
@@ -54,16 +53,15 @@ export async function getInforByUserID(data, options = {}) {
 export async function fetchApiRes(url, method, body, options = {}, token) {
   try {
     const urlApi = `${process.env.REACT_APP_DB_HOST}/api/${url}`;
-    const finalToken = token || localStorage.getItem('AccessToken');
-        const refresToken = token || localStorage.getItem('AccessToken');
+    const finalToken = token || localStorage.getItem("AccessToken");
+    const refresToken = token || localStorage.getItem("AccessToken");
 
     let requestOptions = {
       method,
       headers: {
         "Content-type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
-                ...(finalToken ? { Authorization: `Bearer ${finalToken}` } : {}),
-
+        ...(finalToken ? { Authorization: `Bearer ${finalToken}` } : {}),
       },
       body: body instanceof FormData ? body : JSON.stringify(body),
       ...options,
@@ -82,7 +80,7 @@ export async function fetchApiRes(url, method, body, options = {}, token) {
 
     // Xử lý lỗi HTTP
     if (!res.ok) {
-     throw new Error(`HTTP error! status: ${res.status}`);
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
 
     // Parse response
@@ -111,5 +109,13 @@ export async function TheMovieApi(url, method, body) {
     return data;
   } catch (error) {
     return null;
+  }
+}
+export async function getConversation({page,limit}) {
+  try {
+    const data = await fetchApiRes(`conversations?page=${page}&limit=${limit}`, "GET");
+    return data
+  } catch (error) {
+    return []
   }
 }

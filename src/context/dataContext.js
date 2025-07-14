@@ -33,49 +33,55 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
-  // Lưu dữ liệu vào localStorage khi listWindow thay đổi
   useEffect(() => {
     localStorage.setItem("counter", JSON.stringify(listWindow));
   }, [listWindow]);
 
-  // Lưu dữ liệu vào localStorage khi listHiddenBubble thay đổi
   useEffect(() => {
     localStorage.setItem("hiddenCounter", JSON.stringify(listHiddenBubble));
   }, [listHiddenBubble]);
 
   useEffect(() => {
-    if (Object.keys(auth).length>0) {
+    if (Object.keys(auth).length > 0) {
       const res = async () => {
         setLoading(true);
 
-        const data = await fetchApiRes('conversations','GET');
         const storedHiddenBubble = JSON.parse(
           localStorage.getItem("hiddenCounter")
         );
-        const storedWindow = JSON.parse(localStorage.getItem("counter"));
-        const mergen = [...storedHiddenBubble, ...storedWindow];
-        if(isArray(data))
-        {
+        const storedWindow = JSON.parse(localStorage.getItem("counter")) || [];
+        const merged = [...storedHiddenBubble, ...storedWindow];
 
-          const update = data.map(async (e) => {
+        const mergedIds = merged.map((e) => e.id);
+
+        const params = new URLSearchParams();
+        mergedIds.forEach((id) => params.append("id", id));
+
+        const { result: data } = await fetchApiRes(
+          `conversations?${params.toString()}`,
+          "GET"
+        );
+
+        if (isArray(data.result)) {
+          const update = data.result.map(async (e) => {
             let id = e.user1 === auth.userID ? e.user2 : e.user1;
             // const hehe = await getInforByUserID(id);
             return {
               ...e,
-              img: e.cutImg ||e.img,
+              img: e.cutImg || e.img,
               Name: e.Name,
               MSSV: id,
             };
           });
           const promies = await Promise.all(update);
-          if (mergen.length > 0) {
+          if (merged.length > 0) {
             const index = promies.filter((e) =>
-              mergen.some((v) => v.id === e.id)
-          );
-          setConversationContext(index);
+              merged.some((v) => v.id === e.id)
+            );
+            setConversationContext(index);
+          }
+          setConversations(promies);
         }
-        setConversations(promies);
-      }
         setLoading(false);
       };
       res();

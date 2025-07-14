@@ -334,6 +334,7 @@ export default function Login() {
                   <div className="sumbit_button">
                     <div
                       onClick={handleSubmit}
+                      onEnter={handleSubmit}
                       className="sumbit"
                       id="sumbit_btn"
                       defaultValue="Đăng nhập"

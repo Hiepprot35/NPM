@@ -8,7 +8,7 @@ body {
 html {
   font-size: 13px;
     overflow-x: hidden;
-  --themeColor: white;
+  --themeColor: rgba(212, 209, 209, 0.87);
   --textColor: black;
   --widthContentHome: 75vw;
   --opacityShow: 1;

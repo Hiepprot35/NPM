@@ -214,7 +214,7 @@ export default function UserProfile(props) {
                   >
                     <div>
                       <b>
-                        {UserProfileState.Name} {auth.userID}
+                        {UserProfileState.Name}
                       </b>
                       <p>Có {gerenalFriend.mutualFriends} bạn chung</p>
                       {gerenalFriend && (

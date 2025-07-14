@@ -39,6 +39,7 @@ import { fetchVideoTitle } from "../message/windowchat.js";
 import MiniRp from "./MiniRp.js";
 import ShowImgDialog from "../message/windowchat/ShowImgMess.js";
 import { Link } from "react-router-dom";
+import Nvarbar from "../Layout/nvarbar/Nvarbar.js";
 const TitleVideo = ({ videoID, isCurrent }) => {
   const [Title, setTitle] = useState();
   const [ClickVideo, setClickVideo] = useState();
@@ -532,6 +533,8 @@ export default function DetailMovie(props) {
         <IsLoading />
       ) : (
         <>
+          {<Nvarbar></Nvarbar>}
+
           {Movies.id ? (
             <motion.div
               className="DetailMovie"

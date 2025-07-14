@@ -147,7 +147,6 @@ export default memo(function Message({
   //   }
   //   return updatedComment;
   // };
-  const [processedComment, setProcessedComment] = useState("");
   // const options = {
   //   replace: ({ name, attribs, children }) => {
   //     if (name === "div" && attribs && attribs.classname === "callMess") {
@@ -163,24 +162,6 @@ export default memo(function Message({
   //   },
   // };
 
-  useEffect(() => {
-    const processComment = async () => {
-      if (message.content) {
-        const data = message.content.split("emojiLink");
-        const processedData = data.map((e) => {
-          if (e.includes("https://cdn.jsdelivr.net")) {
-            return `<span><img alt="icon" style="width: 1rem; height: 1rem; margin: .1rem;" src="${e}"/></span>`;
-          }
-          return e; // Trả về phần tử gốc nếu không phải là URL cần kiểm tra
-        });
-        const heasdsad = processedData.join("");
-        // Hợp nhất kết quả thành một chuỗi
-        setProcessedComment(heasdsad);
-      }
-    };
-
-    processComment();
-  }, [message]);
 
   return (
     <>
@@ -291,7 +272,7 @@ export default memo(function Message({
                         </div>
                       ) : (
                         <div className="messageText center text-wrap break-all px-4 py-2">
-                          {parse(processedComment)}
+                          {parse(timeUse.parseMessage(message.content))}
                         </div>
                       )}
                     </div>

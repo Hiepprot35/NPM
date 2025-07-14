@@ -6,6 +6,7 @@ import { FiCheck } from "react-icons/fi";
 import VideoPlayer from "../chatapp/VideoPlayer";
 import { useSocket } from "../../context/socketContext";
 import { Outlet } from "react-router-dom";
+import ConversationList from "../conversation/conversationList";
 
 export default function Layout({ link, children, nvarbar }) {
   const { requestCall, setRequestCall } = useRealTime();
@@ -52,7 +53,7 @@ export default function Layout({ link, children, nvarbar }) {
   return (
     <div>
       <Header />
-      {!nvarbar && <Nvarbar></Nvarbar>}
+      <ConversationList/>
       {requestCall?.isRequesting && (
         <div className="callComing center w-screen h-screen z-10 fixed">
           <div className="p-10 bg-black rounded-2xl	">

@@ -3,134 +3,150 @@ import { FiBell } from "react-icons/fi";
 import { useSocket } from "../../context/socketContext";
 import "./belltable.css";
 import useAuth from "../../hook/useAuth";
-import {
-  fetchApiRes,
-  getStudentInfoByMSSV,
-  getUserinfobyID,
-} from "../../function/getApi";
+import { fetchApiRes } from "../../function/getApi";
 import { Popover } from "antd";
+
 function BellTable() {
   const socket = useSocket();
   const notificationRef = useRef();
+  const containerRef = useRef();
   const { auth } = useAuth();
+
   const [Clicked, setClicked] = useState(false);
-  const [notification, setNotification] = useState([]);
   const [users, setUsers] = useState([]);
-  const getNoification = async () => {
-    const res = await fetchApiRes("message/getRequestFriends", "POST", {
-      user2: auth.userID,
-    });
-    setNotification(res.result);
-  };
-  const getUsers = async () => {
-    const promises = notification.map(async (element) => {
-      let user = element.user1 !== auth.userID ? element.user1 : element.user2;
-      const data = await fetchApiRes("getStudentbyUserID", "POST", {
-        UserID: parseInt(user),
-      });
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const limit = 10;
 
-      return {
-        ...element,
-        name: data?.Name,
-        img: data?.img,
-        cutImg: data?.cutImg,
-      };
-    });
+  const loadMoreNotifications = async (reset = false) => {
+    const res = await fetchApiRes(
+      `message/getRequestFriends?limit=${limit}&page=${page}`,
+      "GET"
+    );
+    const list = res.result || [];
 
-    const ListUsers = await Promise.all(promises);
-    setUsers(ListUsers);
+    const usersMapped = await Promise.all(
+      list.map(async (element) => {
+        const user =
+          element.user1 !== auth.userID ? element.user1 : element.user2;
+        const data = await fetchApiRes("getStudentbyUserID", "POST", {
+          UserID: parseInt(user),
+        });
+
+        return {
+          ...element,
+          name: data?.Name,
+          img: data?.img,
+          cutImg: data?.cutImg,
+        };
+      })
+    );
+
+    setUsers((prev) => (reset ? usersMapped : [...prev, ...usersMapped]));
+    setHasMore(usersMapped.length === limit);
+    setPage((prev) => prev + 1);
   };
+
   useEffect(() => {
-    if (Object.keys(auth).length>0) {
-      getNoification();
+    if (Object.keys(auth).length > 0) {
+      loadMoreNotifications(true); // reset khi auth có
     }
     return () => {
       setUsers([]);
-      setNotification([]);
+      setPage(1);
     };
   }, [auth]);
 
   useEffect(() => {
     if (socket) {
-      socket.on("receiveRequest", async (values) => {
+      socket.on("receiveRequest", () => {
         document.title = `Một thông báo mới`;
-        getNoification();
+        setPage(1);
+        loadMoreNotifications(true);
       });
     }
   }, [socket]);
-  useEffect(() => {
-    notification && getUsers();
-  }, [notification]);
 
-  const [showTable, setShowTable] = useState(false);
-  const acceptHandle = async (id) => {
+  const handleScroll = () => {
+    const container = containerRef.current;
+    if (!container || !hasMore) return;
+
+    if (
+      container.scrollTop + container.clientHeight >=
+      container.scrollHeight - 10
+    ) {
+      loadMoreNotifications();
+    }
+  };
+
+  const handleAction = async (id, action) => {
     setClicked(!Clicked);
     const newUsers = users.filter((e) => e.id !== id);
     setUsers(newUsers);
-    await fetchApiRes("message/updateConversation", "POST", {
-      Requesting: false,
-      Accept: true,
-      Friend: true,
-      id: id,
-    });
-  };
-  const deleteHandle = async (id) => {
-    setClicked(!Clicked);
 
-    const newUsers = users.filter((e) => e.id !== id);
-    setUsers(newUsers);
-    await fetchApiRes("message/updateConversation", "POST", {
+    const payload = {
       Requesting: false,
-      id: id,
-    });
+      id,
+    };
+
+    if (action === "accept") {
+      payload.Accept = true;
+      payload.Friend = true;
+    }
+
+    await fetchApiRes("message/updateConversation", "POST", payload);
   };
+
   return (
     <>
       <Popover
         trigger={"click"}
         placement="bottomRight"
         content={
-            <div className="">
-              <div>
-                {users.length > 0 ? (
-                  users.map((e, i) => (
-                    <div className="infoNofi center">
+          <div
+            className="scrollContainer"
+            onScroll={handleScroll}
+            ref={containerRef}
+            style={{ maxHeight: "300px", overflowY: "auto", width: "300px" }}
+          >
+            {users.length > 0 ? (
+              users.map((e) => (
+                <div className="infoNofi center" key={e.id}>
+                  <div className="divCenterdiv">
+                    <div style={{ margin: ".5rem" }}>
+                      <img
+                        className="avatarImage"
+                        src={`${e?.cutImg || e?.img}`}
+                      />
+                    </div>
+                    <div>
+                      <p>
+                        <strong>{e.name}</strong> gửi lời mời kết bạn
+                      </p>
                       <div className="divCenterdiv">
-                        <div style={{ margin: ".5rem" }}>
-                          <img
-                            className="avatarImage"
-                            src={`${e?.cutImg || e?.img}`}
-                          ></img>
+                        <div
+                          className="button AcceptButton"
+                          onClick={() => handleAction(e.id, "accept")}
+                        >
+                          <p>Đồng ý</p>
                         </div>
-                        <div>
-                          <p>
-                            <strong>{e.name}</strong> gửi lời mời kết bạn
-                          </p>
-                          <div className="divCenterdiv">
-                            <div
-                              className="button AcceptButton"
-                              onClick={() => acceptHandle(e.id)}
-                            >
-                              <p>Đồng ý</p>
-                            </div>
-                            <div
-                              className="button"
-                              onClick={() => deleteHandle(e.id)}
-                            >
-                              <p style={{ color: "black" }}>Từ chối</p>
-                            </div>
-                          </div>
+                        <div
+                          className="button"
+                          onClick={() => handleAction(e.id, "delete")}
+                        >
+                          <p style={{ color: "black" }}>Từ chối</p>
                         </div>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <div className="infoNofi center" style={{ height: "4rem" }}>
-                    <p>Hiện tại không có thông báo mới</p>
                   </div>
-                )}
+                </div>
+              ))
+            ) : (
+              <div className="infoNofi center" style={{ height: "4rem" }}>
+                <p>Hiện tại không có thông báo mới</p>
               </div>
-            </div>
+            )}
+          </div>
         }
       >
         <div className="circleButton notification" ref={notificationRef}>
@@ -140,11 +156,12 @@ function BellTable() {
             </div>
           )}
           <span>
-            <FiBell></FiBell>
+            <FiBell />
           </span>
         </div>
       </Popover>
     </>
   );
 }
+
 export default BellTable;
