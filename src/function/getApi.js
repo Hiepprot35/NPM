@@ -77,16 +77,16 @@ export async function fetchApiRes(url, method, body, options = {}, token) {
       delete requestOptions.body;
     }
     const res = await fetch(urlApi, requestOptions);
-
+    console.log(res,"keeeeeeee")
     // Xử lý lỗi HTTP
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
-
     // Parse response
     const data = await res.json();
     return data;
   } catch (error) {
+    console.log(error)
     // Bỏ qua lỗi AbortError (nếu có AbortController)
     if (error.name !== "AbortError") {
       console.error("Error fetching API:", error);

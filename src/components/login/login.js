@@ -18,6 +18,7 @@ export const LoginGoolge = ({ children }) => {
   const { setAccessToken } = UseToken();
   const { auth, setAuth } = useAuth();
   const GoogleAuth = () => {
+    console.log('REACT_APP_DB_HOSTREACT_APP_DB_HOST')
     window.location.href = `${process.env.REACT_APP_DB_HOST}/api/auth/google/callback`;
   };
   const getUser = async () => {
@@ -304,19 +305,7 @@ export default function Login() {
                     </div>
                   </div>
                 </div>
-                <div className="forget_save_div">
-                  <div className="forget_pass">
-                    <a ref={forget_pass_text} className="forget_pass_text">
-                      Forgot Password?
-                    </a>
-                  </div>
-                  <div className="checkbox_div">
-                    <input type="checkbox" />
-                    <span className="checkbox_mk" ref={save_pass_text}>
-                      Lưu mật khẩu
-                    </span>
-                  </div>
-                </div>
+       
                 <div className="forget_save_div">
                   <div className="forget_pass">
                     <a ref={forget_pass_text} className="forget_pass_text">

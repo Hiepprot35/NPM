@@ -36,7 +36,7 @@ export default function ConversationList() {
       const newList = [...prev, c];
 
       if (newList.length > 3) {
-        const removed = newList.shift(); // bỏ phần đầu
+        const removed = newList.shift();
         setListHiddenBubble((prevHidden) => [
           ...prevHidden.filter((e) => e.id !== c.id),
           removed,
@@ -46,7 +46,6 @@ export default function ConversationList() {
       return newList;
     });
 
-    // Nếu đang có trong listHidden → xoá đi
     setListHiddenBubble((prev) => prev.filter((e) => e.id !== c.id));
   };
 
@@ -78,7 +77,6 @@ export default function ConversationList() {
   //           obj.user1 === auth.userID ? obj.user2_mask : obj.user1_mask
   //         } gửi tin nhắn`;
 
-         
   //       }
 
   //       // Play notification sound after user interaction
@@ -157,15 +155,16 @@ export default function ConversationList() {
       {/* Nút popup và danh sách */}
       <div className="flex flex-row">
         {ConversationContext.map((e, i) => (
-          <div className="w-[400px]">
-            <Windowchat key={e.id} count={e} index={i} isHidden={false} />
+          <div className='w-[400px]'>
+
+          <Windowchat key={e.id} count={e} index={i} isHidden={false} bubbleHeight={openPopup ? 42 : 6} />
           </div>
         ))}
       </div>
       <div className="flex flex-col items-end space-y-4">
         {!openPopup && (
           <div
-            className="flex items-center justify-between bg-white rounded-full px-4 py-3 shadow-2xl w-[220px] h-16 hover:bg-gray-100 cursor-pointer"
+            className="flex items-center justify-between bg-white rounded-full px-4 py-3 shadow-2xl w-[220px]  h-16 hover:bg-gray-100 cursor-pointer"
             onClick={() => setOpenPopup(true)}
           >
             <div className="flex items-center space-x-2">
@@ -186,7 +185,7 @@ export default function ConversationList() {
         )}
 
         {openPopup && (
-          <div className="w-[350px] h-[500px] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
+          <div className="w-[350px] h-[40rem] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-lg font-bold">Messages</h2>

@@ -12,7 +12,7 @@ export default function Layout({ link, children, nvarbar }) {
   const { requestCall, setRequestCall } = useRealTime();
   const socket = useSocket();
   const handleVideoCall = (userID) => {
-   console.log("openchat");
+    console.log("openchat");
     const url = `${process.env.REACT_APP_CLIENT_URL}/videocall/${userID}`;
     window.open(url, "_blank");
   };
@@ -53,29 +53,40 @@ export default function Layout({ link, children, nvarbar }) {
   return (
     <div>
       <Header />
-      <ConversationList/>
+      <ConversationList />
       {requestCall?.isRequesting && (
-        <div className="callComing center w-screen h-screen z-10 fixed">
-          <div className="p-10 bg-black rounded-2xl	">
-            <div className="flex center">
-              <p className="text-white">Call from {requestCall?.name}</p>
-              <img className="avatarImage" src={`${requestCall?.img}`}></img>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg w-[90%] max-w-md text-center space-y-4">
+            <div className="flex flex-col items-center space-y-2">
+              <img
+                src={requestCall?.img}
+                alt="Caller Avatar"
+                className="w-20 h-20 rounded-full object-cover shadow"
+              />
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                Incoming call from {requestCall?.name}
+              </p>
             </div>
-            <div className="flex">
-              <span className="circleButton" onClick={() => answerCall()}>
-                <FiCheck></FiCheck>
-              </span>
-              <span className="circleButton" onClick={() => refuseCall()}>
-                X
-              </span>
+
+            <div className="flex justify-center gap-6 pt-2">
+              <button
+                onClick={answerCall}
+                className="w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 text-white text-2xl flex items-center justify-center shadow-md transition"
+              >
+                <FiCheck />
+              </button>
+              <button
+                onClick={refuseCall}
+                className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white text-xl font-bold flex items-center justify-center shadow-md transition"
+              >
+                ✕
+              </button>
             </div>
           </div>
         </div>
-      )}{" "}
-      {/* {children} */}
-      <div style={{paddingTop:"7vh"}}>
-
-      <Outlet />
+      )}
+      <div>
+        <Outlet />
       </div>
     </div>
   );

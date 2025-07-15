@@ -177,7 +177,7 @@ export const Text = (props) => {
         {!props.hiddenText ? (
           splitText.map((e, i) => (
             <Span
-              className={props.className}
+              className={props.className + ` text-white `}
               style={props.style}
               key={i}
               e={e}
@@ -188,7 +188,7 @@ export const Text = (props) => {
           <>
             {truncatedText.map((e, i) => (
               <Span
-                className={props.className}
+                className={`${props.className} text-white`}
                 style={props.style}
                 key={i}
                 e={e}
@@ -196,7 +196,7 @@ export const Text = (props) => {
               />
             ))}
             {seeMore ? (
-              remainingText.map((e, i) => <Span e={e} i={i} />)
+              remainingText.map((e, i) => <Span e={e} i={i} className='text-white' />)
             ) : (
               <>
                 <Span

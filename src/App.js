@@ -6,7 +6,6 @@ import {
   useParams,
   useLocation,
 } from "react-router-dom";
-import Chuongtrinhdaotao from "./chuongtrinhdaotao";
 import Dashboard from "./components/Dashboard/Dashboard";
 import ChatApp from "./components/chatapp/chatApp";
 import CreateStudent from "./components/createStudent/createStudent";
@@ -36,6 +35,7 @@ import useNoti from "./hook/useNoti";
 import DetailPost from "./components/UserProfile/DetailPost";
 import CreateBlog from "./components/blog/CreateBlog";
 import WatchParty from "./components/watchRoom/watchRoom";
+import HostRoom from "./components/watchRoom/hostRoom";
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   let location = useLocation();
@@ -43,7 +43,6 @@ function App() {
   const { auth } = useAuth();
   const { RefreshToken } = UseRfLocal();
   const { AccessToken, checkAccessToken } = UseToken();
-
 
   const refreshAccessToken = useRefresh();
   useEffect(() => {
@@ -56,26 +55,24 @@ function App() {
         } catch (error) {
           setIsLoading(false);
 
-         console.log(error);
+          console.log(error);
         }
       }
       fetchData();
     }
     if (AccessToken && !RefreshToken) {
-      setIsLoading(true)
+      setIsLoading(true);
       checkAccessToken();
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }, []);
-  const {NotiText}=useNoti()
-  const [api,contextHolder]=notification.useNotification()
+  const { NotiText } = useNoti();
+  const [api, contextHolder] = notification.useNotification();
   useEffect(() => {
-    if(NotiText?.message)
-    {
-
+    if (NotiText?.message) {
       api[NotiText.type]({
-        message:NotiText?.title || 'Notification',
-        description:NotiText.message,
+        message: NotiText?.title || "Notification",
+        description: NotiText.message,
         duration: 3,
       });
     }
@@ -100,59 +97,65 @@ function App() {
       } else if (auth.role === 2) {
         return (
           <>
-              {contextHolder}
-          <div>
-            <Routes location={background || location}>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<NewFeed />} />
-                <Route path="dangkilop" element={<DangKiLopHoc />} />
-                <Route path="blog" element={<Blog />}/>
-                <Route
-                  path="chuongtrinhdaotao"
-                  element={<Chuongtrinhdaotao />}
-                />
-                <Route
-                  path="filmHome/moviedetail/:id"
-                  element={<DeltailMovieFilms />}
-                />
-                <Route path="filmHome/moviedetail/:id/:user/party" element={<WatchParty></WatchParty>}></Route>
-                <Route path="*" element={<NewFeed />}></Route>
-
-                <Route path="friends" element={<FriendList />} />
-                <Route path="films" element={<MoviesType />} />
-                <Route path="videocall" element={<VideoCall />} />
-                <Route path="message/:UserID" element={<MessageRoute />} />
-                <Route path="lichhoc" element={<ViewTimetable />} />
-                {/* <Route path="/message/:id" element={<ChatApp />} /> */}
-
-                <Route path="setting" element={<SettingAccount />} />
-                <Route path="photo" element={<PhotoPost />} />
-                <Route path={RouteLink.homeFilmLink} element={<Home />} />
-                <Route
-                  path={`${RouteLink.profileLink}/:MSSV`}
-                  element={<Profile />}
-                ></Route>
+            {contextHolder}
+            <div>
+              <Routes location={background || location}>
+                  <Route path="videocall" element={<VideoCall />} />
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<NewFeed />} />
+                  <Route path="dangkilop" element={<DangKiLopHoc />} />
+                  <Route path="blog" element={<Blog />} />
+                 
                   <Route
-                  path={`${RouteLink.profileLink}/:MSSV/post/:id`}
-                  element={<DetailPost />}
-                ></Route>
-                <Route path={'/createBlog'} element={<CreateBlog/>}></Route>
-              </Route>
-            </Routes>
+                    path="filmHome/moviedetail/:id"
+                    element={<DeltailMovieFilms />}
+                  />
+                  <Route
+                    path="filmHome/moviedetail/:id/:user/party"
+                    element={<WatchParty></WatchParty>}
+                  ></Route>
+                  <Route
+                    path="filmHome/moviedetail/host-room/:id/:user"
+                    element={<HostRoom />}
+                  />
 
-            {background && (
-              <Routes>
-                <Route path="/photo" element={<PhotoPost />} />
+                  <Route path="*" element={<NewFeed />}></Route>
+
+                  <Route path="friends" element={<FriendList />} />
+                  <Route path="films" element={<MoviesType />} />
+                  <Route path="message/:UserID" element={<MessageRoute />} />
+                  <Route path="lichhoc" element={<ViewTimetable />} />
+                  <Route path="/message/:id" element={<ChatApp />} />
+                  <Route path="/message" element={<ChatApp />} />
+
+                  <Route path="setting" element={<SettingAccount />} />
+                  <Route path="photo" element={<PhotoPost />} />
+                  <Route path={RouteLink.homeFilmLink} element={<Home />} />
+                  <Route
+                    path={`${RouteLink.profileLink}/:MSSV`}
+                    element={<Profile />}
+                  ></Route>
+                  <Route
+                    path={`${RouteLink.profileLink}/:MSSV/post/:id`}
+                    element={<DetailPost />}
+                  ></Route>
+                  <Route path={"/createBlog"} element={<CreateBlog />}></Route>
+                </Route>
               </Routes>
-            )}
-          </div>
+
+              {background && (
+                <Routes>
+                  <Route path="/photo" element={<PhotoPost />} />
+                </Routes>
+              )}
+            </div>
           </>
         );
       }
     } else {
       return (
         <Routes>
-                          <Route path={'/createBlog'} element={<CreateBlog/>}></Route>
+          <Route path={"/createBlog"} element={<CreateBlog />}></Route>
 
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Layout></Layout>}>
@@ -171,7 +174,12 @@ function App() {
       );
     }
   } else {
-    return <IsLoading className={'top-0'} text="Please wait, the data may take a moment to load for the first time."></IsLoading>;
+    return (
+      <IsLoading
+        className={"top-0"}
+        text="Please wait, the data may take a moment to load for the first time."
+      ></IsLoading>
+    );
   }
 }
 

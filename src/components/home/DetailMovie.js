@@ -1,6 +1,7 @@
 import { Popover, Rate } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { HiArrowNarrowLeft, HiArrowNarrowRight } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 
 import {
   TheMovieApi,
@@ -28,7 +29,6 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import { getDate, getNameMonth } from "../../function/getTime.js";
 import { Text } from "./listPlay.js";
 import { useInView } from "react-intersection-observer";
 import { IsLoading } from "../Loading.js";
@@ -503,13 +503,7 @@ export default function DetailMovie(props) {
     };
     getVideosUef();
   }, []);
-  const inputRef = useRef();
-  const [tagName, settagName] = useState();
 
-  const ref = useRef([]);
-  const refTag = useRef();
-
-  const deltailMovieRef = useRef();
   const variantsMovie = {
     open: {
       opacity: 1,
@@ -522,8 +516,30 @@ export default function DetailMovie(props) {
       transition: { duration: 1 },
     },
   };
-  const [isOpen, setIsOpen] = useState(false);
+    const navigate = useNavigate();
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [showInput, setShowInput] = useState(false);
+  const [roomName, setRoomName] = useState("");
+
+  const handleSubmit = async () => {
+    if (!roomName.trim()) return;
+
+    try {
+      const res = await fetchApiRes("zoomroom/createRoom", "POST", {
+        hostId: auth.userID,
+        roomName,
+        movieId: props.movieID,
+        roomId: `${props.movieID}_${auth.userID}`,
+      });
+
+      if (res.id) {
+        navigate(`./${res.id}/party`);
+      }
+    } catch (err) {
+      console.error("Lỗi tạo phòng:", err);
+    }
+  };
   useEffect(() => {
     setIsOpen(Movies !== undefined);
   }, [Movies]);
@@ -669,11 +685,30 @@ export default function DetailMovie(props) {
                           </motion.p>
                         </motion.div>
                         <p>ADD TO WATCHLIST</p>
-                        <Link to={`./${auth.userID}/party`}>
-                          <p className="cursor-pointer text-blue-500 hover:underline">
-                            WATCH PARTY
-                          </p>
-                        </Link>{" "}
+                        <button
+                          onClick={() => setShowInput(!showInput)}
+                          className=""
+                        >
+                          Create Room
+                        </button>
+
+                        {showInput && (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              placeholder="Enter room name"
+                              value={roomName}
+                              onChange={(e) => setRoomName(e.target.value)}
+                              className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full"
+                            />
+                            <button
+                              onClick={handleSubmit}
+                              className="bg-green-500 text-white px-3 py-2 text-sm rounded hover:bg-green-600"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        )}
                         <p className="font-bold text-lg mb-2">Rooms</p>
                         <div className="space-y-2">
                           {listRoom && listRoom.length > 0 ? (
@@ -685,7 +720,7 @@ export default function DetailMovie(props) {
                               >
                                 <div>
                                   <p className="font-medium">
-                                    {room.roomName || `Phòng #${index + 1}`}
+                                    {room.hostId || `Phòng #${index + 1}`}
                                   </p>
                                   <p className="text-sm text-gray-500">
                                     ID: {room.roomId}

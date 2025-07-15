@@ -36,12 +36,14 @@ function Comment({
   const countReactionHeight = 2.5;
   const [Clicked, setClicked] = useState(false);
   const getCommentReply = async () => {
+    console.log('getreppp')
     const url =
       comment.movieID > 0
         ? `/gettAllCommentFilms/?movieID=${comment.movieID}&replyID=${comment.id}`
         : `comment/getAllCommentPostByID/?replyID=${comment.id}`;
-    const res = await fetchApiRes(url);
-    if (res?.result.length > 0) {
+        const res = await fetchApiRes(url);
+        console.log(res,"dßkdkaskdasd")
+        if (res?.result.length > 0) {
       setCommentsRep(res.result);
     }
   };
@@ -233,7 +235,7 @@ function Comment({
       <div
         className={`comment ${className} ${
           isPost ? "shadow-xl" : "bg-white"
-        } cursor-pointer hover:bg-slate-100	`}
+        } cursor-pointer `}
       >
         <div className={`containerComment mr-10`}>
           <div className="headerComment">
