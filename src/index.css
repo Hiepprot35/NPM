@@ -16,7 +16,7 @@ html {
   --backgroundTextColor: rgba(34, 33, 33, 0.564);
 }
 @tailwind base;
-@tailwind components;
+/* @tailwind components; */
 @tailwind utilities;
 p,
 b,
@@ -150,10 +150,11 @@ code {
 
 .Loading_container {
   position: fixed;
+  opacity: 0.4;
+
   z-index: 999;
   left: 0;
   width: 100vw;
-  top: 7vh;
   height: 100vh;
   display: flex;
   justify-content: center;

@@ -10,6 +10,7 @@ import SuccessNotification from "../Notification/successNotifi";
 import Home from "../home/home";
 import Windowchat from "../message/windowchat";
 import MessageMainLayout from "../message/messageMainLayout";
+import { fetchApiRes } from "../../function/getApi";
 export default function SettingAccount() {
   const [userInfo, setUserInfo] = useState();
   const [inputs, setInputs] = useState();
@@ -49,17 +50,9 @@ export default function SettingAccount() {
   }, []);
   async function updateUser(proterty) {
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_DB_HOST}/api/UpdateUserID/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(proterty),
-        }
-      );
-      const resJson = await res.json();
+      const resJson = await fetchApiRes(
+        `UpdateUserID/`,'POST',proterty)
+       
       setMessRes(resJson.message);
     } catch (error) {
      console.log(error);
@@ -86,74 +79,62 @@ export default function SettingAccount() {
   };
   return (
     <>
-      <Header></Header>
-      <MessageMainLayout isHidden={true} />
-      <div className="column_form" style={{ width: "100%" }}>
-        <div className="main_layout">
-          <h2>Thông tin cá nhân</h2>
-          <div className="thongtin_coban">
-            <h3>Thông tin cơ bản</h3>
+   <div className="w-full px-6 py-8 max-w-4xl mx-auto mt-[9vh]">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6">
+      <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+        Account Settings
+      </h2>
 
-            {inputs &&
-              inputs.map(
-                (e, index) =>
-                  index < 5 && (
-                    <div
-                      className=" layout1"
-                      key={index}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-around",
-                      }}
-                    >
-                      <div
-                        className="property_user"
-                        onClick={() => clickProperty(e)}
-                      >
-                        <div style={{ display: "flex" }}>
-                          <div>{e.key}</div>
-                        </div>
-                        <div>
-                          <div>
-                            {e.key === "Birthday" ? getDate(e.value) : e.value}
-                          </div>
-                        </div>
-                      </div>
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+          Basic Information
+        </h3>
 
-                      <br></br>
-                    </div>
-                  )
-              )}
-            <div
-              className=" layout1"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-around",
-              }}
-            >
-              <div className="property_user">
-                <div style={{ display: "flex" }}>
-                  <input
-                    type="checkbox"
-                    id="myCheck"
-                    onClick={checkIsVerify}
-                  ></input>
-                  <p>Xác thực email</p>
+        {inputs &&
+          inputs.map(
+            (e, index) =>
+              index < 5 && (
+                <div
+                  key={index}
+                  className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                  onClick={() => clickProperty(e)}
+                >
+                  <div className="text-gray-600 dark:text-gray-300 font-medium w-1/3">
+                    {e.key}
+                  </div>
+                  <div className="text-gray-900 dark:text-white w-2/3 text-right">
+                    {e.key === "Birthday" ? getDate(e.value) : e.value}
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          {clicked && choosenProperty && (
-            <PropertyUser
-            setUserInfo={setUserInfo}
-              propertyUser={choosenProperty}
-              setClicked={setClicked}
-            ></PropertyUser>
+              )
           )}
+
+        {/* Email Verification */}
+        <div className="flex items-center gap-3 mt-6">
+          <input
+            type="checkbox"
+            id="verifyEmail"
+            onClick={checkIsVerify}
+            className="accent-blue-600 w-4 h-4"
+          />
+          <label
+            htmlFor="verifyEmail"
+            className="text-gray-700 dark:text-gray-200"
+          >
+            Verify Email
+          </label>
         </div>
       </div>
+
+      {clicked && choosenProperty && (
+        <PropertyUser
+          propertyUser={choosenProperty}
+          setUserInfo={setUserInfo}
+          setClicked={setClicked}
+        />
+      )}
+    </div>
+  </div>
      
     </>
   );

@@ -132,7 +132,7 @@ export default function MyPost(props) {
       }
     }
   }, [myComment]);
-  const [ShareType, setShareType] = useState(0);
+  const [ShareType, setShareType] = useState(2);
   const { setNotiText } = useNoti();
   useEffect(() => {
     console.log(ShareType);
@@ -223,7 +223,7 @@ export default function MyPost(props) {
   };
   return (
       <>
-      {isLoading && <div className="bg-indigo-600 bg-opacity-25">Loading...</div>}
+      {isLoading && <IsLoading/>}
 
       <div
         className={`w-full h-full p-6 bg-white dark:bg-slate-800 rounded-3xl shadow-md flex gap-4 ${className}`}
@@ -241,7 +241,7 @@ export default function MyPost(props) {
                 className="absolute inset-0 flex items-center px-4 text-gray-400 cursor-text"
                 onClick={() => inputRef.current.focus()}
               >
-                {myInfor.Name} ơi đang nghĩ gì thế
+                {myInfor.Name}, what are you thinking
               </div>
             )}
             <div

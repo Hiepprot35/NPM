@@ -22,7 +22,10 @@ export default function NewFeed() {
   const getNewfeed = async (pageNumber = 1) => {
     try {
       setLoading(true);
-      const {result}  = await fetchApiRes(`getNewfeed?page=${pageNumber}&limit=2`, "GET");
+      const { result } = await fetchApiRes(
+        `getNewfeed?page=${pageNumber}&limit=2`,
+        "GET"
+      );
       const mediaPromises = result.map(async (e) => {
         try {
           const data = await fetchApiRes(`comment/getMedia/?commentId=${e.id}`);
@@ -76,8 +79,8 @@ export default function NewFeed() {
 
   return (
     <>
-      <div className="w-full center flex-col">
-        <div className="w-50vw">
+      <div className="w-full center flex-col bg-gray-100">
+        <div className="w-[50vw] mt-[9vh]">
           <div className="mb-4 w-full center">
             <MyPost />
           </div>
@@ -97,8 +100,16 @@ export default function NewFeed() {
               );
             })}
 
-            {loading && <p className="text-center text-sm text-gray-500">Đang tải thêm...</p>}
-            {!hasMore && <p className="text-center text-sm text-gray-400">Đã hết bài viết.</p>}
+            {loading && (
+              <p className="text-center text-sm text-gray-500">
+                ..............
+              </p>
+            )}
+            {!hasMore && (
+              <p className="text-center text-sm text-gray-400">
+                You viewed all posts.
+              </p>
+            )}
           </div>
         </div>
       </div>

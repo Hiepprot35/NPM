@@ -62,8 +62,8 @@ export const DataProvider = ({ children }) => {
           "GET"
         );
 
-        if (isArray(data.result)) {
-          const update = data.result.map(async (e) => {
+        if (isArray(data)) {
+          const update = data.map(async (e) => {
             let id = e.user1 === auth.userID ? e.user2 : e.user1;
             // const hehe = await getInforByUserID(id);
             return {

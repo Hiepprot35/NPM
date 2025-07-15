@@ -323,13 +323,22 @@ function Header(props) {
               {Clock && city && (
                 <div className="flex items-center space-x-4 text-sm">
                   <div>
-                    <p className="text-xs">{Clock.day + ", " + Clock.month}</p>
+                    <p className="text-xl">{Clock.day + ", " + Clock.month}</p>
                     <p className="uppercase font-semibold">{city}</p>
                   </div>
-                  <div>{Clock.h + ":" + Clock.m}</div>
-                  <div className="flex items-center space-x-2">
-                    <p>{weather.temp}°C</p>
-                    <img src={weather.icon} alt={weather.weather} className="w-6 h-6" />
+                  <div className="flex items-center justify-between text-2xl space-x-4">
+                    <div>
+                      {Clock?.h}:{Clock?.m}
+                    </div>
+
+                    <div className="flex items-center space-x-2 text-base">
+                      <p>{weather.temp}°C</p>
+                      <img
+                        src={weather.icon}
+                        alt={weather.weather || "weather"}
+                        className="w-6 h-6"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -337,12 +346,15 @@ function Header(props) {
               {/* Menu Link */}
               <ul className="flex items-center space-x-6">
                 {header_Student
-                  .filter((element) => element.role.includes(auth.role) && element.return)
+                  .filter(
+                    (element) =>
+                      element.role.includes(auth.role) && element.return
+                  )
                   .map((element, index) => (
                     <li key={index}>
                       <NavLink
                         to={element.hash}
-                        className={`text-sm font-medium ${
+                        className={`text-xl font-medium ${
                           element.hash === props.hash
                             ? "text-blue-600 underline"
                             : "text-gray-800 hover:underline"
@@ -369,16 +381,14 @@ function Header(props) {
             {/* RIGHT */}
             <div className="flex items-center space-x-4">
               {/* Search */}
-              <Popover content={<p>Search Films/Movies</p>}>
-                <div className="relative" ref={refSearchButton}>
+              <Popover content={<p>Search</p>}>
+                <div className="relative center" ref={refSearchButton}>
                   <input
                     onChange={debouncedHandleSearch}
                     placeholder="Search everything"
                     className="px-4 py-1 w-52 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring focus:border-blue-300"
                   />
-                  <button onClick={searchHandle} className="absolute right-2 top-1 text-gray-700">
-                    <FiSearch />
-                  </button>
+               
                   <div className="absolute left-0 top-full">
                     <Search query={SearchQuery} />
                   </div>
@@ -401,7 +411,9 @@ function Header(props) {
                 placement="bottomRight"
                 content={
                   <div className="w-80 max-h-[60vh] overflow-y-auto p-2">
-                    <h1 className="text-lg font-semibold mb-2">Đoạn chat</h1>
+                    <h1 className="text-lg font-semibold mb-2">
+                      Conversations
+                    </h1>
                     <input
                       placeholder="Search for friends"
                       className="w-full px-2 py-1 mb-2 border rounded"
@@ -409,15 +421,21 @@ function Header(props) {
                     {Conversations?.length > 0 ? (
                       Conversations.map((c) => (
                         <div key={c.id} className="py-1">
-                          <Conversation conversation={c} currentUser={auth.userID} />
+                          <Conversation
+                            conversation={c}
+                            currentUser={auth.userID}
+                          />
                         </div>
                       ))
                     ) : (
                       <p>Loading...</p>
                     )}
                     <div className="text-center mt-2">
-                      <NavLink to={`${process.env.REACT_APP_CLIENT_URL}/message`} className="text-blue-600 hover:underline">
-                        Xem thêm trong messages
+                      <NavLink
+                        to={`${process.env.REACT_APP_CLIENT_URL}/message`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        View more
                       </NavLink>
                     </div>
                   </div>
@@ -454,12 +472,10 @@ function Header(props) {
                 </Popover>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <LoginGoolge>
-                    <span className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200">
-                      <IoLogoGoogle />
-                    </span>
-                  </LoginGoolge>
-                  <NavLink to="/login" className="text-sm font-medium text-blue-600 hover:underline">
+                  <NavLink
+                    to="/login"
+                    className="text-sm font-medium text-blue-600 hover:underline"
+                  >
                     Login
                   </NavLink>
                 </div>

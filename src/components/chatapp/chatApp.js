@@ -127,7 +127,7 @@ const ChatApp = ({ UserID }) => {
   return (
     <>
       {
-        <div className="Container_ChatApp">
+        <div className="Container_ChatApp mt-[9vh]">
           <div className="Narbar_ChatApp ">
             <h1 className="text-2xl font-semibold m-4">Conversations</h1>
             <input

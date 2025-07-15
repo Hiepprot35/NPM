@@ -1318,7 +1318,7 @@ export const header_Student = [
     return: <FiMessageCircle></FiMessageCircle>,
   },
   {
-    name: "Films",
+    name: "Movie",
     hash: RouteLink.homeFilmLink,
     role: [1, 2],
     return: <FiMessageCircle></FiMessageCircle>,

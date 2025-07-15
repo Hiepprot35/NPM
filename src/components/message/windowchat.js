@@ -57,7 +57,7 @@ export const fetchVideoTitle = async (videoID) => {
   }
 };
 
-  export default memo(function WindowChat(props) {
+export default memo(function WindowChat(props) {
   const { setNotiText } = useNoti();
   const { auth, myInfor } = useAuth();
   const [arrivalMessage, setArrivalMessage] = useState(null);
@@ -352,13 +352,26 @@ export const fetchVideoTitle = async (videoID) => {
     });
   }
 
-  const showHiddenConver = (e) => {
-    setListWindow((pre) => {
-      const data = [...pre];
-      data.push({ id: e.id });
-      return data;
+  const showHiddenConver = (c) => {
+    setListWindow((prev) => {
+      const exists = prev.some((e) => e.id === c.id);
+
+      if (exists) return prev;
+
+      const newList = [...prev, c];
+
+      if (newList.length > 3) {
+        const removed = newList.shift();
+        setListHiddenBubble((prevHidden) => [
+          ...prevHidden.filter((e) => e.id !== c.id),
+          removed,
+        ]);
+      }
+
+      return newList;
     });
-    closeHiddenWindow(e);
+
+    setListHiddenBubble((prev) => prev.filter((e) => e.id !== c.id));
   };
   function hiddenWindowHandle(c) {
     setListWindow(listWindow.filter((item) => item.id !== c.id));
@@ -601,7 +614,6 @@ export const fetchVideoTitle = async (videoID) => {
     updateMessages();
   }, [arrivalMessage, conversation]);
 
-
   useEffect(() => {
     setMessages([]);
     setImgMess([]);
@@ -722,7 +734,7 @@ export const fetchVideoTitle = async (videoID) => {
         <>
           {(listWindow.some((e) => e.id === conversation.id) ||
             props.chatApp) && (
-            <div className="flex  h-full w-full">
+            <div className="flex  h-full ">
               <div
                 className={`h-full windowchat w-full`}
                 ref={windowchat}
@@ -759,8 +771,8 @@ export const fetchVideoTitle = async (videoID) => {
                                     className="avatarImage liner"
                                     alt="Avatar"
                                     src={
-                                      conversation.img ||
                                       userInfor?.cutImg ||
+                                      conversation.img ||
                                       userInfor?.img
                                     }
                                   ></Image>
@@ -852,13 +864,13 @@ export const fetchVideoTitle = async (videoID) => {
                 </div>
 
                 <div
-                  className="Body_Chatpp relative flex flex-col justify-evenly relative	  "
-                  style={props.chatApp ? { height: "93%" } : { height: "45vh" }}
+                  className={`Body_Chatpp relative flex flex-col justify-evenly ${
+                    props.chatApp ? "h-full" : "h-[45vh]"
+                  }`}
                 >
                   <div
                     className="w-full absolute inset-0 z-0 bg-contain"
                     style={{
-                      height: "90%",
                       background: `url(${conversation.background})`,
                       filter: " blur(1px)",
                     }}
@@ -882,8 +894,8 @@ export const fetchVideoTitle = async (videoID) => {
                                 own={message.sender_id === auth.userID}
                                 student={{
                                   img:
+                                  userInfor?.cutImg ||
                                     conversation?.img ||
-                                    userInfor?.cutImg ||
                                     userInfor?.img,
                                 }}
                                 isTyping={IsTyping}
@@ -907,9 +919,7 @@ export const fetchVideoTitle = async (videoID) => {
                         </div>
                       )}
                     </div>
-                    <div
-                      className="inputValue windowchat_feature center"
-                    >
+                    <div className="inputValue windowchat_feature center">
                       <div className="feature_left center">
                         <input
                           onChange={(e) => {
@@ -1135,7 +1145,7 @@ export const fetchVideoTitle = async (videoID) => {
                   className="hiddenBubble"
                   style={{
                     bottom: `${
-                      4.4 +
+                      props.bubbleHeight +
                       3.2 *
                         listHiddenBubble.findIndex(
                           (e) => e.id === conversation.id
@@ -1160,9 +1170,9 @@ export const fetchVideoTitle = async (videoID) => {
                       loading="lazy"
                       src={
                         props.currentUser?.cutImg ||
+                        userInfor?.cutImg ||
                         props.currentUser?.img ||
                         conversation.img ||
-                        userInfor?.cutImg ||
                         userInfor?.img
                       }
                     ></Image>
